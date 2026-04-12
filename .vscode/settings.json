@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^cd /home/ning/Graduation-Thesis && mv \"kế hoạch xây dựng\\.md\" \"kế hoạch snort-based\\.md\" && mv \"CLAUDE/SKILL_C_LIBPCAP\\.md\" \"CLAUDE/SKILL_SNORT_PIPELINE\\.md\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
