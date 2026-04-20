@@ -1,0 +1,3 @@
+.venv/
+MLAnomalyDetection/cleanedBinary_KddTrain+_SMOTE.csv
+MLAnomalyDetection/cleaned5Grouped_KddTrain+_SMOTE.csv
