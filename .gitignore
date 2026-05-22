@@ -1,3 +1,45 @@
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments and local env files
 .venv/
+venv/
+env/
+.env
+.env.*
+
+# Editor and OS files
+.vscode/*.code-workspace
+.DS_Store
+Thumbs.db
+
+# Runtime logs
+*.log
+final/log/
+
+# Model checkpoints and generated inference outputs
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.joblib
+*.pkl
+*predictions*.csv
+
+# Training outputs and generated datasets
+MLAnomalyDetection/outputs/
 MLAnomalyDetection/cleanedBinary_KddTrain+_SMOTE.csv
 MLAnomalyDetection/cleaned5Grouped_KddTrain+_SMOTE.csv
+MLAnomalyDetection/cleaned5Grouped_KddTest+_SMOTE.csv
+MLAnomalyDetection/cleaned5Grouped_v2_KddTrain+_SMOTE.csv
+MLAnomalyDetection/cleaned5Grouped_v2_KddTest+_SMOTE.csv
+CIC-IDS- 2017_dataset/
+
+# Notebook checkpoints
+.ipynb_checkpoints/

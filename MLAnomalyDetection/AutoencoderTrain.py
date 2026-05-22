@@ -1,15 +1,22 @@
-import pandas as pd
+import pickle
+from pathlib import Path
+
+import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.model_selection import train_test_split
+import pandas as pd
 from sklearn.metrics import classification_report, roc_auc_score, roc_curve
 from sklearn.preprocessing import MinMaxScaler
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Dense
 from tensorflow.keras.callbacks import EarlyStopping
-import matplotlib.pyplot as plt
+from tensorflow.keras.layers import Input, Dense
+from tensorflow.keras.models import Model
+
+
+BASE_DIR = Path(__file__).resolve().parent
+OUTPUT_DIR = BASE_DIR / 'outputs' / 'autoencoder'
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # === Load & prepare data ===
-df = pd.read_csv("cleaned5Grouped_KddTrain+.csv")
+df = pd.read_csv(BASE_DIR / 'cleaned5Grouped_v2_KddTrain+.csv')
 
 # Binary labels: Normal = 0, Attack = 1
 df['binary_label'] = df['label'].apply(lambda x: 0 if x == 0 else 1)
@@ -58,12 +65,13 @@ history = autoencoder.fit(X_train, X_train,
                           verbose=1,
                           callbacks=[early_stop])
 
-# === Save the trained model and scaler for future use ===
-import pickle
 autoencoder.save("autoencoder_model.h5")
-with open("scaler.pkl", "wb") as f:
+# === Save the trained model and scaler for future use ===
+autoencoder.save(OUTPUT_DIR / 'autoencoder_model.h5')
+with open(OUTPUT_DIR / 'scaler.pkl', 'wb') as f:
     pickle.dump(scaler, f)
-print("Model saved as 'autoencoder_model.h5' and scaler saved as 'scaler.pkl'")
+print(f"Model saved to {OUTPUT_DIR / 'autoencoder_model.h5'}")
+print(f"Scaler saved to {OUTPUT_DIR / 'scaler.pkl'}")
 
 # === Calculate reconstruction error ===
 X_test_pred = autoencoder.predict(X_test)
@@ -93,4 +101,5 @@ plt.title("ROC Curve - Autoencoder")
 plt.legend()
 plt.grid()
 plt.tight_layout()
+plt.savefig(OUTPUT_DIR / 'autoencoder_roc_curve.png', dpi=300, bbox_inches='tight')
 plt.show()

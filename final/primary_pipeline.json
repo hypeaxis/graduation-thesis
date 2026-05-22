@@ -1,0 +1,39 @@
+{
+  "active_pipeline": "41-feature",
+  "description": "Primary NSL-KDD pipeline using 38 numeric features and embeddings for 3 categorical features.",
+  "train_entrypoint": "/home/ning/Graduation-Thesis/MLAnomalyDetection/train_main_pipeline.py",
+  "snort_preprocess_entrypoint": "/home/ning/Graduation-Thesis/final/snort_preprocess.py",
+  "snort_inference_entrypoint": "/home/ning/Graduation-Thesis/final/snort_inference.py",
+  "checkpoint_path": "/home/ning/Graduation-Thesis/MLAnomalyDetection/outputs/tabular_transformer_41emb/models/best_model.pt",
+  "inference_config_path": "/home/ning/Graduation-Thesis/MLAnomalyDetection/outputs/tabular_transformer_41emb/models/inference_config.json",
+  "results_summary_path": "/home/ning/Graduation-Thesis/MLAnomalyDetection/outputs/tabular_transformer_41emb/results/training_summary.json",
+  "metrics": {
+    "best_epoch": 7,
+    "best_val_macro_f1": 0.7464646625231082,
+    "test_accuracy": 0.8017922100967083,
+    "test_macro_f1": 0.6632157296354305,
+    "test_weighted_f1": 0.7894882161472069,
+    "test_macro_precision": 0.7354037043874042,
+    "test_macro_recall": 0.6649466662717282
+  },
+  "model": {
+    "name": "TabularTransformer41Emb",
+    "num_numeric_features": 38,
+    "categorical_columns": ["protocol_type", "service", "flag"],
+    "categorical_cardinalities": [4, 71, 12],
+    "num_classes": 5,
+    "class_names": ["Normal", "DoS", "Probe", "R2L", "U2R"],
+    "d_model": 128,
+    "num_heads": 8,
+    "num_layers": 4,
+    "d_ff": 512,
+    "dropout": 0.1,
+    "focal_gamma": 2.0,
+    "batch_size": 512,
+    "learning_rate": 0.0001,
+    "weight_decay": 0.0001,
+    "patience": 8,
+    "val_size": 0.15,
+    "seed": 42
+  }
+}

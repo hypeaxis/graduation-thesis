@@ -1,0 +1,60 @@
+{
+  "raw_label_counts": {
+    "normal": 67343,
+    "neptune": 41214,
+    "satan": 3633,
+    "ipsweep": 3599,
+    "portsweep": 2931,
+    "smurf": 2646,
+    "nmap": 1493,
+    "back": 956,
+    "teardrop": 892,
+    "warezclient": 890,
+    "pod": 201,
+    "guess_passwd": 53,
+    "buffer_overflow": 30,
+    "warezmaster": 20,
+    "land": 18,
+    "imap": 11,
+    "rootkit": 10,
+    "loadmodule": 9,
+    "ftp_write": 8,
+    "multihop": 7,
+    "phf": 4,
+    "perl": 3,
+    "spy": 2
+  },
+  "unknown_label_counts": {},
+  "known_rows": 125973,
+  "unknown_rows": 0,
+  "balance_method": "tiered_random_oversample",
+  "rows_before_balance": 125973,
+  "rows_after_balance": 142270,
+  "balance_target_rules": {
+    "count_gte_20000": "keep_original_count",
+    "5000_to_19999": "raise_to_20000",
+    "500_to_4999": "raise_to_8000",
+    "count_lt_500": "raise_to_1000"
+  },
+  "target_counts_by_label": {
+    "Normal": 67343,
+    "DoS": 45927,
+    "Probe": 20000,
+    "R2L": 8000,
+    "U2R": 1000
+  },
+  "label_counts_before_balance": {
+    "Normal": 67343,
+    "DoS": 45927,
+    "Probe": 11656,
+    "R2L": 995,
+    "U2R": 52
+  },
+  "label_counts_after_balance": {
+    "Normal": 67343,
+    "DoS": 45927,
+    "Probe": 20000,
+    "R2L": 8000,
+    "U2R": 1000
+  }
+}

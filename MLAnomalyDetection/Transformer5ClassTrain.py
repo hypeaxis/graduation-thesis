@@ -289,7 +289,7 @@ class Transformer5ClassClassifier:
         
         return np.array(predictions), np.array(probabilities)
     
-    def evaluate(self, X_test, y_test):
+    def evaluate(self, X_test, y_test, output_dir='.'):
         """Evaluate model performance"""
         predictions, probabilities = self.predict(X_test)
         
@@ -313,17 +313,22 @@ class Transformer5ClassClassifier:
         plt.ylabel('Actual')
         plt.xlabel('Predicted')
         plt.tight_layout()
-        plt.savefig('transformer_5class_confusion_matrix.png', dpi=300, bbox_inches='tight')
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+        plt.savefig(output_path / 'transformer_5class_confusion_matrix.png', dpi=300, bbox_inches='tight')
         plt.show()
         
         return report, cm
 
 def main():
     print("=== Transformer 5-Class Classification ===")
+    base_dir = Path(__file__).resolve().parent
+    output_dir = base_dir / 'outputs' / 'transformer'
+    output_dir.mkdir(parents=True, exist_ok=True)
     
     # Load data
-    train_df = pd.read_csv("cleaned5Grouped_v2_KddTrain+.csv")
-    test_df = pd.read_csv("cleaned5Grouped_v2_KddTest+.csv")
+    train_df = pd.read_csv(base_dir / 'cleaned5Grouped_v2_KddTrain+.csv')
+    test_df = pd.read_csv(base_dir / 'cleaned5Grouped_v2_KddTest+.csv')
     
     # Prepare data
     X_train = train_df.drop('label', axis=1).values
@@ -356,7 +361,7 @@ def main():
     )
     
     print("Evaluating model...")
-    report, cm = transformer_model.evaluate(X_test, y_test)
+    report, cm = transformer_model.evaluate(X_test, y_test, output_dir=str(output_dir))
 
     baseline_metrics = {
         'accuracy': report.get('accuracy', 0.0),
@@ -369,10 +374,10 @@ def main():
         'u2r_f1': report.get('U2R', {}).get('f1-score', 0.0),
     }
 
-    with open('transformer_v2_baseline_metrics.json', 'w', encoding='utf-8') as f:
+    with open(output_dir / 'transformer_v2_baseline_metrics.json', 'w', encoding='utf-8') as f:
         json.dump(baseline_metrics, f, ensure_ascii=True, indent=2)
 
-    print('Saved baseline metrics to transformer_v2_baseline_metrics.json')
+    print(f'Saved baseline metrics to {output_dir / "transformer_v2_baseline_metrics.json"}')
     
     # Plot training history
     plt.figure(figsize=(15, 5))
@@ -410,13 +415,13 @@ def main():
     plt.ylabel('F1-score')
     
     plt.tight_layout()
-    plt.savefig('transformer_5class_training_analysis.png', dpi=300, bbox_inches='tight')
+    plt.savefig(output_dir / 'transformer_5class_training_analysis.png', dpi=300, bbox_inches='tight')
     plt.show()
     
     print("Transformer 5-Class Classification Complete!")
     
     # Save model
-    torch.save(transformer_model.model.state_dict(), 'transformer_5class_model.pth')
+    torch.save(transformer_model.model.state_dict(), output_dir / 'transformer_5class_model.pth')
     print("Model saved!")
 
 if __name__ == "__main__":
