@@ -13,7 +13,7 @@ import seaborn as sns
 import torch
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
 from tqdm import tqdm
 
 from phase2_ft_transformer import FTTransformer, FocalLoss
@@ -45,6 +45,17 @@ def parse_args() -> ArgumentParser:
     parser.add_argument('--d-ff', type=int, default=512)
     parser.add_argument('--dropout', type=float, default=0.1)
     parser.add_argument('--gamma', type=float, default=2.0)
+    parser.add_argument(
+        '--focal-alpha',
+        type=str,
+        default='class-balanced',
+        help='Scalar alpha, comma-separated per-class alpha list, or class-balanced.',
+    )
+    parser.add_argument('--class-balanced-beta', type=float, default=0.9999)
+    parser.add_argument('--sampler', choices=['none', 'weighted'], default='weighted')
+    parser.add_argument('--num-workers', type=int, default=0)
+    parser.add_argument('--save-dir', type=str, default=None)
+    parser.add_argument('--results-dir', type=str, default=None)
     parser.add_argument('--seed', type=int, default=42)
     return parser.parse_args()
 
@@ -105,24 +116,70 @@ def load_datasets(data_dir: Path, val_size: float, seed: int):
     }
 
 
-def build_alpha(y_train: np.ndarray, num_classes: int) -> list[float]:
-    counts = np.bincount(y_train, minlength=num_classes).astype(np.float64)
-    counts[counts == 0] = 1.0
-    weights = counts.sum() / (num_classes * counts)
-    weights = weights / weights.mean()
-    return weights.tolist()
+def build_train_sampler(train_targets: np.ndarray, strategy: str, seed: int):
+    if strategy == 'none':
+        return None
+    if strategy != 'weighted':
+        raise ValueError(f'Unsupported sampler strategy: {strategy}')
+
+    class_counts = np.bincount(train_targets)
+    class_weights = np.zeros_like(class_counts, dtype=np.float64)
+    nonzero_mask = class_counts > 0
+    class_weights[nonzero_mask] = 1.0 / class_counts[nonzero_mask]
+    sample_weights = class_weights[train_targets]
+
+    generator = torch.Generator()
+    generator.manual_seed(seed)
+    return WeightedRandomSampler(
+        weights=torch.as_tensor(sample_weights, dtype=torch.double),
+        num_samples=len(sample_weights),
+        replacement=True,
+        generator=generator,
+    )
 
 
-def create_loaders(dataset_bundle: dict, batch_size: int, device: torch.device):
+def resolve_focal_alpha(alpha_arg: str, train_targets: np.ndarray, num_classes: int, beta: float):
+    alpha_arg = str(alpha_arg).strip()
+
+    if alpha_arg.lower() == 'class-balanced':
+        class_counts = np.bincount(train_targets, minlength=num_classes).astype(np.float64)
+        effective_num = np.ones_like(class_counts)
+        nonzero_mask = class_counts > 0
+        effective_num[nonzero_mask] = 1.0 - np.power(beta, class_counts[nonzero_mask])
+
+        alpha = np.zeros_like(class_counts, dtype=np.float64)
+        alpha[nonzero_mask] = (1.0 - beta) / np.clip(effective_num[nonzero_mask], 1e-12, None)
+        alpha[nonzero_mask] = alpha[nonzero_mask] / alpha[nonzero_mask].sum() * nonzero_mask.sum()
+        return alpha.astype(np.float32).tolist(), 'class-balanced'
+
+    if ',' in alpha_arg:
+        values = [float(item.strip()) for item in alpha_arg.split(',') if item.strip()]
+        if len(values) != num_classes:
+            raise ValueError(f'Expected {num_classes} alpha values, got {len(values)}')
+        return values, 'per-class'
+
+    return float(alpha_arg), 'scalar'
+
+
+def create_loaders(dataset_bundle: dict, batch_size: int, device: torch.device, sampler_strategy: str, seed: int, num_workers: int):
     pin_memory = device.type == 'cuda'
     train_dataset = TabularDataset(*dataset_bundle['train'])
     val_dataset = TabularDataset(*dataset_bundle['val'])
     test_dataset = TabularDataset(*dataset_bundle['test'])
 
+    train_sampler = build_train_sampler(dataset_bundle['train'][1], sampler_strategy, seed)
+
     return {
-        'train': DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=pin_memory),
-        'val': DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=0, pin_memory=pin_memory),
-        'test': DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=0, pin_memory=pin_memory),
+        'train': DataLoader(
+            train_dataset,
+            batch_size=batch_size,
+            shuffle=train_sampler is None,
+            sampler=train_sampler,
+            num_workers=num_workers,
+            pin_memory=pin_memory,
+        ),
+        'val': DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=pin_memory),
+        'test': DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=pin_memory),
     }
 
 
@@ -245,9 +302,10 @@ def main() -> None:
     set_seed(args.seed)
 
     base_dir = Path(__file__).resolve().parent
-    output_dir = base_dir / 'outputs' / 'ft_transformer_nslkdd'
-    model_dir = output_dir / 'models'
-    results_dir = output_dir / 'results'
+    default_output_dir = base_dir / 'outputs' / 'ft_transformer_nslkdd'
+    model_dir = Path(args.save_dir) if args.save_dir else default_output_dir / 'models'
+    results_dir = Path(args.results_dir) if args.results_dir else default_output_dir / 'results'
+    output_dir = model_dir.parent
     model_dir.mkdir(parents=True, exist_ok=True)
     results_dir.mkdir(parents=True, exist_ok=True)
 
@@ -259,12 +317,24 @@ def main() -> None:
         device = torch.device('cpu')
 
     dataset_bundle = load_datasets(base_dir, args.val_size, args.seed)
-    loaders = create_loaders(dataset_bundle, args.batch_size, device)
+    loaders = create_loaders(
+        dataset_bundle,
+        args.batch_size,
+        device,
+        args.sampler,
+        args.seed,
+        args.num_workers,
+    )
     class_names = dataset_bundle['class_names']
     num_classes = dataset_bundle['num_classes']
     num_features = dataset_bundle['num_features']
 
-    alpha = build_alpha(dataset_bundle['train'][1], num_classes)
+    alpha, focal_alpha_mode = resolve_focal_alpha(
+        args.focal_alpha,
+        dataset_bundle['train'][1],
+        num_classes,
+        args.class_balanced_beta,
+    )
 
     model = FTTransformer(
         num_features=num_features,
@@ -294,7 +364,12 @@ def main() -> None:
     print(f'Using device: {device}')
     print(f'Num features: {num_features}, Num classes: {num_classes}')
     print(f'Class names: {class_names}')
-    print(f'Focal alpha: {[round(value, 4) for value in alpha]}')
+    print(f'Focal alpha mode: {focal_alpha_mode}')
+    if isinstance(alpha, list):
+        print(f'Focal alpha: {[round(value, 4) for value in alpha]}')
+    else:
+        print(f'Focal alpha: {alpha}')
+    print(f'Sampler: {args.sampler}')
     print(f'Train/Val/Test sizes: {len(dataset_bundle["train"][1])}/{len(dataset_bundle["val"][1])}/{len(dataset_bundle["test"][1])}')
 
     for epoch in range(1, args.epochs + 1):
@@ -352,6 +427,7 @@ def main() -> None:
         'test_weighted_f1': metrics['weighted_f1'],
         'test_macro_precision': metrics['macro_precision'],
         'test_macro_recall': metrics['macro_recall'],
+        'focal_alpha_mode': focal_alpha_mode,
         'num_features': num_features,
         'num_classes': num_classes,
         'total_params': sum(parameter.numel() for parameter in model.parameters()),

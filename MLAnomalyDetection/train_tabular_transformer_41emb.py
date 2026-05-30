@@ -49,11 +49,11 @@ class MixedTabularDataset(Dataset):
 
 def parse_args():
     parser = ArgumentParser(description='Train Transformer with categorical embeddings on logical 41-feature NSL-KDD data')
-    parser.add_argument('--epochs', type=int, default=40)
+    parser.add_argument('--epochs', type=int, default=20)
     parser.add_argument('--batch-size', type=int, default=256)
     parser.add_argument('--lr', type=float, default=1e-4)
     parser.add_argument('--weight-decay', type=float, default=1e-4)
-    parser.add_argument('--patience', type=int, default=8)
+    parser.add_argument('--patience', type=int, default=4)
     parser.add_argument('--val-size', type=float, default=0.15)
     parser.add_argument('--d-model', type=int, default=128)
     parser.add_argument('--num-heads', type=int, default=8)
