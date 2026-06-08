@@ -43,3 +43,27 @@ CIC-IDS- 2017_dataset/
 
 # Notebook checkpoints
 .ipynb_checkpoints/
+
+# Ignore heavy legacy datasets
+nsl-kdd-master/
+A-study-on-NSL-KDD-dataset-for-intrusion-detection-system-using-DNN-main/
+
+# Ignore all generated CSVs and Text datasets by default
+*.csv
+MLAnomalyDetection/MLAnomalyDetection/*.txt
+
+# Exceptions to exclusions
+!final/snort_features_122.csv
+!MLAnomalyDetection/artifacts_preprocess*/*.json
+!IDS_Final_Product/models/*.json
+
+# Allow tracking of the final product's models
+!IDS_Final_Product/models/*.pt
+!IDS_Final_Product/models/*.h5
+!IDS_Final_Product/models/*.pkl
+
+# Ignore logs and virtual environments of final product
+IDS_Final_Product/log/
+IDS_Final_Product/backend/.venv/
+IDS_Final_Product/.venv/
+MLAnomalyDetection/MLAnomalyDetection/

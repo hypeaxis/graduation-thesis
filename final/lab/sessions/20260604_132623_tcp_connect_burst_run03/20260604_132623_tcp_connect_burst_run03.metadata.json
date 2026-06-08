@@ -1,0 +1,15 @@
+{
+  "session_id": "20260604_132623_tcp_connect_burst_run03",
+  "scenario": "tcp_connect_burst",
+  "target_host": "127.0.0.1",
+  "iterations": 25,
+  "capture_enabled": 1,
+  "interface": "lo",
+  "capture_filter": "",
+  "start_time_utc": "2026-06-04T13:26:23Z",
+  "end_time_utc": "2026-06-04T13:26:28Z",
+  "duration_seconds": 5,
+  "host": "DESKTOP-CLDETRG",
+  "project_root": "/home/ning/Graduation-Thesis",
+  "notes": "Authorized defensive lab session"
+}

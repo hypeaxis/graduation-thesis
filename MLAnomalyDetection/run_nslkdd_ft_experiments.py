@@ -33,6 +33,7 @@ def parse_args():
 
 def build_experiments():
     return [
+        # === Original v1 experiments (preserved) ===
         {
             'name': 'nslkdd_ft_baseline_seed42',
             'seed': 42,
@@ -63,6 +64,208 @@ def build_experiments():
             'seed': 42,
             'params': {'sampler': 'weighted', 'focal-alpha': 'class-balanced', 'dropout': '0.2'},
         },
+        {
+            'name': 'nslkdd_ft_overfit_guard_seed42',
+            'seed': 42,
+            'params': {
+                'sampler': 'weighted',
+                'focal-alpha': 'class-balanced',
+                'mixup-alpha': '0.2',
+                'selection-gap-penalty': '0.3',
+                'max-train-val-gap': '0.12',
+                'gap-patience': '3',
+            },
+        },
+        {
+            'name': 'nslkdd_ft_overfit_guard_seed62',
+            'seed': 62,
+            'params': {
+                'sampler': 'weighted',
+                'focal-alpha': 'class-balanced',
+                'mixup-alpha': '0.2',
+                'selection-gap-penalty': '0.3',
+                'max-train-val-gap': '0.12',
+                'gap-patience': '3',
+            },
+        },
+        # === v2 experiments (new) ===
+        {
+            'name': 'v2_smote_custom_seed42',
+            'seed': 42,
+            'params': {
+                'sampler': 'weighted',
+                'focal-alpha': 'class-balanced',
+                'smote-strategy': 'custom',
+            },
+        },
+        {
+            'name': 'v2_smote_custom_seed62',
+            'seed': 62,
+            'params': {
+                'sampler': 'weighted',
+                'focal-alpha': 'class-balanced',
+                'smote-strategy': 'custom',
+            },
+        },
+        {
+            'name': 'v2_smote_ls01_seed42',
+            'seed': 42,
+            'params': {
+                'sampler': 'weighted',
+                'focal-alpha': 'class-balanced',
+                'smote-strategy': 'custom',
+                'label-smoothing': '0.1',
+            },
+        },
+        {
+            'name': 'v2_smote_cosine_seed42',
+            'seed': 42,
+            'params': {
+                'sampler': 'weighted',
+                'focal-alpha': 'class-balanced',
+                'smote-strategy': 'custom',
+                'scheduler': 'cosine',
+            },
+        },
+        {
+            'name': 'v2_grouped_smote_seed42',
+            'seed': 42,
+            'params': {
+                'model-version': 'v2',
+                'sampler': 'weighted',
+                'focal-alpha': 'class-balanced',
+                'smote-strategy': 'custom',
+                'd-model': '192',
+                'dropout': '0.15',
+            },
+        },
+        {
+            'name': 'v2_grouped_smote_seed62',
+            'seed': 62,
+            'params': {
+                'model-version': 'v2',
+                'sampler': 'weighted',
+                'focal-alpha': 'class-balanced',
+                'smote-strategy': 'custom',
+                'd-model': '192',
+                'dropout': '0.15',
+            },
+        },
+        {
+            'name': 'v2_full_combo_seed42',
+            'seed': 42,
+            'params': {
+                'model-version': 'v2',
+                'sampler': 'weighted',
+                'focal-alpha': 'class-balanced',
+                'smote-strategy': 'custom',
+                'label-smoothing': '0.05',
+                'scheduler': 'cosine',
+                'd-model': '192',
+                'dropout': '0.15',
+            },
+        },
+        {
+            'name': 'v2_full_combo_seed62',
+            'seed': 62,
+            'params': {
+                'model-version': 'v2',
+                'sampler': 'weighted',
+                'focal-alpha': 'class-balanced',
+                'smote-strategy': 'custom',
+                'label-smoothing': '0.05',
+                'scheduler': 'cosine',
+                'd-model': '192',
+                'dropout': '0.15',
+            },
+        },
+        # === v3 experiments (new) ===
+        {
+            'name': 'v3_reg_dropout03_seed62',
+            'seed': 62,
+            'params': {
+                'model-version': 'v1',
+                'sampler': 'weighted',
+                'focal-alpha': 'class-balanced',
+                'dropout': '0.3',
+            },
+        },
+        {
+            'name': 'v3_reg_wd1e3_seed62',
+            'seed': 62,
+            'params': {
+                'model-version': 'v1',
+                'sampler': 'weighted',
+                'focal-alpha': 'class-balanced',
+                'weight-decay': '1e-3',
+            },
+        },
+        {
+            'name': 'v3_mixup02_seed62',
+            'seed': 62,
+            'params': {
+                'model-version': 'v1',
+                'sampler': 'weighted',
+                'focal-alpha': 'class-balanced',
+                'mixup-alpha': '0.2',
+            },
+        },
+        {
+            'name': 'v3_focal_gamma3_seed62',
+            'seed': 62,
+            'params': {
+                'model-version': 'v1',
+                'sampler': 'weighted',
+                'focal-alpha': 'class-balanced',
+                'gamma': '3.0',
+            },
+        },
+        {
+            'name': 'v3_full_reg_seed62',
+            'seed': 62,
+            'params': {
+                'model-version': 'v1',
+                'sampler': 'weighted',
+                'focal-alpha': 'class-balanced',
+                'dropout': '0.2',
+                'weight-decay': '1e-3',
+                'mixup-alpha': '0.2',
+                'gamma': '3.0',
+            },
+        },
+        {
+            'name': 'v3_cicids_params_seed62',
+            'seed': 62,
+            'params': {
+                'model-version': 'v1',
+                'sampler': 'weighted',
+                'focal-alpha': '0.25',
+                'batch-size': '512',
+                'weight-decay': '1e-5',
+            },
+        },
+        # === v4 experiments (new) ===
+        {
+            'name': 'v4_feature_selection_top90_seed42',
+            'seed': 42,
+            'params': {
+                'model-version': 'v1',
+                'sampler': 'weighted',
+                'focal-alpha': 'class-balanced',
+                'use-selected-features': True,
+            },
+        },
+        # === v5 experiments (Two-Stage) ===
+        {
+            'name': 'v5_two_stage_4class_seed42',
+            'seed': 42,
+            'params': {
+                'model-version': 'v1',
+                'sampler': 'weighted',
+                'focal-alpha': 'class-balanced',
+                'task-type': '4-class-attack',
+            },
+        },
     ]
 
 
@@ -81,7 +284,10 @@ def build_command(train_script: Path, run_root: Path, run: dict, extra_args: lis
     ]
 
     for key, value in run['params'].items():
-        command.extend([f'--{key}', str(value)])
+        if value is True or value is None:
+            command.append(f'--{key}')
+        else:
+            command.extend([f'--{key}', str(value)])
 
     command.extend(extra_args)
     return command, results_dir / 'training_summary.csv'

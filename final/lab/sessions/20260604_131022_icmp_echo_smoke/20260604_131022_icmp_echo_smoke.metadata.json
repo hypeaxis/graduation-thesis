@@ -1,0 +1,15 @@
+{
+  "session_id": "20260604_131022_icmp_echo_smoke",
+  "scenario": "icmp_echo",
+  "target_host": "127.0.0.1",
+  "iterations": 5,
+  "capture_enabled": 0,
+  "interface": "lo",
+  "capture_filter": "",
+  "start_time_utc": "2026-06-04T13:10:22Z",
+  "end_time_utc": "2026-06-04T13:10:23Z",
+  "duration_seconds": 1,
+  "host": "DESKTOP-CLDETRG",
+  "project_root": "/home/ning/Graduation-Thesis",
+  "notes": "Authorized defensive lab session"
+}

@@ -1,0 +1,15 @@
+{
+  "session_id": "20260604_132600_benign_baseline_run03",
+  "scenario": "benign_baseline",
+  "target_host": "127.0.0.1",
+  "iterations": 12,
+  "capture_enabled": 1,
+  "interface": "lo",
+  "capture_filter": "",
+  "start_time_utc": "2026-06-04T13:26:00Z",
+  "end_time_utc": "2026-06-04T13:26:15Z",
+  "duration_seconds": 15,
+  "host": "DESKTOP-CLDETRG",
+  "project_root": "/home/ning/Graduation-Thesis",
+  "notes": "Authorized defensive lab session"
+}

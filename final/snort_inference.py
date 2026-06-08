@@ -1,4 +1,4 @@
-from snort_tabular_transformer_41emb_inference import main
+from snort_ft_transformer_inference import main
 
 
 if __name__ == '__main__':

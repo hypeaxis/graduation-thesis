@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="IDS Dashboard — AI-powered network intrusion detection using FT-Transformer and Snort. Monitor, simulate, and detect attacks in real-time." />
+    <title>IDS Dashboard — Attack Detection</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
+  </head>
+  <body>
+
+    <div class="bg-ambient"></div>
+    <div class="bg-grid"></div>
+
+    <!-- Toast container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <div class="app-layout">
+
+      <!-- ====== SIDEBAR ====== -->
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-icon">ID</div>
+          <div class="brand-text">
+            <strong>IDS Dashboard</strong>
+            <small>FT-Transformer</small>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="nav-section-label">Navigation</div>
+          <a class="nav-item active" href="#overview">
+            <span class="nav-icon">📊</span> Overview
+          </a>
+          <a class="nav-item" href="#simulate">
+            <span class="nav-icon">⚡</span> Simulate
+          </a>
+          <a class="nav-item" href="#alerts">
+            <span class="nav-icon">🔔</span> Alert Preview
+          </a>
+          <a class="nav-item" href="#detection">
+            <span class="nav-icon">🛡️</span> Detection
+          </a>
+
+          <div class="nav-section-label" style="margin-top: 1.2rem;">System</div>
+          <a class="nav-item" href="#sessions">
+            <span class="nav-icon">📋</span> Sessions
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="pipeline-badge">
+            <span class="pipeline-dot"></span>
+            122-Feature FT Pipeline
+          </div>
+        </div>
+      </aside>
+
+      <!-- ====== HEADER ====== -->
+      <header class="header-bar">
+        <h1 class="header-title">Network Intrusion Detection System</h1>
+        <div class="header-right">
+          <span id="headerClock" class="header-clock"></span>
+          <div id="apiStatus" class="status-badge offline">
+            <span class="status-dot"></span>
+            <span id="apiStatusText">Connecting…</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- ====== MAIN CONTENT ====== -->
+      <main class="main-content">
+
+        <!-- OVERVIEW SECTION -->
+        <section id="overview" class="summary-grid reveal">
+          <article class="stat-tile tile-total" id="tileTotalEvents">
+            <span class="stat-label">Total Events</span>
+            <span class="stat-value" id="statTotal">—</span>
+            <span class="stat-sub">vectors processed</span>
+          </article>
+          <article class="stat-tile tile-attacks" id="tileAttacks">
+            <span class="stat-label">Attacks Detected</span>
+            <span class="stat-value" id="statAttacks">—</span>
+            <span class="stat-sub">anomalous traffic</span>
+          </article>
+          <article class="stat-tile tile-normal" id="tileNormal">
+            <span class="stat-label">Normal Traffic</span>
+            <span class="stat-value" id="statNormal">—</span>
+            <span class="stat-sub">benign connections</span>
+          </article>
+          <article class="stat-tile tile-confidence" id="tileConfidence">
+            <span class="stat-label">Avg Confidence</span>
+            <span class="stat-value" id="statConfidence">—</span>
+            <span class="stat-sub">model certainty</span>
+          </article>
+        </section>
+
+        <!-- CHARTS -->
+        <section class="charts-row reveal reveal-d1">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title"><span class="icon">🎯</span> Attack Distribution</h2>
+            </div>
+            <div class="chart-container donut-wrap">
+              <canvas id="donutChart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title"><span class="icon">📈</span> Detection Timeline</h2>
+            </div>
+            <div class="chart-container line-wrap">
+              <canvas id="lineChart"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- SIMULATE SECTION -->
+        <section id="simulate" class="card reveal reveal-d2">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="section-num">1</span>
+              Simulate &amp; Detect
+            </h2>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="scenario">Scenario</label>
+              <select id="scenario">
+                <option value="mixed">Mixed (Scan + DoS + Brute Force)</option>
+                <option value="normal">Normal Traffic</option>
+                <option value="port_scan">Port Scan (Probe)</option>
+                <option value="dos_syn_flood">DoS SYN Flood</option>
+                <option value="brute_force">Brute Force SSH</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="totalEvents">Total Events</label>
+              <input id="totalEvents" type="number" min="5" max="5000" value="120" />
+            </div>
+            <div class="form-group">
+              <label for="benignRatio">Benign Ratio</label>
+              <input id="benignRatio" type="number" min="0" max="1" step="0.05" value="0.35" />
+            </div>
+            <div class="form-group">
+              <label for="windowSeconds">Window (s)</label>
+              <input id="windowSeconds" type="number" min="0.1" max="30" step="0.1" value="2" />
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button id="simulateBtn" class="btn primary">
+              <span class="btn-icon">⚡</span> Simulate Alerts
+            </button>
+            <button id="detectLatestBtn" class="btn ghost" disabled>
+              <span class="btn-icon">🔍</span> Detect on Last Sim
+            </button>
+            <button id="simulateDetectBtn" class="btn accent">
+              <span class="btn-icon">🚀</span> Simulate + Detect
+            </button>
+          </div>
+
+          <p id="simMeta" class="meta"></p>
+        </section>
+
+        <!-- ALERT PREVIEW -->
+        <section id="alerts" class="card reveal reveal-d3">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="section-num">2</span>
+              Alert Preview
+            </h2>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Message</th>
+                  <th>Proto</th>
+                  <th>Source</th>
+                  <th>Destination</th>
+                  <th>Dst Port</th>
+                </tr>
+              </thead>
+              <tbody id="alertPreviewBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- DETECTION RESULTS -->
+        <section id="detection" class="card reveal reveal-d4">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="section-num">3</span>
+              Detection Results
+            </h2>
+          </div>
+
+          <div id="detectionTiles" class="summary-grid" style="margin-bottom: 1rem;"></div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Predicted Label</th>
+                  <th>Confidence</th>
+                  <th>2nd Best</th>
+                  <th>2nd Confidence</th>
+                </tr>
+              </thead>
+              <tbody id="predictionBody"></tbody>
+            </table>
+          </div>
+          <p id="detectMeta" class="meta"></p>
+        </section>
+
+      </main>
+    </div>
+
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>

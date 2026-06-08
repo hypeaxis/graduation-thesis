@@ -1,4 +1,4 @@
-from train_tabular_transformer_41emb import main
+from train_ft_transformer_nslkdd import main
 
 
 if __name__ == '__main__':

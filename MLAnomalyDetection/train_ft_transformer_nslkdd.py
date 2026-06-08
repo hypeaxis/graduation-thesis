@@ -16,7 +16,7 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
 from tqdm import tqdm
 
-from phase2_ft_transformer import FTTransformer, FocalLoss
+from phase2_ft_transformer import FTTransformer, FTTransformerV2, FocalLoss, LabelSmoothingFocalLoss
 
 
 class TabularDataset(Dataset):
@@ -53,10 +53,32 @@ def parse_args() -> ArgumentParser:
     )
     parser.add_argument('--class-balanced-beta', type=float, default=0.9999)
     parser.add_argument('--sampler', choices=['none', 'weighted'], default='weighted')
+    parser.add_argument('--mixup-alpha', type=float, default=0.0, help='Beta(alpha, alpha) mixup strength. Set 0 to disable.')
+    parser.add_argument(
+        '--selection-gap-penalty',
+        type=float,
+        default=0.25,
+        help='Penalty applied on (train_f1 - val_f1) when selecting the best checkpoint.',
+    )
+    parser.add_argument(
+        '--max-train-val-gap',
+        type=float,
+        default=0.20,
+        help='If train_f1 - val_f1 is above this for consecutive epochs, stop early. Set <0 to disable.',
+    )
+    parser.add_argument('--gap-patience', type=int, default=3, help='Consecutive epochs allowed above max-train-val-gap before early stop.')
+    # --- v2 improvements ---
+    parser.add_argument('--model-version', choices=['v1', 'v2'], default='v1', help='v1=original FTTransformer, v2=grouped embedding + deeper head')
+    parser.add_argument('--label-smoothing', type=float, default=0.0, help='Label smoothing factor for focal loss. 0=disabled.')
+    parser.add_argument('--scheduler', choices=['plateau', 'cosine'], default='plateau', help='LR scheduler type.')
+    parser.add_argument('--smote-strategy', choices=['none', 'minority', 'auto', 'custom'], default='none', help='SMOTE oversampling strategy for minority classes.')
+    parser.add_argument('--smote-k', type=int, default=5, help='k-neighbors for SMOTE.')
     parser.add_argument('--num-workers', type=int, default=0)
     parser.add_argument('--save-dir', type=str, default=None)
     parser.add_argument('--results-dir', type=str, default=None)
     parser.add_argument('--seed', type=int, default=42)
+    parser.add_argument('--use-selected-features', action='store_true', help='Use top features from selected_features.json')
+    parser.add_argument('--task-type', choices=['5-class', '4-class-attack'], default='5-class', help='Task type for FT-Transformer')
     return parser.parse_args()
 
 
@@ -80,7 +102,53 @@ def load_class_names(artifacts_dir: Path) -> list[str]:
     return [name for _, name in indexed]
 
 
-def load_datasets(data_dir: Path, val_size: float, seed: int):
+def apply_smote(X: np.ndarray, y: np.ndarray, strategy: str, k_neighbors: int, seed: int) -> tuple[np.ndarray, np.ndarray]:
+    """Apply SMOTE oversampling to minority classes."""
+    if strategy == 'none':
+        return X, y
+
+    from imblearn.over_sampling import SMOTE
+
+    class_counts = np.bincount(y)
+    print(f'  Pre-SMOTE class distribution: {dict(enumerate(class_counts.tolist()))}')
+
+    if strategy == 'custom':
+        # Custom: boost R2L to ~5000, U2R to ~1000, leave others unchanged
+        sampling_strategy = {}
+        for cls_idx, count in enumerate(class_counts):
+            if cls_idx == 3:  # R2L
+                sampling_strategy[cls_idx] = max(count, 5000)
+            elif cls_idx == 4:  # U2R
+                sampling_strategy[cls_idx] = max(count, 1000)
+        if not sampling_strategy:
+            return X, y
+    elif strategy == 'auto':
+        sampling_strategy = 'auto'
+    elif strategy == 'minority':
+        sampling_strategy = 'minority'
+    else:
+        return X, y
+
+    # Adjust k_neighbors if any class has fewer samples
+    min_class_count = class_counts[class_counts > 0].min()
+    effective_k = min(k_neighbors, min_class_count - 1)
+    effective_k = max(effective_k, 1)
+
+    smote = SMOTE(
+        sampling_strategy=sampling_strategy,
+        k_neighbors=effective_k,
+        random_state=seed,
+    )
+    X_resampled, y_resampled = smote.fit_resample(X, y)
+
+    new_counts = np.bincount(y_resampled)
+    print(f'  Post-SMOTE class distribution: {dict(enumerate(new_counts.tolist()))}')
+    print(f'  Samples added: {len(y_resampled) - len(y)}')
+
+    return X_resampled.astype(np.float32), y_resampled.astype(np.int64)
+
+
+def load_datasets(data_dir: Path, val_size: float, seed: int, smote_strategy: str = 'none', smote_k: int = 5, use_selected_features: bool = False, task_type: str = '5-class'):
     train_path = data_dir / 'cleaned5Grouped_v2_KddTrain+.csv'
     test_path = data_dir / 'cleaned5Grouped_v2_KddTest+.csv'
     artifacts_dir = data_dir / 'artifacts_preprocess'
@@ -90,6 +158,21 @@ def load_datasets(data_dir: Path, val_size: float, seed: int):
 
     train_df = pd.read_csv(train_path)
     test_df = pd.read_csv(test_path)
+
+    if task_type == '4-class-attack':
+        print("Task Type is 4-class-attack: Filtering out Normal traffic (label 0)")
+        train_df = train_df[train_df['label'] != 0].copy()
+        test_df = test_df[test_df['label'] != 0].copy()
+        train_df['label'] = train_df['label'] - 1
+        test_df['label'] = test_df['label'] - 1
+
+    if use_selected_features:
+        selected_features_path = artifacts_dir / 'selected_features.json'
+        with open(selected_features_path, 'r', encoding='utf-8') as f:
+            selected_features = json.load(f)
+        print(f"Using {len(selected_features)} selected features out of 122.")
+        train_df = train_df[selected_features + ['label']]
+        test_df = test_df[selected_features + ['label']]
 
     X_train_full = train_df.drop(columns=['label']).to_numpy(dtype=np.float32)
     y_train_full = train_df['label'].to_numpy(dtype=np.int64)
@@ -104,7 +187,14 @@ def load_datasets(data_dir: Path, val_size: float, seed: int):
         random_state=seed,
     )
 
+    # Apply SMOTE on train set only (never on val/test)
+    if smote_strategy != 'none':
+        print(f'Applying SMOTE (strategy={smote_strategy}, k={smote_k}) ...')
+        X_train, y_train = apply_smote(X_train, y_train, smote_strategy, smote_k, seed)
+
     class_names = load_class_names(artifacts_dir)
+    if task_type == '4-class-attack':
+        class_names = ['DoS', 'Probe', 'R2L', 'U2R']
 
     return {
         'train': (X_train, y_train),
@@ -183,7 +273,32 @@ def create_loaders(dataset_bundle: dict, batch_size: int, device: torch.device, 
     }
 
 
-def run_epoch(model, loader, criterion, optimizer, device: torch.device, train: bool):
+def _mixup_batch(features: torch.Tensor, labels: torch.Tensor, alpha: float) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, float]:
+    if alpha <= 0.0:
+        return features, labels, labels, 1.0
+
+    lam = float(np.random.beta(alpha, alpha))
+    indices = torch.randperm(features.size(0), device=features.device)
+    mixed_features = lam * features + (1.0 - lam) * features[indices]
+    labels_a = labels
+    labels_b = labels[indices]
+    return mixed_features, labels_a, labels_b, lam
+
+
+def _soft_focal_loss(logits: torch.Tensor, soft_targets: torch.Tensor, criterion: FocalLoss) -> torch.Tensor:
+    log_probs = torch.log_softmax(logits, dim=1)
+    probs = log_probs.exp()
+
+    pt = (soft_targets * probs).sum(dim=1).clamp(min=1e-8, max=1.0)
+    log_pt = (soft_targets * log_probs).sum(dim=1)
+
+    alpha = criterion.alpha.to(logits.device)
+    alpha_t = (soft_targets * alpha.unsqueeze(0)).sum(dim=1)
+    loss = -alpha_t * torch.pow(1.0 - pt, criterion.gamma) * log_pt
+    return loss.mean()
+
+
+def run_epoch(model, loader, criterion, optimizer, device: torch.device, train: bool, mixup_alpha: float, num_classes: int):
     model.train(mode=train)
     total_loss = 0.0
     all_preds: list[int] = []
@@ -195,12 +310,21 @@ def run_epoch(model, loader, criterion, optimizer, device: torch.device, train: 
         for features, labels in tqdm(loader, desc=desc, leave=False):
             features = features.to(device)
             labels = labels.to(device)
+            labels_for_metrics = labels
 
             if train:
                 optimizer.zero_grad()
+                if mixup_alpha > 0.0:
+                    features, labels_a, labels_b, lam = _mixup_batch(features, labels, mixup_alpha)
 
             logits = model(features)
-            loss = criterion(logits, labels)
+            if train and mixup_alpha > 0.0:
+                targets_a = torch.nn.functional.one_hot(labels_a, num_classes=num_classes).float()
+                targets_b = torch.nn.functional.one_hot(labels_b, num_classes=num_classes).float()
+                soft_targets = lam * targets_a + (1.0 - lam) * targets_b
+                loss = _soft_focal_loss(logits, soft_targets, criterion)
+            else:
+                loss = criterion(logits, labels)
 
             if train:
                 loss.backward()
@@ -210,7 +334,7 @@ def run_epoch(model, loader, criterion, optimizer, device: torch.device, train: 
             total_loss += loss.item()
             preds = torch.argmax(logits, dim=1)
             all_preds.extend(preds.detach().cpu().tolist())
-            all_labels.extend(labels.detach().cpu().tolist())
+            all_labels.extend(labels_for_metrics.detach().cpu().tolist())
 
     avg_loss = total_loss / max(len(loader), 1)
     macro_f1 = f1_score(all_labels, all_preds, average='macro', zero_division=0)
@@ -316,7 +440,7 @@ def main() -> None:
     else:
         device = torch.device('cpu')
 
-    dataset_bundle = load_datasets(base_dir, args.val_size, args.seed)
+    dataset_bundle = load_datasets(base_dir, args.val_size, args.seed, args.smote_strategy, args.smote_k, args.use_selected_features, args.task_type)
     loaders = create_loaders(
         dataset_bundle,
         args.batch_size,
@@ -336,32 +460,64 @@ def main() -> None:
         args.class_balanced_beta,
     )
 
-    model = FTTransformer(
-        num_features=num_features,
-        num_classes=num_classes,
-        d_model=args.d_model,
-        num_heads=args.num_heads,
-        num_layers=args.num_layers,
-        d_ff=args.d_ff,
-        dropout=args.dropout,
-    ).to(device)
+    # Model version selection
+    if args.model_version == 'v2':
+        model = FTTransformerV2(
+            num_features=num_features,
+            num_classes=num_classes,
+            d_model=args.d_model,
+            num_heads=args.num_heads,
+            num_layers=args.num_layers,
+            d_ff=args.d_ff,
+            dropout=args.dropout,
+            use_grouped_embedding=True,
+        ).to(device)
+    else:
+        model = FTTransformer(
+            num_features=num_features,
+            num_classes=num_classes,
+            d_model=args.d_model,
+            num_heads=args.num_heads,
+            num_layers=args.num_layers,
+            d_ff=args.d_ff,
+            dropout=args.dropout,
+        ).to(device)
 
-    criterion = FocalLoss(gamma=args.gamma, alpha=alpha, num_classes=num_classes)
+    # Loss function selection
+    if args.label_smoothing > 0.0:
+        criterion = LabelSmoothingFocalLoss(
+            gamma=args.gamma, alpha=alpha, num_classes=num_classes, smoothing=args.label_smoothing,
+        )
+    else:
+        criterion = FocalLoss(gamma=args.gamma, alpha=alpha, num_classes=num_classes)
+
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=3)
+
+    # Scheduler selection
+    if args.scheduler == 'cosine':
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+            optimizer, T_0=max(args.epochs // 3, 5), T_mult=1, eta_min=args.lr * 0.01,
+        )
+    else:
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=3)
 
     history = {
         'train_loss': [],
         'val_loss': [],
         'train_f1': [],
         'val_f1': [],
+        'train_val_f1_gap': [],
+        'selection_score': [],
     }
 
     best_val_f1 = -1.0
+    best_selection_score = -1.0
     best_epoch = 0
     patience_counter = 0
+    gap_counter = 0
 
     print(f'Using device: {device}')
+    print(f'Model version: {args.model_version}')
     print(f'Num features: {num_features}, Num classes: {num_classes}')
     print(f'Class names: {class_names}')
     print(f'Focal alpha mode: {focal_alpha_mode}')
@@ -369,26 +525,68 @@ def main() -> None:
         print(f'Focal alpha: {[round(value, 4) for value in alpha]}')
     else:
         print(f'Focal alpha: {alpha}')
+    print(f'Label smoothing: {args.label_smoothing}')
     print(f'Sampler: {args.sampler}')
+    print(f'SMOTE strategy: {args.smote_strategy}')
+    print(f'Scheduler: {args.scheduler}')
+    print(f'Mixup alpha: {args.mixup_alpha}')
+    print(f'Selection gap penalty: {args.selection_gap_penalty}')
+    print(f'Max train-val gap: {args.max_train_val_gap} (patience={args.gap_patience})')
+    print(f'Total params: {sum(p.numel() for p in model.parameters()):,}')
     print(f'Train/Val/Test sizes: {len(dataset_bundle["train"][1])}/{len(dataset_bundle["val"][1])}/{len(dataset_bundle["test"][1])}')
 
     for epoch in range(1, args.epochs + 1):
         start = time.time()
-        train_loss, train_f1, train_acc = run_epoch(model, loaders['train'], criterion, optimizer, device, train=True)
-        val_loss, val_f1, val_acc = run_epoch(model, loaders['val'], criterion, optimizer, device, train=False)
-        scheduler.step(val_f1)
+        train_loss, train_f1, train_acc = run_epoch(
+            model,
+            loaders['train'],
+            criterion,
+            optimizer,
+            device,
+            train=True,
+            mixup_alpha=args.mixup_alpha,
+            num_classes=num_classes,
+        )
+        val_loss, val_f1, val_acc = run_epoch(
+            model,
+            loaders['val'],
+            criterion,
+            optimizer,
+            device,
+            train=False,
+            mixup_alpha=0.0,
+            num_classes=num_classes,
+        )
+        if args.scheduler == 'cosine':
+            scheduler.step(epoch)
+        else:
+            scheduler.step(val_f1)
+
+        train_val_gap = max(train_f1 - val_f1, 0.0)
+        selection_score = val_f1 - args.selection_gap_penalty * train_val_gap
 
         history['train_loss'].append(train_loss)
         history['val_loss'].append(val_loss)
         history['train_f1'].append(train_f1)
         history['val_f1'].append(val_f1)
+        history['train_val_f1_gap'].append(train_val_gap)
+        history['selection_score'].append(selection_score)
 
         print(
             f'Epoch {epoch:02d}/{args.epochs} '
             f'| train_loss={train_loss:.4f} train_f1={train_f1:.4f} train_acc={train_acc:.4f} '
             f'| val_loss={val_loss:.4f} val_f1={val_f1:.4f} val_acc={val_acc:.4f} '
+            f'| gap={train_val_gap:.4f} sel_score={selection_score:.4f} '
             f'| lr={optimizer.param_groups[0]["lr"]:.6f} | time={time.time() - start:.1f}s'
         )
+
+        if args.max_train_val_gap >= 0.0 and train_val_gap > args.max_train_val_gap:
+            gap_counter += 1
+        else:
+            gap_counter = 0
+
+        if selection_score > best_selection_score:
+            best_selection_score = selection_score
 
         if val_f1 > best_val_f1:
             best_val_f1 = val_f1
@@ -400,6 +598,8 @@ def main() -> None:
                     'model_state_dict': model.state_dict(),
                     'optimizer_state_dict': optimizer.state_dict(),
                     'val_f1': val_f1,
+                    'selection_score': selection_score,
+                    'train_val_f1_gap': train_val_gap,
                     'config': vars(args),
                     'class_names': class_names,
                     'num_features': num_features,
@@ -412,6 +612,13 @@ def main() -> None:
                 print(f'Early stopping triggered at epoch {epoch}')
                 break
 
+        if gap_counter >= args.gap_patience:
+            print(
+                f'Early stopping by overfitting guard at epoch {epoch} '
+                f'(train-val gap > {args.max_train_val_gap} for {args.gap_patience} epochs)'
+            )
+            break
+
     checkpoint = torch.load(model_dir / 'best_model.pt', map_location=device)
     model.load_state_dict(checkpoint['model_state_dict'])
 
@@ -419,15 +626,22 @@ def main() -> None:
     plot_history(history, results_dir)
 
     summary = {
-        'model': 'FT-Transformer',
+        'model': f'FT-Transformer-{args.model_version}',
+        'model_version': args.model_version,
         'best_epoch': best_epoch,
         'best_val_macro_f1': best_val_f1,
+        'best_selection_score': best_selection_score,
+        'last_train_val_f1_gap': history['train_val_f1_gap'][-1] if history['train_val_f1_gap'] else None,
         'test_accuracy': metrics['accuracy'],
         'test_macro_f1': metrics['macro_f1'],
         'test_weighted_f1': metrics['weighted_f1'],
         'test_macro_precision': metrics['macro_precision'],
         'test_macro_recall': metrics['macro_recall'],
         'focal_alpha_mode': focal_alpha_mode,
+        'label_smoothing': args.label_smoothing,
+        'smote_strategy': args.smote_strategy,
+        'scheduler': args.scheduler,
+        'task_type': args.task_type,
         'num_features': num_features,
         'num_classes': num_classes,
         'total_params': sum(parameter.numel() for parameter in model.parameters()),
@@ -450,7 +664,7 @@ def main() -> None:
             'd_ff': args.d_ff,
             'dropout': args.dropout,
         },
-        'feature_columns_path': str(base_dir / 'artifacts_preprocess' / 'feature_columns.json'),
+        'feature_columns_path': str(base_dir / 'artifacts_preprocess' / 'selected_features.json') if args.use_selected_features else str(base_dir / 'artifacts_preprocess' / 'feature_columns.json'),
         'default_snort_feature_csv': str(base_dir.parent / 'final' / 'snort_features_122.csv'),
         'default_snort_prediction_csv': str(base_dir.parent / 'final' / 'snort_ft_transformer_predictions.csv'),
     }
