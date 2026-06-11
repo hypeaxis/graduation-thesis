@@ -1,5 +1,5 @@
 {
-  "checkpoint_path": "/home/ning/Graduation-Thesis/MLAnomalyDetection/outputs/nslkdd_ft_experiments/v5_two_stage_4class_seed42/models/best_model.pt",
+  "checkpoint_path": "/home/ning/Graduation-Thesis/IDS_Final_Product/models/best_model.pt",
   "class_names": [
     "DoS",
     "Probe",
@@ -17,7 +17,16 @@
     "d_ff": 512,
     "dropout": 0.1
   },
-  "feature_columns_path": "/home/ning/Graduation-Thesis/MLAnomalyDetection/artifacts_preprocess/feature_columns.json",
-  "default_snort_feature_csv": "/home/ning/Graduation-Thesis/final/snort_features_122.csv",
-  "default_snort_prediction_csv": "/home/ning/Graduation-Thesis/final/snort_ft_transformer_predictions.csv"
+  "feature_columns_path": "/home/ning/Graduation-Thesis/IDS_Final_Product/models/feature_columns.json",
+  "scaler_path": "/home/ning/Graduation-Thesis/IDS_Final_Product/models/scaler.pkl",
+  "default_snort_feature_csv": "/home/ning/Graduation-Thesis/IDS_Final_Product/log/snort_features_122.csv",
+  "default_snort_prediction_csv": "/home/ning/Graduation-Thesis/IDS_Final_Product/log/snort_ft_transformer_predictions.csv",
+  "autoencoder_threshold": 0.008481,
+  "threshold_calibration_quantile": 0.99,
+  "high_confidence_threshold": 0.95,
+  "dominant_label_warning_threshold": 0.9,
+  "stage1_normal_gate_override_threshold": 0.985,
+  "slow_attack_ratio_override_threshold": 0.35,
+  "slow_attack_score_override_threshold": 0.65,
+  "slow_attack_override_min_rows": 4
 }

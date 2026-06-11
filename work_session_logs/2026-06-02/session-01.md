@@ -1,23 +1,23 @@
 # Session Log - 2026-06-02 (session-01)
 
 ## Goal
-- Kiem tra lai noi dung da thuc hien trong repo.
-- Kiem tra lai model dang dung va danh gia dau hieu overfitting.
-- Thiet lap day du de co the chay/hiem thi thanh san pham web.
-- Ghi day du ket qua phien lam viec vao log.
+- Kiểm tra lại nội dung đã thực hiện trong repo.
+- Kiểm tra lại model đang dùng và đánh giá dấu hiệu overfitting.
+- Thiết lập đầy đủ để có thể chạy/hiển thị thành sản phẩm web.
+- Ghi đầy đủ kết quả phiên làm việc vào log.
 
 ## Context Checked
-- Tai lieu tien do va checklist:
+- Tài liệu tiến độ và checklist:
   - `CHECKLIST_TUNING_MODEL_41EMB.md`
   - `final/BAO_CAO_TIEN_DO_THEO_KE_HOACH.md`
-- Log cac phien truoc:
+- Log các phiên trước:
   - `work_session_logs/2026-05-31/session-02.md`
-- Cau hinh pipeline chinh:
+- Cấu hình pipeline chính:
   - `final/primary_pipeline.json`
-- Artifact ket qua train:
+- Artifact kết quả train:
   - `MLAnomalyDetection/outputs/nslkdd_ft_experiments/*/results/training_summary.csv`
   - `MLAnomalyDetection/outputs/tabular_transformer_41emb/results/training_summary.csv`
-- Stack san pham web:
+- Stack sản phẩm web:
   - `backend/app/main.py`
   - `backend/app/pipeline_service.py`
   - `frontend/index.html`
@@ -25,16 +25,16 @@
   - `frontend/styles.css`
 
 ## Model Verification
-- Pipeline dang active: `122-feature-ft-transformer`.
-- Checkpoint dang dung:
+- Pipeline đang active: `122-feature-ft-transformer`.
+- Checkpoint đang dùng:
   - `MLAnomalyDetection/outputs/nslkdd_ft_experiments/nslkdd_ft_sampler_weighted_seed62/models/best_model.pt`
-- Thong so metric tu `final/primary_pipeline.json`:
+- Thông số metric từ `final/primary_pipeline.json`:
   - best_val_macro_f1: `0.7544`
   - test_accuracy: `0.8005`
   - test_macro_f1: `0.6679`
 
 ## Overfitting Check (Val vs Test Macro-F1 Gap)
-Da tinh lai tu tat ca run trong `nslkdd_ft_experiments`:
+Đã tính lại từ tất cả run trong `nslkdd_ft_experiments`:
 
 | Run | Val Macro-F1 | Test Macro-F1 | Gap (Val-Test) | Test Acc |
 |---|---:|---:|---:|---:|
@@ -45,26 +45,26 @@ Da tinh lai tu tat ca run trong `nslkdd_ft_experiments`:
 | nslkdd_ft_weighted_dropout02_seed42 | 0.7089 | 0.6443 | 0.0645 | 0.8058 |
 | nslkdd_ft_weighted_scalar025_seed42 | 0.8270 | 0.5825 | 0.2445 | 0.7684 |
 
-Tong hop:
+Tổng hợp:
 - Mean gap (122-feature): `0.1648`.
-- Gap lon nhat: baseline_seed42 (`0.2505`).
-- Best deploy run seed62 co gap `0.0865` (co overfit nhe-vua, nhung kha tot hon cac run con lai).
+- Gap lớn nhất: baseline_seed42 (`0.2505`).
+- Best deploy run seed62 có gap `0.0865` (có overfit nhẹ-vừa, nhưng khá tốt hơn các run còn lại).
 
-Kiem tra model 41-feature:
+Kiểm tra model 41-feature:
 - `best_val_macro_f1 = 0.9628`, `test_macro_f1 = 0.6470`.
-- Gap = `0.3158` (overfitting ro rang).
+- Gap = `0.3158` (overfitting rõ ràng).
 
-Ket luan overfitting:
-- Co dau hieu overfitting tren ca nhom 122-feature va 41-feature.
-- Muc overfitting cua model dang deploy (122 seed62) thap hon dang ke so voi nhieu run khac, nen van hop ly de dung lam model chinh hien tai.
+Kết luận overfitting:
+- Có dấu hiệu overfitting trên cả nhóm 122-feature và 41-feature.
+- Mức overfitting của model đang deploy (122 seed62) thấp hơn đáng kể so với nhiều run khác, nên vẫn hợp lý để dùng làm model chính hiện tại.
 
 ## Product Setup / Runtime Validation
-Da smoke test end-to-end khi server chay:
-1. `GET /api/health` tra ve status ok.
-2. `POST /api/simulate` sinh CSV gia lap thanh cong.
-3. `POST /api/detect` chay preprocess + inference thanh cong.
+Đã smoke test end-to-end khi server chạy:
+1. `GET /api/health` trả về status ok.
+2. `POST /api/simulate` sinh CSV giả lập thành công.
+3. `POST /api/detect` chạy preprocess + inference thành công.
 
-Ket qua detect smoke:
+Kết quả detect smoke:
 - total_vectors: `60`
 - predicted_counts: `{'DoS': 3, 'Normal': 44, 'Probe': 9, 'R2L': 3, 'U2R': 1}`
 - mean_confidence: `0.7526`
@@ -73,17 +73,17 @@ Ket qua detect smoke:
 ## Files Added/Updated This Session
 Updated:
 - `backend/requirements-web.txt`
-  - Bo sung dependency runtime cho detect pipeline: pandas, numpy, scikit-learn, torch.
+  - Bổ sung dependency runtime cho detect pipeline: pandas, numpy, scikit-learn, torch.
 - `backend/README_WEB.md`
-  - Cap nhat huong dan setup day du.
-  - Them che do chay dev/prod.
-  - Them smoke test E2E.
+  - Cập nhật hướng dẫn setup đầy đủ.
+  - Thêm chế độ chạy dev/prod.
+  - Thêm smoke test E2E.
 
 Added:
 - `backend/run_prod.sh`
-  - Script chay FastAPI product mode (khong reload).
+  - Script chạy FastAPI product mode (không reload).
 - `run_product.sh`
-  - Entrypoint 1-lenh tu root repo de chay san pham.
+  - Entrypoint 1-lệnh từ root repo để chạy sản phẩm.
 
 ## Current Product Run Commands
 ```bash
@@ -97,67 +97,67 @@ Website:
 - http://localhost:8000
 
 ## Notes
-- Tai lieu `final/BAO_CAO_TIEN_DO_THEO_KE_HOACH.md` hien van ghi backend/frontend la "chua trien khai" (trang thai lich su o thoi diem 2026-04-21). Trong thuc te repo hien da co stack web chay duoc.
+- Tài liệu `final/BAO_CAO_TIEN_DO_THEO_KE_HOACH.md` hiện vẫn ghi backend/frontend là "chưa triển khai" (trạng thái lịch sử ở thời điểm 2026-04-21). Trong thực tế repo hiện đã có stack web chạy được.
 
 ## Next Steps
-- Them dashboard metric theo thoi gian thuc (charts + session persistence) thay vi chi in-memory.
-- Theo doi train-val gap trong moi run de uu tien config giam overfitting (regularization + split strategy + calibration).
-- Neu can deployment on dinh hon, bo sung process manager (systemd/supervisor) va reverse proxy.
+- Thêm dashboard metric theo thời gian thực (charts + session persistence) thay vì chỉ in-memory.
+- Theo dõi train-val gap trong mỗi run để ưu tiên config giảm overfitting (regularization + split strategy + calibration).
+- Nếu cần deployment ổn định hơn, bổ sung process manager (systemd/supervisor) và reverse proxy.
 
 ## Session Update - Overfitting Reduction Patch
 
-Muc tieu:
-- Giam overfitting tren pipeline train 122-feature ma khong pha vo compatibility inference hien tai.
+Mục tiêu:
+- Giảm overfitting trên pipeline train 122-feature mà không phá vỡ compatibility inference hiện tại.
 
-Code da cap nhat:
+Code đã cập nhật:
 - `MLAnomalyDetection/train_ft_transformer_nslkdd.py`
-  - Them tham so CLI:
+  - Thêm tham số CLI:
     - `--mixup-alpha`
     - `--selection-gap-penalty`
     - `--max-train-val-gap`
     - `--gap-patience`
-  - Them mixup cho tabular batch va soft focal loss cho nhan mem khi mixup bat.
-  - Them logging `train_val_f1_gap` va `selection_score` theo epoch.
-  - Them co che chon checkpoint co phat overfit:
+  - Thêm mixup cho tabular batch và soft focal loss cho nhãn mềm khi mixup bật.
+  - Thêm logging `train_val_f1_gap` và `selection_score` theo epoch.
+  - Thêm cơ chế chọn checkpoint có phạt overfit:
     - `selection_score = val_f1 - selection_gap_penalty * max(train_f1 - val_f1, 0)`
-  - Them co che early stop theo overfitting guard khi gap vuot nguong lien tiep.
-  - Bo sung metric tong hop moi vao `training_summary.json/csv`:
+  - Thêm cơ chế early stop theo overfitting guard khi gap vượt ngưỡng liên tiếp.
+  - Bổ sung metric tổng hợp mới vào `training_summary.json/csv`:
     - `best_selection_score`
     - `last_train_val_f1_gap`
 
-Kiem tra sau thay doi:
-- `get_errors` cho file train: khong co loi.
-- CLI help da hien thi day du cac tham so moi khi chay bang repo venv.
-- Da khoi dong smoke run 1 epoch voi mixup; do training mat thoi gian nen da dung thu cong giua chung (khong co crash ngay giai doan khoi dong + dataloader).
+Kiểm tra sau thay đổi:
+- `get_errors` cho file train: không có lỗi.
+- CLI help đã hiển thị đầy đủ các tham số mới khi chạy bằng repo venv.
+- Đã khởi động smoke run 1 epoch với mixup; do training mất thời gian nên đã dừng thủ công giữa chừng (không có crash ngay giai đoạn khởi động + dataloader).
 
-Ghi chu moi truong:
-- Nen dung dung venv cua repo (`/home/ning/Graduation-Thesis/.venv`) de tranh thieu package nhu matplotlib.
+Ghi chú môi trường:
+- Nên dùng đúng venv của repo (`/home/ning/Graduation-Thesis/.venv`) để tránh thiếu package như matplotlib.
 
 ## Session Update - Package Current Best Epoch
 
-Yeu cau:
-- Dung viec tuning tiep va dong goi model hien tai o epoch tot nhat.
+Yêu cầu:
+- Dừng việc tuning tiếp và đóng gói model hiện tại ở epoch tốt nhất.
 
-Kiem tra truoc dong goi:
+Kiểm tra trước đóng gói:
 - Pipeline active trong `final/primary_pipeline.json`:
   - run: `nslkdd_ft_sampler_weighted_seed62`
   - checkpoint: `.../models/best_model.pt`
   - best_epoch: `19`
 
-Goi da tao:
-- Thu muc package:
+Gói đã tạo:
+- Thư mục package:
   - `final/model_packages/ft122_seed62_best_epoch19_20260602/`
-- Ban nen tar.gz:
+- Bản nén tar.gz:
   - `final/model_packages/ft122_seed62_best_epoch19_20260602.tar.gz`
 
-Noi dung package:
+Nội dung package:
 - `models/`: `best_model.pt`, `inference_config.json`
 - `results/`: `training_summary.json/csv`, `per_class_metrics.csv`, `classification_report.txt`, `confusion_matrix.png`
 - `artifacts/`: `feature_columns.json`, `scaler.pkl`, `label_map.json`, `label_groups.json`
 - `pipeline/`: snapshot `primary_pipeline.json`
 - `scripts/`: `snort_preprocess_122.py`, `snort_ft_transformer_inference.py`
 - `PACKAGE_INFO.md`
-- `checksums.sha256` (da verify OK)
+- `checksums.sha256` (đã verify OK)
 
-Tinh trang:
-- Dong goi hoan tat, checksum xac thuc thanh cong.
+Tình trạng:
+- Đóng gói hoàn tất, checksum xác thực thành công.

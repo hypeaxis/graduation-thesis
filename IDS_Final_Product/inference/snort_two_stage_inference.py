@@ -47,6 +47,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument('--generated-features-output', default=str(DEFAULT_SNORT_FEATURES))
     parser.add_argument('--output', default=str(DEFAULT_OUTPUT))
     parser.add_argument('--window-seconds', type=float, default=2.0)
+    parser.add_argument('--autoencoder-threshold', type=float, default=None)
     parser.add_argument('--device', default='auto', choices=['auto', 'cpu', 'cuda', 'mps'])
     parser.add_argument('--top-k', type=int, default=3)
     return parser.parse_args()
@@ -67,10 +68,32 @@ def prepare_features_from_snort(
     raw_df = load_snort_alerts(snort_alert_csv)
     feature_df = build_feature_rows(raw_df, window_seconds=window_seconds)
     aligned = align_to_122_features(feature_df, load_feature_columns(feature_columns_path))
-    model_ready = maybe_scale(aligned, scaler_path)
+    model_ready = maybe_scale(aligned, scaler_path, strict=True)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     model_ready.to_csv(output_path, index=False)
     return model_ready
+
+
+def autoencoder_reconstruction_errors(ae_model: tf.keras.Model, feature_df: pd.DataFrame) -> np.ndarray:
+    x_numpy = feature_df.to_numpy(dtype=np.float32)
+    x_pred = ae_model.predict(x_numpy, verbose=0)
+    return np.mean(np.power(x_numpy - x_pred, 2), axis=1)
+
+
+def calibrate_autoencoder_threshold(
+    ae_model: tf.keras.Model,
+    calibration_features: pd.DataFrame,
+    quantile: float = 0.98,
+    min_threshold: float = AUTOENCODER_THRESHOLD,
+    max_threshold: float = 0.25,
+) -> float:
+    if calibration_features.empty:
+        return float(min_threshold)
+
+    quantile = float(np.clip(quantile, 0.5, 0.999))
+    errors = autoencoder_reconstruction_errors(ae_model, calibration_features)
+    calibrated = float(np.quantile(errors, quantile))
+    return float(np.clip(calibrated, min_threshold, max_threshold))
 
 
 def pick_device(choice: str) -> torch.device:
@@ -184,21 +207,47 @@ def load_models(ft_checkpoint_path: Path, ae_checkpoint_path: Path, inference_co
     return ft_model, ae_model, class_names
 
 
-def predict(ft_model: FTTransformer, ae_model: tf.keras.Model, feature_df: pd.DataFrame, ft_class_names: list[str], device: torch.device, top_k: int) -> pd.DataFrame:
+def predict(
+    ft_model: FTTransformer,
+    ae_model: tf.keras.Model,
+    feature_df: pd.DataFrame,
+    ft_class_names: list[str],
+    device: torch.device,
+    top_k: int,
+    autoencoder_threshold: float = AUTOENCODER_THRESHOLD,
+    slow_attack_scores: np.ndarray | None = None,
+    slow_attack_flags: np.ndarray | None = None,
+) -> tuple[pd.DataFrame, dict]:
     X_numpy = feature_df.to_numpy(dtype=np.float32)
-    
+
     # Stage 1: Autoencoder
     X_pred = ae_model.predict(X_numpy, verbose=0)
     mse = np.mean(np.power(X_numpy - X_pred, 2), axis=1)
-    is_attack = mse >= AUTOENCODER_THRESHOLD
+    is_attack = mse >= autoencoder_threshold
 
     # Stage 2: FT-Transformer for attacks
     final_class_names = ['Normal'] + ft_class_names
     num_samples = len(feature_df)
     final_probabilities = np.zeros((num_samples, len(final_class_names)), dtype=np.float32)
 
-    # 1.0 confidence for Normal if not attack
-    final_probabilities[~is_attack, 0] = 1.0
+    normal_mask = ~is_attack
+    if np.any(normal_mask):
+        # Avoid hard 1.0 probabilities for Stage-1 normal gating.
+        # Confidence is mapped from reconstruction error relative to threshold.
+        mse_ratio = np.clip(
+            mse[normal_mask] / max(float(autoencoder_threshold), 1e-9),
+            0.0,
+            1.0,
+        )
+        normal_score = 1.0 - mse_ratio
+        normal_conf = (0.55 + 0.39 * normal_score).astype(np.float32)
+        final_probabilities[normal_mask, 0] = normal_conf
+
+        attack_prior = 1.0 - normal_conf
+        if len(ft_class_names) > 0:
+            shared_attack_prob = attack_prior / float(len(ft_class_names))
+            for attack_idx in range(len(ft_class_names)):
+                final_probabilities[normal_mask, attack_idx + 1] = shared_attack_prob
 
     if np.any(is_attack):
         attack_features = X_numpy[is_attack]
@@ -216,6 +265,9 @@ def predict(ft_model: FTTransformer, ae_model: tf.keras.Model, feature_df: pd.Da
         'predicted_index': predicted_indices,
         'predicted_label': [final_class_names[idx] for idx in predicted_indices],
         'confidence': final_probabilities[np.arange(len(predicted_indices)), predicted_indices],
+        'stage1_is_attack': is_attack.astype(np.int32),
+        'stage1_mse': mse,
+        'autoencoder_threshold': float(autoencoder_threshold),
     })
 
     for class_index, class_name in enumerate(final_class_names):
@@ -225,7 +277,33 @@ def predict(ft_model: FTTransformer, ae_model: tf.keras.Model, feature_df: pd.Da
         output[f'top_{rank + 1}_label'] = [final_class_names[idx] for idx in top_indices[:, rank]]
         output[f'top_{rank + 1}_confidence'] = final_probabilities[np.arange(len(predicted_indices)), top_indices[:, rank]]
 
-    return output
+    if slow_attack_scores is not None and len(slow_attack_scores) == len(output):
+        output['slow_attack_score'] = slow_attack_scores.astype(np.float32)
+    if slow_attack_flags is not None and len(slow_attack_flags) == len(output):
+        output['slow_attack_flag'] = slow_attack_flags.astype(np.int32)
+
+    if 'slow_attack_flag' in output.columns:
+        output['traffic_pattern_label'] = np.where(
+            output['slow_attack_flag'] > 0,
+            'SlowAttackSuspected',
+            'StandardTrafficPattern',
+        )
+
+    diagnostics = {
+        'autoencoder_threshold': float(autoencoder_threshold),
+        'stage1_normal_gate_rate': float((~is_attack).mean()),
+        'stage1_attack_gate_rate': float(is_attack.mean()),
+        'stage1_mse_min': float(np.min(mse)) if len(mse) else 0.0,
+        'stage1_mse_p50': float(np.quantile(mse, 0.5)) if len(mse) else 0.0,
+        'stage1_mse_p90': float(np.quantile(mse, 0.9)) if len(mse) else 0.0,
+        'stage1_mse_max': float(np.max(mse)) if len(mse) else 0.0,
+    }
+
+    if 'slow_attack_flag' in output.columns:
+        diagnostics['slow_attack_ratio'] = float(output['slow_attack_flag'].mean())
+        diagnostics['slow_attack_count'] = int(output['slow_attack_flag'].sum())
+
+    return output, diagnostics
 
 
 def load_feature_frame(input_features_path: Path, num_features: int) -> pd.DataFrame:
@@ -271,13 +349,24 @@ def main() -> None:
     if feature_df is None:
         feature_df = load_feature_frame(input_features_path, ft_model.num_features)
 
-    predictions = predict(ft_model, ae_model, feature_df, class_names, device, args.top_k)
+    threshold = args.autoencoder_threshold if args.autoencoder_threshold is not None else AUTOENCODER_THRESHOLD
+    predictions, diagnostics = predict(
+        ft_model,
+        ae_model,
+        feature_df,
+        class_names,
+        device,
+        args.top_k,
+        autoencoder_threshold=float(threshold),
+    )
     output_path.parent.mkdir(parents=True, exist_ok=True)
     predictions.to_csv(output_path, index=False)
 
     print(f'Using Two-Stage Architecture')
     print(f'Using device: {device}')
     print(f'Input vectors: {len(feature_df)}')
+    print(f"Autoencoder threshold: {diagnostics['autoencoder_threshold']:.6f}")
+    print(f"Stage-1 normal gate rate: {diagnostics['stage1_normal_gate_rate']:.4f}")
     print(predictions[['predicted_label', 'confidence']].head().to_string(index=False))
 
 

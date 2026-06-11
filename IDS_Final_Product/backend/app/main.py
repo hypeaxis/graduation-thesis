@@ -5,14 +5,17 @@ import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
+import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from .pipeline_service import (
+    DEFAULT_SCALER,
     DEFAULT_FT_CHECKPOINT,
     DEFAULT_INFERENCE_CONFIG,
+    DATASET_PROFILE_PATH,
     SIMULATION_DIR,
     build_summary,
     new_session_id,
@@ -64,8 +67,12 @@ def config() -> dict:
         "project_root": str(PROJECT_ROOT),
         "checkpoint": str(DEFAULT_FT_CHECKPOINT),
         "checkpoint_exists": DEFAULT_FT_CHECKPOINT.exists(),
+        "scaler": str(DEFAULT_SCALER),
+        "scaler_exists": DEFAULT_SCALER.exists(),
         "inference_config": str(DEFAULT_INFERENCE_CONFIG),
         "inference_config_exists": DEFAULT_INFERENCE_CONFIG.exists(),
+        "dataset_profile": str(DATASET_PROFILE_PATH),
+        "dataset_profile_exists": DATASET_PROFILE_PATH.exists(),
         "snort_columns": SNORT_ALERT_COLUMNS,
     }
 
@@ -126,7 +133,7 @@ def detect(req: DetectionRequest) -> DetectionResponse:
     predictions_csv = SIMULATION_DIR / f"{session_id}_predictions.csv"
 
     try:
-        _, predictions = run_detection_from_alert_csv(
+        features, predictions, diagnostics, input_profile, dataset_profile = run_detection_from_alert_csv(
             alert_csv_path=alert_csv_path,
             window_seconds=req.window_seconds,
             generated_features_path=generated_features_csv,
@@ -136,7 +143,16 @@ def detect(req: DetectionRequest) -> DetectionResponse:
     except Exception as exc:  # pylint: disable=broad-except
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
-    summary = build_summary(predictions)
+    summary = build_summary(predictions, diagnostics)
+
+    sample_predictions_df = predictions.head(12)
+    if "slow_attack_flag" in predictions.columns and int(predictions["slow_attack_flag"].sum()) > 0:
+        flagged = predictions[predictions["slow_attack_flag"] > 0].head(6)
+        remaining = predictions[predictions["slow_attack_flag"] <= 0].head(max(0, 12 - len(flagged)))
+        sample_predictions_df = pd.concat([flagged, remaining], axis=0).head(12)
+
+    sample_indices = list(sample_predictions_df.index)
+    sample_features_df = features.loc[sample_indices] if sample_indices else features.head(12)
 
     response = DetectionResponse(
         session_id=session_id,
@@ -146,7 +162,11 @@ def detect(req: DetectionRequest) -> DetectionResponse:
         model_checkpoint=str(DEFAULT_FT_CHECKPOINT),
         total_vectors=int(len(predictions)),
         summary=summary,
-        sample_predictions=predictions.head(12).to_dict(orient="records"),
+        diagnostics=diagnostics,
+        input_profile=input_profile,
+        dataset_profile=dataset_profile,
+        sample_features=sample_features_df.to_dict(orient="records"),
+        sample_predictions=sample_predictions_df.to_dict(orient="records"),
         created_at=datetime.now(timezone.utc),
     )
 

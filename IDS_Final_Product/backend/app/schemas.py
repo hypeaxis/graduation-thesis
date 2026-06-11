@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Dict, List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 AttackScenario = Literal[
     "normal",
     "port_scan",
+    "slow_port_scan",
     "dos_syn_flood",
     "brute_force",
     "mixed",
@@ -44,6 +45,33 @@ class DetectionSummary(BaseModel):
     predicted_counts: Dict[str, int]
     mean_confidence: float
     max_confidence: float
+    effective_attack_ratio: float
+    dominant_label: str
+    dominant_label_share: float
+    high_confidence_share: float
+    autoencoder_threshold: float
+    stage1_normal_gate_rate: float
+    stage1_attack_gate_rate: float
+    slow_attack_count: int
+    slow_attack_ratio: float
+    risk_override_applied: bool
+    risk_override_count: int
+    abnormal_flags: List[str]
+
+
+class InputProfile(BaseModel):
+    selected_feature_means: Dict[str, float]
+    selected_feature_std: Dict[str, float]
+    slow_attack_score_mean: float
+    slow_attack_ratio: float
+
+
+class DatasetProfile(BaseModel):
+    total_rows: int
+    selected_features: List[str]
+    feature_means: Dict[str, float]
+    feature_p95: Dict[str, float]
+    label_counts: Dict[str, int]
 
 
 class DetectionResponse(BaseModel):
@@ -54,6 +82,10 @@ class DetectionResponse(BaseModel):
     model_checkpoint: str
     total_vectors: int
     summary: DetectionSummary
+    diagnostics: Dict[str, Any]
+    input_profile: InputProfile
+    dataset_profile: DatasetProfile
+    sample_features: List[Dict[str, Any]]
     sample_predictions: List[Dict]
     created_at: datetime
 

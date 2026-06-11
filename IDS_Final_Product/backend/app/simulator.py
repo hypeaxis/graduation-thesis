@@ -93,6 +93,27 @@ def _port_scan_row(ts: datetime, rng: random.Random) -> AlertRow:
     )
 
 
+def _slow_port_scan_row(
+    ts: datetime,
+    rng: random.Random,
+    src_ip: str | None = None,
+    dst_ip: str | None = None,
+    dst_port: int | None = None,
+) -> AlertRow:
+    return AlertRow(
+        timestamp=_snort_timestamp(ts),
+        sig_generator="1",
+        sig_id=2013028,
+        sig_rev=1,
+        msg="ET SCAN Slow Port Scan Behavior",
+        proto="tcp",
+        src=src_ip or f"172.20.1.{rng.randint(2, 40)}",
+        srcport=rng.randint(20000, 65000),
+        dst=dst_ip or f"10.0.3.{rng.randint(8, 18)}",
+        dstport=dst_port if dst_port is not None else rng.randint(20, 1024),
+    )
+
+
 def _dos_syn_row(ts: datetime, rng: random.Random) -> AlertRow:
     return AlertRow(
         timestamp=_snort_timestamp(ts),
@@ -128,6 +149,8 @@ def _scenario_row(scenario: AttackScenario, ts: datetime, rng: random.Random) ->
         return _normal_row(ts, rng)
     if scenario == "port_scan":
         return _port_scan_row(ts, rng)
+    if scenario == "slow_port_scan":
+        return _slow_port_scan_row(ts, rng)
     if scenario == "dos_syn_flood":
         return _dos_syn_row(ts, rng)
     if scenario == "brute_force":
@@ -136,7 +159,9 @@ def _scenario_row(scenario: AttackScenario, ts: datetime, rng: random.Random) ->
     weighted = rng.random()
     if weighted < 0.34:
         return _port_scan_row(ts, rng)
-    if weighted < 0.67:
+    if weighted < 0.58:
+        return _slow_port_scan_row(ts, rng)
+    if weighted < 0.79:
         return _dos_syn_row(ts, rng)
     return _brute_force_row(ts, rng)
 
@@ -150,13 +175,31 @@ def generate_alert_rows(
     rng = random.Random(seed)
     now = datetime.now(timezone.utc) - timedelta(seconds=total_events)
     rows: list[AlertRow] = []
+    slow_scan_src = f"172.20.1.{rng.randint(2, 40)}"
+    slow_scan_dst = f"10.0.3.{rng.randint(8, 18)}"
+    slow_scan_ports = list(range(20, 1025))
 
     for idx in range(total_events):
-        ts = now + timedelta(milliseconds=idx * 120)
+        if scenario == "slow_port_scan":
+            ts = now + timedelta(milliseconds=idx * 1450)
+        else:
+            ts = now + timedelta(milliseconds=idx * 120)
         if scenario != "normal" and rng.random() < benign_ratio:
             rows.append(_normal_row(ts, rng))
         else:
-            rows.append(_scenario_row(scenario, ts, rng))
+            if scenario == "slow_port_scan":
+                dst_port = slow_scan_ports[(idx * 3) % len(slow_scan_ports)]
+                rows.append(
+                    _slow_port_scan_row(
+                        ts,
+                        rng,
+                        src_ip=slow_scan_src,
+                        dst_ip=slow_scan_dst,
+                        dst_port=dst_port,
+                    )
+                )
+            else:
+                rows.append(_scenario_row(scenario, ts, rng))
 
     return rows
 

@@ -186,6 +186,8 @@ def build_feature_rows(df: pd.DataFrame, window_seconds: float) -> pd.DataFrame:
     rows: List[Dict[str, float]] = []
     recent_window: Deque[Dict] = deque()
     recent_100: Deque[Dict] = deque(maxlen=100)
+    recent_60: Deque[Dict] = deque()
+    last_seen_flow: Dict[Tuple[str, str, str, str], datetime] = {}
 
     for _, event in df.iterrows():
         now = event["ts"]
@@ -197,6 +199,8 @@ def build_feature_rows(df: pd.DataFrame, window_seconds: float) -> pd.DataFrame:
 
         while recent_window and (now - recent_window[0]["ts"]).total_seconds() > window_seconds:
             recent_window.popleft()
+        while recent_60 and (now - recent_60[0]["ts"]).total_seconds() > 60.0:
+            recent_60.popleft()
 
         win = list(recent_window)
         same_host = [x for x in win if x["dst"] == dst_ip]
@@ -210,6 +214,27 @@ def build_feature_rows(df: pd.DataFrame, window_seconds: float) -> pd.DataFrame:
         hist_same_host_same_src_port = [x for x in hist_same_host if x["srcport"] == src_port]
         hist_same_service = [x for x in hist if x["service"] == service]
         hist_same_service_diff_host = [x for x in hist_same_service if x["dst"] != dst_ip]
+        src_recent_60 = [x for x in recent_60 if x["src"] == src_ip]
+        src_dst_recent_60 = [x for x in src_recent_60 if x["dst"] == dst_ip]
+
+        flow_key = (src_ip, dst_ip, service, proto)
+        prev_ts = last_seen_flow.get(flow_key)
+        flow_inter_arrival_sec = (now - prev_ts).total_seconds() if prev_ts else window_seconds
+
+        src_conn_count_60s = float(len(src_recent_60))
+        src_unique_dst_ports_60s = float(len({x["dstport"] for x in src_dst_recent_60}))
+
+        interval_component = min(flow_inter_arrival_sec / 3.0, 1.0)
+        persistence_component = min(len(src_dst_recent_60) / 15.0, 1.0)
+        spread_component = min(src_unique_dst_ports_60s / 20.0, 1.0)
+        burst_component = 1.0 - min(len(same_host) / 20.0, 1.0)
+        slow_attack_score = (
+            0.35 * interval_component
+            + 0.25 * persistence_component
+            + 0.2 * spread_component
+            + 0.2 * burst_component
+        )
+        slow_attack_flag = 1.0 if slow_attack_score >= 0.65 and src_conn_count_60s >= 8 else 0.0
 
         base = dict(BASIC_NUMERIC_DEFAULTS)
         base["land"] = 1.0 if src_ip == dst_ip and src_port == int(event["dstport_i"]) else 0.0
@@ -234,6 +259,14 @@ def build_feature_rows(df: pd.DataFrame, window_seconds: float) -> pd.DataFrame:
         if len(hist_same_service) > 0:
             base["dst_host_srv_diff_host_rate"] = len(hist_same_service_diff_host) / len(hist_same_service)
 
+        # Meta-features for slow-and-low attack behavior; these are for diagnostics and
+        # rule-based overlays, not part of the 122 model input tensor.
+        base["flow_inter_arrival_sec"] = float(max(flow_inter_arrival_sec, 0.0))
+        base["src_conn_count_60s"] = src_conn_count_60s
+        base["src_unique_dst_ports_60s"] = src_unique_dst_ports_60s
+        base["slow_attack_score"] = float(slow_attack_score)
+        base["slow_attack_flag"] = float(slow_attack_flag)
+
         base["_protocol"] = proto
         base["_service"] = service
         base["_flag"] = str(event["flag_norm"])
@@ -244,10 +277,13 @@ def build_feature_rows(df: pd.DataFrame, window_seconds: float) -> pd.DataFrame:
             "src": src_ip,
             "dst": dst_ip,
             "srcport": src_port,
+            "dstport": int(event["dstport_i"]),
             "service": service,
         }
         recent_window.append(event_state)
         recent_100.append(event_state)
+        recent_60.append(event_state)
+        last_seen_flow[flow_key] = now
 
     return pd.DataFrame(rows)
 
@@ -278,8 +314,10 @@ def align_to_122_features(feature_df: pd.DataFrame, feature_columns: List[str]) 
     return out
 
 
-def maybe_scale(features: pd.DataFrame, scaler_path: Path) -> pd.DataFrame:
+def maybe_scale(features: pd.DataFrame, scaler_path: Path, strict: bool = False) -> pd.DataFrame:
     if not scaler_path.exists():
+        if strict:
+            raise FileNotFoundError(f"Missing scaler artifact: {scaler_path}")
         return features
 
     with open(scaler_path, "rb") as f:
@@ -307,7 +345,7 @@ def main() -> None:
     raw_df = load_snort_alerts(input_path)
     feature_df = build_feature_rows(raw_df, window_seconds=args.window_seconds)
     aligned = align_to_122_features(feature_df, feature_columns)
-    model_ready = maybe_scale(aligned, scaler_path)
+    model_ready = maybe_scale(aligned, scaler_path, strict=True)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     model_ready.to_csv(output_path, index=False)

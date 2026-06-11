@@ -67,3 +67,8 @@ IDS_Final_Product/log/
 IDS_Final_Product/backend/.venv/
 IDS_Final_Product/.venv/
 MLAnomalyDetection/MLAnomalyDetection/
+Final_Submission_Package.tar.gz
+Final_Submission_Package/
+CIC_IDS_2017_Project/raw_data/
+CIC_IDS_2017_Project/processed_data/
+*.csv
