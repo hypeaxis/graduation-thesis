@@ -34,6 +34,8 @@ Dự án này được quy hoạch thành **2 Nhánh nghiên cứu song song**, 
 ### 🚀 Nhánh 2: Nghiên cứu Nâng cấp Mở rộng - CIC-IDS-2017
 Đây là nhánh thử nghiệm giới hạn công nghệ mới. Mục tiêu là xử lý bộ dữ liệu khổng lồ **CIC-IDS-2017 (2.8 triệu dòng)** và chống lại các cuộc Tấn công chậm (Low-and-Slow Attacks).
 
+> 📥 **Tải Dataset (Khuyến nghị):** Do kích thước thư mục Dataset thô lên tới hơn 800MB, mã nguồn trên GitHub không bao gồm dữ liệu thô. Bạn có thể tải tập dữ liệu CIC-IDS-2017 chính thức tại đây: [Kaggle - Network Intrusion Dataset](https://www.kaggle.com/datasets/chethuhn/network-intrusion-dataset). Sau khi tải, vui lòng giải nén vào thư mục `/CIC_IDS_2017_Project/raw_data/`.
+
 * **`/CIC_IDS_2017_Project/`**: Thư mục cách ly hoàn toàn với nhánh 1.
   * `processed_data/`: Nơi lưu trữ chiến lược **Chunk Splitting**. Dữ liệu được cắt thành 1 khối Train (500k dòng) và 3 khối Test độc lập (775k dòng/khối) bằng Index Shuffling in-place để chống tràn RAM (OOM).
   * `cic_data_processor.py`: Cỗ máy Feature Engineering bổ sung các đặc tính chết người dành riêng cho Slow Attacks (như `Custom_Fwd_Pkt_Rate` và `Custom_Slow_Index`).
