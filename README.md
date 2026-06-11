@@ -24,6 +24,8 @@ Dự án này được quy hoạch thành **2 Nhánh nghiên cứu song song**, 
 ### 🌟 Nhánh 1: Sản phẩm Cuối (Final Product) - NSL-KDD
 Đây là hệ thống hoàn chỉnh có thể mang đi trình diễn và triển khai. Mô hình AI được tối ưu hóa cực nhẹ trên bộ **122 đặc trưng (features)** của NSL-KDD, kết hợp với giao diện giám sát Cyberpunk.
 
+> 📥 **Tải Dataset (NSL-KDD):** Hệ thống không đính kèm file dữ liệu gốc NSL-KDD do dung lượng lớn. Bạn có thể tải tập dữ liệu tại đây: [Kaggle - NSL-KDD Intrusion Detection Dataset](https://www.kaggle.com/datasets/programmer3/nsl-kdd-intrusion-detection-dataset).
+
 * **`/IDS_Final_Product/`**: Trái tim của hệ thống thực chiến.
   * `backend/`: Máy chủ API tốc độ cao viết bằng FastAPI. Tích hợp `simulator.py` để đóng giả các đợt tấn công mạng thực tế thông qua việc tự động sinh Log Snort.
   * `frontend/`: Dashboard giám sát mạng Dark Mode. Ứng dụng Zero-Install React qua CDN, biểu diễn các thông số (Total Traffic, Alert Confidence, Threat Type) mượt mà bằng Recharts.
