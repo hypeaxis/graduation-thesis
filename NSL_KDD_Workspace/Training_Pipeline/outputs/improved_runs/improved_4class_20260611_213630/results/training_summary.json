@@ -1,0 +1,73 @@
+{
+  "run_name": "improved_4class_20260611_213630",
+  "model": "FT-Transformer-v1-improved",
+  "task_type": "4-class-attack",
+  "best_epoch": 3,
+  "best_val_macro_f1": 0.89636736279408,
+  "best_selection_score": 0.89636736279408,
+  "last_train_val_gap": 0.20307035358035952,
+  "test_accuracy": 0.8104590445015977,
+  "test_macro_f1": 0.69604887725941,
+  "test_weighted_f1": 0.8125351124251109,
+  "test_macro_precision": 0.6953990668505511,
+  "test_macro_recall": 0.6977360312021095,
+  "per_class_f1": {
+    "DoS": 0.8876518905709049,
+    "Probe": 0.6458945718204977,
+    "R2L": 0.7658005617977527,
+    "U2R": 0.4848484848484848
+  },
+  "config": {
+    "epochs": 30,
+    "batch_size": 256,
+    "lr": 0.0001,
+    "weight_decay": 0.001,
+    "dropout": 0.2,
+    "label_smoothing": 0.0,
+    "mixup_alpha": 0.0,
+    "scheduler": "cosine",
+    "resampler": "none",
+    "sampler": "weighted_sqrt",
+    "focal_gamma": 3.0,
+    "gradient_clip": 1.0,
+    "target_u2r": 1500,
+    "target_r2l": 4000,
+    "undersample": false
+  },
+  "data": {
+    "distributions": {
+      "train": {
+        "DoS": 36741,
+        "Probe": 9325,
+        "R2L": 796,
+        "U2R": 42
+      },
+      "val": {
+        "DoS": 9186,
+        "Probe": 2331,
+        "R2L": 199,
+        "U2R": 10
+      },
+      "test": {
+        "DoS": 7458,
+        "Probe": 2421,
+        "R2L": 2885,
+        "U2R": 67
+      }
+    },
+    "hashes": {
+      "train": "2ea1c4c978aaeef97918620cd533da8a0a58b71d1846d0646c9d7ea64d751a1c",
+      "val": "28e52a827e155ad8fea9ec79c1f7544d687e1fdfbe61f29e8f1d8b8bab49457c",
+      "test": "0a71944a4d126b0f7fd2e4e9be25b58c0a6f0c3b417c313d55e8574a1fb10207"
+    }
+  },
+  "num_features": 122,
+  "num_classes": 4,
+  "class_names": [
+    "DoS",
+    "Probe",
+    "R2L",
+    "U2R"
+  ],
+  "total_params": 841732
+}

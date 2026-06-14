@@ -1,0 +1,36 @@
+{
+  "model": "FT-Transformer",
+  "best_epoch": 2,
+  "best_val_macro_f1": 0.5885742425940281,
+  "test_accuracy": 0.7706947032206548,
+  "test_macro_f1": 0.6000204066913715,
+  "test_weighted_f1": 0.7740365099469689,
+  "test_macro_precision": 0.6053549355482317,
+  "test_macro_recall": 0.6595713991405475,
+  "num_features": 122,
+  "num_classes": 5,
+  "total_params": 841861,
+  "trainable_params": 841861,
+  "class_names": [
+    "Normal",
+    "DoS",
+    "Probe",
+    "R2L",
+    "U2R"
+  ],
+  "config": {
+    "epochs": 2,
+    "batch_size": 512,
+    "lr": 0.0001,
+    "weight_decay": 0.0001,
+    "patience": 2,
+    "val_size": 0.15,
+    "d_model": 128,
+    "num_heads": 8,
+    "num_layers": 4,
+    "d_ff": 512,
+    "dropout": 0.1,
+    "gamma": 2.0,
+    "seed": 42
+  }
+}

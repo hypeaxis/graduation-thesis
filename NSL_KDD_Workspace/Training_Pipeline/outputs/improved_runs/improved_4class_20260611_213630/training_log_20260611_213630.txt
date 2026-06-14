@@ -1,0 +1,85 @@
+21:36:30 | Log file: /home/ning/Graduation-Thesis/MLAnomalyDetection/outputs/improved_runs/improved_4class_20260611_213630/training_log_20260611_213630.txt
+21:36:30 | Device: cuda
+21:36:30 | GPU: NVIDIA GeForce GTX 1050
+21:36:30 | 
+======================================================================
+21:36:30 | PHASE 1: DATA LOADING & RESAMPLING
+21:36:30 | ======================================================================
+21:36:32 | Features: 122, Classes: 4
+21:36:32 | Class names: ['DoS', 'Probe', 'R2L', 'U2R']
+21:36:32 | Train: (46904, 122), Val: (11726, 122), Test: (12831, 122)
+21:36:32 | 
+======================================================================
+21:36:32 | PHASE 2: MODEL SETUP
+21:36:32 | ======================================================================
+21:36:33 | Model: FTTransformer v1
+21:36:33 |   d_model=128, heads=8, layers=4, d_ff=512
+21:36:33 |   Dropout: 0.2
+21:36:33 |   Total params: 841,732
+21:36:33 |   Class-balanced alpha: [0.1422, 0.1422, 0.2591, 3.4565]
+21:36:33 |   Loss: FocalLoss (γ=3.0)
+21:36:33 |   Optimizer: AdamW (lr=0.0001, wd=0.001)
+21:36:33 |   Mixup alpha: 0.0
+21:36:33 |   Gradient clip: 1.0
+21:36:33 |   Scheduler: CosineAnnealingWarmRestarts (T0=10, Tmult=2)
+21:36:33 | 
+======================================================================
+21:36:33 | PHASE 3: TRAINING (30 epochs)
+21:36:33 | ======================================================================
+21:37:55 | Epoch 01/30 | train_loss=0.0367 train_f1=0.6262 | val_loss=0.0020 val_f1=0.8558 | gap=0.0000 sel=0.8558 | lr=0.000098 | 81.3s
+21:37:55 |   ✓ New best model saved (val_f1=0.8558)
+21:39:15 | Epoch 02/30 | train_loss=0.0098 train_f1=0.8373 | val_loss=0.0017 val_f1=0.7331 | gap=0.1042 sel=0.7019 | lr=0.000091 | 80.4s
+21:40:36 | Epoch 03/30 | train_loss=0.0073 train_f1=0.8848 | val_loss=0.0014 val_f1=0.8964 | gap=0.0000 sel=0.8964 | lr=0.000080 | 80.6s
+21:40:36 |   ✓ New best model saved (val_f1=0.8964)
+21:41:57 | Epoch 04/30 | train_loss=0.0048 train_f1=0.9185 | val_loss=0.0016 val_f1=0.7303 | gap=0.1883 sel=0.6738 | lr=0.000066 | 80.9s
+21:43:18 | Epoch 05/30 | train_loss=0.0046 train_f1=0.9189 | val_loss=0.0009 val_f1=0.8313 | gap=0.0876 sel=0.8050 | lr=0.000051 | 81.2s
+21:44:39 | Epoch 06/30 | train_loss=0.0035 train_f1=0.9351 | val_loss=0.0009 val_f1=0.8732 | gap=0.0620 sel=0.8546 | lr=0.000035 | 81.1s
+21:46:02 | Epoch 07/30 | train_loss=0.0024 train_f1=0.9510 | val_loss=0.0005 val_f1=0.8730 | gap=0.0780 sel=0.8496 | lr=0.000021 | 82.6s
+21:47:24 | Epoch 08/30 | train_loss=0.0022 train_f1=0.9578 | val_loss=0.0004 val_f1=0.8864 | gap=0.0714 sel=0.8650 | lr=0.000010 | 82.1s
+21:48:46 | Epoch 09/30 | train_loss=0.0022 train_f1=0.9563 | val_loss=0.0003 val_f1=0.8831 | gap=0.0732 sel=0.8611 | lr=0.000003 | 82.0s
+21:50:09 | Epoch 10/30 | train_loss=0.0017 train_f1=0.9624 | val_loss=0.0004 val_f1=0.8831 | gap=0.0793 sel=0.8594 | lr=0.000100 | 83.1s
+21:51:31 | Epoch 11/30 | train_loss=0.0037 train_f1=0.9295 | val_loss=0.0029 val_f1=0.7264 | gap=0.2031 sel=0.6655 | lr=0.000099 | 82.2s
+21:51:31 | Early stopping (no improvement for 8 epochs)
+21:51:31 | 
+======================================================================
+21:51:31 | PHASE 4: FINAL EVALUATION ON KDDTest+
+21:51:31 | ======================================================================
+21:51:32 | Loaded best model from epoch 3 (val_f1=0.8964)
+21:51:39 | 
+======================================================================
+21:51:39 | TEST EVALUATION RESULTS
+21:51:39 | ======================================================================
+21:51:39 | Accuracy:           0.8105
+21:51:39 | Macro-F1 Score:     0.6960  ← PRIMARY METRIC
+21:51:39 | Weighted-F1 Score:  0.8125
+21:51:39 | Macro Precision:    0.6954
+21:51:39 | Macro Recall:       0.6977
+21:51:39 | 
+PER-CLASS METRICS:
+21:51:39 |               precision    recall  f1-score   support
+
+         DoS     0.8989    0.8766    0.8877      7458
+       Probe     0.6145    0.6807    0.6459      2421
+         R2L     0.7759    0.7560    0.7658      2885
+         U2R     0.4923    0.4776    0.4848        67
+
+    accuracy                         0.8105     12831
+   macro avg     0.6954    0.6977    0.6960     12831
+weighted avg     0.8155    0.8105    0.8125     12831
+
+21:51:40 | 
+======================================================================
+21:51:40 | TRAINING COMPLETE - SUMMARY
+21:51:40 | ======================================================================
+21:51:40 | Run name:          improved_4class_20260611_213630
+21:51:40 | Best epoch:        3
+21:51:40 | Best val F1:       0.8964
+21:51:40 | Test Macro-F1:     0.6960
+21:51:40 | Test Accuracy:     0.8105
+21:51:40 |   DoS        F1: 0.8877
+21:51:40 |   Probe      F1: 0.6459
+21:51:40 |   R2L        F1: 0.7658
+21:51:40 |   U2R        F1: 0.4848
+21:51:40 | 
+Artifacts saved to: /home/ning/Graduation-Thesis/MLAnomalyDetection/outputs/improved_runs/improved_4class_20260611_213630
+21:51:40 | ======================================================================

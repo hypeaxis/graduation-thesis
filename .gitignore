@@ -72,3 +72,10 @@ Final_Submission_Package/
 CIC_IDS_2017_Project/raw_data/
 CIC_IDS_2017_Project/processed_data/
 *.csv
+
+# CIC IDS 2017 Workspace Data
+CIC_IDS_2017_Workspace/Training_Pipeline/raw_data/
+CIC_IDS_2017_Workspace/Training_Pipeline/processed_data/
+CIC_IDS_2017_Workspace/Training_Pipeline/models/
+
+snort.log.*
