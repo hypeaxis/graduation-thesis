@@ -14,6 +14,7 @@ import copy
 import time
 import numpy as np
 import pandas as pd
+import joblib
 import torch
 import torch.nn as nn
 import math
@@ -47,6 +48,25 @@ class CICDataset(Dataset):
 
     def __getitem__(self, idx):
         return self.features[idx], self.labels[idx]
+
+# ───────────────────────────────────────────────────────────────────────────
+# Focal Loss
+# ───────────────────────────────────────────────────────────────────────────
+class FocalLoss(nn.Module):
+    """
+    Focal Loss helps the model focus on hard-to-classify samples, 
+    especially for heavily imbalanced datasets.
+    """
+    def __init__(self, weight=None, gamma=2.0, label_smoothing=0.0):
+        super(FocalLoss, self).__init__()
+        self.gamma = gamma
+        self.ce = nn.CrossEntropyLoss(weight=weight, label_smoothing=label_smoothing, reduction='none')
+
+    def forward(self, inputs, targets):
+        ce_loss = self.ce(inputs, targets)
+        pt = torch.exp(-ce_loss)
+        focal_loss = ((1 - pt) ** self.gamma) * ce_loss
+        return focal_loss.mean()
 
 
 # ───────────────────────────────────────────────────────────────────────────
@@ -179,7 +199,7 @@ def train_epoch(model, train_loader, criterion, optimizer, device, amp_scaler, e
 
         optimizer.zero_grad(set_to_none=True)
 
-        with torch.amp.autocast('cuda'):
+        with torch.cuda.amp.autocast():
             logits = model(features)
             loss = criterion(logits, labels)
 
@@ -213,7 +233,7 @@ def validate(model, val_loader, criterion, device):
     with torch.no_grad():
         for features, labels in tqdm(val_loader, desc="Validating", leave=False):
             features, labels = features.to(device), labels.to(device)
-            with torch.amp.autocast('cuda'):
+            with torch.cuda.amp.autocast():
                 logits = model(features)
                 loss = criterion(logits, labels)
 
@@ -328,8 +348,9 @@ def main():
     c_weights_tensor = torch.tensor(c_weights, dtype=torch.float32).to(device)
     print(f"\nClass Weights: {c_weights_tensor.cpu().numpy().round(4)}")
 
-    # Loss, Optimizer, Scheduler
-    criterion = nn.CrossEntropyLoss(weight=c_weights_tensor, label_smoothing=LABEL_SMOOTHING)
+    # Loss (Focal Loss thay vì CrossEntropy), Optimizer, Scheduler
+    print(f"Using Focal Loss (gamma=2.0, label_smoothing={LABEL_SMOOTHING})...")
+    criterion = FocalLoss(weight=c_weights_tensor, gamma=2.0, label_smoothing=LABEL_SMOOTHING)
     optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
     scheduler = CosineAnnealingWarmup(optimizer, warmup_epochs=WARMUP_EPOCHS, total_epochs=NUM_EPOCHS)
 
@@ -343,7 +364,7 @@ def main():
     epochs_no_improve = 0
 
     torch.backends.cudnn.benchmark = True
-    amp_scaler = torch.amp.GradScaler('cuda')
+    amp_scaler = torch.cuda.amp.GradScaler()
 
     for epoch in range(NUM_EPOCHS):
         current_lr = optimizer.param_groups[0]['lr']
@@ -424,9 +445,15 @@ def main():
     hist_df = pd.DataFrame(history)
     hist_df.to_csv(os.path.join(SAVE_DIR, 'training_history_v3.csv'), index=False)
 
+    # LƯU SCALER ĐỂ DÙNG CHO INFERENCE (CRITICAL)
+    scaler_path = os.path.join(SAVE_DIR, 'cic_scaler.pkl')
+    joblib.dump(scaler, scaler_path)
+    print(f"💾 Scaler saved to {scaler_path}")
+
     print(f"\nAll artifacts saved to: {SAVE_DIR}/")
     print(f"  - best_model_v3.pt (Model weights)")
     print(f"  - best_model_v3_ema.pt (EMA weights)")
+    print(f"  - cic_scaler.pkl (Data Scaler)")
     print(f"  - training_curves_v3.png")
     print(f"  - confusion_matrix_v3.png")
     print(f"  - training_history_v3.csv")

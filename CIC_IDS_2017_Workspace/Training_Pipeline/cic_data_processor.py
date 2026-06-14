@@ -6,8 +6,8 @@ from sklearn.model_selection import StratifiedKFold, train_test_split
 from tqdm import tqdm
 
 # Đường dẫn tới thư mục chứa các file pcap_ISCX.csv gốc
-RAW_DATA_DIR = "/home/ning/Graduation-Thesis/CIC_IDS_2017_Project/raw_data"
-OUTPUT_DIR = "/home/ning/Graduation-Thesis/CIC_IDS_2017_Project/processed_data"
+RAW_DATA_DIR = "/home/ning/Graduation-Thesis/CIC_IDS_2017_Workspace/Training_Pipeline/raw_data"
+OUTPUT_DIR = "/home/ning/Graduation-Thesis/CIC_IDS_2017_Workspace/Training_Pipeline/processed_data"
 
 def clean_column_names(df):
     """Xóa khoảng trắng thừa và ký tự đặc biệt ở tên cột."""
@@ -93,9 +93,25 @@ def main():
     full_df = pd.concat(dfs, ignore_index=True)
     full_df = clean_column_names(full_df)
     
-    # Dọn dẹp dữ liệu rác ban đầu
-    full_df.replace([np.inf, -np.inf], np.nan, inplace=True)
+    # Xử lý các giá trị Infinity bằng cách gán bằng max_finite của cột thay vì drop
+    print("-> Đang xử lý các giá trị Infinity...")
+    numeric_cols = full_df.select_dtypes(include=[np.number]).columns
+    for col in numeric_cols:
+        if np.isinf(full_df[col]).any():
+            max_finite = full_df.loc[np.isfinite(full_df[col]), col].max()
+            if pd.isna(max_finite):
+                max_finite = 0
+            full_df[col].replace([np.inf, -np.inf], max_finite, inplace=True)
+            
     full_df.dropna(inplace=True)
+    
+    # Loại bỏ các đặc trưng rác (Zero Variance)
+    print("-> Loại bỏ các đặc trưng rác (Zero Variance)...")
+    stds = full_df[numeric_cols].std()
+    zero_var_cols = stds[stds == 0].index.tolist()
+    if zero_var_cols:
+        print(f"Loại bỏ {len(zero_var_cols)} cột Zero Variance: {zero_var_cols}")
+        full_df.drop(columns=zero_var_cols, inplace=True)
     
     print(f"\nKích thước tập dữ liệu gốc: {full_df.shape[0]:,} dòng, {full_df.shape[1]} cột")
     
