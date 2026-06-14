@@ -305,7 +305,7 @@ def main():
     VAL_CSV = 'processed_data/cic_test_chunk_1.csv'
     SAVE_DIR = 'models/v3_improved'
 
-    NUM_EPOCHS = 10
+    NUM_EPOCHS = 15
     LEARNING_RATE = 1e-4
     WEIGHT_DECAY = 1e-4
     PATIENCE = 6

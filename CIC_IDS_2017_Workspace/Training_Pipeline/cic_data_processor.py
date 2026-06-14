@@ -57,6 +57,7 @@ def group_labels(df):
         'Web Attack \uFFFD Brute Force': 'Web Attack',
         'Web Attack \uFFFD XSS': 'Web Attack',
         'Web Attack \uFFFD Sql Injection': 'Web Attack',
+        'Web Attack': 'Web Attack',
         'Bot': 'Rare Attacks',
         'Infiltration': 'Rare Attacks',
         'Heartbleed': 'Rare Attacks'
@@ -112,6 +113,13 @@ def main():
     if zero_var_cols:
         print(f"Loại bỏ {len(zero_var_cols)} cột Zero Variance: {zero_var_cols}")
         full_df.drop(columns=zero_var_cols, inplace=True)
+        
+    # Loại bỏ các cột gây Data Leakage (Memorization rủi ro)
+    leakage_cols = ['Destination_Port', 'Fwd_Header_Length.1']
+    cols_to_drop = [c for c in leakage_cols if c in full_df.columns]
+    if cols_to_drop:
+        print(f"-> Loại bỏ các cột gây rò rỉ dữ liệu (Data Leakage): {cols_to_drop}")
+        full_df.drop(columns=cols_to_drop, inplace=True)
     
     print(f"\nKích thước tập dữ liệu gốc: {full_df.shape[0]:,} dòng, {full_df.shape[1]} cột")
     
@@ -139,18 +147,33 @@ def main():
     print("3. CHIẾN LƯỢC CHUNKING (TÁCH DỮ LIỆU TRAIN / TEST)")
     print("="*60)
     
-    # Lấy ra 500,000 dòng cho Train (Sử dụng index shuffling thay vì train_test_split để tránh OOM RAM)
-    print("\nTrộn ngẫu nhiên dữ liệu để chia Chunk...")
+    # Bốc mẫu Stratified (đảm bảo chia đúng tỷ lệ cho 7 lớp)
+    print("\nLấy mẫu Stratified (Cân bằng phân phối) cho 300,000 dòng Train...")
+    train_size_target = min(300000, int(len(full_df) * 0.8))
     
-    # Shuffle toàn bộ index
-    indices = np.arange(len(full_df))
+    train_indices = []
+    test_pool_indices = []
+    
+    labels_array = full_df['Label'].values
+    unique_labels = np.unique(labels_array)
+    
     np.random.seed(42)
-    np.random.shuffle(indices)
+    for label in unique_labels:
+        group_indices = np.where(labels_array == label)[0]
+        np.random.shuffle(group_indices)
+        
+        # Tỷ lệ của lớp này
+        ratio = len(group_indices) / len(labels_array)
+        n_train = max(1, int(train_size_target * ratio))
+        
+        train_indices.extend(group_indices[:n_train])
+        test_pool_indices.extend(group_indices[n_train:])
+        
+    np.random.shuffle(train_indices)
+    np.random.shuffle(test_pool_indices)
     
-    # Cắt xuống còn 300,000 dòng theo yêu cầu để train siêu nhanh
-    train_size = min(300000, int(len(full_df) * 0.8))
-    train_indices = indices[:train_size]
-    test_pool_indices = indices[train_size:]
+    # Có thể bị lệch 1-2 mẫu do làm tròn, cắt cho chuẩn
+    train_indices = train_indices[:train_size_target]
     
     # Lưu tập Train trực tiếp
     train_path = os.path.join(OUTPUT_DIR, "cic_train_chunk.csv")

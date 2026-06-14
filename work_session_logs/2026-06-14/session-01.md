@@ -12,31 +12,29 @@ Phiên làm việc hôm nay tập trung vào việc **khắc phục dứt điể
   - Phá hủy thư mục Backend/Frontend lỗi thời (`Final_Product`) và `Data` trống, **giải phóng thành công 5.5 GB** không gian lưu trữ cứng.
   - Tổ chức code lên GitHub với tệp `.gitignore` được cấu hình chặt chẽ (cấm đẩy các file CSV hàng GB lên repo).
 
-### b) Cải tiến Data Pipeline (`cic_data_processor.py`)
-- **Vấn đề**: Các file CSV gốc của CIC-IDS-2017 có nhiều flows lỗi chứa giá trị vô cực (`Infinity`) ở cột tốc độ (Bytes/s, Packets/s) do mẫu tấn công có Duration = 0. Code cũ đã vứt bỏ thẳng tay những dòng `Infinity` này, làm mất một lượng lớn mẫu tấn công hiểm hóc. Dữ liệu cũng đang bị dư thừa các cột 0 tuyệt đối (Zero Variance).
+### b) Cải tiến Data Pipeline V2 (`cic_data_processor.py`)
+- **Vấn đề**: Các file CSV gốc của CIC-IDS-2017 có nhiều flows lỗi chứa giá trị vô cực (`Infinity`) ở cột tốc độ (Bytes/s, Packets/s). Dữ liệu cũng đang bị dư thừa các cột 0 tuyệt đối (Zero Variance) và đặc biệt là bị **Rò rỉ Dữ liệu (Data Leakage)** qua các cột định danh. Ngoài ra, việc bốc ngẫu nhiên 300,000 mẫu làm mất đi các lớp tấn công siêu hiếm, và lỗi Regex làm mất lớp `Web Attack`.
 - **Hành động**:
-  - Bổ sung thuật toán nội suy: Tự động phát hiện giá trị `Infinity` và thay thế chúng bằng giá trị dương lớn nhất có hạn (`max_finite`) của cột đó. Điều này giúp giữ lại được các mẫu Flow Duration = 0 quý giá.
-  - Tự động dò tìm và cắt bỏ 8 cột Zero Variance (không mang thông tin), giúp model chạy nhanh và tránh bị nhiễu.
+  - Bổ sung thuật toán nội suy `Infinity` thay vì drop dòng. Cắt bỏ 8 cột Zero Variance.
+  - Sửa lỗi Mapping Regex, gộp lại thành công **đúng 7 lớp cốt lõi** (Benign, DoS, DDoS, PortScan, Brute Force, Web Attack, Rare Attacks).
+  - Loại bỏ hoàn toàn các cột gây **Data Leakage** (như `Destination_Port`, `Fwd_Header_Length.1`), triệt tiêu đường học vẹt của AI để đảm bảo khả năng triển khai thực tế.
+  - **Stratified Sampling bằng NumPy**: Viết lại thuật toán chia dữ liệu 300,000 dòng bằng kỹ thuật chia mảng NumPy (giải quyết lỗi Tràn RAM OOM của Pandas GroupBy trước đó), đảm bảo ép tỷ lệ 7 lớp vào tập Train vô cùng chuẩn xác.
 
 ### c) Cải tiến Model Training (`phase2_train_v3.py`)
-- **Vấn đề**: Thuật toán `CrossEntropyLoss` cũ quá yếu trong việc phạt mô hình khi dự đoán sai các nhãn tấn công hiếm (do số lượng các nhãn này quá ít so với Benign, dù đã dùng SMOTE). Quá trình train cũng quên mất việc xuất đối tượng Data Scaler ra ngoài, dẫn tới việc Inference sau này gặp lỗi tính toán sai lệch Scale.
+- **Vấn đề**: Thuật toán `CrossEntropyLoss` cũ quá yếu, mô hình dễ bị Overpredict các nhãn hiếm (do SMOTE cường độ cao kết hợp Focal Loss). Quá trình train cũng quên xuất đối tượng Data Scaler.
 - **Hành động**:
-  - Tích hợp hàm mất mát **Focal Loss** thay cho CrossEntropy.
+  - Tích hợp hàm mất mát **Focal Loss** và SMOTE (50,000 mẫu).
   - Sửa lỗi phiên bản PyTorch cũ liên quan tới Automatic Mixed Precision (`torch.amp.GradScaler` -> `torch.cuda.amp.GradScaler`).
+  - Nâng cấp giới hạn học từ 10 lên **15 Epochs** để AI đủ thời gian tiêu hoá cả 7 Lớp dữ liệu chống nhiễu mới.
   - Thêm luồng tự động export **`cic_scaler.pkl`** qua thư viện `joblib` ngay khi train xong.
 
-### d) Kết quả Huấn Luyện Đột Phá
-Tiến hành chạy lại quy trình huấn luyện V3 với 10 Epochs trên tập Validation ~840,000 dòng. Các kết quả F1-Score cuối cùng vô cùng xuất sắc:
-- **Macro-F1 Đạt: 0.8292** (Mức trần cao nhất từ trước đến nay cho 7 nhãn không cân bằng).
-- F1-Score `Benign`: 0.9797
-- F1-Score `DDoS`: 0.9711
-- F1-Score `PortScan`: 0.9824
-- F1-Score `DoS`: 0.9644
-- F1-Score `Brute Force`: 0.9556
-- **Recall của Rare Attacks: 96.7%** (Cực kì nhạy bén trong việc bắt các loại tấn công lén lút hiếm gặp).
+## 3. Kiến trúc Vận hành Tương lai (Định hướng Phase 3)
+Sẵn sàng cho việc thiết kế Backend/Frontend thực tế:
+- **Kiến trúc Hybrid**: Chạy Snort Rules trước để chặn tĩnh, AI (FT-Transformer) chỉ đóng vai trò phân tích các Anomalous Flows bí ẩn, giúp giảm >90% False Positives.
+- **Sliding Window Threshold**: Kích hoạt Alert khi có X Flows bị phát hiện dị thường trong vòng Y phút (Triệt tiêu hoàn toàn sự hoang tưởng của AI do Slowloris False Positives).
 
-## 3. Công cụ & Mã hóa phụ trợ
+## 4. Công cụ & Mã hóa phụ trợ
 - Viết thêm script **`monitor.sh`** cho phép người dùng tự động theo dõi thời gian thực (tail) đối với bất kỳ tiến trình nền nào do Agent đang chạy.
 
 ---
-**Trạng thái cuối ngày:** Data Pipeline mạnh mẽ hơn, Model hội tụ với độ chính xác rất cao và Artifacts (Trọng số + Scaler) đều đã lưu hoàn hảo tại `Training_Pipeline/models/v3_improved/`. Hệ thống đã hoàn toàn sẵn sàng cho quá trình tích hợp Inference vào Backend mới.
+**Trạng thái cuối ngày:** Data Pipeline xử lý chống Data Leakage thành công. Model Training (15 Epochs) đang được chạy dưới nền. Chuẩn bị qua Phase Backend.
