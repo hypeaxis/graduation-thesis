@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  # Dịch vụ 1: Web dễ bị tổn thương (Để tấn công Web Attack, DoS, XSS, SQLi)
+  web_dvwa:
+    image: vulnerables/web-dvwa
+    container_name: victim_web
+    ports:
+      - "80:80"
+    restart: always
+
+  # Dịch vụ 2: SSH Server giả lập (Để tấn công Brute Force SSH)
+  ssh_server:
+    image: lscr.io/linuxserver/openssh-server:latest
+    container_name: victim_ssh
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Ho_Chi_Minh
+      - USER_NAME=admin
+      - USER_PASSWORD=password123
+    ports:
+      - "22:2222" # Ánh xạ cổng 22 của WSL vào 2222 của container
+    restart: always
+
+  # Dịch vụ 3: FTP Server giả lập (Để tấn công Brute Force FTP)
+  ftp_server:
+    image: fauria/vsftpd
+    container_name: victim_ftp
+    environment:
+      - FTP_USER=admin
+      - FTP_PASS=password123
+      - PASV_ADDRESS=127.0.0.1
+    ports:
+      - "21:21"
+      - "20:20"
+      - "21100-21110:21100-21110"
+    restart: always
