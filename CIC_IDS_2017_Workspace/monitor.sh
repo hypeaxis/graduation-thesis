@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script để theo dõi các tiến trình nền mới nhất (Data Pipeline / Model Training)
-LOG_DIR="/home/ning/.gemini/antigravity-ide/brain/0164f7d5-ecb9-4b55-9043-62d368d690bf/.system_generated/tasks"
+LOG_DIR=$(ls -td /home/ning/.gemini/antigravity-ide/brain/*/.system_generated/tasks 2>/dev/null | head -n 1)
 
 LATEST_LOG=$(ls -t "$LOG_DIR"/*.log 2>/dev/null | head -n 1)
 
