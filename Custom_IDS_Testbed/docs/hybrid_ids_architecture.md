@@ -1,51 +1,53 @@
-# Tích Hợp Kiến Trúc Hybrid IDS (CICFlowMeter + Snort)
+# Tích Hợp Kiến Trúc Hybrid IDS & 100% WSL
 
-Kiến trúc này giải quyết bài toán cốt lõi: Sử dụng Model Machine Learning đã train bằng CIC-IDS-2017 (Anomaly-based) kết hợp với các luật có sẵn của Snort (Signature-based). Đây được gọi là mô hình **Hybrid IDS**, cực kỳ lý tưởng cho đồ án tốt nghiệp.
+Kiến trúc này thiết lập một môi trường giả lập (Testbed) hoàn chỉnh, trong đó **Laptop 1 (Attacker)** sử dụng WSL trên Windows 10 để tấn công **Laptop 2 (Victim)** chạy WSL trên Windows 11. Ở lớp phòng thủ, hệ thống sử dụng mô hình **Hybrid IDS**, kết hợp giữa Snort (Signature-based) và CICFlowMeter nạp vào Model Machine Learning (Anomaly-based).
 
-## 1. Cấu Trúc Data Pipeline Mới
+## 1. Cấu Trúc Mạng WSL Xuyên Máy Tính
 
-Trong kiến trúc mới, cả Snort và CICFlowMeter sẽ cùng được khởi chạy trên các máy ảo (Sensor). 
+- **Laptop 1 (Windows 10):** WSL nằm sau NAT mặc định. Khi WSL phát động tấn công, Windows 10 sẽ đứng ra làm Proxy (NAT) đẩy gói tin đi. Người phòng thủ (Máy 2) sẽ thấy mọi đợt tấn công xuất phát từ địa chỉ IP WiFi của Laptop 1.
+- **Laptop 2 (Windows 11):** Cấu hình tính năng `mirrored` network cho WSL. Nhờ đó, WSL dùng chung trực tiếp địa chỉ IP vật lý của Laptop 2. Mọi traffic đánh vào IP WiFi của Laptop 2 sẽ bay thẳng vào WSL.
 
 ```mermaid
 graph TD
-    A[Attacker (Máy 1)] -->|Tấn công| B(Mạng LAN / WiFi)
-    B --> C[Card Mạng Máy Ảo (Sensor)]
+    A[Kịch bản auto_attack.py\nWSL - Laptop 1] -->|Bị NAT qua Win 10| B(IP WiFi Laptop 1)
+    B -->|Mạng LAN| C(IP WiFi Laptop 2\nWindows 11 Mirrored)
     
-    C -->|Bắt gói tin song song| D[Snort]
-    C -->|Bắt gói tin song song| E[CICFlowMeter V4.0]
+    C -->|Gói tin đi vào WSL| D[Snort IDS\nChạy trên WSL Máy 2]
+    C -->|Gói tin đi vào WSL| E[CICFlowMeter\nChạy trên WSL Máy 2]
     
-    D -->|Luật tĩnh| F[alert.csv / json]
-    E -->|Gộp Flow & Tính 78 đặc trưng| G[realtime_flow.csv]
+    D -->|Luật tĩnh| F[alert.csv]
+    E -->|78 Đặc trưng thống kê| G[realtime_flow.csv]
     
-    F -->|Đọc realtime| H[Python Backend]
+    F -->|Đọc realtime| H[Python ML Backend]
     G -->|Đọc realtime| H
     
     H -->|Phân tích Anomaly| I{Model CIC-IDS-2017 v7}
-    H -->|Phân tích Signature| J{Snort Rules}
+    H -->|Gộp cảnh báo| J[Dữ liệu Tấn công đã phân loại]
     
-    I -->|Kết quả Dự đoán| K[Gộp dữ liệu]
-    J -->|Cảnh báo| K
-    
-    K -->|Phát qua WebSocket| L((Custom GUI Frontend))
+    J -->|Phát qua WebSocket| K((Custom GUI Frontend))
 ```
 
-## 2. Các Bước Cài Đặt CICFlowMeter Để Chạy Real-time
+## 2. Các Bước Cài Đặt Khung Xương Hệ Thống
 
-Bạn cần cài đặt công cụ trích xuất đặc trưng mạng:
-1. Clone thư mục mã nguồn CICFlowMeter: `git clone https://github.com/ahlashkari/CICFlowMeter.git`
-2. Biên dịch công cụ bằng Gradle hoặc sử dụng bản build sẵn `.zip`.
-3. Chạy CICFlowMeter ở chế độ dòng lệnh (CLI), chỉ định card mạng cần nghe ngóng:
-   ```bash
-   # Chạy lắng nghe trực tiếp trên card mạng eth0 (Hoặc wlan0)
-   sudo ./cfm eth0 /var/log/cicflowmeter/
-   ```
-4. Lúc này, CICFlowMeter sẽ liên tục xuất ra các file `.csv` chứa mảng 78+ con số thống kê ngay tại thư mục `/var/log/cicflowmeter/`.
+**Bước 2.1: Cấu hình Mạng cho Laptop 2 (Máy Nạn Nhân)**
+Vì Windows 11 hỗ trợ `mirrored`, hãy tạo file `C:\Users\<Tên_User>\.wslconfig` trên Windows 11 với nội dung:
+```ini
+[wsl2]
+networkingMode=mirrored
+```
+Khởi động lại WSL bằng lệnh `wsl --shutdown`. 
 
-## 3. Bản chất của Backend ML (Mới)
+**Bước 2.2: Cài Đặt Công Cụ Bắt Gói Tin trên WSL (Laptop 2)**
+Bên trong Terminal Ubuntu của Laptop 2, cài đặt Snort và CICFlowMeter:
+```bash
+# Cài đặt Snort
+sudo apt update && sudo apt install snort -y
 
-Backend lúc này sẽ theo dõi (tail) file CSV của **CICFlowMeter**.
-- Mỗi khi có dòng dữ liệu mới (đại diện cho 1 flow hoàn chỉnh), Backend sẽ bóc tách lấy 78 đặc trưng đó (Flow Duration, Fwd Pkt Len, v.v.).
-- Backend truyền trực tiếp mảng 78 đặc trưng này vào hàm `model.predict()`.
-- Lấy kết quả (`Benign` hoặc `DDoS`, `PortScan`, v.v.) và đẩy lên Custom GUI để vẽ đường đạn.
+# Chạy CICFlowMeter (Cần biên dịch từ Github hoặc dùng bản compiled)
+git clone https://github.com/ahlashkari/CICFlowMeter.git
+# Lắng nghe card mạng
+sudo ./cfm eth0 /var/log/cicflowmeter/
+```
 
-*(Đoạn code đọc CICFlowMeter và apply Model đã được tôi viết lại trong file `scripts/hybrid_ml_backend_example.py`)*
+**Bước 2.3: Giới Hạn Công Cụ Tấn Công trên WSL (Laptop 1)**
+Trên Laptop 1, do WSL bị giới hạn bởi NAT của Windows 10, lệnh Nmap mặc định (SYN Scan `-sS`) sẽ bị rớt gói tin. Mọi lệnh quét mạng bắt buộc phải chuyển sang chế độ TCP Connect (Thêm tham số `-sT`). Tôi đã cấu hình sẵn trong file `auto_attack.py` của bạn.

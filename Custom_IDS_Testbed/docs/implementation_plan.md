@@ -1,121 +1,54 @@
-# Kế Hoạch Triển Khai Kiến Trúc Sinh Dữ Liệu (Môi trường Windows + WSL)
+# Kế Hoạch Cập Nhật Toàn Diện: Kiến Trúc 100% WSL & Hybrid IDS
 
-Dựa trên cấu hình thực tế của bạn (sử dụng WSL - Ubuntu for Windows trên cả 2 laptop), kế hoạch đã được cấu trúc lại hoàn toàn.
+Vì bạn vừa xác nhận **Laptop 1 (Attacker) cũng sử dụng WSL**, đồng thời chúng ta đã chốt mô hình **Hybrid IDS (Snort + CICFlowMeter)** ở bước trước, toàn bộ dự án cần được đập đi xây lại (từ tài liệu đến script) để đồng nhất.
 
-**Thách thức lớn nhất với WSL:** Theo mặc định, WSL2 nằm sau một lớp NAT của Windows (IP nội bộ ảo), nên máy tính khác (Laptop 1) không thể "nhìn thấy" hay quét mạng thẳng vào WSL trên Laptop 2 được. 
-**Giải pháp:** Chúng ta phải đưa WSL trên Laptop 2 ra cùng mạng vật lý (Bridged Network) thông qua Hyper-V, hoặc dùng tính năng Mirrored Network của Windows 11.
-
----
+Dưới đây là kế hoạch thay đổi toàn bộ nội dung thư mục `Custom_IDS_Testbed`.
 
 ## User Review Required
 
-> [!WARNING]
-> Môi trường Windows có **Windows Defender Firewall**. Tính năng này mặc định sẽ chặn đứng các cuộc tấn công (như Ping flood, Nmap scan, Brute force) từ Laptop 1 bay vào. 
-> Bắt buộc: Bạn phải **tắt tạm thời Firewall** trên Laptop 2 (Hoặc tạo Rule cho phép mọi kết nối đến) trong quá trình thu thập dữ liệu PCAP.
+> [!CAUTION]
+> **Giới hạn của WSL khi Tấn công:**
+> Vì Laptop 1 dùng WSL (nằm sau lớp NAT của Windows), một số kỹ thuật quét mạng sâu (như Nmap OS Detection `-O` hoặc SYN Scan `-sS`) có thể không hoạt động chính xác 100% nếu WSL chưa được cấp quyền truy cập raw socket hoặc chạy ở chế độ `mirrored` network.
+> Nếu gặp lỗi khi chạy Nmap trên WSL, bạn sẽ cần thiết lập file `.wslconfig` trên Laptop 1 tương tự như Laptop 2.
 
 ## Open Questions
-1. **Phiên bản Windows:** Laptop 2 của bạn đang chạy Windows 10 hay Windows 11? (Windows 11 có tính năng `mirrored` network rất nhàn, còn Windows 10 sẽ phải dùng Hyper-V Manager để làm Bridge).
-2. **Cáp mạng / WiFi:** Laptop 1 và Laptop 2 có đang kết nối chung một mạng WiFi / LAN nội bộ không?
+
+Để các script và hướng dẫn tôi sắp viết ra chạy mượt mà nhất, bạn cho tôi biết:
+- Laptop 1 của bạn dùng Windows 10 hay Windows 11? (Nếu là Win 11, ta có thể dùng tính năng `mirrored` cho WSL trên Laptop 1 để giải quyết triệt để lỗi mạng).
 
 ---
 
-## Proposed Changes / Kiến Trúc Quy Hoạch
+## Proposed Changes / Kiến Trúc Quy Hoạch Mới
 
-- **Máy 1 (Attacker):** WSL Ubuntu trên Laptop 1.
-- **Máy 2 (Capture/Gateway):** Môi trường Windows gốc trên Laptop 2. Chạy phần mềm Wireshark bản Windows.
-- **Máy 3 (Victim):** WSL Ubuntu trên Laptop 2. (Sẽ cấu hình dùng chung dải mạng IP vật lý với Windows).
+### 1. Cập Nhật Sơ Đồ Mạng (Topology)
+- **Attacker (Máy 1):** Windows Host 1 -> WSL (Chạy `auto_attack.py` và `auto_benign.py`).
+- **Mạng truyền dẫn:** Mạng WiFi LAN nội bộ nối 2 Laptop.
+- **Victim & Sensor (Máy 2):** Windows Host 2 (Windows 11) -> WSL (Chạy Docker Victim, Snort, CICFlowMeter). 
 
----
+### 2. Sửa Đổi Các File Tài Liệu (Docs)
+#### [MODIFY] [walkthrough.md](file:///home/ning/Graduation-Thesis/Custom_IDS_Testbed/docs/walkthrough.md)
+Xóa bỏ hoàn toàn quy trình liên quan đến Wireshark. Thay thế bằng hướng dẫn chuẩn bị môi trường WSL cho cả 2 máy. Hướng dẫn cách bật Snort và CICFlowMeter trên Máy 2, sau đó chạy script trên Máy 1.
 
-### [Phase 1: Máy 3 - Victim (WSL trên Laptop 2)]
+#### [MODIFY] [hybrid_ids_architecture.md](file:///home/ning/Graduation-Thesis/Custom_IDS_Testbed/docs/hybrid_ids_architecture.md)
+Vẽ lại sơ đồ luồng dữ liệu Mermaid, thể hiện rõ đường đi của gói tin từ WSL (Laptop 1) -> Card WiFi vật lý -> WSL (Laptop 2).
 
-Phải cấu hình để mạng của WSL "thông" với bên ngoài. 
+#### [MODIFY] [implementation_plan.md](file:///home/ning/Graduation-Thesis/Custom_IDS_Testbed/docs/implementation_plan.md)
+Xóa bỏ bản kế hoạch cũ, phản ánh kế hoạch kiến trúc 100% WSL này.
 
-#### 1. Cấu hình Mạng (Trên Windows Laptop 2):
-**Cách Khuyên Dùng (Nếu dùng Windows 11):**
-Mở Notepad (hoặc File Explorer), tạo một file có tên `.wslconfig` nằm tại thư mục gốc của User: `C:\Users\<Tên_User_Của_Bạn>\.wslconfig`.
-Thêm nội dung sau vào file:
-```ini
-[wsl2]
-networkingMode=mirrored
-```
-*(Sau khi lưu, mở PowerShell/CMD chạy lệnh `wsl --shutdown` để khởi động lại WSL. Lúc này WSL sẽ dùng chung IP vật lý của Windows).*
+#### [MODIFY] [task.md](file:///home/ning/Graduation-Thesis/Custom_IDS_Testbed/docs/task.md)
+Reset lại Task list cho quy trình thiết lập WSL mới.
 
-**Cách 2 (Nếu dùng Windows 10 Pro có Hyper-V):**
-1. Mở `Hyper-V Manager` trên Windows -> `Virtual Switch Manager`.
-2. Tạo mới một `External` virtual switch, trỏ vào card mạng WiFi/LAN vật lý đang dùng. Đặt tên là `WSL_Bridge`.
-3. Tạo file `.wslconfig` như trên nhưng với nội dung:
-```ini
-[wsl2]
-networkingMode=bridged
-vmSwitch=WSL_Bridge
-ipv6=true
-```
+### 3. Sửa Đổi Mã Nguồn (Scripts)
+#### [MODIFY] [auto_attack.py](file:///home/ning/Graduation-Thesis/Custom_IDS_Testbed/scripts/auto_attack.py)
+Cập nhật các command tấn công đảm bảo tương thích hoàn toàn với môi trường WSL (ví dụ: dùng Nmap Connect Scan `-sT` thay vì SYN Scan `-sS` để tránh lỗi raw socket của WSL mặc định).
 
-#### 2. Tắt Firewall trên Laptop 2:
-Mở `Windows Security` -> `Firewall & network protection` -> Tắt cả 3 mục (Domain, Private, Public) tạm thời khi thu thập dữ liệu.
-
-#### 3. Chạy Nạn nhân (Trong WSL Laptop 2):
-Mở terminal Ubuntu của Máy 3:
-```bash
-# Cài đặt Docker
-sudo apt update
-sudo apt install docker.io docker-compose -y
-sudo usermod -aG docker $USER
-
-# Chạy mục tiêu giả lập
-sudo docker run --rm -d -p 80:80 vulnerables/web-dvwa
-```
-Dùng lệnh `ip addr` trong WSL để xem IP. (Nếu là Mirrored, nó chính là IP của Laptop 2). Giả sử IP là `192.168.1.100`.
-
----
-
-### [Phase 2: Máy 2 - Capture (Windows Laptop 2)]
-
-Chịu trách nhiệm bắt lưu lượng khi nó vừa chạm tới card mạng của máy tính trước khi chui vào WSL.
-
-#### 1. Cài đặt Wireshark:
-1. Tải và cài đặt Wireshark for Windows (chọn cài đặt kèm theo Npcap).
-2. Mở Wireshark lên.
-
-#### 2. Quá trình bắt gói tin:
-1. Trong Wireshark, chọn Card mạng vật lý đang kết nối (Card WiFi hoặc Ethernet).
-2. Ở thanh Filter (bộ lọc) màu xanh lá phía trên cùng, gõ:
-   `ip.addr == 192.168.1.100` *(Thay bằng IP của WSL / Laptop 2)*.
-3. Bấm nút Vây cá mập (Start) để bắt đầu bắt gói tin và thu thập file PCAP.
-
----
-
-### [Phase 3: Máy 1 - Attacker (WSL Laptop 1)]
-
-Tạo ra traffic tấn công.
-
-#### 1. Cài đặt Tools:
-Mở terminal Ubuntu trên Laptop 1:
-```bash
-sudo apt update
-sudo apt install nmap hydra sqlmap hping3 python3 python3-pip -y
-pip3 install requests slowloris
-```
-
-#### 2. Kịch bản Tấn công:
-Thực hiện tấn công thẳng vào IP của Máy 3 (Ví dụ: `192.168.1.100`).
-```bash
-# 1. Quét cổng
-nmap -A -T4 192.168.1.100
-
-# 2. Tấn công DoS Slowloris
-slowloris 192.168.1.100 -p 80
-
-# 3. Tấn công Web (nếu có lỗ hổng)
-hydra -l admin -P /usr/share/wordlists/rockyou.txt 192.168.1.100 http-get /login.php
-```
+#### [MODIFY] [hybrid_ml_backend_example.py](file:///home/ning/Graduation-Thesis/Custom_IDS_Testbed/scripts/hybrid_ml_backend_example.py)
+Chỉnh sửa logic đọc luồng để hiển thị cảnh báo từ IP vật lý của Laptop 1.
 
 ---
 
 ## Verification Plan
 
-### Test cấu hình mạng
-1. Mở WSL trên Laptop 1, gõ lệnh `ping <IP_Của_WSL_Laptop2>`.
-2. Nếu PING thành công -> **Windows Firewall đã tắt và cấu hình mạng WSL thành công.**
-3. Mở Wireshark trên Windows Laptop 2, bạn sẽ thấy các dòng giao thức `ICMP` hiện lên màn hình. Lúc này Testbed của bạn đã hoàn hảo để hoạt động!
+Sau khi tôi sửa lại toàn bộ file, bạn sẽ kiểm chứng bằng cách:
+1. Đọc lại `walkthrough.md` để thấy quy trình đã thay đổi hoàn toàn (không còn Wireshark, có WSL cho máy 1).
+2. Chạy thử `auto_attack.py` trên Laptop 1 WSL để xem có bắn được traffic xuyên qua WiFi sang Laptop 2 WSL hay không.

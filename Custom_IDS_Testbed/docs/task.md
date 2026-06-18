@@ -1,11 +1,9 @@
-# Tiến Độ Triển Khai Testbed IDS
+# Tiến Độ Cập Nhật Kiến Trúc 100% WSL & Hybrid IDS
 
-Dưới đây là danh sách các hạng mục công việc để xây dựng hệ thống. Đánh dấu [x] khi hoàn thành.
+Danh sách các công việc đã được làm mới để phù hợp với môi trường thực tế của bạn (Laptop 1 Win 10 WSL, Laptop 2 Win 11 WSL).
 
-- [x] Lập kế hoạch kiến trúc (Windows 11 + WSL + WiFi LAN)
-- [x] Tạo file cấu hình `docker-compose.yml` cho Máy 3 (Victim)
-- [x] Tạo script tự động hóa lưu lượng bình thường `auto_benign.py` (Cho Máy 1)
-- [x] Tạo script tự động hóa tấn công `auto_attack.py` (Cho Máy 1)
-- [x] Hướng dẫn User đưa các file cấu hình sang đúng máy
-- [x] Hướng dẫn cấu hình mạng `mirrored` trên Windows 11
-- [x] Hướng dẫn thu thập PCAP bằng Wireshark
+- [x] Lập kế hoạch kiến trúc mạng (Win10 NAT -> Win11 Mirrored)
+- [x] Cập nhật file kiến trúc `hybrid_ids_architecture.md`
+- [x] Tinh chỉnh kịch bản tấn công `auto_attack.py` (Chuyển Nmap sang chế độ TCP Connect `-sT` để vượt qua NAT của WSL Win 10)
+- [x] Viết lại toàn bộ hướng dẫn vận hành `walkthrough.md`
+- [x] Push cập nhật lên Github

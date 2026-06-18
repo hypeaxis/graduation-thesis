@@ -28,7 +28,8 @@ def attack_pipeline():
         print(f"{'='*50}")
 
         # Bước 1: Port Scan (Quét cổng)
-        run_command(f"nmap -sS -T4 -p 1-1000 {VICTIM_IP}", "Quét 1000 cổng đầu tiên (Nmap)")
+        # BẮT BUỘC DÙNG -sT (TCP Connect) thay vì -sS (SYN Scan) để tránh lỗi rơi gói tin do NAT của Windows 10 WSL
+        run_command(f"sudo nmap -sT -T4 -p 1-1000 {VICTIM_IP}", "Quét 1000 cổng đầu tiên bằng chế độ TCP Connect (Nmap)")
         time.sleep(10) # Nghỉ 10s cho GUI hiển thị
 
         # Bước 2: Brute Force Web
