@@ -12,7 +12,7 @@ def parse_args():
         '--output-root',
         type=Path,
         default=None,
-        help='Root directory to store run outputs.',
+        help='Root directory to store run models/weights.',
     )
     parser.add_argument(
         '--runs',
@@ -298,7 +298,7 @@ def main() -> None:
     base_dir = Path(__file__).resolve().parent
     train_script = base_dir / 'train_ft_transformer_nslkdd.py'
 
-    output_root = args.output_root or (base_dir / 'outputs' / 'nslkdd_ft_experiments')
+    output_root = args.output_root or (base_dir / 'models/weights' / 'nslkdd_ft_experiments')
     output_root.mkdir(parents=True, exist_ok=True)
 
     experiments = build_experiments()

@@ -105,8 +105,8 @@ def load_and_preprocess(
     
     Returns dict with train/val/test arrays, metadata, and verification hashes.
     """
-    train_path = data_dir / 'cleaned5Grouped_v2_KddTrain+.csv'
-    test_path = data_dir / 'cleaned5Grouped_v2_KddTest+.csv'
+    train_path = data_dir / 'data/processed/cleaned5Grouped_v2_KddTrain+.csv'
+    test_path = data_dir / 'data/processed/cleaned5Grouped_v2_KddTest+.csv'
     
     if not train_path.exists() or not test_path.exists():
         raise FileNotFoundError(

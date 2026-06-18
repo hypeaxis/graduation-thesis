@@ -402,7 +402,7 @@ def main():
 
     base_dir = Path(__file__).resolve().parent
     run_name = f'improved_4class_{datetime.now().strftime("%Y%m%d_%H%M%S")}'
-    output_dir = base_dir / 'outputs' / 'improved_runs' / run_name
+    output_dir = base_dir / 'models/weights' / 'improved_runs' / run_name
     model_dir = output_dir / 'models'
     results_dir = output_dir / 'results'
     model_dir.mkdir(parents=True, exist_ok=True)

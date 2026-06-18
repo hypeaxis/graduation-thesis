@@ -11,38 +11,35 @@
 
 ## 📖 Giới thiệu Tổng quan (Overview)
 
-Hệ thống **AI-Powered NIDS** được thiết kế để giám sát, phân tích lưu lượng mạng và phát hiện các mối đe dọa an ninh mạng nguy hiểm (như *DoS, DDoS, PortScan, Brute-Force, Web Attacks, Slowloris...*) theo thời gian thực. 
+Hệ thống **AI-Powered NIDS** được thiết kế để giám sát, phân tích lưu lượng mạng và phát hiện các mối đe dọa an ninh mạng nguy hiểm (như *DoS, DDoS, PortScan, Brute-Force, Web Attacks, Infiltration, Botnet...*) theo thời gian thực. 
 
-Thay vì sử dụng các thuật toán Machine Learning truyền thống (Decision Tree, Random Forest) vốn gặp hạn chế lớn khi xử lý dữ liệu mạng đồ sộ, đồ án này tiên phong ứng dụng kiến trúc **FT-Transformer (Feature Tokenizer Transformer)**. Đây là một trong những kiến trúc mạng học sâu hiện đại nhất dành riêng cho dữ liệu dạng bảng (Tabular Data), mang lại độ chính xác vượt trội đồng thời hạn chế tối đa rủi ro False Positives (Cảnh báo giả).
+Thay vì sử dụng các thuật toán Machine Learning truyền thống vốn gặp hạn chế lớn khi xử lý dữ liệu mạng phân tán, đồ án này tiên phong ứng dụng kiến trúc **FT-Transformer (Feature Tokenizer Transformer)** kết hợp với mô hình **Cascade Ensemble**. Đây là một trong những hệ thống học sâu và học máy lai hiện đại nhất, mang lại độ chính xác cực đoan (>99%) đồng thời hạn chế tối đa rủi ro False Positives (Cảnh báo giả).
 
 ---
 
 ## 🧭 Cấu trúc Dự án (Duality Project Structure)
 
-Dự án này được quy hoạch thành **2 Nhánh nghiên cứu song song**, đại diện cho 2 giai đoạn vòng đời của hệ thống:
+Dự án này được quy hoạch chặt chẽ theo tiêu chuẩn Khoa học Dữ liệu (Data Science Project Structure), chia làm **2 Workspace** song song đại diện cho 2 bộ dữ liệu và 2 giai đoạn vòng đời của hệ thống:
 
-### 🌟 Nhánh 1: Sản phẩm Cuối (Final Product) - NSL-KDD
-Đây là hệ thống hoàn chỉnh có thể mang đi trình diễn và triển khai. Mô hình AI được tối ưu hóa cực nhẹ trên bộ **122 đặc trưng (features)** của NSL-KDD, kết hợp với giao diện giám sát Cyberpunk.
+### 🌟 1. Nhánh Triển khai Thực tế: `NSL_KDD_Workspace`
+Đây là hệ thống hoàn chỉnh có thể mang đi trình diễn và triển khai thực chiến. Mô hình AI được tối ưu hóa cực nhẹ trên bộ dữ liệu kinh điển NSL-KDD, kết hợp với giao diện giám sát Cyberpunk.
 
-> 📥 **Tải Dataset (NSL-KDD):** Hệ thống không đính kèm file dữ liệu gốc NSL-KDD do dung lượng lớn. Bạn có thể tải tập dữ liệu tại đây: [Kaggle - NSL-KDD Intrusion Detection Dataset](https://www.kaggle.com/datasets/programmer3/nsl-kdd-intrusion-detection-dataset).
+*   **`Final_Product/`**: Trái tim của hệ thống thực chiến.
+    *   `backend/`: Máy chủ API tốc độ cao viết bằng FastAPI. Tích hợp hệ thống giả lập cuộc tấn công mạng thực tế thông qua việc tự động sinh Log Snort.
+    *   `frontend/`: Dashboard giám sát mạng Dark Mode viết bằng React. Hiển thị thông số (Total Traffic, Alert Confidence, Threat Type) mượt mà bằng Recharts.
+    *   `inference/`: Bộ máy chuẩn hóa luồng mạng thời gian thực bằng kỹ thuật Cửa sổ trượt (Sliding Window), và thực thi dự đoán bằng PyTorch.
+*   **`src/`**: Mã nguồn lõi dùng để tiền xử lý đặc trưng và huấn luyện mô hình FT-Transformer cho NSL-KDD.
+*   **`data/`** & **`models/`**: Nơi chứa dữ liệu và trọng số mô hình đã được huấn luyện.
 
-* **`/IDS_Final_Product/`**: Trái tim của hệ thống thực chiến.
-  * `backend/`: Máy chủ API tốc độ cao viết bằng FastAPI. Tích hợp `simulator.py` để đóng giả các đợt tấn công mạng thực tế thông qua việc tự động sinh Log Snort.
-  * `frontend/`: Dashboard giám sát mạng Dark Mode. Ứng dụng Zero-Install React qua CDN, biểu diễn các thông số (Total Traffic, Alert Confidence, Threat Type) mượt mà bằng Recharts.
-  * `inference/`: Bộ máy chuẩn hóa luồng mạng thời gian thực (`snort_preprocess_122.py`) bằng kỹ thuật Sliding Window (Cửa sổ trượt), và thực thi mô hình PyTorch.
-* **`/MLAnomalyDetection/`**: Trung tâm huấn luyện Model (R&D). Chứa các file `train_improved.py`, cấu hình rút trích đặc trưng, xử lý mất cân bằng dữ liệu (SMOTE, ADASYN), và bộ scaler.
-* **`Final_Submission_Package.tar.gz`**: Gói nộp đồ án khép kín (Backup).
+### 🚀 2. Nhánh Nghiên cứu Nâng cao: `CIC_IDS_2017_Workspace`
+Đây là nhánh thử nghiệm công nghệ tột đỉnh. Bài toán đặt ra là phải đối phó với bộ dữ liệu khổng lồ **CIC-IDS-2017 (2.8 triệu dòng)**, cực đoan về độ mất cân bằng và phức tạp trong việc nhận diện Botnet cũng như Infiltration.
 
-### 🚀 Nhánh 2: Nghiên cứu Nâng cấp Mở rộng - CIC-IDS-2017
-Đây là nhánh thử nghiệm giới hạn công nghệ mới. Mục tiêu là xử lý bộ dữ liệu khổng lồ **CIC-IDS-2017 (2.8 triệu dòng)** và chống lại các cuộc Tấn công chậm (Low-and-Slow Attacks).
-
-> 📥 **Tải Dataset (Khuyến nghị):** Do kích thước thư mục Dataset thô lên tới hơn 800MB, mã nguồn trên GitHub không bao gồm dữ liệu thô. Bạn có thể tải tập dữ liệu CIC-IDS-2017 chính thức tại đây: [Kaggle - Network Intrusion Dataset](https://www.kaggle.com/datasets/chethuhn/network-intrusion-dataset). Sau khi tải, vui lòng giải nén vào thư mục `/CIC_IDS_2017_Project/raw_data/`.
-
-* **`/CIC_IDS_2017_Project/`**: Thư mục cách ly hoàn toàn với nhánh 1.
-  * `processed_data/`: Nơi lưu trữ chiến lược **Chunk Splitting**. Dữ liệu được cắt thành 1 khối Train (500k dòng) và 3 khối Test độc lập (775k dòng/khối) bằng Index Shuffling in-place để chống tràn RAM (OOM).
-  * `cic_data_processor.py`: Cỗ máy Feature Engineering bổ sung các đặc tính chết người dành riêng cho Slow Attacks (như `Custom_Fwd_Pkt_Rate` và `Custom_Slow_Index`).
-  * `phase2_ft_transformer_v2.py`: Bản thiết kế **FT-Transformer V2**. Đột phá công nghệ với `DropPath` (Stochastic Depth), `LayerScale`, và `GEGLU Activation`.
-  * `phase2_train_v2.py`: Kịch bản huấn luyện thông minh tích hợp **Dynamic Focal Loss** (Tự động cân bằng class dựa trên tỷ lệ hiếm).
+*   **`src/`**: Khối não của dự án.
+    *   `data_processing/`: Cỗ máy Feature Engineering bổ sung các đặc tính chết người như Tỷ lệ Luồng (Flow Ratio).
+    *   `models/`: Bản thiết kế **FT-Transformer V2** tiên tiến. Đột phá với `DropPath` (Stochastic Depth) và `LayerScale`.
+    *   `training/`: Kịch bản huấn luyện hệ thống **Hybrid Ensemble V7** (FT-Transformer kết hợp Random Forest và KNN qua cơ chế Voting khắt khe).
+*   **`docs/`**: Toàn bộ báo cáo phân tích hiệu năng mô hình, lịch sử phát triển kiến trúc Cascade, và chứng minh toán học.
+*   **`archive/`**: Bảo tàng lưu trữ các phiên bản tiền nhiệm (V2 -> V6) để phục vụ việc tra cứu và so sánh.
 
 ---
 
@@ -54,34 +51,31 @@ Dự án này được quy hoạch thành **2 Nhánh nghiên cứu song song**, 
 - Bộ nhớ: RAM 8GB (Khuyến nghị 16GB nếu muốn chạy nhánh CIC-IDS)
 - Cổng mạng khả dụng: 8000 (Cho Backend/Frontend)
 
-### Vận hành Nhánh 1: Giao diện Giám sát (Dashboard)
+### Vận hành Ứng dụng Giao diện Giám sát (Nhánh NSL-KDD)
 Hệ thống được thiết kế để "Chạy trong 1 nốt nhạc":
 
 1. Mở Terminal tại thư mục gốc của dự án.
 2. Khởi chạy Script đóng gói:
    ```bash
-   chmod +x IDS_Final_Product/run.sh
-   cd IDS_Final_Product/
+   chmod +x NSL_KDD_Workspace/Final_Product/run.sh
+   cd NSL_KDD_Workspace/Final_Product/
    ./run.sh
    ```
 3. Mở trình duyệt web và truy cập: **`http://localhost:8000`**
-4. Giao diện Cyberpunk sẽ hiện ra. Bạn hãy nhấn nút **`[ Simulate & Detect ]`** góc trên bên phải để giả lập cuộc tấn công mạng và theo dõi các cột biểu đồ phản ứng tức thời!
+4. Giao diện Cyberpunk sẽ hiện ra. Bạn hãy nhấn nút **`[ Simulate & Detect ]`** góc trên bên phải để giả lập cuộc tấn công mạng và theo dõi phản ứng tức thời của AI!
 
 ---
 
 ## 🔬 Những Điểm Sáng Kỹ thuật (Technical Innovations)
 
-Đồ án này không chỉ đơn thuần là phân loại dữ liệu, mà giải quyết những bài toán hóc búa nhất của ngành An toàn thông tin:
+Đồ án này giải quyết những bài toán hóc búa nhất của ngành An toàn thông tin:
 
-1. **Từ Log thô sang Ma trận Toán học (Real-time Sliding Window):**
-   Thay vì đọc file CSV tĩnh, hệ thống (Nhánh 1) thu thập chuỗi Log Snort (chỉ chứa IP/Port/Time), sau đó dùng thuật toán Cửa sổ trượt (Sliding Window) để tự động tính toán các chỉ số phức tạp (Như số lượng kết nối trong 2 giây qua tới cùng 1 máy chủ). Biến log văn bản thành Tensor 122 chiều trong tích tắc.
-2. **Kiến trúc FT-Transformer V2 (Nhánh 2):**
-   * **DropPath**: Vứt bỏ ngẫu nhiên các nơ-ron trong quá trình train để chống lại hiện tượng Học vẹt (Overfitting).
-   * **LayerScale**: Giữ cho mạng nơ-ron siêu sâu không bị "phát nổ" Gradient.
-3. **Dynamic Focal Loss:**
-   Xử lý vấn đề Mất cân bằng dữ liệu cực đoan (Imbalanced Data). Có những loại tấn công chiếm 80% dữ liệu, có loại chỉ chiếm 0.1%. Hệ thống sẽ tự động phạt nặng Model nếu đoán sai loại 0.1%, ép Model phải học kỹ từng loại tấn công hiếm.
-4. **Trị Tấn công Chậm (Low-and-Slow Defeat):**
-   Bổ sung biến `Custom_Slow_Index` dựa trên tỷ lệ Thời gian sống của luồng chia cho IAT Max. Chuyên bắt bớ những luồng mạng "ngâm" kết nối hòng làm sập Server mà không gây ồn ào.
+1. **Kiến trúc Two-Stage Cascade:**
+   Hệ thống không đoán nhãn ngay, mà chia làm Tầng 1 (Gating) để chặn phần lớn luồng bình thường, chỉ những luồng khả nghi mới bị đẩy xuống Tầng 2 (Expert) phân tích chuyên sâu. Tối ưu cực đại tốc độ và hạ thấp cảnh báo giả.
+2. **Từ Log thô sang Ma trận (Real-time Sliding Window):**
+   Biến đổi luồng Log Snort thành Tensor mạng tức thời qua cơ chế trượt cửa sổ thời gian (Sliding Window).
+3. **Hard Negative Mining & Hybrid Ensemble:**
+   Sử dụng kỹ thuật thu thập lại các dự đoán sai của AI để huấn luyện nâng cao. Dùng cơ chế Hội đồng biểu quyết đa thuật toán (Voting) để dập tắt triệt để rủi ro nhận diện nhầm Web Attack và Botnet.
 
 ---
 
@@ -90,5 +84,3 @@ Hệ thống được thiết kế để "Chạy trong 1 nốt nhạc":
 * **Mã số sinh viên**: [Điền MSSV]
 * **Giáo viên hướng dẫn**: [Điền tên GVHD]
 * **Trường/Khoa**: [Điền tên Trường]
-
-*Nếu bạn có bất kỳ câu hỏi nào về kiến trúc Model hoặc cách triển khai, vui lòng xem các file thiết kế chi tiết nằm trong thư mục `/models/` và `/Work_Logs/`.*

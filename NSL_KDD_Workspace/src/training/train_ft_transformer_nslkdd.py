@@ -149,9 +149,9 @@ def apply_smote(X: np.ndarray, y: np.ndarray, strategy: str, k_neighbors: int, s
 
 
 def load_datasets(data_dir: Path, val_size: float, seed: int, smote_strategy: str = 'none', smote_k: int = 5, use_selected_features: bool = False, task_type: str = '5-class'):
-    train_path = data_dir / 'cleaned5Grouped_v2_KddTrain+.csv'
-    test_path = data_dir / 'cleaned5Grouped_v2_KddTest+.csv'
-    artifacts_dir = data_dir / 'artifacts_preprocess'
+    train_path = data_dir / 'data/processed/cleaned5Grouped_v2_KddTrain+.csv'
+    test_path = data_dir / 'data/processed/cleaned5Grouped_v2_KddTest+.csv'
+    artifacts_dir = data_dir / 'models'
 
     if not train_path.exists() or not test_path.exists():
         raise FileNotFoundError('Preprocessed NSL-KDD CSV files are missing. Run DataPreprocrss5ClassTrain.py and DataPreprocess5ClassTest.py first.')
@@ -426,7 +426,7 @@ def main() -> None:
     set_seed(args.seed)
 
     base_dir = Path(__file__).resolve().parent
-    default_output_dir = base_dir / 'outputs' / 'ft_transformer_nslkdd'
+    default_output_dir = base_dir / 'models/weights' / 'ft_transformer_nslkdd'
     model_dir = Path(args.save_dir) if args.save_dir else default_output_dir / 'models'
     results_dir = Path(args.results_dir) if args.results_dir else default_output_dir / 'results'
     output_dir = model_dir.parent
@@ -664,7 +664,7 @@ def main() -> None:
             'd_ff': args.d_ff,
             'dropout': args.dropout,
         },
-        'feature_columns_path': str(base_dir / 'artifacts_preprocess' / 'selected_features.json') if args.use_selected_features else str(base_dir / 'artifacts_preprocess' / 'feature_columns.json'),
+        'feature_columns_path': str(base_dir / 'models' / 'selected_features.json') if args.use_selected_features else str(base_dir / 'models' / 'feature_columns.json'),
         'default_snort_feature_csv': str(base_dir.parent / 'final' / 'snort_features_122.csv'),
         'default_snort_prediction_csv': str(base_dir.parent / 'final' / 'snort_ft_transformer_predictions.csv'),
     }

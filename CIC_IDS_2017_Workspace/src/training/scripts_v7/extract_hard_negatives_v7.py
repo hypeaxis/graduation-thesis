@@ -38,7 +38,7 @@ def main():
     suspicious_idx = list(encoder1.classes_).index('Suspicious')
     
     print("Loading Full Train Data...")
-    df_full = pd.read_csv('processed_data/cic_train_full.csv')
+    df_full = pd.read_csv('data/processed/cic_train_full.csv')
     for col in df_full.select_dtypes(include=['float64']).columns: df_full[col] = df_full[col].astype('float32')
     for col in df_full.select_dtypes(include=['int64']).columns: df_full[col] = df_full[col].astype('int32')
     
@@ -166,7 +166,7 @@ def main():
     df_stage2_final = df_stage2_combined[STAGE2_FEATURES_V7 + ['Label_Stage2_V7']].copy()
     df_stage2_final.rename(columns={'Label_Stage2_V7': 'Label'}, inplace=True)
     
-    out_path = 'processed_data/cic_train_stage2_v7_hard.csv'
+    out_path = 'data/processed/cic_train_stage2_v7_hard.csv'
     df_stage2_final.to_csv(out_path, index=False)
     print(f"\nSaved Hard Negative dataset (V7) to {out_path} ({len(df_stage2_final)} rows)")
 

@@ -214,8 +214,8 @@ def validate(model, val_loader, criterion, device):
     return avg_loss, macro_f1, g_mean, all_preds, all_labels
 
 def main():
-    TRAIN_CSV = 'processed_data/cic_train_stage2_v7_hard.csv'
-    VAL_CSV = 'processed_data/cic_test_full.csv'
+    TRAIN_CSV = 'data/processed/cic_train_stage2_v7_hard.csv'
+    VAL_CSV = 'data/processed/cic_test_full.csv'
     SAVE_DIR = 'models/v7_cascade/stage2'
     os.makedirs(SAVE_DIR, exist_ok=True)
     

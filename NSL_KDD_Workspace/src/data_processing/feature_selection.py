@@ -8,8 +8,8 @@ from sklearn.ensemble import RandomForestClassifier
 
 def main():
     base_dir = Path(__file__).resolve().parent
-    data_path = base_dir / 'cleaned5Grouped_v2_KddTrain+.csv'
-    artifacts_dir = base_dir / 'artifacts_preprocess'
+    data_path = base_dir / 'data/processed/cleaned5Grouped_v2_KddTrain+.csv'
+    artifacts_dir = base_dir / 'models'
     feature_columns_path = artifacts_dir / 'feature_columns.json'
     
     if not data_path.exists():

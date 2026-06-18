@@ -78,7 +78,7 @@ def main():
     THRESHOLD = 0.85
     
     print("Processing Data in Chunks for Inference...")
-    chunk_iter = pd.read_csv('processed_data/cic_test_full.csv', chunksize=chunk_size)
+    chunk_iter = pd.read_csv('data/processed/cic_test_full.csv', chunksize=chunk_size)
     for i, chunk in enumerate(chunk_iter):
         print(f"\n--- Processing Chunk {i+1} ---")
         chunk.columns = chunk.columns.str.strip()

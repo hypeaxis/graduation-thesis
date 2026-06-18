@@ -7,8 +7,8 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import PowerTransformer
 from tqdm import tqdm
 
-RAW_DATA_DIR = "/home/ning/graduation-thesis/CIC_IDS_2017_Workspace/Training_Pipeline/raw_data"
-OUTPUT_DIR = "/home/ning/graduation-thesis/CIC_IDS_2017_Workspace/Training_Pipeline/processed_data"
+RAW_DATA_DIR = "/home/ning/graduation-thesis/CIC_IDS_2017_Workspace/data/raw"
+OUTPUT_DIR = "/home/ning/graduation-thesis/CIC_IDS_2017_Workspace/data/processed"
 
 STAGE2_FEATURES = [
     'Port_Is_Web', 'Port_Is_RemoteAccess', 'Port_Is_WellKnown',
