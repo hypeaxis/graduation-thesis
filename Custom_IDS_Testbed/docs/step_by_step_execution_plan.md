@@ -69,7 +69,7 @@ Máy 1 chỉ đóng vai trò chạy mã độc và kịch bản tấn công. Do 
    - Mở Terminal Ubuntu (Máy 1).
    - **Tải công cụ tấn công mạng (Nmap, Hydra) & Python:**
      ```bash
-     sudo apt update && sudo apt install nmap hydra python3-pip -y
+     sudo apt update && sudo apt install nmap hydra sqlmap python3-pip -y
      # Lưu ý: Thêm cờ --break-system-packages do các bản Ubuntu mới chặn pip3 cài trực tiếp
      pip3 install requests slowloris --break-system-packages
      ```

@@ -5,7 +5,7 @@ import threading
 
 # CẤU HÌNH ĐỊA CHỈ IP CỦA LAPTOP 2 (MÁY NẠN NHÂN)
 VICTIM_IP = "192.168.x.x"  # TODO: Đổi thành IP WiFi thực tế của Laptop 2
-TARGET_URL = f"http://{VICTIM_IP}/login.php"
+ENDPOINTS = ["/", "/DVWA/", "/DVWA/login.php", "/DVWA/index.php"]
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
@@ -14,22 +14,26 @@ USER_AGENTS = [
 ]
 
 def simulate_normal_browsing():
-    print(f"[*] Đang bắt đầu tạo Benign Traffic tới {TARGET_URL}...")
+    print(f"[*] Đang bắt đầu tạo Benign Traffic tới Máy Nạn Nhân...")
     while True:
         try:
             # Chọn ngẫu nhiên User-Agent để mô phỏng người dùng thật
             headers = {'User-Agent': random.choice(USER_AGENTS)}
             
+            # Chọn ngẫu nhiên Endpoint để tránh lỗi 404 liên tục
+            url = f"http://{VICTIM_IP}{random.choice(ENDPOINTS)}"
+            
             # Gửi request GET bình thường
-            response = requests.get(TARGET_URL, headers=headers, timeout=5)
-            print(f"[Benign] Truy cập trang chủ - Status: {response.status_code}")
+            response = requests.get(url, headers=headers, timeout=5)
+            print(f"[Benign] Truy cập {url} - Status: {response.status_code}")
             
             # Đợi một chút rồi truy cập trang khác hoặc submit form ngẫu nhiên
             time.sleep(random.uniform(2, 5))
             
             # Mô phỏng Login thất bại bình thường (sai pass do gõ nhầm)
+            login_url = f"http://{VICTIM_IP}/DVWA/login.php"
             data = {'username': 'admin', 'password': 'wrongpassword', 'Login': 'Login'}
-            requests.post(TARGET_URL, headers=headers, data=data, timeout=5)
+            requests.post(login_url, headers=headers, data=data, timeout=5)
             print("[Benign] Mô phỏng thao tác login...")
             
             # Nghỉ ngơi giữa các vòng lặp (như người dùng đọc web)
@@ -37,7 +41,7 @@ def simulate_normal_browsing():
             
         except requests.exceptions.RequestException as e:
             print(f"[!] Lỗi kết nối: {e}")
-            time.sleep(5)
+            time.sleep(15)
 
 if __name__ == "__main__":
     if "192.168.x.x" in VICTIM_IP:
