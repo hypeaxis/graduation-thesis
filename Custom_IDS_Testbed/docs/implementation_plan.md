@@ -7,14 +7,12 @@ Dưới đây là kế hoạch thay đổi toàn bộ nội dung thư mục `Cus
 ## User Review Required
 
 > [!CAUTION]
-> **Giới hạn của WSL khi Tấn công:**
-> Vì Laptop 1 dùng WSL (nằm sau lớp NAT của Windows), một số kỹ thuật quét mạng sâu (như Nmap OS Detection `-O` hoặc SYN Scan `-sS`) có thể không hoạt động chính xác 100% nếu WSL chưa được cấp quyền truy cập raw socket hoặc chạy ở chế độ `mirrored` network.
-> Nếu gặp lỗi khi chạy Nmap trên WSL, bạn sẽ cần thiết lập file `.wslconfig` trên Laptop 1 tương tự như Laptop 2.
+> **Giới hạn của WSL Win 10 khi Tấn công:**
+> Mặc dù chúng ta đã chuyển Nmap sang chế độ TCP Connect Scan (`-sT`), nhưng vì Laptop 1 dùng WSL trên Windows 10 (nằm sau lớp NAT), một số kỹ thuật quét mạng như **UDP Scan** hay **OS Fingerprinting** vẫn sẽ không tái tạo được chính xác. Dataset bạn tự tạo có thể sẽ thiếu các class này, hoặc các feature liên quan bị méo lệch so với thực tế.
 
-## Open Questions
-
-Để các script và hướng dẫn tôi sắp viết ra chạy mượt mà nhất, bạn cho tôi biết:
-- Laptop 1 của bạn dùng Windows 10 hay Windows 11? (Nếu là Win 11, ta có thể dùng tính năng `mirrored` cho WSL trên Laptop 1 để giải quyết triệt để lỗi mạng).
+> [!IMPORTANT]
+> **Đã xác nhận môi trường:**
+> Laptop 1 được xác nhận sử dụng Windows 10. Do đó, các tài liệu hướng dẫn và mã nguồn sẽ được tinh chỉnh xoay quanh giới hạn NAT của WSL trên Win 10.
 
 ---
 

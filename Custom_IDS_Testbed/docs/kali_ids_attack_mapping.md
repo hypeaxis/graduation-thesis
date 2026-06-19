@@ -76,13 +76,14 @@ Trong CIC-IDS-2017, Infiltration thường mô phỏng việc kẻ tấn công l
 *   **Mục tiêu (Victim):** Các máy ảo Windows (ví dụ Windows 7 hoặc Windows 10 chưa update) hoặc Metasploitable 2/3.
 
 ## 6. Botnet
-Đây là loại khó cấu hình nhất. Bạn cần mô phỏng hệ thống C&C (Command and Control) và các bots kết nối về.
+Đây là loại khó cấu hình và tái tạo nhất. Với giới hạn tài nguyên chỉ có 2 Laptop trong mạng, bạn sẽ không thể mô phỏng một hệ thống C&C (Command and Control) và nhiều bots kết nối về một cách thực sự (vì tính chất Botnet cần lượng lớn thiết bị lây nhiễm).
 
-*   **Công cụ trên Kali Linux:** `Metasploit` (thiết lập C2), `Ares` (Python C2 botnet) hoặc các mã nguồn Botnet open-source trên GitHub.
+*   **Khuyến nghị:** Cân nhắc loại bỏ Botnet ra khỏi scope của Testbed tự xây dựng, hoặc sử dụng lại dữ liệu của lớp Botnet từ dataset CIC-IDS-2017 gốc ghép vào dataset của bạn để huấn luyện.
+*   **Công cụ (Nếu vẫn muốn thử nghiệm quy mô nhỏ):** `Metasploit` (thiết lập C2), `Ares` (Python C2 botnet).
 *   **Cách thức thực hiện:** 
-    1. Cài đặt C2 Server trên Kali.
+    1. Cài đặt C2 Server trên Kali (Máy 1).
     2. Chạy client script (Bot) trên Máy 3 (Victim).
-    3. Gửi lệnh từ Kali bắt Máy 3 thực hiện các hành vi tấn công (ví dụ: máy 3 lại đi DDoS một máy khác).
+    3. Gửi lệnh từ Kali bắt Máy 3 thực hiện các hành vi tấn công.
 
 ---
 

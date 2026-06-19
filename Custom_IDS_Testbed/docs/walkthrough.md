@@ -21,6 +21,12 @@ Tài liệu này hướng dẫn chi tiết cách để Laptop 1 (Win 10 WSL) kh�
      # Di chuyển vào thư mục CICFlowMeter của bạn
      sudo ./cfm eth0 /var/log/cicflowmeter/
      ```
+     > [!WARNING]
+     > **Lưu ý quan trọng trên WSL:** CICFlowMeter cần quyền raw socket để lắng nghe card `eth0`. Trên WSL (kể cả chế độ `mirrored`), card `eth0` đôi khi không expose đúng như mong đợi dẫn đến lỗi không bắt được gói.
+     > **Cách Fallback (Xử lý offline):** Nếu lệnh trên thất bại hoặc không ra luồng mới, hãy chạy tcpdump để ghi lại pcap trước:
+     > `sudo tcpdump -i eth0 -w capture.pcap`
+     > Sau đó tắt tcpdump và cho CICFlowMeter đọc file offline để trích xuất feature:
+     > `sudo ./cfm capture.pcap /var/log/cicflowmeter/`
 4. Mở tab Ubuntu thứ 3 (Chạy Backend Machine Learning):
    ```bash
    # Di chuyển vào thư mục scripts

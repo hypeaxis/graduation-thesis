@@ -27,6 +27,10 @@ graph TD
     J -->|Phát qua WebSocket| K((Custom GUI Frontend))
 ```
 
+### 1.1. Thách Thức Đồng Bộ Nhãn (Label Synchronization)
+Đây là thách thức kỹ thuật lớn nhất của kiến trúc Hybrid IDS. Timestamp của các cảnh báo (alert) từ Snort và timestamp của luồng (flow) trích xuất từ CICFlowMeter có thể bị lệch nhau vài giây do độ trễ xử lý.
+**Giải pháp:** Module `Python ML Backend` cần phải có logic "join/match" thông minh theo **Time Window** (ví dụ: ± 2 giây) cùng với bộ 4 thông tin (Src IP, Dst IP, Src Port, Dst Port) để map chính xác nhãn "Tấn công" từ Snort vào đúng record dòng chảy của CICFlowMeter trước khi đưa vào mô hình học máy.
+
 ## 2. Các Bước Cài Đặt Khung Xương Hệ Thống
 
 **Bước 2.1: Cấu hình Mạng cho Laptop 2 (Máy Nạn Nhân)**
