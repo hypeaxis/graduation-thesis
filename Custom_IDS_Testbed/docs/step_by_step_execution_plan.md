@@ -85,7 +85,7 @@ Máy 1 chỉ đóng vai trò chạy mã độc và kịch bản tấn công. Do 
 
 > [!IMPORTANT]
 > **Thứ tự thực thi rất quan trọng.** Bạn phải khởi động toàn bộ lớp phòng thủ trên **Máy 3** trước khi bắn traffic từ **Máy 1**.
-> Xác định IP của mục tiêu: Trên Máy 2 (Win 11), mở Command Prompt gõ `ipconfig` để xem IP IPv4 của card Wi-Fi (ví dụ: `192.168.1.55`). Do chế độ Mirrored, IP này cũng chính là IP của Máy 3.
+> Xác định IP của mục tiêu: Trên Máy 2 (Win 11), mở Command Prompt gõ `ipconfig` để xem IP IPv4 của card Wi-Fi hoặc LAN (ví dụ: `192.168.1.2`). Do chế độ Mirrored, IP này cũng chính là IP của Máy 3.
 
 ### T0: Khởi động Nạn nhân (Victim)
 - **Trên Máy 3:** Mở Tab Ubuntu số 1.
@@ -126,23 +126,23 @@ Máy 1 chỉ đóng vai trò chạy mã độc và kịch bản tấn công. Do 
 - Traffic bình thường (Benign) cực kỳ quan trọng để ML không bị mất cân bằng lớp. Nếu file `auto_benign.py` chưa có sẵn, bạn có thể tạo nhanh một script bash đơn giản chạy vòng lặp tạo traffic rác:
   ```bash
   # Tạo file benign.sh
-  echo 'while true; do curl -s http://192.168.1.55 > /dev/null; sleep 1; done' > benign.sh
+  echo 'while true; do curl -s http://192.168.1.2 > /dev/null; sleep 1; done' > benign.sh
   chmod +x benign.sh
   ./benign.sh
   ```
-  *(Nếu đã có `auto_benign.py`, bạn mở file sửa IP thành `192.168.1.55` rồi chạy `python3 auto_benign.py`. Để script chạy ngầm sinh traffic).*
+  *(Nếu đã có `auto_benign.py`, bạn mở file sửa IP thành `192.168.1.2` rồi chạy `python3 auto_benign.py`. Để script chạy ngầm sinh traffic).*
 
 ### T3.5: Kiểm tra kết nối mạng (Sanity Check)
 - **Trước khi tấn công**, trên Máy 1 mở Tab số 2, hãy kiểm tra xem Attacker có nhìn thấy Nạn nhân không:
   ```bash
-  ping 192.168.1.55 -c 4
-  curl -I http://192.168.1.55
+  ping 192.168.1.2 -c 4
+  curl -I http://192.168.1.2
   ```
 - **Lưu ý:** Nếu lệnh curl báo Connection Refused hoặc Timeout, Docker trên Máy 3 chưa chạy đúng hoặc tường lửa Windows 11 đang chặn. Phải sửa lỗi mạng trước khi đi tiếp.
 
 ### T4: Phát động Tấn công (Attack)
 - **Trên Máy 1:** Mở Tab Ubuntu số 2.
-- Sửa IP mục tiêu trong `auto_attack.py` thành `192.168.1.55`.
+- Sửa IP mục tiêu trong `auto_attack.py` thành `192.168.1.2`.
   ```bash
   python3 auto_attack.py
   ```

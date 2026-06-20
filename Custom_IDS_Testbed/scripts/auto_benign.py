@@ -4,7 +4,7 @@ import random
 import threading
 
 # CẤU HÌNH ĐỊA CHỈ IP CỦA LAPTOP 2 (MÁY NẠN NHÂN)
-VICTIM_IP = "192.168.x.x"  # TODO: Đổi thành IP WiFi thực tế của Laptop 2
+VICTIM_IP = "192.168.1.2"  # IP thực tế của Laptop 2
 ENDPOINTS = ["/", "/DVWA/", "/DVWA/login.php", "/DVWA/index.php"]
 
 USER_AGENTS = [

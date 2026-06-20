@@ -1,0 +1,328 @@
+06/20-10:17:51.807743  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:17:51.807758  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:17:51.808026  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:17:51.808305  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:17:52.257833  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:18:38.507373  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:18:38.507400  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:18:38.508133  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:18:38.508135  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:18:38.963644  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:19:24.778239  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:19:24.778287  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:19:24.778737  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:19:24.778738  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:20:11.566089  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:20:11.566137  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:20:11.566397  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:20:11.567392  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:20:12.032755  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:20:57.244989  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:20:57.245036  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:20:57.245300  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:20:57.245546  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:21:43.225112  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:21:43.225192  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:21:43.225437  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:21:43.225812  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:21:43.680102  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:22:29.503555  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:22:29.503617  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:22:29.512012  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:22:29.512014  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:23:15.103344  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:23:15.103421  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:23:15.104058  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:23:15.104060  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:23:15.558097  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:24:00.749131  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:24:00.749232  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:24:00.749599  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:24:00.749600  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:24:01.202778  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:24:46.520169  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:24:46.520224  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:24:46.520455  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:24:46.520749  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:24:46.978353  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:25:32.586547  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:25:32.586616  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:25:32.586947  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:25:32.587328  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:25:33.050580  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:26:18.409595  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:26:18.409647  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:26:18.409984  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:26:18.409984  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:27:03.523753  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:27:03.523802  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:27:03.524184  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:27:03.524221  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:27:03.966319  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:27:48.878189  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:27:48.878289  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:27:48.878687  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:27:48.878703  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:27:49.330177  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:28:34.396939  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:28:34.397090  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:28:34.397496  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:28:34.397827  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:29:20.191550  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:29:20.191600  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:29:20.191825  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:29:20.192136  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:30:04.478249  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:30:04.478368  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:30:04.478859  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:30:04.478969  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:30:04.951143  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:30:50.700781  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:30:50.700837  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:30:50.701354  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:30:50.701424  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:30:51.177735  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:31:37.563518  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:31:37.563789  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:31:37.564148  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:31:37.564396  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:32:24.426657  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:32:24.426884  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:32:24.427108  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:32:24.428517  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:32:24.904425  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:33:10.914128  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:33:10.914206  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:33:10.914493  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:33:10.914718  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:33:57.055584  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:33:57.055611  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:33:57.055938  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:33:57.056173  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:33:57.532933  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:34:44.310807  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:34:44.310858  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:34:44.311262  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:34:44.311427  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:35:30.345307  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:35:30.345473  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:35:30.345688  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:35:30.346247  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:36:16.408040  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:36:16.408138  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:36:16.408439  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:36:16.408756  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:37:02.630370  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:37:02.630393  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:37:02.630758  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:37:02.630903  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:37:03.089172  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:37:48.641723  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:37:48.641966  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:37:48.641990  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:37:48.642620  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:38:34.820269  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:38:34.820358  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:38:34.821958  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:38:34.821959  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:38:35.269590  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:39:21.202099  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:39:21.202157  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:39:21.202726  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:39:21.202728  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:39:47.419761  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:39:47.420022  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:39:47.420307  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:39:47.420834  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:39:47.866324  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:40:33.643224  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:40:33.643262  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:40:33.643312  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:40:33.643853  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:40:34.086903  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:41:34.797755  [**] [1:527:8] BAD-TRAFFIC same SRC/DST [**] [Classification: Potentially Bad Traffic] [Priority: 2] {ICMP} 192.168.1.2 -> 192.168.1.2
+06/20-10:41:34.797755  [**] [1:399:6] ICMP Destination Unreachable Host Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.2
+06/20-10:41:37.804977  [**] [1:527:8] BAD-TRAFFIC same SRC/DST [**] [Classification: Potentially Bad Traffic] [Priority: 2] {ICMP} 192.168.1.2 -> 192.168.1.2
+06/20-10:41:37.804977  [**] [1:399:6] ICMP Destination Unreachable Host Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.2
+06/20-10:41:41.812400  [**] [1:527:8] BAD-TRAFFIC same SRC/DST [**] [Classification: Potentially Bad Traffic] [Priority: 2] {ICMP} 192.168.1.2 -> 192.168.1.2
+06/20-10:41:41.812400  [**] [1:399:6] ICMP Destination Unreachable Host Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.2
+06/20-10:41:49.799655  [**] [1:527:8] BAD-TRAFFIC same SRC/DST [**] [Classification: Potentially Bad Traffic] [Priority: 2] {ICMP} 192.168.1.2 -> 192.168.1.2
+06/20-10:41:49.799655  [**] [1:399:6] ICMP Destination Unreachable Host Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.2
+06/20-10:41:50.450345  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:41:50.450418  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:41:50.450786  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:41:50.450912  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:43:07.201573  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:43:07.201683  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:43:07.201976  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:43:07.202356  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:43:07.648242  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:44:23.425500  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:44:23.425610  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:44:23.426096  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:44:23.426289  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:45:39.188842  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:45:39.188929  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:45:39.189308  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:45:39.189533  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:45:39.651103  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:46:54.612134  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:46:54.612173  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:46:54.612618  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:46:54.612620  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:48:09.771842  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:48:09.771950  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:48:09.772387  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:48:09.772473  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:49:26.603815  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:49:26.603868  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:49:26.604238  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:49:26.604238  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:49:27.077407  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:50:43.187608  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:50:43.187821  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:50:43.188137  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:50:43.188450  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:51:58.647094  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:51:58.647142  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:51:58.647631  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:51:58.647659  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:51:59.094567  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:53:13.790458  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:53:13.790580  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:53:13.791063  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:53:13.791222  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:54:28.565883  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:54:28.565949  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:54:28.566503  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:54:28.566504  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:55:44.918124  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:55:44.918646  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:55:44.918668  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:55:44.919456  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:57:03.745547  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:57:03.745584  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:57:03.746096  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:57:03.746097  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:58:19.916292  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:58:19.916409  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:58:19.916697  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:58:19.916917  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:59:38.731878  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:59:38.731963  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-10:59:38.732376  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-10:59:38.732645  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:00:54.951261  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:00:54.951292  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:00:54.951667  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:00:54.952079  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:02:10.182252  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:02:10.182317  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:02:10.182760  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:02:10.182882  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:02:10.647132  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:03:27.113019  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:03:27.113049  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:03:27.113651  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:03:27.113652  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:04:44.172289  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:04:44.172486  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:04:44.172791  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:04:44.173045  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:04:44.638074  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:06:02.311565  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:06:02.311617  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:06:02.311984  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:06:02.312240  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:07:19.538379  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:07:19.538480  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:07:19.538707  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:07:19.538955  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:07:19.979475  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:08:35.537814  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:08:35.538168  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:08:35.538349  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:08:35.538972  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:09:51.516500  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:09:51.516919  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:09:51.517190  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:09:51.517538  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:09:51.976970  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:11:07.455735  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:11:07.455961  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:11:07.456376  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:11:07.456768  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:11:07.903246  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:12:22.510942  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:12:22.511159  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:12:22.511178  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:12:22.511816  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:13:14.659713  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:13:14.659713  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:13:14.659714  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:13:14.659750  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:18:41.381036  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:18:41.381049  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:18:41.381548  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:18:41.381551  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:19:58.105428  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:19:58.105482  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:19:58.105899  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:19:58.105992  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:19:58.567634  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:21:14.555534  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:21:14.555637  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:21:14.556088  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:21:14.556222  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:22:30.548897  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:22:30.548949  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:22:30.549622  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:22:30.549624  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:22:31.003451  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:23:47.146430  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:23:47.146482  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:23:47.146811  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:23:47.146911  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:25:03.196394  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:25:03.196696  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:25:03.196846  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:25:03.197415  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:25:03.685404  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:26:19.225870  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:26:19.225944  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:26:19.226200  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:26:19.226630  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:27:37.383848  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:27:37.384041  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:27:37.384428  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:27:37.384482  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:27:37.837256  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:28:52.376860  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:28:52.376939  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:28:52.377384  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:28:52.377418  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:30:08.883021  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:30:08.883102  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:30:08.883414  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:30:08.883791  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:31:25.192680  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:31:25.192963  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:31:25.193110  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:31:25.193656  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:31:25.640911  [**] [1:402:7] ICMP Destination Unreachable Port Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:32:41.366299  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:32:41.366375  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:32:41.366574  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:32:41.366763  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:33:57.304166  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:33:57.304310  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:33:57.304540  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:33:57.304685  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:35:13.981418  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:35:13.981462  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:35:13.981610  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:35:13.981804  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:36:28.851492  [**] [1:453:5] ICMP Timestamp Request [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:36:28.851650  [**] [1:451:5] ICMP Timestamp Reply [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.2 -> 192.168.1.1
+06/20-11:36:28.851994  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
+06/20-11:36:28.852169  [**] [1:404:6] ICMP Destination Unreachable Protocol Unreachable [**] [Classification: Misc activity] [Priority: 3] {ICMP} 192.168.1.1 -> 192.168.1.2
