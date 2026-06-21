@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import argparse
 import sys
 from sklearn.preprocessing import MinMaxScaler
+from tqdm import tqdm
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -122,14 +123,20 @@ def main():
     print(f"[-] Đã gỡ bỏ {original_len - len(df)} dòng không chứa định dạng thời gian hợp lệ.")
     
     # 3. Đồng bộ Nhãn (Label Synchronization)
-    print("\n[*] Đang đồng bộ Nhãn (Đa Lớp) dựa trên Time Window (± 120s)...")
+    import bisect
+    print("\n[*] Đang đồng bộ Nhãn (Đa Lớp) bằng Binary Search (± 120s)...")
     
     alert_map = {}
     for a in alerts:
         key = (a['src_ip'], a['dst_ip'])
         if key not in alert_map:
-            alert_map[key] = []
-        alert_map[key].append((a['time'], a['attack_class']))
+            alert_map[key] = {'raw': []}
+        alert_map[key]['raw'].append((a['time'], a['attack_class']))
+        
+    for key in alert_map:
+        alert_map[key]['raw'].sort(key=lambda x: x[0])
+        alert_map[key]['times'] = [x[0] for x in alert_map[key]['raw']]
+        alert_map[key]['classes'] = [x[1] for x in alert_map[key]['raw']]
         
     def check_attack_class(row):
         flow_time = row['parsed_time']
@@ -139,9 +146,13 @@ def main():
         key = (src, dst)
         detected_classes = []
         if key in alert_map:
-            for at_time, at_class in alert_map[key]:
-                if abs((flow_time - at_time).total_seconds()) <= 120:
-                    detected_classes.append(at_class)
+            start_time = flow_time - pd.Timedelta(seconds=120)
+            end_time = flow_time + pd.Timedelta(seconds=120)
+            times = alert_map[key]['times']
+            classes = alert_map[key]['classes']
+            left_idx = bisect.bisect_left(times, start_time)
+            right_idx = bisect.bisect_right(times, end_time)
+            detected_classes = classes[left_idx:right_idx]
         
         if detected_classes:
             # Ưu tiên các nhãn cụ thể hơn (trường hợp dính nhiều loại tấn công cùng lúc)
@@ -153,7 +164,8 @@ def main():
             
         return 'Benign'
         
-    df['Label'] = df.apply(check_attack_class, axis=1)
+    tqdm.pandas(desc="Đang gán nhãn đa lớp")
+    df['Label'] = df.progress_apply(check_attack_class, axis=1)
     
     print("[-] Kết quả đồng bộ nhãn đa lớp:")
     label_counts = df['Label'].value_counts()

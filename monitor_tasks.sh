@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script để theo dõi live output của các tác vụ chạy ngầm (Background Tasks)
 
-LOG_DIR="/home/ning/.gemini/antigravity-ide/brain/383d0d50-8eec-4e02-ae81-cad1abd29464/.system_generated/tasks/"
+LOG_DIR="/home/ning/.gemini/antigravity-ide/brain/5b63f510-b33a-4d16-bd82-6dedbe3edbda/.system_generated/tasks/"
 
 # Tìm file log python được tạo ra gần nhất
 LATEST_LOG=$(grep -l "python" "$LOG_DIR"/*.log 2>/dev/null | xargs ls -t 2>/dev/null | head -n 1)

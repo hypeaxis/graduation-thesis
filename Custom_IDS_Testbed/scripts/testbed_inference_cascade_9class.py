@@ -179,7 +179,7 @@ def main():
     DATA_PATH = 'Raw_Labeled_Dataset.csv'
     print(f"\n[3] Nạp và xử lý dữ liệu: {DATA_PATH}...")
     df = pd.read_csv(DATA_PATH)
-    df = df[df['Label'].isin(['Malicious', 'Benign'])].copy()
+    df = df[df['Label'] != 'Suspicious'].copy()
     df.columns = df.columns.str.strip()
     df = map_cicflowmeter_v4_to_v3(df)
     df = create_port_categories(df)
@@ -199,8 +199,7 @@ def main():
     X_raw_s1 = df[EXPECTED_FEATURES_80].values
     y_true_binary = df['Label'].values
     
-    # Ánh xạ Ground Truth: Testbed Malicious (Hulk) -> DoS
-    y_true_mapped = np.array(['DoS' if l == 'Malicious' else 'Benign' for l in y_true_binary])
+    y_true_mapped = y_true_binary
     
     # ----------------------------------------------------
     # PREDICT STAGE 1
