@@ -3,35 +3,39 @@ import os
 import csv
 import json
 import numpy as np
+import sys
+import argparse
 
 # Hàm giả lập dự đoán của Model ML v7 CIC-IDS-2017
 def run_ml_model_prediction(features_array):
-    print(f"[ML Model] Nhận {len(features_array)} đặc trưng thống kê. Đang xử lý...")
     # Thực tế: prediction = model.predict([features_array])
-    # Tạm thời giả định là 'Malicious' để test GUI
-    return "Malicious - DoS Slowloris"
+    # Tạm thời giả định là 'Benign' cho đa số, random 'Malicious' để test
+    import random
+    if random.random() < 0.001: # Giả lập 0.1% là tấn công
+        return "Malicious - DoS Slowloris"
+    return "Benign"
 
-def tail_cicflowmeter_csv(filepath):
-    # Di chuyển con trỏ về cuối file để đọc flow MỚI NHẤT
-    with open(filepath, 'r') as file:
+def process_cicflowmeter_csv(filepath):
+    print(f"[*] Backend đang đọc dữ liệu Flow từ file: {filepath}")
+    with open(filepath, 'r', encoding='utf-8') as file:
         reader = csv.reader(file)
         
-        # Đọc header để biết vị trí các cột
-        file.seek(0)
+        # Đọc header
         headers = next(reader, [])
-        print(f"[*] Backend đang lắng nghe Flow mạng từ CICFlowMeter...")
         
-        # Nhảy về cuối file
-        file.seek(0, os.SEEK_END)
-        
-        while True:
-            line = file.readline()
+        count = 0
+        for line in file:
+            line = line.strip()
             if not line:
-                time.sleep(0.5) # Đợi luồng mạng kết thúc
                 continue
                 
-            print("\n[!] Có flow mạng mới được trích xuất!")
-            process_flow(line.strip(), headers)
+            if count % 5000 == 0:
+                print(f"[Tiến độ] Đã xử lý {count} flows...")
+                
+            process_flow(line, headers)
+            count += 1
+            
+        print(f"[*] Hoàn tất xử lý {count} flows từ {filepath}.")
 
 def process_flow(csv_line, headers):
     try:
@@ -70,12 +74,13 @@ def process_flow(csv_line, headers):
         print(f"Lỗi parse flow: {e}")
 
 if __name__ == "__main__":
-    # Thay đường dẫn này bằng đường dẫn file output CSV của CICFlowMeter
-    LOG_FILE = "cicflowmeter_dummy_flow.csv"
+    parser = argparse.ArgumentParser(description='Hybrid ML Backend Simulator')
+    parser.add_argument('--csv', required=True, help='Path to CICFlowMeter CSV file')
+    parser.add_argument('--snort-alert', required=False, help='Path to Snort alert file')
+    args = parser.parse_args()
     
-    # Tạo file dummy nếu chưa có để test
-    if not os.path.exists(LOG_FILE):
-        with open(LOG_FILE, 'w') as f:
-            f.write("Flow ID,Src IP,Src Port,Dst IP,Dst Port,Protocol,Timestamp,Flow Duration,Total Fwd Packets,Total Backward Packets,...\n")
+    if not os.path.exists(args.csv):
+        print(f"[LỖI] Không tìm thấy file CSV: {args.csv}")
+        sys.exit(1)
         
-    tail_cicflowmeter_csv(LOG_FILE)
+    process_cicflowmeter_csv(args.csv)

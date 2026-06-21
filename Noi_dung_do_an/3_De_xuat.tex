@@ -1,0 +1,71 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+Chương 3 trình bày chi tiết về phần cốt lõi của đồ án: thiết kế và đề xuất kiến trúc hệ thống AI-Powered Hybrid NIDS. Dựa trên cơ sở lý thuyết đã phân tích ở chương trước, chương này sẽ mô tả cách kết hợp phương pháp dựa trên luật và phương pháp học sâu để giải quyết bài toán phát hiện xâm nhập. Các nội dung bao gồm việc xây dựng mô hình Hybrid Ensemble (sử dụng FT-Transformer), cấu trúc luồng xử lý dữ liệu thời gian thực và cách hệ thống cảnh báo giao tiếp trực quan thông qua Web Dashboard.
+
+\section{Kiến trúc tổng thể hệ thống AI-Powered Hybrid NIDS}
+Hệ thống AI-Powered Hybrid NIDS được thiết kế dựa trên triết lý "phòng thủ chiều sâu" (Defense in Depth). Kiến trúc tổng thể được chia thành cơ chế phân tầng hai lớp (Two-Stage Cascade Architecture), nhằm tận dụng tối đa ưu điểm tốc độ của Signature-based IDS và tính thông minh của Anomaly-based IDS.
+
+Ở vòng ngoài (Stage 1), hệ thống sử dụng Snort đóng vai trò như một màng lọc thô sơ (Gating). Toàn bộ lưu lượng mạng (Network Traffic) đi vào hệ thống sẽ được Snort kiểm tra đối chiếu trực tiếp với các quy tắc (rules) đã được định nghĩa. Nếu gói tin chứa chữ ký của một cuộc tấn công phổ biến, hệ thống sẽ lập tức đưa ra cảnh báo (Alert) và ngắt kết nối mà không cần tính toán phức tạp. Ngược lại, nếu gói tin được coi là an toàn hoặc chưa rõ ràng (Zero-day), luồng dữ liệu sẽ được chuyển tiếp qua công cụ CICFlowMeter để trích xuất thành vector đặc trưng (Feature Vector).
+
+Ở vòng trong (Stage 2), vector đặc trưng được đưa vào trung tâm phân tích AI chuyên sâu (Expert Model). Tại đây, thay vì chỉ dùng một thuật toán duy nhất, đồ án đề xuất sử dụng kiến trúc Hybrid Ensemble kết hợp giữa mạng nơ-ron FT-Transformer và các mô hình Học máy dạng cây (Tree-based). Sự phân cấp hai tầng này đảm bảo hệ thống có thể đối phó với lưu lượng lớn đồng thời duy trì khả năng phát hiện các dạng tấn công phức tạp tinh vi mà Snort đã bỏ lọt.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Hinh_ve/hybrid_nids_architecture.png}
+    \caption{Kiến trúc tổng thể hệ thống AI-Powered Hybrid NIDS phân tầng}
+    \label{fig:overall_arch}
+\end{figure}
+
+\section{Thiết kế mô hình Hybrid Ensemble và FT-Transformer}
+Trái tim của module phân tích AI là mô hình học quần thể Hybrid Ensemble. Vấn đề lớn nhất của các tập dữ liệu mạng hiện đại (điển hình như CIC-IDS-2017) là sự mất cân bằng lớp (Class Imbalance) cực đoan, khiến các mô hình học máy đơn lẻ dễ bị thiên lệch (bias) về phía dữ liệu bình thường và bỏ qua các tấn công hiếm gặp như Botnet hay Infiltration.
+
+Để giải quyết triệt để, đồ án thiết lập một cơ cấu hội đồng biểu quyết (Voting Ensemble). Hội đồng này bao gồm các thành phần:
+\begin{itemize}
+    \item \textbf{FT-Transformer (Mô hình chính)}: Đóng vai trò là thuật toán phân tích ngữ cảnh sâu. Với cơ chế Tokenization đặc trưng số và sự chú ý toàn cục (Self-Attention), mạng transformer có khả năng đánh trọng số cho các đặc trưng lưu lượng quan trọng nhất, từ đó khám phá ra sự liên kết ẩn của một đợt tấn công từ chối dịch vụ (DDoS) hoặc quét cổng rải rác.
+    \item \textbf{Random Forest (RF)}: Một mô hình Tree-based mạnh mẽ, có khả năng xử lý xuất sắc các đặc trưng phi tuyến tính và chống nhiễu tốt.
+    \item \textbf{K-Nearest Neighbors (KNN)}: Đóng vai trò hỗ trợ nhận diện và phân loại dựa trên khoảng cách phân phối của các mẫu dữ liệu.
+\end{itemize}
+
+Khi có một vector đặc trưng lưu lượng đi vào, tất cả các mô hình sẽ đồng thời suy luận và xuất ra xác suất dự đoán (Soft Voting). Điểm xác suất này được tổng hợp và lấy trung bình có trọng số. Nếu điểm rủi ro tổng hợp vượt qua một ngưỡng (Threshold) đã được tinh chỉnh, hệ thống mới chính thức kết luận đó là mã độc. Sự kết hợp đa mô hình giúp triệt tiêu các cảnh báo giả mạo ngẫu nhiên sinh ra từ từng thuật toán riêng lẻ, đảm bảo độ chính xác (Accuracy) trên 99\%.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Hinh_ve/ensemble_voting.png}
+    \caption{Cơ chế hội đồng biểu quyết (Soft Voting Ensemble) giảm thiểu cảnh báo giả}
+    \label{fig:ensemble}
+\end{figure}
+
+\section{Kiến trúc Data Pipeline thời gian thực và Hệ thống Dashboard}
+Để tính khả thi về mặt lý thuyết được kiểm chứng trong thực tế, đồ án đi kèm với thiết kế một luồng xử lý phần mềm hiệu suất cao (Real-time Data Pipeline):
+
+\begin{enumerate}
+    \item \textbf{Khâu bắt gói tin và trích xuất}: Dữ liệu mạng thô được chụp lại liên tục và chuyển cho CICFlowMeter chạy dưới nền. Script tiền xử lý (Python) tự động gom nhóm gói tin thành cửa sổ thời gian (Time window) và chuyển đổi thành vector số học chuẩn hóa.
+    \item \textbf{Model API (FastAPI)}: Các mô hình AI sau khi được huấn luyện sẽ được xuất sang định dạng ONNX (Open Neural Network Exchange). Định dạng này giúp nén dung lượng và tăng tốc độ suy luận đáng kể. Một API service xây dựng bằng framework FastAPI được khởi tạo để load mô hình ONNX, tiếp nhận vector đặc trưng, và trả về nhãn tấn công chỉ trong đơn vị mili-giây.
+    \item \textbf{Cơ sở hạ tầng Streaming \& Dashboard}: Node.js đóng vai trò máy chủ Backend nhận cảnh báo từ FastAPI. Thông qua giao thức WebSockets, Node.js đẩy lập tức các gói tin độc hại lên Frontend (xây dựng bằng React.js). Giao diện Dashboard được thiết kế trực quan, hiển thị luồng tấn công theo thời gian thực cùng với biểu đồ cảnh báo phân loại theo mức độ nghiêm trọng (Severity), hỗ trợ chuyên viên phản ứng sự cố lập tức.
+\end{enumerate}
+
+\begin{table}[htbp]
+\centering
+\caption{Vai trò của các công nghệ cốt lõi trong Data Pipeline thời gian thực}
+\label{tab:tech_pipeline}
+\begin{tabular}{|l|p{3.5cm}|p{7cm}|}
+\hline
+\textbf{Giai đoạn} & \textbf{Công nghệ áp dụng} & \textbf{Nhiệm vụ chính} \\
+\hline
+\textbf{Packet Sniffing} & Snort & Bắt gói tin, lọc lưu lượng rác, cảnh báo dựa trên luật tĩnh. \\
+\hline
+\textbf{Feature Extraction} & CICFlowMeter & Trích xuất luồng thành 78+ đặc trưng số học liên tục. \\
+\hline
+\textbf{AI Inference} & FastAPI, ONNX & Load mô hình học sâu, suy luận nhãn dự đoán siêu tốc. \\
+\hline
+\textbf{Real-time Alerting} & Node.js, WebSockets, React & Đẩy cảnh báo thời gian thực và hiển thị biểu đồ giao diện trực quan. \\
+\hline
+\end{tabular}
+\end{table}
+
+\vspace{1em}
+\textbf{Kết chương}
+Chương 3 đã trình bày chi tiết về kiến trúc hệ thống đề xuất của đồ án. Bằng cách thiết lập vòng lặp kết hợp giữa Snort và học quần thể FT-Transformer, đồng thời tối ưu hóa luồng dữ liệu thông qua định dạng ONNX, FastAPI và WebSockets, hệ thống đạt được cấu trúc thỏa mãn cả hai tiêu chí: nhận diện sâu sắc và phản ứng tốc độ. Kiến trúc đề xuất này sẽ là tiền đề để triển khai các cấu hình phân tích và thực nghiệm cụ thể trong Chương 4 và Chương 5.
+
+\end{document}

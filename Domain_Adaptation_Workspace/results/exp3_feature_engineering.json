@@ -1,0 +1,49 @@
+{
+    "timestamp": "2026-06-20 23:27:35.675592",
+    "config": {
+        "strategy": "Phase 3 (+3 Custom Features, Model Surgery)",
+        "learning_rate": 1e-05,
+        "oversampler": "RandomOverSampler",
+        "scaler": "Hybrid (Old + New)"
+    },
+    "metrics_testbed": {
+        "accuracy": 0.9986789960369881,
+        "balanced_accuracy": 0.9993384785005512,
+        "mcc": 0.7333138009698859,
+        "recall_benign": 1.0,
+        "recall_malicious": 0.9986769570011025,
+        "precision_benign": 0.5384615384615384,
+        "precision_malicious": 1.0,
+        "f1_malicious": 0.9993380406001765,
+        "confusion_matrix": [
+            [
+                7,
+                0
+            ],
+            [
+                6,
+                4529
+            ]
+        ]
+    },
+    "metrics_cic_2017": {
+        "accuracy": 0.9929,
+        "balanced_accuracy": 0.9945054122444428,
+        "mcc": 0.9779442520106233,
+        "recall_benign": 0.9918604072285557,
+        "recall_malicious": 0.9971504172603297,
+        "precision_benign": 0.9992978056426333,
+        "precision_malicious": 0.9677037037037037,
+        "f1_malicious": 0.9822064056939502,
+        "confusion_matrix": [
+            [
+                39847,
+                327
+            ],
+            [
+                28,
+                9798
+            ]
+        ]
+    }
+}

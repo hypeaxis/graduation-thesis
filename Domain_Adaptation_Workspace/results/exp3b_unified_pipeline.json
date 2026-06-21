@@ -1,0 +1,49 @@
+{
+    "timestamp": "2026-06-21 09:50:53.823466",
+    "config": {
+        "strategy": "Stage 3B (Unified PowerTransformer Pipeline, Model Surgery)",
+        "learning_rate": 1e-05,
+        "oversampler": "RandomOverSampler",
+        "scaler": "Unified PowerTransformer (80 features)"
+    },
+    "metrics_testbed": {
+        "accuracy": 0.9993394980184941,
+        "balanced_accuracy": 0.9996692392502756,
+        "mcc": 0.8363832464548688,
+        "recall_benign": 1.0,
+        "recall_malicious": 0.9993384785005512,
+        "precision_benign": 0.7,
+        "precision_malicious": 1.0,
+        "f1_malicious": 0.999669129811404,
+        "confusion_matrix": [
+            [
+                7,
+                0
+            ],
+            [
+                3,
+                4532
+            ]
+        ]
+    },
+    "metrics_cic_2017": {
+        "accuracy": 0.99112,
+        "balanced_accuracy": 0.992321423383693,
+        "mcc": 0.9724448437690018,
+        "recall_benign": 0.9903420122467267,
+        "recall_malicious": 0.9943008345206594,
+        "precision_benign": 0.998594448069876,
+        "precision_malicious": 0.961803504626895,
+        "f1_malicious": 0.9777822257806245,
+        "confusion_matrix": [
+            [
+                39786,
+                388
+            ],
+            [
+                56,
+                9770
+            ]
+        ]
+    }
+}

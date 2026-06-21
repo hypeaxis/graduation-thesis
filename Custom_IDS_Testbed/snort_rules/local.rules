@@ -1,0 +1,38 @@
+# =======================================================================
+# BỘ LUẬT SNORT CHO CUSTOM IDS TESTBED (GRADUATION THESIS)
+# =======================================================================
+# Mục đích: Nhận diện chính xác 7 loại tấn công được sinh ra từ máy Laptop 1
+#           để tương thích với script gán nhãn dataset_builder.py
+# =======================================================================
+
+# 1. Nmap PortScan
+# Phát hiện quá nhiều kết nối TCP SYN (quét cổng) trong thời gian ngắn
+alert tcp any any -> $HOME_NET any (msg:"PortScan Nmap TCP Scan Detected"; flags:S; flow:stateless; detection_filter:track by_src, count 20, seconds 5; classtype:attempted-recon; sid:1000001; rev:1;)
+
+# 2. SSH Brute Force (Hydra)
+# Phát hiện kết nối liên tục vào cổng 22
+alert tcp any any -> $HOME_NET 22 (msg:"Brute Force SSH Hydra Detected"; flags:S; flow:stateless; detection_filter:track by_src, count 5, seconds 30; classtype:suspicious-login; sid:1000002; rev:1;)
+
+# 3. FTP Brute Force (Hydra)
+# Phát hiện kết nối liên tục vào cổng 21
+alert tcp any any -> $HOME_NET 21 (msg:"Brute Force FTP Hydra Detected"; flags:S; flow:stateless; detection_filter:track by_src, count 5, seconds 30; classtype:suspicious-login; sid:1000003; rev:1;)
+
+# 4. Web Brute Force (Hydra đánh vào DVWA)
+# Phát hiện nhiều luồng HTTP GET vào trang login.php
+alert tcp any any -> $HOME_NET 80 (msg:"Brute Force Web DVWA Login Detected"; content:"/DVWA/login.php"; http_uri; flow:stateless; detection_filter:track by_src, count 10, seconds 30; classtype:suspicious-login; sid:1000004; rev:1;)
+
+# 5. SQL Injection Scan (sqlmap)
+# Phát hiện User-Agent đặc trưng của sqlmap hoặc các truy vấn chứa từ khóa nghi ngờ
+alert tcp any any -> $HOME_NET 80 (msg:"Web Attack SQL Injection sqlmap Detected"; content:"sqlmap"; http_header; classtype:web-application-attack; sid:1000005; rev:1;)
+alert tcp any any -> $HOME_NET 80 (msg:"Web Attack SQL Injection Attempt"; content:"SELECT"; nocase; http_uri; classtype:web-application-attack; sid:1000006; rev:1;)
+
+# 6. DoS Slowloris
+# Cố tình duy trì nhiều kết nối chậm rãi (thường sẽ tạo ra hàng loạt kết nối không hoàn chỉnh)
+alert tcp any any -> $HOME_NET 80 (msg:"DoS Slowloris Attack Detected"; flags:S; flow:stateless; detection_filter:track by_src, count 80, seconds 10; classtype:attempted-dos; sid:1000007; rev:1;)
+
+# 7. DoS Hulk
+# HTTP Flood cực kỳ mạnh mẽ, bắn hàng ngàn request GET với tham số ngẫu nhiên
+alert tcp any any -> $HOME_NET 80 (msg:"DoS Hulk HTTP Flood Detected"; content:"GET"; http_method; flow:stateless; detection_filter:track by_src, count 200, seconds 5; classtype:attempted-dos; sid:1000008; rev:1;)
+
+# (Tùy chọn) Bắt thêm các lệnh Ping sweep/ICMP flood
+alert icmp any any -> $HOME_NET any (msg:"DoS ICMP Flood / Ping Sweep"; itype:8; detection_filter:track by_src, count 50, seconds 10; classtype:attempted-recon; sid:1000009; rev:1;)

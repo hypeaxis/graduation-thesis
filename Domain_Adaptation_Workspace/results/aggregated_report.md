@@ -1,0 +1,8 @@
+# Bảng Tổng Hợp Kết Quả Domain Adaptation
+
+| Experiment               | Scaler                     | Fine-tune strategy                          |   Accuracy |   Balanced Accuracy |     MCC |   Recall(Benign) |   Recall(Malicious) |   F1(Malicious) | Forgetting on CIC-2017 (Δ Accuracy)   |
+|:-------------------------|:---------------------------|:--------------------------------------------|-----------:|--------------------:|--------:|-----------------:|--------------------:|----------------:|:--------------------------------------|
+| Baseline (Model gốc)     | Original                   | None                                        |     0.2193 |              0.609  | -0.015  |            1     |              0.218  |          0.358  | -0.00%                                |
+| exp1_refit_scaler        | Re-fitted PowerTransformer | Re-fit Scaler Only                          |     0.0687 |              0.5201 |  0.0065 |            0.973 |              0.0673 |          0.126  | N/A                                   |
+| exp2_finetune_freeze     | Original CIC-IDS-2017      | Layer Freezing (Embed, Block 0, 1)          |     0.9982 |              0.9991 |  0.6825 |            1     |              0.9982 |          0.9991 | -0.55%                                |
+| exp3_feature_engineering | Hybrid (Old + New)         | Phase 3 (+3 Custom Features, Model Surgery) |     0.9987 |              0.9993 |  0.7333 |            1     |              0.9987 |          0.9993 | -0.61%                                |

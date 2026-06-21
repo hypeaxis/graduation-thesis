@@ -1,0 +1,23 @@
+{
+    "timestamp": "2026-06-20 22:48:05.717509",
+    "config": {
+        "strategy": "Re-fit Scaler Only",
+        "learning_rate": "N/A",
+        "oversampler": "N/A",
+        "scaler": "Re-fitted PowerTransformer"
+    },
+    "metrics_testbed": {
+        "accuracy": 0.0687392663701616,
+        "balanced_accuracy": 0.5201182790058937,
+        "mcc": 0.006481799619846907,
+        "recall_benign": 0.972972972972973,
+        "recall_malicious": 0.0672635850388144,
+        "precision_benign": 0.001699475994901572,
+        "precision_malicious": 0.9993446920052425,
+        "f1_malicious": 0.12604347466732788
+    },
+    "metrics_cic_2017": {
+        "accuracy": 0,
+        "recall_malicious": 0
+    }
+}

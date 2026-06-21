@@ -1,0 +1,49 @@
+{
+    "timestamp": "2026-06-20 22:41:37.485167",
+    "config": {
+        "strategy": "Layer Freezing (Embed, Block 0, 1)",
+        "learning_rate": 1e-05,
+        "oversampler": "RandomOverSampler",
+        "scaler": "Original CIC-IDS-2017"
+    },
+    "metrics_testbed": {
+        "accuracy": 0.9982386613826508,
+        "balanced_accuracy": 0.9991179713340683,
+        "mcc": 0.6825272448128332,
+        "recall_benign": 1.0,
+        "recall_malicious": 0.9982359426681368,
+        "precision_benign": 0.4666666666666667,
+        "precision_malicious": 1.0,
+        "f1_malicious": 0.9991171926726993,
+        "confusion_matrix": [
+            [
+                7,
+                0
+            ],
+            [
+                8,
+                4527
+            ]
+        ]
+    },
+    "metrics_cic_2017": {
+        "accuracy": 0.99346,
+        "balanced_accuracy": 0.9942773031552519,
+        "mcc": 0.9795927860904702,
+        "recall_benign": 0.9929307512321401,
+        "recall_malicious": 0.9956238550783635,
+        "precision_benign": 0.9989231963538928,
+        "precision_malicious": 0.9717890136088209,
+        "f1_malicious": 0.9835620570049767,
+        "confusion_matrix": [
+            [
+                39890,
+                284
+            ],
+            [
+                43,
+                9783
+            ]
+        ]
+    }
+}

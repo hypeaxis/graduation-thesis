@@ -1,0 +1,49 @@
+{
+    "timestamp": "2026-06-21 10:52:10.455530",
+    "config": {
+        "strategy": "Stage 3C (Hybrid Pipeline: Original PT77 + New PT3, Model Surgery)",
+        "learning_rate": 1e-05,
+        "oversampler": "RandomOverSampler",
+        "scaler": "Hybrid(PowerTransformer_77_original + PowerTransformer_3_new)"
+    },
+    "metrics_testbed": {
+        "accuracy": 0.9982386613826508,
+        "balanced_accuracy": 0.9991179713340683,
+        "mcc": 0.6825272448128332,
+        "recall_benign": 1.0,
+        "recall_malicious": 0.9982359426681368,
+        "precision_benign": 0.4666666666666667,
+        "precision_malicious": 1.0,
+        "f1_malicious": 0.9991171926726993,
+        "confusion_matrix": [
+            [
+                7,
+                0
+            ],
+            [
+                8,
+                4527
+            ]
+        ]
+    },
+    "metrics_cic_2017": {
+        "accuracy": 0.99296,
+        "balanced_accuracy": 0.9944658707348457,
+        "mcc": 0.978118407154406,
+        "recall_benign": 0.9919848658336238,
+        "recall_malicious": 0.9969468756360675,
+        "precision_benign": 0.9992477809538137,
+        "precision_malicious": 0.9681755287606246,
+        "f1_malicious": 0.9823505816285599,
+        "confusion_matrix": [
+            [
+                39852,
+                322
+            ],
+            [
+                30,
+                9796
+            ]
+        ]
+    }
+}
