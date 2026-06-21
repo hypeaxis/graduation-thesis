@@ -36,7 +36,6 @@ def process_cicflowmeter_csv(filepath):
             count += 1
             
         print(f"[*] Hoàn tất xử lý {count} flows từ {filepath}.")
-
 def process_flow(csv_line, headers):
     try:
         fields = csv_line.split(',')
