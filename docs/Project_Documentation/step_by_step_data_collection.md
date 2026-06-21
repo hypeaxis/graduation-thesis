@@ -73,7 +73,7 @@ Quy trình thu thập dữ liệu bao gồm 3 thực thể tham gia:
 - Chuyển file `.pcap` từ Máy 3 sang thư mục chứa `CICFlowMeter` (Có thể copy qua máy nào cài Java 8 ổn định nhất).
 - Chạy lệnh trích xuất:
   ```bash
-  sudo ./cfm attack_capture_run3.pcap /đường/dẫn/thư/mục/đích/
+  sudo /home/ning/CICFlowMeter/build/distributions/CICFlowMeter-4.0/bin/cfm /home/ning/attack_capture_run3.pcap /home/ning/graduation-thesis/docs/
   ```
 - Kết quả nhận được file `attack_capture_run3.pcap_Flow.csv` chứa các đặc trưng toán học của luồng mạng.
 
