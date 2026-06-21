@@ -12,25 +12,26 @@ def run_ml_model_prediction(features_array):
     return "Malicious - DoS Slowloris"
 
 def tail_cicflowmeter_csv(filepath):
-    # Di chuyển con trỏ về cuối file để đọc flow MỚI NHẤT
+    # Đọc từ đầu file để xử lý toàn bộ dữ liệu tĩnh đã thu thập
     with open(filepath, 'r') as file:
         reader = csv.reader(file)
         
         # Đọc header để biết vị trí các cột
-        file.seek(0)
         headers = next(reader, [])
-        print(f"[*] Backend đang lắng nghe Flow mạng từ CICFlowMeter...")
+        print(f"[*] Backend đang đọc Flow mạng từ {filepath}...")
         
-        # Nhảy về cuối file
-        file.seek(0, os.SEEK_END)
-        
+        count = 0
         while True:
             line = file.readline()
             if not line:
-                time.sleep(0.5) # Đợi luồng mạng kết thúc
-                continue
+                print(f"[*] Đã đọc hết file CSV. Tổng cộng {count} flows đã được đưa qua Model.")
+                break
                 
-            print("\n[!] Có flow mạng mới được trích xuất!")
+            count += 1
+            # In tiến độ để tránh màn hình bị treo do file quá lớn
+            if count % 10000 == 0:
+                print(f"[*] Đang xử lý... ({count} flows)")
+                
             process_flow(line.strip(), headers)
 
 def process_flow(csv_line, headers):
@@ -70,12 +71,14 @@ def process_flow(csv_line, headers):
         print(f"Lỗi parse flow: {e}")
 
 if __name__ == "__main__":
-    # Thay đường dẫn này bằng đường dẫn file output CSV của CICFlowMeter
-    LOG_FILE = "cicflowmeter_dummy_flow.csv"
+    import argparse
+    parser = argparse.ArgumentParser(description="Hybrid ML Backend")
+    parser.add_argument("--csv", required=True, help="Path to CICFlowMeter CSV file")
+    parser.add_argument("--snort-alert", required=False, help="Path to Snort alert file")
+    args = parser.parse_args()
     
-    # Tạo file dummy nếu chưa có để test
-    if not os.path.exists(LOG_FILE):
-        with open(LOG_FILE, 'w') as f:
-            f.write("Flow ID,Src IP,Src Port,Dst IP,Dst Port,Protocol,Timestamp,Flow Duration,Total Fwd Packets,Total Backward Packets,...\n")
+    if not os.path.exists(args.csv):
+        print(f"[!] File không tồn tại: {args.csv}")
+        exit(1)
         
-    tail_cicflowmeter_csv(LOG_FILE)
+    tail_cicflowmeter_csv(args.csv)
