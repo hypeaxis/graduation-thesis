@@ -1,0 +1,31 @@
+attack_type,src_ip,dst_ip,dst_port,start_time_ms,end_time_ms,params
+PortScan,Attacker,192.168.0.105,Multiple,1782146403036,1782146409895,TCP Connect scan ports 1-5000
+PortScan,Attacker,192.168.0.105,Multiple,1782146417900,1782146428725,TCP Connect scan ports 5001-9000
+PortScan,Attacker,192.168.0.105,Multiple,1782146439733,1782146453354,Version Detect scan ports 1-2000
+PortScan,Attacker,192.168.0.105,Multiple,1782146462364,1782146468277,TCP Connect scan ports 9001-13000
+PortScan,Attacker,192.168.0.105,Multiple,1782146479288,1782146486008,TCP Connect scan ports 13001-16000
+Brute Force,Attacker,192.168.0.105,22,1782146513033,1782146663207,"SSH Brute root (150s, 16 threads)"
+Brute Force,Attacker,192.168.0.105,21,1782146678223,1782146798938,"FTP Brute admin (120s, 16 threads)"
+Brute Force,Attacker,192.168.0.105,22,1782146807947,1782146958373,"SSH Brute admin (150s, 16 threads)"
+Brute Force,Attacker,192.168.0.105,21,1782146973389,1782147093658,"FTP Brute root (120s, 16 threads)"
+Brute Force,Attacker,192.168.0.105,22,1782147102667,1782147252883,"SSH Brute user (150s, 16 threads)"
+Brute Force,Attacker,192.168.0.105,21,1782147267897,1782147388279,"FTP Brute user (120s, 16 threads)"
+Brute Force,Attacker,192.168.0.105,22,1782147398290,1782147548951,"SSH Brute ubuntu (150s, 16 threads)"
+Brute Force,Attacker,192.168.0.105,21,1782147562966,1782147683442,"FTP Brute ftp (120s, 16 threads)"
+Web Attack,Attacker,192.168.0.105,80,1782147706465,1782147718524,"HTTP Brute /DVWA/login.php (http-get, 24 threads)"
+Web Attack,Attacker,192.168.0.105,80,1782147726533,1782147728528,"HTTP Brute /DVWA/ (http-get, 24 threads)"
+Web Attack,Attacker,192.168.0.105,80,1782147739539,1782147829687,"HTTP Brute /DVWA/login.php (http-form-post ""/DVWA/login.php:username=^USER^&password=^PASS^&Login=Login:failed"", 24 threads)"
+Web Attack,Attacker,192.168.0.105,80,1782147839698,1782147851758,"HTTP Brute / (http-get, 24 threads)"
+Web Attack,Attacker,192.168.0.105,80,1782147863771,1782147864472,SQLi login.php level3 risk3
+Web Attack,Attacker,192.168.0.105,80,1782147876481,1782147876831,SQLi login.php level5 full-tech
+Web Attack,Attacker,192.168.0.105,80,1782147884837,1782147885152,SQLi login.php tables enum
+Web Attack,Attacker,192.168.0.105,80,1782147895163,1782147955167,XSS+SQLi+Traversal curl burst #1 (60s)
+Web Attack,Attacker,192.168.0.105,80,1782147964173,1782148024177,ShellShock+SQLi+Config curl burst #2 (60s)
+DoS,Attacker,192.168.0.105,80,1782148058209,1782148068225,DoS Hulk burst #1 (10s)
+DoS,Attacker,192.168.0.105,80,1782148079233,1782148089247,DoS Hulk burst #2 (10s)
+DoS,Attacker,192.168.0.105,80,1782148104262,1782148114275,DoS Hulk burst #3 (10s)
+DoS,Attacker,192.168.0.105,80,1782148129290,1782148139303,DoS Hulk burst #4 (10s)
+DoS,Attacker,192.168.0.105,80,1782148151313,1782148161327,DoS Hulk burst #5 (10s)
+DoS,Attacker,192.168.0.105,80,1782148172338,1782148184343,"DoS Slowloris (80 conn, 12s)"
+DoS,Attacker,192.168.0.105,80,1782148199350,1782148211355,"DoS Slowloris (100 conn, 12s)"
+DoS,Attacker,192.168.0.105,80,1782148222367,1782148232372,"DoS Slowloris (120 conn, 10s)"
