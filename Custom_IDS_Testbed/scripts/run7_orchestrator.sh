@@ -14,6 +14,15 @@
 
 set -e
 
+# Yêu cầu quyền sudo ngay từ đầu để các lệnh bên trong không bị treo
+echo "Vui lòng nhập mật khẩu sudo để chuẩn bị môi trường:"
+sudo -v
+# Giữ sudo session sống trong background
+(while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null) &
+
+# Tăng giới hạn file mở để tránh lỗi quá tải sockets với 50 workers
+ulimit -n 65535 || true
+
 TARGET="192.168.0.105"
 RUN_NAME="run7"
 BENIGN_WORKERS=50
