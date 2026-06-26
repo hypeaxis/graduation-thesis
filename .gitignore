@@ -54,6 +54,7 @@ MLAnomalyDetection/MLAnomalyDetection/*.txt
 
 # Exceptions to exclusions
 !final/snort_features_122.csv
+!Custom_IDS_Testbed/docs/*_only.pcap_Flow.csv
 !MLAnomalyDetection/artifacts_preprocess*/*.json
 !IDS_Final_Product/models/*.json
 
@@ -79,3 +80,6 @@ CIC_IDS_2017_Workspace/Training_Pipeline/processed_data/
 CIC_IDS_2017_Workspace/Training_Pipeline/models/
 
 snort.log.*
+
+# Isolated capture Flow CSVs (replay corpus)
+!Custom_IDS_Testbed/docs/*_only.pcap_Flow.csv
