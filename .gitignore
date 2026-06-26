@@ -83,3 +83,4 @@ snort.log.*
 
 # Isolated capture Flow CSVs (replay corpus)
 !Custom_IDS_Testbed/docs/*_only.pcap_Flow.csv
+*.restore

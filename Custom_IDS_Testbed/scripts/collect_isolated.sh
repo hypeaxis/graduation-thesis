@@ -129,8 +129,9 @@ if [ "$TYPE" = "benign" ]; then
     echo -e "${GREEN}  ✓ Benign phase hoàn tất${NC}"
 else
     echo -e "${RED}[RUN] Attack phase: $TYPE (thuần, không benign)...${NC}"
-    python3 auto_attack_v3.py --target "$TARGET" --run-name "$RUN_NAME" \
-        --phase "$TYPE" $SKIP_CHECK
+    # v4: có preflight firewall cho PortScan + cân bằng volume
+    python3 auto_attack_v4.py --target "$TARGET" --run-name "$RUN_NAME" \
+        --type "$TYPE" $SKIP_CHECK
     echo -e "${GREEN}  ✓ Attack phase '$TYPE' hoàn tất${NC}"
 fi
 
