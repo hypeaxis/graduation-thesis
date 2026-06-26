@@ -1,0 +1,17 @@
+Infiltration Threshold: 0.65
+
+              precision    recall  f1-score   support
+
+      Benign     0.9992    0.9953    0.9972   2031715
+         Bot     0.7947    0.6826    0.7344      1758
+ Brute Force     0.9473    0.9989    0.9724     12369
+        DDoS     0.9984    0.9982    0.9983    114453
+         DoS     0.9683    0.9963    0.9821    225024
+  Heartbleed     1.0000    1.0000    1.0000        10
+Infiltration     0.9524    0.6061    0.7407        33
+    PortScan     0.9936    0.9990    0.9963    142079
+  Web Attack     0.9084    0.9810    0.9433      1950
+
+    accuracy                         0.9955   2529391
+   macro avg     0.9514    0.9175    0.9294   2529391
+weighted avg     0.9956    0.9955    0.9955   2529391

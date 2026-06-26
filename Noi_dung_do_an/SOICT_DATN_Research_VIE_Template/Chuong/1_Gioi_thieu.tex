@@ -1,63 +1,65 @@
 \documentclass[../DoAn.tex]{subfiles}
 \begin{document}
 
-Lưu ý: Mẫu ĐATN này được thiết kế phù hợp với đồ án tốt nghiệp theo hướng nghiên cứu. Mẫu đề tài này là gợi ý tham khảo. Tuỳ từng đề tài, cấu trúc có thể thay đổi ít nhiều. Sinh viên cần tham khảo ý kiến của giáo viên hướng dẫn để đưa ra cấu trúc hợp lý nhất cho đề tài của mình. 
-
-Trước khi viết ĐATN, sinh viên cần đọc kỹ hướng dẫn và quy định chi tiết về cách viết ĐATN trong Phụ lục A. 
-
-Khi đóng quyển ĐATN, sinh viên cần lưu ý tuân thủ hướng dẫn ở phụ lục A.9
-
-SV cần đặc biệt lưu ý cách hành văn. Mỗi đoạn văn không được quá dài và cần có ý tứ rõ ràng, bao gồm duy nhất một ý chính và các ý phân tích bổ trợ để làm rõ hơn ý chính. Các câu văn trong đoạn phải đầy đủ chủ ngữ vị ngữ, cùng hướng đến chủ đề chung. Câu sau phải liên kết với câu trước, đoạn sau liên kết với đoạn trước. Trong văn phong khoa học, sinh viên không được dùng từ trong văn nói, không dùng các từ phóng đại, thái quá, các từ thiếu khách quan, thiên về cảm xúc, về quan điểm cá nhân như “tuyệt vời”, “cực hay”, “cực kỳ hữu ích”, v.v. Các câu văn cần được tối ưu hóa, đảm bảo rất khó để thể thêm hoặc bớt đi được dù chỉ một từ. Cách diễn đạt cần ngắn gọn, súc tích, không dài dòng.
-
-Chương 1 có độ dài từ 3 đến 6 trang với các nội dung sau đây
-
-
 \section{Đặt vấn đề}
 \label{sec:dvd}
-Phần này sinh viên mô tả bài toán cần giải quyết, lý do tại sao lại chọn bài toán đó, ý nghĩa/tầm quan trọng của bài toán.
 
-Tiêu đề của chương này có thể để là ``đặt vấn đề'', hoặc lấy chính tên của bài toán mà sinh viên định giải quyết, ví dụ có thể đặt tiêu đề là ``Bài toán dự đoán …” 
+Trong thập kỷ vừa qua, các mối đe dọa mạng ngày càng tinh vi và có tổ chức, đặt ra thách thức lớn cho hạ tầng bảo mật của tổ chức ở mọi quy mô. Theo báo cáo Cost of a Data Breach 2023 của IBM \cite{ibm2023}, chi phí trung bình của một vụ vi phạm dữ liệu đã đạt 4,45 triệu USD --- mức cao nhất trong 18 năm lịch sử báo cáo. Thời gian phát hiện trung bình vẫn kéo dài tới 204 ngày, nghĩa là kẻ tấn công có thể hoạt động bên trong hệ thống gần 7 tháng trước khi bị phát hiện. Tại Việt Nam, Cục An toàn thông tin ghi nhận hàng chục nghìn sự cố an ninh mạng mỗi năm, với mục tiêu ngày càng đa dạng từ cơ quan chính phủ đến doanh nghiệp vừa và nhỏ.
 
+Hệ thống phát hiện xâm nhập mạng (NIDS) là cơ chế giám sát chủ động quan trọng trong kiến trúc phòng thủ đa tầng. Thay vì chỉ ngăn chặn thụ động tại tường lửa, NIDS phân tích liên tục luồng lưu lượng mạng và cảnh báo khi phát hiện hành vi bất thường, cho phép đội ngũ vận hành an ninh (SOC) phản ứng sớm trước khi thiệt hại lan rộng. Tuy nhiên, bài toán phát hiện xâm nhập trong thực tế phức tạp hơn nhiều so với các benchmark nghiên cứu. Ba thách thức cốt lõi mà đề tài này trực tiếp đối mặt là:
+
+\begin{itemize}
+    \item \textbf{Mất cân bằng dữ liệu cực đoan:} Trong môi trường production, lưu lượng Benign thường chiếm trên 80\% tổng số flow. Các lớp tấn công hiếm như Infiltration hay Botnet có thể chiếm dưới 0,1\%. Một mô hình chỉ dự đoán tất cả là Benign đã đạt accuracy trên 80\% nhưng hoàn toàn vô dụng về mặt bảo mật --- bài toán này không thể đánh giá bằng accuracy thông thường.
+
+    \item \textbf{Covariate Shift giữa dataset nghiên cứu và môi trường triển khai:} Các bộ dữ liệu nghiên cứu chuẩn được thu thập trong điều kiện lab kiểm soát --- phần cứng chuyên dụng, switch vật lý, kịch bản tấn công cố định. Khi mô hình được triển khai sang môi trường thực tế với hạ tầng khác (NAT, card mạng ảo, router thông thường), phân phối đặc trưng thay đổi và hiệu năng sụt giảm nghiêm trọng. Đây là khoảng cách giữa nghiên cứu và thực chiến mà phần lớn tài liệu hiện tại bỏ qua.
+
+    \item \textbf{Giới hạn của IDS dựa trên chữ ký:} Snort và các IDS signature-based truyền thống chỉ phát hiện được những tấn công đã được mã hóa thành luật cụ thể. Chúng không có khả năng phát hiện biến thể mới, công cụ tấn công hiện đại, hay kỹ thuật zero-day --- chính xác là những gì kẻ tấn công có động cơ cao sẽ sử dụng.
+\end{itemize}
 
 \section{Các giải pháp hiện tại và hạn chế}
-\label{sec:giaiphap}
-Sinh viên trước tiên cần trình bày tổng quan các kết quả của các nghiên cứu hiện nay cho bài toán giới thiệu ở phần \ref{sec:dvd}. Sau đấy, sinh viên đưa ra các hạn chế của các giải pháp hiện tại. 
+\label{sec:gp}
+
+\textbf{IDS dựa trên chữ ký} là hướng tiếp cận phổ biến nhất trong sản xuất thực tế. Snort \cite{roesch1999}, IDS mã nguồn mở được triển khai rộng rãi nhất thế giới, duy trì cơ sở dữ liệu hàng chục nghìn luật mô tả pattern của các tấn công đã biết, xử lý traffic ở tốc độ gigabit với tỷ lệ false positive thấp. Hạn chế căn bản chỉ có một nhưng nghiêm trọng: bất kỳ tấn công nào chưa có luật --- dù là biến thể nhỏ của tấn công đã biết --- đều bị bỏ qua hoàn toàn. Trong bối cảnh các chiến dịch tấn công ngày càng sử dụng công cụ tùy biến và kỹ thuật evasion, giới hạn này ngày càng rõ nét.
+
+\textbf{IDS dựa trên bất thường thống kê} xây dựng profile hành vi bình thường và cảnh báo khi có độ lệch đáng kể. Hướng này về lý thuyết có thể phát hiện tấn công zero-day, nhưng tỷ lệ false alarm cao là trở ngại thực tế lớn. Một buổi backup đêm, một cơn tăng đột biến video streaming, hay một bản cập nhật phần mềm lớn đều có thể kích hoạt cảnh báo. Tình trạng \textit{alert fatigue} --- đội ngũ SOC bị choáng ngợp bởi hàng trăm cảnh báo giả mỗi ngày đến mức bắt đầu bỏ qua cả cảnh báo thật --- là vấn đề thực tiễn nghiêm trọng trong nhiều tổ chức.
+
+\textbf{IDS dựa trên học máy} học đặc trưng hành vi từ dữ liệu lịch sử có nhãn, thay vì viết thủ công từng luật hay định nghĩa ngưỡng thống kê. Các nghiên cứu gần đây trên CIC-IDS-2017 \cite{sharafaldin2018} đạt Macro F1 trên 0,95 với Random Forest hay XGBoost. Tuy nhiên, phần lớn các kết quả này được đo trên chính dataset bằng cross-validation --- và sụt giảm đáng kể khi triển khai sang môi trường mạng khác. Thực tế của đề tài xác nhận điều đó: mô hình FT-Transformer đạt Accuracy 99,55\% trên tập kiểm tra CIC chỉ đạt 21,93\% Accuracy khi áp dụng trực tiếp lên traffic thu thập từ môi trường WSL Testbed --- một sụt giảm cho thấy covariate shift là vấn đề thực tế, không phải lý thuyết.
+
+Kiến trúc học sâu cho dữ liệu dạng bảng --- nhóm đặc trưng mà dữ liệu lưu lượng mạng thuộc về --- từ lâu bị coi là địa hạt của các mô hình cây (Random Forest, XGBoost). Các mạng nơ-ron truyền thống (MLP) thường thua kém mô hình cây trên dữ liệu tabular vì thiếu cơ chế nắm bắt tương tác đặc trưng hiệu quả \cite{gorishniy2021}. Feature Tokenizer Transformer (FT-Transformer) --- kiến trúc áp dụng cơ chế Attention của Transformer lên từng đặc trưng riêng biệt --- đã thu hẹp khoảng cách này và là nền tảng mô hình của đề tài.
 
 \section{Mục tiêu và định hướng giải pháp}
-Trong chương này, sinh viên trước hết trình bày mục tiêu của đồ án là gì, sau đấy sinh viên đề xuất định hướng giải pháp của mình. Tốt nhất là với trình bày từng giải pháp đối với mỗi vấn đề nêu ra trong chương \ref{sec:giaiphap}. 
+\label{sec:mt}
+
+Đề tài này không nhắm đến việc phủ nhận các hướng tiếp cận hiện tại, mà xây dựng một hệ thống NIDS lai ghép giải quyết đồng thời ba hạn chế nêu trên trong điều kiện phần cứng thực tế --- một máy tính cá nhân chạy Windows với WSL, không có switch chuyên dụng hay thiết bị mạng đặc biệt.
+
+Định hướng giải pháp được triển khai qua ba giai đoạn nghiên cứu có trình tự nhân-quả rõ ràng, mỗi giai đoạn được thúc đẩy bởi kết quả định lượng của giai đoạn trước:
+
+\textbf{Giai đoạn 1} thiết lập mô hình nền tảng trên NSL-KDD \cite{tavallaee2009}, xây dựng kiến trúc Two-Stage (Autoencoder Anomaly Gate + Stacking Ensemble FTT+LightGBM), pipeline tiền xử lý và các kỹ thuật xử lý mất cân bằng. Giai đoạn này xác định giới hạn của NSL-KDD --- bộ dữ liệu từ năm 1998, không chứa các loại tấn công hiện đại --- qua R2L Recall = 0,2523 do protocol shift không thể vượt được bằng thuật toán. Kết quả: Macro F1 = 0,6809.
+
+\textbf{Giai đoạn 2} tái thiết kế toàn bộ trên CIC-IDS-2017 \cite{sharafaldin2018} với 77 đặc trưng flow. Kiến trúc Two-Stage Cascade: Gating Network 6-lớp (Benign, DoS, DDoS, PortScan, Brute Force, Suspicious) + Expert Network 5-lớp (Benign, Web Attack, Bot, Infiltration, Heartbleed) xuất 9 lớp tổng hợp từ 15 nhãn gốc. Hard Negative Mining 2 vòng và Asymmetric Ensemble Voting với FT-Transformer, Random Forest và KNN được phát triển. Kết quả: Accuracy 99,55\%, Macro F1 0,9294.
+
+\textbf{Giai đoạn 3} giải quyết covariate shift: mô hình CIC chỉ đạt 21,93\% Accuracy khi áp dụng trực tiếp lên Testbed WSL (MCC = $-0{,}015$), trong khi Re-fit Scaler đơn thuần còn làm tình trạng xấu hơn (6,87\%). Sau chẩn đoán định lượng, giải pháp là thu thập dữ liệu Testbed đặc thù và tái huấn luyện hoàn toàn. Mô hình V8.5 giải quyết hai bài toán đặc thù WSL: PortScan không phân tách trong NAT (dữ liệu surrogate từ CIC Friday hardware) và BruteForce thiếu diversity (mixed hydra + CIC Patator). Kết quả: Macro F1 91,7\% trên val set đa dạng miền.
+
+Toàn bộ hệ thống được tích hợp trong pipeline End-to-End: Snort chạy ở tầng packet (real-time, rule-based) song song với FT-Transformer ở tầng flow (ML-based), bù đắp lẫn nhau để đạt độ bao phủ tấn công rộng hơn bất kỳ hướng tiếp cận đơn lẻ nào.
 
 \section{Đóng góp của đồ án}
-Trong phần này sinh viên liệt kê cụ thể, ngắn gọn các đóng góp của đồ án. Ví dụ: 
+\label{sec:dg}
 
-Đồ án này có 3 đóng góp chính như sau:
+Đồ án có bốn đóng góp chính:
 
 \begin{enumerate}
-\item Đồ án đề xuất một phương pháp tiền xử lý dữ liệu nhằm loại bỏ nhiễu và dữ liệu ngoại lai trước khi đưa vào huấn luyện mô hình.
-\item \ldots
-\item \ldots 
+    \item \textbf{Kiến trúc Two-Stage Cascade NIDS với Asymmetric Ensemble Voting:} Thiết kế hệ thống phân tầng Gating Network 6-lớp ($d=128$, 4 lớp Attention, ngưỡng 85\% cho lớp Suspicious) + Expert Network 5-lớp, kết hợp bỏ phiếu bất đối xứng giữa FT-Transformer, Random Forest (150 cây, max\_depth=25, class\_weight=balanced) và KNN (K=16). Đạt Accuracy 99,55\% và Macro F1 0,9294 trên CIC-IDS-2017 (9 lớp tổng hợp từ 15 nhãn gốc).
+
+    \item \textbf{Hard Negative Mining 2 vòng cho lớp tấn công hiếm:} Thu thập mẫu bị phân loại sai sau mỗi vòng huấn luyện và nhân bản 10 lần bổ sung vào tập huấn luyện tiếp theo. Botnet F1 tăng 36\% (0,4787→0,6512) và Infiltration F1 tăng 54,5\% (0,3821→0,5903) --- vượt trội class weight đơn thuần với +24,8\% và +40,6\% tương ứng.
+
+    \item \textbf{Chẩn đoán covariate shift định lượng và xây dựng Testbed thực:} Định lượng mức độ covariate shift: direct transfer Accuracy 21,93\% (MCC $-0{,}015$); Re-fit Scaler làm tình trạng xấu hơn (6,87\%). Thu thập dataset V8.5 (111.825 flows, 5 lớp) trong môi trường mạng LAN thực; xác định và giải quyết PortScan không phân tách trong NAT bằng dữ liệu surrogate; đánh giá robustness với val set đa dạng miền. Mô hình V8.5 đạt Macro F1 91,7\%.
+
+    \item \textbf{Hệ thống Hybrid IDS End-to-End trên phần cứng phổ thông:} Pipeline Snort 3 + CICFlowMeter + FTT V8.5 chạy song song trên WSL2 Ubuntu, không yêu cầu GPU. Thực nghiệm End-to-End xác nhận tính bổ sung hai tầng: DoS slowhttptest chỉ phát hiện được bởi ML; XSS payload ngắn chỉ phát hiện được bởi Snort; không loại tấn công nào bị bỏ sót hoàn toàn bởi cả hai tầng.
 \end{enumerate}
 
 \section{Bố cục đồ án}
-Phần còn lại của báo cáo đồ án tốt nghiệp này được tổ chức như sau. 
+\label{sec:bc}
 
-Chương 2 trình bày về v.v. 
-
-Trong Chương 3, em/tôi giới thiệu về v.v.
-
-Chú ý: Sinh viên cần viết mô tả thành đoạn văn đầy đủ về nội dung chương. Tuyệt đối không viết ý hay gạch đầu dòng. Chương 1 không cần mô tả trong phần này. 
-
-Ví dụ tham khảo mô tả chương trong phần bố cục đồ án tốt nghiệp: Chương *** trình bày đóng góp chính của đồ án, đó là một nền tảng ABC cho phép khai phá và tích hợp nhiều nguồn dữ liệu, trong đó mỗi nguồn dữ liệu lại có định dạng đặc thù riêng. Nền tảng ABC được phát triển dựa trên khái niệm DEF, là các module ngữ nghĩa trợ giúp người dùng tìm kiếm, tích hợp và hiển thị trực quan dữ liệu theo mô hình cộng tác và mô hình phân tán.  
-
-Chú ý: Trong phần nội dung chính, mỗi chương của đồ án nên có phần Tổng quan và Kết chương. Hai phần này đều có định dạng văn bản “Normal”, sinh viên không cần tạo định dạng riêng, ví dụ như không in đậm/in nghiêng, không đóng khung, v.v... 
-
-Trong phần Tổng quan của chương N, sinh viên nên có sự liên kết với chương N-1 rồi trình bày sơ qua lý do có mặt của chương N và sự cần thiết của chương này trong đồ án. Sau đó giới thiệu những vấn đề sẽ trình bày trong chương này là gì, trong các đề mục lớn nào.
-
-Ví dụ về phần Tổng quan: Chương 3 đã thảo luận về nguồn gốc ra đời, cơ sở lý thuyết và các nhiệm vụ chính của bài toán tích hợp dữ liệu. Chương 4 này sẽ trình bày chi tiết các công cụ tích hợp dữ liệu theo hướng tiếp cận “mashup”. Với mục đích và phạm vi của đề tài, sáu nhóm công cụ tích hợp dữ liệu chính được trình bày bao gồm: (i) nhóm công cụ ABC trong phần 4.1, (ii) nhóm công cụ DEF trong phần 4.2, nhóm công cụ GHK trong phần 4.3, v.v...
-
-Trong phần Kết chương, sinh viên đưa ra một số kết luận quan trọng của chương. Những vấn đề mở ra trong Tổng quan cần được tóm tắt lại nội dung và cách giải quyết/thực hiện như thế nào. Sinh viên lưu ý không viết Kết chương giống hệt Tổng quan. Sau khi đọc phần Kết chương, người đọc sẽ nắm được sơ bộ nội dung và giải pháp cho các vấn đề đã trình bày trong chương. Trong Kết chương, Sinh viên nên có thêm câu liên kết tới chương tiếp theo.
-
-Ví dụ về phần Kết chương: Chương này đã phân tích chi tiết sáu nhóm công cụ tích hợp dữ liệu. Nhóm công cụ ABC và DEF thích hợp với những bài toán tích hợp dữ liệu phạm vi nhỏ. Trong khi đó, nhóm công cụ GHK lại chứng tỏ thế mạnh của mình với những bài toán cần độ chính xác cao, v.v. Từ kết quả nghiên cứu và phân tích về sáu nhóm công cụ tích hợp dữ liệu này, tôi đã thực hiện phát triển phần mềm tự động bóc tách và tích hợp dữ liệu sử dụng nhóm công cụ GHK. Phần này được trình bày trong chương tiếp theo – Chương 5.
-
-
+Đồ án được tổ chức thành sáu chương. Chương 2 trình bày nền tảng lý thuyết --- kiến trúc FT-Transformer, các kỹ thuật xử lý mất cân bằng (Focal Loss, SMOTE, Weighted Sampling), học chuyển giao và khái niệm IDS lai ghép. Chương 3 mô tả chi tiết phương pháp đề xuất qua ba giai đoạn, từ mô hình NSL-KDD nền tảng đến pipeline Hybrid IDS End-to-End. Chương 4 phân tích lý thuyết các lựa chọn kỹ thuật quan trọng: tại sao Focal Loss hiệu quả hơn Cross-Entropy trong điều kiện mất cân bằng cực đoan, tại sao PortScan không thể phân tách trong không gian đặc trưng WSL, và giới hạn căn bản của dữ liệu flow-based với tấn công Infiltration. Chương 5 trình bày kết quả thực nghiệm đầy đủ qua từng giai đoạn, bao gồm phân tích ablation và kết quả hệ thống End-to-End. Chương 6 tổng kết các kết quả đạt được và đề xuất hướng phát triển tiếp theo.
 
 \end{document}

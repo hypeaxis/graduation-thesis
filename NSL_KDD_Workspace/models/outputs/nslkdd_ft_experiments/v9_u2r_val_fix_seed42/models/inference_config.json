@@ -1,0 +1,27 @@
+{
+  "checkpoint_path": "../../models/outputs/nslkdd_ft_experiments/v9_u2r_val_fix_seed42/models/best_model.pt",
+  "class_names": [
+    "Normal",
+    "DoS",
+    "Probe",
+    "R2L",
+    "U2R"
+  ],
+  "num_features": 122,
+  "num_classes": 5,
+  "model_kwargs": {
+    "num_features": 122,
+    "num_classes": 5,
+    "d_model": 128,
+    "num_heads": 8,
+    "num_layers": 4,
+    "d_ff": 512,
+    "dropout": 0.1
+  },
+  "feature_columns_path": "/home/ning/Graduation-Thesis/NSL_KDD_Workspace/models/feature_columns.json",
+  "default_snort_feature_csv": "/home/ning/Graduation-Thesis/final/snort_features_122.csv",
+  "default_snort_prediction_csv": "/home/ning/Graduation-Thesis/final/snort_ft_transformer_predictions.csv",
+  "per_class_thresholds": null,
+  "threshold_val_macro_f1": null,
+  "threshold_test_macro_f1": null
+}

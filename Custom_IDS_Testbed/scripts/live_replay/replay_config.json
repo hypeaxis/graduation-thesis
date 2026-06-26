@@ -1,0 +1,23 @@
+{
+  "attacker_ip": "192.168.0.104",
+  "victim_ip": "192.168.0.102",
+  "model": {
+    "model_pt": "Phase3_4_Retrain/v8/v8.5_Combined/v8_5_model.pt",
+    "scaler_pkl": "Phase3_4_Retrain/v8/v8.5_Combined/v8_5_scaler.pkl",
+    "encoder_pkl": "Phase3_4_Retrain/v8/v8.5_Combined/v8_5_encoder.pkl"
+  },
+  "replay_files": {
+    "portscan":   "docs/attack_capture_run11.pcap_Flow.csv",
+    "bruteforce": "docs/bruteforce_only.pcap_Flow.csv",
+    "webattack":  "docs/webattack_only.pcap_Flow.csv",
+    "dos":        "docs/dos_only.pcap_Flow.csv",
+    "benign":     "docs/benign_only.pcap_Flow.csv"
+  },
+  "label_map": {
+    "portscan": "PortScan",
+    "bruteforce": "Brute Force",
+    "webattack": "Web Attack",
+    "dos": "DoS",
+    "benign": "Benign"
+  }
+}

@@ -1,16 +1,469 @@
 \documentclass[../DoAn.tex]{subfiles}
 \begin{document}
 
-\section{Tổng quan giải pháp}
+\section{Tổng quan kiến trúc hệ thống}
+\label{sec:tq-kientruc}
 
-Phần này mô tả tổng quan giải pháp gồm những bước chính nào, hoạt động ra sao. Mục tiêu của phần này là cho người đọc một cái nhìn tổng thể về giải pháp. Để cho dễ hiểu thì nên có một biểu đồ mô tả luồng hoạt động của giải pháp đề xuất. 
+Hệ thống NIDS được đề xuất trong đề tài được xây dựng qua ba giai đoạn nghiên cứu tuần tự, mỗi giai đoạn được thúc đẩy bởi kết quả định lượng của giai đoạn trước: từ việc xác lập kiến trúc nền tảng trên NSL-KDD, tái thiết kế cho CIC-IDS-2017 với 9 lớp hiện đại, đến thu thập dữ liệu Testbed nội bộ và triển khai End-to-End.
 
-\section{Tên của nội dung chi tiết thứ 1}
-Tên của các chương này đặt theo nội dung mà sinh viên sẽ trình bày trong từng chương. 
+\textbf{Giai đoạn 1} (Mục \ref{sec:gd1}) xây dựng mô hình nhị phân và đa lớp trên NSL-KDD, thiết lập các kỹ thuật xử lý mất cân bằng và pipeline tiền xử lý. Giai đoạn này kết thúc bằng quyết định chuyển sang CIC-IDS-2017 với lý do định lượng rõ ràng.
 
-Các chương tiếp theo mô tả chi tiết về các bước, các thuật toán trong giải pháp đề xuất. Có thể trình bày pseudocode cho từng bước. Chú ý, pseudocode chỉ có tác dụng làm chi tiết hoá giải thuật chứ không thay thế được phần thuyết minh về giải thuật. Đối với những chi tiết kỹ thuật khó hiểu nên có các hình minh hoạ để người đọc dễ hiểu. Mỗi một thuật toán/bước thực hiện nên tách ra thành một chương. 
+\textbf{Giai đoạn 2} (Mục \ref{sec:gd2}) tái thiết kế kiến trúc hoàn toàn cho CIC-IDS-2017: Two-Stage Cascade (Gating Network 6-lớp + Expert Network 5-lớp, xuất 9 lớp tổng hợp từ 15 nhãn gốc) kết hợp Asymmetric Ensemble Voting, đạt Accuracy 99,55\% và Macro F1 0,9294.
 
-\section{Tên của nội dung chi tiết thứ 2}
+\textbf{Giai đoạn 3} (Mục \ref{sec:gd3}) giải quyết vấn đề covariate shift khi triển khai mô hình CIC sang môi trường Testbed WSL, thông qua Layer Freezing Fine-tuning và Model Surgery.
 
+\textbf{Giai đoạn 4} (Mục \ref{sec:gd4}) tái huấn luyện hoàn toàn trên dữ liệu Testbed nội bộ, giải quyết các bài toán đặc thù của môi trường WSL và cho ra mô hình cuối V8.5 đạt Macro F1 91,7\%.
+
+Hệ thống cuối cùng (Mục \ref{sec:deploy}) tích hợp Snort và FT-Transformer trong pipeline End-to-End chạy song song, thu thập traffic thực, trích xuất đặc trưng và phân loại theo thời gian gần-thực.
+
+\section{Giai đoạn 1: Xây dựng mô hình nền tảng trên NSL-KDD}
+\label{sec:gd1}
+
+\subsection{Đặc điểm bộ dữ liệu NSL-KDD và quy trình tiền xử lý}
+\label{subsec:gd1-data}
+
+NSL-KDD \cite{tavallaee2009} là bản cải tiến của bộ dữ liệu KDD Cup 1999 \cite{kdd99}, được thiết kế để khắc phục một số vấn đề của bản gốc: loại bỏ các bản ghi trùng lặp (KDD Cup 1999 có tới 78\% bản ghi lặp trong tập training), cân bằng lại tỷ lệ giữa tập train và test để đảm bảo kết quả đánh giá không bị ảnh hưởng bởi sự phân bố không đều. NSL-KDD gồm 125.973 bản ghi training và 22.544 bản ghi test với 4 lớp tấn công chính: DoS, Probe, R2L (Remote to Local), và U2R (User to Root), cùng nhãn con chi tiết hơn.
+
+Dữ liệu NSL-KDD sử dụng 41 đặc trưng dạng hỗn hợp: 38 đặc trưng số (duration, byte counts, flag counts, v.v.) và 3 đặc trưng phân loại (protocol\_type, service, flag). Quy trình tiền xử lý bao gồm: mã hóa one-hot cho đặc trưng phân loại, chuẩn hóa MinMaxScaler cho đặc trưng số, và xử lý mất cân bằng dữ liệu qua SMOTE-ENN cho các lớp thiểu số (U2R, R2L).
+
+\subsection{Kiến trúc Two-Stage: Autoencoder và Stacking Ensemble}
+\label{subsec:gd1-arch}
+
+Bài toán phân loại đa lớp trực tiếp trên NSL-KDD gặp phải một cái bẫy cấu trúc: nếu một mô hình duy nhất nhận toàn bộ 125.973 mẫu và phải phân loại năm lớp, gradient sẽ bị chi phối bởi Normal (53,5\%) và DoS (36,5\%), trong khi U2R --- lớp quan trọng nhất về mặt bảo mật --- chỉ có 52 mẫu training, tương đương 0,04\%. Kiến trúc Two-Stage được thiết kế để tháo gỡ sự xung đột này bằng cách tách biệt hai bài toán có bản chất khác nhau.
+
+\textbf{Stage 1 --- Autoencoder Anomaly Gate (Bộ lọc dị thường):}
+
+Autoencoder được huấn luyện \textit{chỉ} trên dữ liệu Normal theo nguyên lý unsupervised: mạng encoder-decoder học cách tái tạo lại các flow bình thường với sai số thấp nhất. Khi một flow tấn công đi qua mạng này --- có pattern khác hoàn toàn với những gì mô hình đã học --- lỗi tái tạo sẽ cao hơn đáng kể.
+
+Sai số tái tạo được đo bằng Mean Squared Error:
+\begin{equation}
+    \text{MSE}(\mathbf{x}) = \frac{1}{D}\sum_{i=1}^{D}(x_i - \hat{x}_i)^2
+    \label{eq:ae-mse}
+\end{equation}
+trong đó $D = 122$ là số chiều sau mã hóa one-hot, $\hat{\mathbf{x}}$ là đầu ra tái tạo của Autoencoder.
+
+Quyết định phân loại của Stage 1:
+\begin{equation}
+    \text{gate}(\mathbf{x}) = \begin{cases}
+        \text{Normal} & \text{MSE}(\mathbf{x}) < \tau \\
+        \text{Suspicious} & \text{MSE}(\mathbf{x}) \geq \tau
+    \end{cases}
+    \label{eq:ae-gate}
+\end{equation}
+với ngưỡng $\tau = 0{,}008481$ được chọn trên tập validation để tối đa hóa F1 nhị phân. Các flow được gán nhãn Normal thoát khỏi pipeline; các flow Suspicious được chuyển sang Stage 2.
+
+Lợi thế căn bản của Autoencoder Gate: mô hình học ``không gian chuẩn'' của traffic bình thường mà \textit{không cần nhãn tấn công}. Bất kỳ flow nào bị tái tạo kém là flow bất thường theo định nghĩa, kể cả tấn công chưa từng xuất hiện trong training. Stage 1 đạt Macro-F1 nhị phân = 0,84 và Precision = 0,93 trên KDDTest+.
+
+\textbf{Stage 2 --- Stacking Ensemble cho phân loại chi tiết:}
+
+Stage 2 nhận các flow Suspicious từ Stage 1 và phân loại thành 4 lớp tấn công (DoS, Probe, R2L, U2R). Thay vì một mô hình đơn lẻ, Stacking Ensemble kết hợp hai bộ phân loại có inductive bias khác nhau để bù đắp điểm yếu lẫn nhau.
+
+\textit{Base learner 1 --- FT-Transformer:} $d = 128$, 8 heads, 4 lớp Attention, $d_{ff} = 512$, dropout $= 0{,}1$. Cơ chế Attention cho phép mô hình học tương tác giữa các cặp đặc trưng (ví dụ: mối quan hệ giữa \texttt{src\_bytes} và \texttt{rerror\_rate}) --- hữu ích để phân biệt R2L với các tấn công khác.
+
+\textit{Base learner 2 --- LightGBM:} 127 lá, learning rate $= 0{,}05$, $n\_\text{estimators} = 1000$ (early stopping patience 50), $\text{subsample} = 0{,}8$. LightGBM phân vùng không gian đặc trưng theo cơ chế cây quyết định --- bắt được các ngưỡng rõ ràng trong đặc trưng như \texttt{logged\_in} hay \texttt{num\_compromised}, đặc biệt hiệu quả cho Probe và U2R.
+
+Hai mô hình này sai trên các mẫu khác nhau: FT-Transformer đạt R2L Recall cao hơn (0,383 vs 0,208 của LightGBM) nhờ cơ chế Attention; LightGBM đạt Probe F1 và U2R F1 cao hơn nhờ phân vùng đặc trưng cứng. Đây là điều kiện lý tưởng để Stacking phát huy.
+
+\textit{Meta-learner --- Logistic Regression:} được huấn luyện trên đầu ra xác suất (out-of-fold predictions) của cả hai base learner:
+\begin{equation}
+    \hat{y} = \text{Meta-LR}\!\left([\,\mathbf{p}_\text{FTT};\;\mathbf{p}_\text{LGBM}\,]\right), \quad
+    \mathbf{p}_\text{FTT},\,\mathbf{p}_\text{LGBM} \in \mathbb{R}^5
+    \label{eq:stacking}
+\end{equation}
+Vector đầu vào của Meta-LR có 10 chiều (xác suất 5 lớp từ mỗi base learner). Meta-LR học \textit{khi nào} nên tin FT-Transformer và khi nào nên tin LightGBM hơn --- một dạng chuyên môn hóa động theo từng vùng không gian đặc trưng.
+
+Kết quả đầu-cuối trên KDDTest+ (5 lớp, bao gồm cả Stage 1): Macro F1 = 0,6809, Accuracy = 80,09\%. So với từng mô hình đơn lẻ (FT-Transformer: 0,654; LightGBM: 0,668), Stacking cải thiện đồng thời Normal F1 (0,823), Probe F1 (0,794) và U2R F1 (0,512).
+
+\subsection{Chiến lược xử lý mất cân bằng}
+\label{subsec:gd1-imbalance}
+
+NSL-KDD có hai dạng mất cân bằng về bản chất khác nhau, đòi hỏi hai chiến lược khác nhau:
+
+\textbf{Dạng 1 --- Thiếu hụt dữ liệu (U2R):} Chỉ có 52 mẫu U2R trong toàn bộ KDDTrain+. SMOTE không hiệu quả ở đây vì các mẫu tổng hợp được nội suy tuyến tính trong không gian 122 chiều với chỉ 52 điểm gốc --- phần lớn là bản sao gần các mẫu gốc, không tăng thực sự sự đa dạng.
+
+\textbf{Dạng 2 --- Dịch chuyển phân phối (R2L):} R2L có 995 mẫu training (0,8\%) nhưng 2.885 mẫu test (12,8\%) --- gấp 16 lần. Đồng thời, 62\% test R2L sử dụng giao thức pop3 (không có trong training, vốn 100\% là telnet). Bổ sung thêm R2L synthetic không giải quyết được vấn đề này vì mô hình thiếu exposure với pop3 patterns, không phải thiếu số lượng.
+
+Các chiến lược được áp dụng theo tầng:
+
+\textbf{1. Chiến lược Val Set Boost-Minority:} Thay vì chia ngẫu nhiên 15\%, tập validation được xây dựng có chủ đích:
+\begin{itemize}
+    \item R2L: 40\% mẫu vào val --- giữ sự đa dạng attack types trong validation để checkpoint selection phản ánh đúng hiệu năng trên R2L.
+    \item U2R: chỉ 5 mẫu vào val, phần còn lại (47 mẫu) vào training --- tăng 52\% dữ liệu U2R training và đảm bảo checkpoint selection không bị dominated bởi 8 mẫu U2R không đại diện.
+    \item Normal/DoS: 10\% vào val.
+\end{itemize}
+
+\textbf{2. Class-Balanced Focal Loss:} Alpha cho mỗi lớp được tính theo công thức class-balanced:
+\begin{equation}
+    \alpha_c = \frac{1 - \beta}{1 - \beta^{n_c}}, \quad \beta = 0{,}9999
+    \label{eq:cb-alpha}
+\end{equation}
+Kết hợp với $\gamma = 2$ của Focal Loss (xem phương trình~\ref{eq:focal-loss}), giá trị $\alpha_c$ lớn cho U2R/R2L đảm bảo gradient từ các lớp thiểu số không bị ``chôn vùi'' bởi khối lượng Normal/DoS.
+
+\textbf{3. WeightedRandomSampler (FT-Transformer):} Mỗi batch được lấy mẫu với xác suất tỷ lệ nghịch với tần suất lớp, đảm bảo mỗi batch training chứa đại diện của tất cả các lớp --- kể cả U2R.
+
+\textbf{4. Inverse-Frequency Sample Weights (LightGBM):} Mỗi mẫu training nhận trọng số $w_c = N / (K \cdot n_c)$ được đưa vào trực tiếp trong quá trình boosting, tăng đóng góp gradient của các mẫu thiểu số ở mỗi vòng xây cây.
+
+Kết quả cuối của chiến lược tổng hợp: U2R Recall = 0,4776 (tăng từ 0,15 ở baseline không xử lý), R2L Precision = 0,9681. R2L Recall vẫn ở mức 0,25 --- giới hạn cứng do distribution shift pop3/telnet không thể giải quyết bằng kỹ thuật sampling hay loss, chỉ có thể giải quyết bằng thêm dữ liệu R2L đa dạng giao thức hơn.
+
+\subsection{Giới hạn của NSL-KDD và động cơ chuyển sang CIC-IDS-2017}
+\label{subsec:gd1-limit}
+
+Sau khi đạt kết quả ổn định trên NSL-KDD, hai giới hạn căn bản của bộ dữ liệu này trở nên rõ ràng. Thứ nhất, dữ liệu được thu thập từ năm 1998 trong một môi trường mạng giả lập --- không phản ánh bất kỳ loại tấn công hiện đại nào: không có DDoS amplification, không có web application attacks (SQLi, XSS), không có botnet C2 communication, không có brute force qua SSH/FTP. Kết quả trên NSL-KDD, dù cao về mặt metric, không có giá trị thực tiễn cho bài toán IDS hiện đại.
+
+Thứ hai, NSL-KDD chỉ có 4 lớp tấn công bậc cao (DoS, Probe, R2L, U2R) --- không đủ chi tiết cho hệ thống IDS cần phân biệt giữa DDoS và DoS, hay giữa PortScan và brute force. Môi trường thực tế đòi hỏi phân loại tấn công ở mức độ chi tiết hơn để hỗ trợ đội ngũ SOC phản ứng đúng cách với từng loại sự cố.
+
+CIC-IDS-2017 \cite{sharafaldin2018} giải quyết cả hai vấn đề: dữ liệu thu thập năm 2017 với traffic thực từ 25 users thực hiện các kịch bản tấn công hiện đại qua 5 ngày, với 15 nhãn gốc (Benign và 14 loại tấn công) được gộp thành 9 lớp mô hình (Benign, DoS, DDoS, BruteForce, PortScan, Web Attack, Botnet, Infiltration, Heartbleed). Đây là cơ sở để chuyển sang Giai đoạn 2.
+
+\section{Giai đoạn 2: Two-Stage Cascade NIDS trên CIC-IDS-2017}
+\label{sec:gd2}
+
+\subsection{Bộ dữ liệu CIC-IDS-2017 và thách thức mất cân bằng cực đoan}
+\label{subsec:gd2-data}
+
+CIC-IDS-2017 \cite{sharafaldin2018} gồm traffic thu thập trong 5 ngày liên tiếp: thứ Hai (chỉ Benign), thứ Ba đến thứ Sáu (các kịch bản tấn công). Sau khi xử lý, tập dữ liệu sử dụng trong đề tài gồm khoảng 2,83 triệu flow với phân phối lớp mất cân bằng nghiêm trọng: lớp Benign chiếm 82,7\%, trong khi các lớp tấn công dao động từ DoS Slowloris (0,23\%) đến Heartbleed (0,003\%). Ba lớp đặc biệt thách thức là Botnet (0,07\%), Infiltration (0,03\%) và Heartbleed (0,003\%) --- tỷ lệ Benign:Infiltration lên đến hơn 2.750:1.
+
+Thách thức không chỉ nằm ở tỷ lệ mà còn ở sự \textit{không đồng đều về mức độ khó phân tách}: Heartbleed có pattern flow rất đặc trưng (dù hiếm) nên dễ học, trong khi Botnet có traffic C2 bắt chước Benign và Infiltration thực hiện exfiltration chậm không tạo pattern flow rõ ràng.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_cic_imbalance}
+    \caption{Phân phối lớp trong CIC-IDS-2017 (~2,83 triệu flow, thang logarithm). Benign chiếm 82,7\%; tỉ lệ Benign:Infiltration vượt 2.750:1.}
+    \label{fig:cic-imbalance}
+\end{figure}
+
+\subsection{Quy trình tiền xử lý và kỹ thuật hóa đặc trưng}
+\label{subsec:gd2-preprocess}
+
+Dữ liệu thô từ CICFlowMeter chứa một số vấn đề chất lượng cần xử lý trước khi huấn luyện. Các giá trị vô cực (Infinity) và NaN xuất hiện trong một số đặc trưng tốc độ (Flow Bytes/s, Flow Packets/s) khi duration của flow bằng 0 --- những flow này được xử lý bằng cách clip về giá trị lớn nhất hợp lệ (cho Infinity) hoặc loại bỏ (cho NaN không thể impute).
+
+Chuẩn hóa đặc trưng sử dụng \textbf{PowerTransformer với phân phối Yeo-Johnson} \cite{yeo2000power}. Phân phối Yeo-Johnson tổng quát hóa Box-Cox để xử lý được cả giá trị âm, với tham số $\lambda$ được ước lượng bằng Maximum Likelihood để tối đa hóa tính xấp xỉ Gaussian của phân phối sau biến đổi:
+
+\begin{equation}
+    \psi_\lambda(x) = \begin{cases}
+        \dfrac{(x+1)^\lambda - 1}{\lambda} & \lambda \neq 0,\; x \geq 0 \\[6pt]
+        \ln(x + 1) & \lambda = 0,\; x \geq 0 \\[6pt]
+        \dfrac{-\left[(-x+1)^{2-\lambda} - 1\right]}{2-\lambda} & \lambda \neq 2,\; x < 0 \\[6pt]
+        -\ln(-x + 1) & \lambda = 2,\; x < 0
+    \end{cases}
+    \label{eq:yeo-johnson}
+\end{equation}
+
+Lý do chọn PowerTransformer thay vì StandardScaler hay MinMaxScaler: nhiều đặc trưng CICFlowMeter có phân phối power-law (byte counts, IAT) với đuôi dài cực đoan. StandardScaler không thay đổi phân phối; MinMaxScaler đưa về $[0,1]$ nhưng không giải quyết skewness. PowerTransformer đưa phân phối về xấp xỉ Gaussian, giúp FT-Transformer học hiệu quả hơn và đặc biệt giúp các lớp thiểu số không bị ``chôn vùi'' trong đuôi phân phối của Benign.
+
+Ngoài ra, một số đặc trưng có tương quan Pearson cao ($r > 0{,}95$) được loại bỏ để tránh multicollinearity, giảm chiều từ 77 xuống 34 đặc trưng cho Expert Network (Stage 2).
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    stage/.style={draw, rounded corners=4pt, minimum width=3.8cm, minimum height=1.0cm,
+                  font=\small\bfseries, align=center, fill=blue!10, draw=blue!60},
+    cls/.style={draw, rounded corners=3pt, minimum width=2.6cm, minimum height=0.75cm,
+                font=\footnotesize, align=center},
+    benign/.style={cls, fill=green!12, draw=green!60},
+    attack/.style={cls, fill=orange!12, draw=orange!60},
+    expert/.style={cls, fill=red!10, draw=red!50},
+    susp/.style={cls, fill=purple!12, draw=purple!60},
+    arr/.style={-{Stealth[length=5pt]}, thick},
+    dasharr/.style={-{Stealth[length=5pt]}, dashed, thick, gray},
+    node distance=0.7cm and 1.0cm
+]
+
+% Input
+\node[draw, rounded corners=3pt, fill=gray!10, minimum width=4.5cm, minimum height=0.7cm,
+      font=\small, align=center] (input) {Flow đầu vào (77 đặc trưng)};
+
+% Stage 1
+\node[stage, below=0.9cm of input, minimum width=5.5cm] (s1) {Gating Network (Stage 1)\\FT-Transformer, 6 lớp};
+\draw[arr] (input) -- (s1);
+
+% Stage 1 outputs - row
+\node[benign,  below left=1.0cm and 2.2cm of s1]  (c_benign)  {Benign};
+\node[attack,  left=0.3cm of c_benign]             (c_dos)     {DoS};
+\node[attack,  right=0.3cm of c_benign]            (c_ddos)    {DDoS};
+\node[attack,  right=0.3cm of c_ddos]              (c_port)    {PortScan};
+\node[attack,  right=0.3cm of c_port]              (c_brute)   {Brute Force};
+\node[susp,    right=0.3cm of c_brute]             (c_susp)    {Suspicious\\$P \geq 85\%$};
+
+\draw[arr] (s1.south) -- ++(0,-0.4) -| (c_benign);
+\draw[arr] (s1.south) -- ++(0,-0.4) -| (c_dos);
+\draw[arr] (s1.south) -- ++(0,-0.4) -| (c_ddos);
+\draw[arr] (s1.south) -- ++(0,-0.4) -| (c_port);
+\draw[arr] (s1.south) -- ++(0,-0.4) -| (c_brute);
+\draw[arr] (s1.south) -- ++(0,-0.4) -| (c_susp);
+
+% Stage 2
+\node[stage, fill=purple!10, draw=purple!50, below=1.3cm of c_susp, minimum width=5.0cm]
+    (s2) {Expert Network (Stage 2)\\FTT + RF + KNN, 5 lớp\\(Asymmetric Ensemble)};
+\draw[arr] (c_susp) -- (s2);
+\node[benign,  below left=1.0cm and 1.5cm of s2] (e_benign)  {Benign\\(từ chối FP)};
+\node[expert,  right=0.3cm of e_benign]           (e_web)     {Web Attack};
+\node[expert,  right=0.3cm of e_web]              (e_bot)     {Bot};
+\node[expert,  right=0.3cm of e_bot]              (e_infil)   {Infiltration};
+\node[expert,  right=0.3cm of e_infil]            (e_heart)   {Heartbleed};
+
+\draw[arr] (s2.south) -- ++(0,-0.4) -| (e_benign);
+\draw[arr] (s2.south) -- ++(0,-0.4) -| (e_web);
+\draw[arr] (s2.south) -- ++(0,-0.4) -| (e_bot);
+\draw[arr] (s2.south) -- ++(0,-0.4) -| (e_infil);
+\draw[arr] (s2.south) -- ++(0,-0.4) -| (e_heart);
+
+% Total output label
+\node[draw=gray, rounded corners=3pt, fill=gray!5, font=\footnotesize\itshape,
+      below=3.5cm of s1, xshift=-2cm] (total) {9 lớp tổng hợp};
+
+\end{tikzpicture}%
+}
+\caption{Kiến trúc Two-Stage Cascade NIDS: Gating Network (6 lớp) lọc các tấn công phổ biến và chuyển Suspicious flows sang Expert Network (5 lớp). Hệ thống xuất 9 lớp tổng hợp từ 15 nhãn gốc.}
+\label{fig:two-stage-arch}
+\end{figure}
+
+\subsection{Tầng 1: Gating Network}
+\label{subsec:gd2-stage1}
+
+Gating Network là bộ phân loại \textbf{6 lớp}: nhận 77 đặc trưng đầy đủ và phân loại flow thành \{Benign, DoS, DDoS, PortScan, Brute Force, Suspicious\}. Bốn lớp tấn công phổ biến (DoS, DDoS, PortScan, Brute Force) có pattern traffic đặc trưng rõ ràng và được phân loại trực tiếp tại Stage 1. Lớp thứ sáu --- Suspicious --- bao gồm các tấn công phức tạp (Web Attack, Bot, Infiltration, Heartbleed) có flow-level signature gần giống Benign; các flow này được chuyển tiếp sang Expert Network. Thiết kế 6-lớp có hai lợi ích: (1) Stage 1 phân loại sẵn 4 nhóm tấn công dễ nhận biết, giải phóng Expert Network để tập trung vào các tấn công khó; (2) Expert Network không phải xử lý toàn bộ traffic --- chỉ nhận các flow Suspicious.
+
+Gating Network là một FT-Transformer với cấu hình ($d=128$, 4 lớp Attention, 8 đầu, $d_{ff}=512$, dropout=0,2) được huấn luyện với CB-Focal Loss ($\gamma=2$) và Weighted Sampling để ưu tiên recall tấn công. Ngưỡng 85\% được áp dụng cho xác suất lớp Suspicious: chỉ khi $P(\text{Suspicious}) \geq 0{,}85$ thì flow mới được chuyển sang Expert Network; nếu Stage 1 dự đoán Suspicious nhưng $P < 0{,}85$, flow được gán nhãn Benign (bảo thủ, tránh gánh nặng xử lý thêm).
+
+\subsection{Tầng 2: Expert Network và Hard Negative Mining}
+\label{subsec:gd2-stage2}
+
+Expert Network nhận đầu vào là các flow được Gating Network đánh dấu Suspicious và phân loại thành \textbf{5 lớp}: Benign, Web Attack, Bot, Infiltration, Heartbleed. Nhãn Benign trong Stage 2 cho phép Expert Network từ chối các flow bị Gating Network chuyển nhầm (false positive Stage 1). Toàn bộ hệ thống xuất \textbf{9 lớp}: Stage 1 xác định trực tiếp Benign/DoS/DDoS/PortScan/Brute Force; Stage 2 phân loại thêm Web Attack, Bot, Infiltration, Heartbleed cho các flow Suspicious. Mô hình sử dụng 34 đặc trưng (tập con sau loại bỏ tương quan cao) --- giảm chiều giúp Expert Network tập trung vào các đặc trưng thực sự phân biệt các tấn công phức tạp.
+
+Hard Negative Mining (HNM) được thực hiện hai vòng. Sau vòng huấn luyện đầu, toàn bộ tập validation được đưa qua Expert Network và các mẫu bị phân loại sai được xác định. Những mẫu này --- đặc biệt là Botnet và Infiltration bị nhầm thành Benign hoặc các lớp tấn công khác --- được \textbf{nhân bản 10 lần} và bổ sung vào tập huấn luyện vòng tiếp theo, tạo áp lực học đủ lớn trên các mẫu khó. Sau hai vòng HNM, Botnet F1 cải thiện từ 0,4787 lên 0,6512, và Infiltration F1 cải thiện từ 0,3821 lên 0,5903.
+
+\subsection{Từ Expert Network đơn lẻ đến Asymmetric Ensemble Voting}
+\label{subsec:gd2-motivation-ensemble}
+
+Sau hai vòng HNM, Expert Network đạt kết quả tốt cho hầu hết các lớp nhưng vẫn còn hai điểm yếu đặc thù: Botnet F1 dưới 0,65 và Infiltration F1 dưới 0,60. Phân tích confusion matrix cho thấy hai nguyên nhân khác nhau:
+
+Với \textbf{Botnet}: FT-Transformer có xu hướng nhầm một số Benign traffic thành Botnet (false positive cao). Nguyên nhân: pattern Botnet C2 heartbeat ở tần suất thấp trùng với một số Benign long-idle connection. Random Forest và KNN --- với inductive bias khác --- ít bị lỗi này hơn.
+
+Với \textbf{Infiltration}: FT-Transformer bỏ sót nhiều Infiltration (false negative cao). Nguyên nhân: các flow Infiltration riêng lẻ gần giống Benign SSH/HTTP. Tuy nhiên, các lớp thiểu số cực đoan thường được Random Forest học tốt hơn nhờ cơ chế bootstrap sampling trong từng cây. KNN cũng có xu hướng phân loại Infiltration dựa trên lân cận cục bộ, tốt hơn với các lớp có vùng đặc trưng nhỏ, cô lập.
+
+Kết luận: ba mô hình sai trên những mẫu khác nhau --- điều kiện lý tưởng cho ensemble. Ensemble sẽ chỉ sai khi đa số mô hình đồng thời sai, xác suất thấp hơn nhiều so với mô hình đơn lẻ.
+
+\subsection{Thiết kế Asymmetric Ensemble Voting}
+\label{subsec:gd2-ensemble}
+
+Ba mô hình thành phần của Ensemble: (1) FT-Transformer (Expert Network, đã mô tả ở trên); (2) Random Forest với 150 cây, max\_depth=25, max\_features=20, class\_weight=\texttt{balanced}; (3) KNN với K=16, trọng số đều (uniform). Mỗi mô hình được huấn luyện độc lập trên cùng tập dữ liệu (sau HNM).
+
+Luật bỏ phiếu tiêu chuẩn là majority voting: nhãn được bầu bởi ít nhất 2/3 mô hình. Hai luật \textbf{bất đối xứng} bổ sung được thiết kế dựa trên phân tích chi phí lỗi:
+
+\begin{itemize}
+    \item \textbf{Quy tắc Ưu tiên Infiltration:} Nếu RF \textit{hoặc} KNN bỏ phiếu Infiltration, kết quả cuối là Infiltration --- bất kể FT-Transformer bỏ phiếu gì. Lý do: Infiltration chiếm dưới 0,03\% dữ liệu và bỏ sót một cuộc Infiltration có hậu quả nghiêm trọng hơn rất nhiều so với một false alarm Infiltration. Quy tắc này tăng Infiltration Recall đáng kể đổi lấy một phần Precision.
+
+    \item \textbf{Quy tắc Đồng thuận Botnet:} Kết quả là Botnet \textit{chỉ khi} FT-Transformer dự đoán Botnet \textit{và} cả RF lẫn KNN đều không dự đoán Benign. Lý do: FT-Transformer thường xuyên nhầm Benign thành Botnet (FP cao), gây alert fatigue. RF và KNN ít bị lỗi FP Botnet hơn nhờ inductive bias khác; nếu một trong hai dự đoán Benign thì kết quả cuối bị override thành Benign.
+\end{itemize}
+
+Kết quả Ensemble cuối: Accuracy 99,55\%, Macro F1 0,9294, với Botnet F1 cải thiện lên 0,7344 và Infiltration F1 lên 0,7407 so với Expert Network đơn lẻ (xem Chi tiết ở Chương 5).
+
+\section{Giai đoạn 3: Thích nghi miền sang Testbed thực chiến}
+\label{sec:gd3}
+
+\subsection{Chẩn đoán Covariate Shift}
+\label{subsec:gd3-covshift}
+
+Sau khi mô hình CIC đạt kết quả tốt, bước tiếp theo là triển khai lên môi trường Testbed thực của đề tài: một máy tính cá nhân chạy Windows 11 với WSL2 Ubuntu, kết nối mạng qua card mạng ảo (Hyper-V Virtual Ethernet Adapter) và NAT. Traffic tấn công được tạo ra từ một thiết bị khác trên cùng mạng LAN và gửi đến IP của WSL host.
+
+Khi áp dụng mô hình CIC trực tiếp lên 5.000 flow thu thập từ Testbed, kết quả là Accuracy 21,93\% và MCC $= -0{,}015$. Đây là mức tệ hơn cả dự đoán ngẫu nhiên theo MCC --- cho thấy mô hình không chỉ hoạt động kém mà còn đang phân loại \textit{sai hướng} một cách có hệ thống. Nguyên nhân được xác định qua phân tích phân phối đặc trưng:
+
+Hai môi trường tạo ra phân phối đặc trưng khác nhau đáng kể do:
+\begin{itemize}
+    \item \textbf{MTU và frame size khác nhau}: Switch vật lý Gigabit xử lý frame đầy đủ; card mạng ảo Hyper-V có overhead ảo hóa thay đổi packet size và timing.
+    \item \textbf{NAT làm thay đổi flow statistics}: NAT của Windows thêm độ trễ và thay đổi timing của ACK, ảnh hưởng đến các đặc trưng IAT (Inter-Arrival Time) và flag counts.
+    \item \textbf{PowerTransformer parameters không phù hợp}: Scaler được fit trên phân phối CIC (switch vật lý, gigabit) --- khi áp dụng lên phân phối Testbed (card ảo, NAT), một số đặc trưng bị map sai miền giá trị.
+\end{itemize}
+
+\subsection{Tại sao Re-fit Scaler thất bại}
+\label{subsec:gd3-scaler}
+
+Giải pháp đơn giản nhất được thử đầu tiên: giữ nguyên kiến trúc mô hình, chỉ fit lại PowerTransformer trên phân phối Testbed và chuẩn hóa lại đầu vào. Kết quả: Accuracy giảm từ 21,93\% xuống còn 6,87\% --- tệ hơn nhiều.
+
+Lý do: mô hình FT-Transformer đã học các biểu diễn nội bộ (embedding của từng feature token) dựa trên khoảng giá trị của CIC-scaler. Khi scaler thay đổi, đầu vào sau chuẩn hóa có phân phối giá trị hoàn toàn khác --- các token embedding mapping này không còn ý nghĩa nữa. Nói cách khác, Re-fit Scaler thay đổi ``ngôn ngữ'' đầu vào của mô hình trong khi mô hình vẫn ``nói'' ngôn ngữ cũ --- tạo ra sự không tương thích còn tệ hơn ban đầu.
+
+Bài học: khi fine-tune mô hình cho miền mới, scaler phải được thay đổi \textit{cùng lúc} với ít nhất một phần tham số mô hình --- không thể thay đổi một trong hai một cách độc lập.
+
+\subsection{Fine-tuning với Layer Freezing}
+\label{subsec:gd3-freezing}
+
+Layer Freezing Fine-tuning được thiết kế để thích nghi mô hình với scaler mới và phân phối Testbed mà không phá vỡ kiến thức đã học từ CIC. Chiến lược cụ thể:
+
+\begin{enumerate}
+    \item Fit lại PowerTransformer trên tập Testbed (thay scaler).
+    \item Đóng băng tham số của 2 tầng Attention đầu --- các tầng học đặc trưng tổng quát như mối quan hệ cơ bản giữa duration/byte/packet counts.
+    \item Chỉ cập nhật tham số của 2 tầng Attention cuối và đầu phân loại (classification head) --- các tầng học biểu diễn đặc thù miền.
+    \item Huấn luyện trên tập Testbed với learning rate nhỏ ($10^{-4}$) và Mixed-Domain Batch: mỗi batch chứa 70\% Testbed flows + 30\% CIC flows để ngăn Catastrophic Forgetting.
+\end{enumerate}
+
+Kết quả sau Layer Freezing: MCC tăng từ $-0{,}015$ lên $0{,}6825$, Accuracy đạt 99,82\%. Catastrophic Forgetting $CF = 0{,}61\%$ --- mô hình vẫn giữ 99,39\% hiệu năng trên CIC ban đầu.
+
+\subsection{Model Surgery: mở rộng không gian đặc trưng}
+\label{subsec:gd3-surgery}
+
+Phân tích phân phối đặc trưng Testbed so với CIC cho thấy một số đặc trưng có thể cải thiện khả năng phân biệt trong môi trường WSL nhưng không có trong tập 77 đặc trưng CIC gốc. Ba đặc trưng kỹ thuật mới được thiết kế và tính toán từ dữ liệu CICFlowMeter:
+
+\begin{itemize}
+    \item \textbf{Custom\_IAT\_CV} (Coefficient of Variation của Inter-Arrival Time): $\text{IAT\_CV} = \sigma_{IAT} / (\mu_{IAT} + \varepsilon)$ --- đo tính đều đặn của timing gói tin; Botnet C2 heartbeat có CV thấp (periodic), Benign browsing có CV cao (irregular).
+    \item \textbf{Custom\_Bwd\_Pkt\_Ratio}: Tỷ lệ gói tin backward trên forward: $N_{bwd} / (N_{fwd} + \varepsilon)$ --- PortScan SYN scan gần như không có gói backward ($\approx 0$), Benign HTTP có tỷ lệ cân bằng.
+    \item \textbf{Custom\_Pkt\_Size\_Ratio}: Tỷ lệ kích thước gói tin nhỏ nhất trên lớn nhất: $L_{min} / (L_{max} + \varepsilon)$ --- DoS flood có gói kích thước đồng đều (tỷ lệ gần 1), Benign có phân phối đa dạng (tỷ lệ thấp).
+\end{itemize}
+
+Model Surgery mở rộng chiều đầu vào $77 \rightarrow 80$: ma trận Feature Tokenizer Embedding $W^{emb} \in \mathbb{R}^{77 \times d}$ được mở rộng thành $\mathbb{R}^{80 \times d}$. 77 hàng cũ được giữ nguyên (transplant) và 3 hàng mới được khởi tạo ngẫu nhiên $\mathcal{N}(0, 0{,}01)$. Các tham số còn lại của mô hình không thay đổi. Sau đó, fine-tuning với Layer Freezing được chạy lại để học embedding của 3 đặc trưng mới.
+
+Sau Model Surgery, MCC tăng thêm từ $0{,}6825$ lên $0{,}7333$, với cải thiện chủ yếu ở Botnet (Custom\_IAT\_CV giúp phân biệt periodic heartbeat) và PortScan (Custom\_Bwd\_Pkt\_Ratio tiết lộ tính một chiều của SYN scan).
+
+\section{Giai đoạn 4: Tái huấn luyện mô hình trên dữ liệu Testbed nội bộ}
+\label{sec:gd4}
+
+\subsection{Đặc điểm bộ dữ liệu Testbed nội bộ}
+\label{subsec:gd4-data}
+
+Sau khi domain adaptation từ Giai đoạn 3 giải quyết được một phần vấn đề covariate shift, thực nghiệm cho thấy mô hình vẫn có những điểm yếu đặc thù của môi trường WSL không thể khắc phục bằng fine-tuning. Quyết định được đưa ra: thu thập dữ liệu Testbed nội bộ và tái huấn luyện hoàn toàn mô hình trên dữ liệu này.
+
+Testbed gồm hai máy tính trên cùng mạng LAN: (1) máy Windows 11 (IP 192.168.1.x) chạy WSL2 Ubuntu là máy victim --- cài đặt Snort, CICFlowMeter, và DVWA (Damn Vulnerable Web Application) cho web attacks; (2) máy tấn công Kali Linux chạy các công cụ tấn công thực (nmap, hydra, slowhttptest, curl-based web attacks). WSL2 sử dụng chế độ Mirrored Networking, cho phép traffic từ mạng vật lý đến trực tiếp WSL interface mà không qua NAT translation hoàn toàn.
+
+Dữ liệu Testbed nội bộ thu thập được gồm 5 lớp: Benign (lưu lượng sinh hoạt thực tế), BruteForce (hydra SSH/FTP), DoS (slowhttptest, hping3), PortScan (nmap), và Web Attack (curl-based SQLi, XSS). Không thu thập Infiltration và Botnet do không thể mô phỏng đáng tin cậy trên môi trường hai máy.
+
+\subsection{Bài toán PortScan: tại sao điều chỉnh thuật toán không đủ}
+\label{subsec:gd4-portscan}
+
+PortScan là thách thức đầu tiên và nghiêm trọng nhất của dữ liệu Testbed nội bộ. Kết quả ban đầu (V8.2): PortScan F1 = 7,5\% --- mức thực tế bằng không. Mọi thử nghiệm điều chỉnh thuật toán --- tăng class weight, dùng Focal Loss với $\gamma$ cao, thêm SMOTE --- đều không cải thiện đáng kể (xem phân tích chi tiết tại Mục \ref{sec:pt-portscan}).
+
+Nguyên nhân gốc rễ: trên môi trường WSL với NAT, mỗi lần chạy nmap từ máy tấn công chỉ tạo ra khoảng 7 flow được CICFlowMeter capture, thay vì hàng trăm flow như trên switch vật lý. Mỗi flow này là một TCP connection rất ngắn, không có payload --- hoàn toàn không phân biệt được với Benign health check hay short-lived HTTP connection.
+
+Giải pháp: inject 5.000 flow PortScan từ CIC-IDS-2017 Friday dataset (được thu thập trên switch vật lý thực) vào tập huấn luyện. Các flow CIC PortScan có đặc trưng rõ ràng --- nhiều SYN flags, duration ngắn nhưng \textit{đồng nhất}, byte count gần bằng 0 --- đủ phân biệt với Benign. Đây là giải pháp \textit{dữ liệu surrogate}: dùng dữ liệu từ môi trường khác (CIC real hardware) để bù cho dữ liệu thiếu chất lượng ở môi trường hiện tại (WSL).
+
+Kết quả sau injection CIC PortScan: PortScan F1 tăng từ 7,5\% lên 100\% --- và duy trì ổn định qua mọi phiên bản tiếp theo.
+
+\subsection{Bài toán Brute Force: thiếu đa dạng pattern và giải pháp tăng cường dữ liệu}
+\label{subsec:gd4-bruteforce}
+
+Sau khi giải quyết PortScan, thách thức tiếp theo là BruteForce. Dữ liệu nội bộ (Run10) chỉ gồm hydra SSH/FTP attacks --- một loại tool duy nhất, tạo ra một pattern flow duy nhất (TCP connections liên tiếp với authentication timeout). BruteForce F1 trên tập validation nội bộ ban đầu đạt 70,3\%, với Recall chỉ 54\% --- nghĩa là bỏ sót gần 1 trong 2 cuộc tấn công brute force.
+
+Để mở rộng độ đa dạng của dữ liệu BruteForce, CIC Patator flows (FTP-Patator và SSH-Patator, 4.999 flows từ CIC Tuesday) được thêm vào tập huấn luyện. Patator sử dụng cơ chế authentication bruteforce khác hydra --- tốc độ thử khác nhau, pattern TCP connection khác nhau --- giúp mô hình học dạng tổng quát hơn của BruteForce, không chỉ học pattern của hydra.
+
+\subsection{Vấn đề đồng nhất miền trong tập kiểm định và hệ quả lên độ tin cậy của metric}
+\label{subsec:gd4-val-diversity}
+
+Sau khi thêm CIC Patator vào tập huấn luyện, tập validation được cấu thành chỉ từ CIC Patator flows (500 flows, 10\% stratified split). Kết quả: BruteForce F1 = 100\%, Macro F1 = 94,95\%.
+
+Con số 100\% này đáng ngờ --- và thực tế là không đáng tin cậy. Tập validation gồm 100\% CIC Patator flows trong khi training đã thấy CIC Patator flows --- đây là đánh giá in-distribution, không phản ánh khả năng tổng quát hóa sang hydra (tool khác, pattern khác). Một mô hình overfit hoàn toàn vào Patator pattern cũng sẽ đạt F1 = 100\% trên tập validation này.
+
+Để kiểm tra thực sự, tập validation được xây dựng lại với thành phần \textit{đa dạng miền}: 400 hydra flows (từ Run10) + 398 Patator flows (CIC) = 798 flows BruteForce tổng cộng. Kết quả trên tập validation đa dạng này: BruteForce P=83\%, R=90\%, F1=86\%; Macro F1 = 91,7\%. Con số thấp hơn nhưng đáng tin cậy hơn --- phản ánh khả năng phát hiện BruteForce từ cả hai nguồn tool.
+
+Đây là minh chứng trực tiếp: metric cao trên tập validation đồng nhất miền không đảm bảo hiệu năng tốt trong thực tế với traffic đa dạng hơn.
+
+\subsection{Mô hình cuối V8.5: thiết kế, huấn luyện và đánh giá}
+\label{subsec:gd4-final}
+
+Mô hình cuối V8.5 được fine-tune từ mô hình tốt nhất trước đó, với tập dữ liệu Combined\_V8\_5 gồm 111.825 flows:
+
+\begin{table}[H]
+    \centering
+    \caption{Thành phần tập dữ liệu huấn luyện V8.5}
+    \label{tab:v85-dataset}
+    \begin{tabular}{llrr}
+        \hline
+        \textbf{Lớp} & \textbf{Nguồn} & \textbf{Số flows} & \textbf{Tỷ lệ} \\
+        \hline
+        Benign     & Testbed nội bộ (nhiều runs) & 51.975 & 46,5\% \\
+        DoS        & Testbed nội bộ              & 19.800 & 17,7\% \\
+        Web Attack & Run10 + CIC Thursday XSS/SQLi & 27.067 & 24,2\% \\
+        BruteForce & Run10 hydra + CIC Patator   &  7.983 &  7,1\% \\
+        PortScan   & CIC Friday                  &  5.000 &  4,5\% \\
+        \hline
+        \textbf{Tổng} & & \textbf{111.825} & 100\% \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Cấu hình huấn luyện: learning rate theo từng lớp (backbone $10^{-5}$, mid $1{,}5 \times 10^{-5}$, head $3 \times 10^{-5}$), dropout 0,15, label smoothing 0,10, weight decay $2 \times 10^{-4}$, class weights $\sqrt{N/(K \cdot n_c)}$ clip về $[0{,}5;\; 2{,}0]$. Early stopping với patience=5, dừng tại epoch 6 (best checkpoint: epoch 1).
+
+Kết quả đánh giá trên tập validation 11.183 flows: Macro F1 = 91,7\%, Balanced Accuracy = 91,1\%. Chi tiết per-class: Benign F1=91\%, BruteForce F1=86\% (P=83\%/R=90\%), DoS F1=93\%, PortScan F1=100\%, Web Attack F1=88\%.
+
+\section{Triển khai Hybrid IDS End-to-End}
+\label{sec:deploy}
+
+\subsection{Pipeline tích hợp Snort, CICFlowMeter và FT-Transformer}
+\label{subsec:deploy-pipeline}
+
+\begin{figure}[H]
+\centering
+\resizebox{0.90\textwidth}{!}{%
+\begin{tikzpicture}[
+    comp/.style={draw, rounded corners=4pt, minimum width=3.2cm, minimum height=1.0cm,
+                font=\small\bfseries, align=center, fill=blue!8, draw=blue!55},
+    alert/.style={draw, rounded corners=3pt, minimum width=2.6cm, minimum height=0.7cm,
+                font=\small, align=center, fill=orange!12, draw=orange!60},
+    arr/.style={-{Stealth[length=5pt]}, thick},
+    dasharr/.style={-{Stealth[length=5pt]}, dashed, thick, gray!70},
+    node distance=0.8cm and 1.5cm
+]
+% Network traffic
+\node[draw, fill=gray!10, rounded corners=3pt, minimum width=3.0cm, minimum height=0.65cm,
+      font=\small] (traffic) {Network Traffic\\(Packets)};
+
+% Snort
+\node[comp, fill=red!8, draw=red!50, below left=1.2cm and 1.5cm of traffic] (snort)
+    {Snort 3\\(Rule-based IDS)};
+% CICFlowMeter
+\node[comp, fill=green!8, draw=green!55, below right=1.2cm and 1.5cm of traffic] (cicfm)
+    {CICFlowMeter\\(Flow extractor)};
+
+\draw[arr] (traffic.south west) -- (snort.north);
+\draw[arr] (traffic.south east) -- (cicfm.north);
+
+% Snort alert
+\node[alert, below=0.9cm of snort] (snort_alert) {Snort Alert Log\\(packet-level)};
+\draw[arr] (snort) -- (snort_alert);
+
+% FTT inference
+\node[comp, fill=purple!8, draw=purple!55, below=0.9cm of cicfm] (ftt)
+    {FT-Transformer V8.5\\(ML Inference)};
+\draw[arr] (cicfm) -- node[right, font=\scriptsize]{80 features/flow} (ftt);
+\node[alert, below=0.9cm of ftt] (ml_alert) {ML Alert Log\\(flow-level)};
+\draw[arr] (ftt) -- (ml_alert);
+
+% Aggregator
+\node[comp, fill=yellow!10, draw=yellow!70!black, below=1.8cm of snort, xshift=3.5cm]
+    (agg) {Alert Aggregator\\(Dashboard)};
+\draw[arr] (snort_alert.south) -- ++(0,-0.3) -| (agg.west);
+\draw[arr] (ml_alert.south)    -- ++(0,-0.3) -| (agg.east);
+
+% Label complementary
+\node[font=\scriptsize\itshape, above=0.05cm of agg, xshift=-0.4cm]
+    (note) {Snort: phát hiện DoS Slowhttptest\\ML: phát hiện XSS ngắn};
+
+\end{tikzpicture}%
+}
+\caption{Kiến trúc Hybrid IDS End-to-End: Snort (tầng packet, rule-based) và FT-Transformer V8.5 (tầng flow, ML) chạy song song, alert được hợp nhất tại Alert Aggregator.}
+\label{fig:e2e-pipeline}
+\end{figure}
+
+Hệ thống End-to-End được thiết kế theo kiến trúc ba thành phần chạy song song trên máy victim:
+
+\textbf{Snort} chạy ở chế độ IDS (không inline) trên interface mạng WSL, lắng nghe toàn bộ traffic. Ruleset sử dụng kết hợp Snort Community Rules và Emerging Threats Open, cập nhật định kỳ. Khi một gói tin khớp luật, Snort ghi alert vào log file với timestamp, source/dest IP/port, và tên luật kích hoạt. Snort hoạt động ở mức gói tin, xử lý real-time với độ trễ cỡ microsecond.
+
+\textbf{CICFlowMeter} chạy trong chế độ capture liên tục, đọc packets từ interface WSL. Mỗi khi một flow hoàn chỉnh (TCP connection đóng bằng RST/FIN hoặc timeout 30 giây), CICFlowMeter tính toán 80 đặc trưng thống kê và ghi vào file CSV. Một process Python giám sát file CSV này và đẩy các dòng mới vào hàng đợi phân loại.
+
+\textbf{FT-Transformer Inference Engine} đọc từ hàng đợi, áp dụng PowerTransformer (Testbed scaler) và đưa vào mô hình V8.5 để phân loại. Kết quả (nhãn lớp + confidence score) được ghi vào alert log thứ hai với thông tin flow đầy đủ.
+
+\textbf{Alert Aggregator} đọc cả hai alert logs (Snort + ML) và hợp nhất vào một dashboard. Khi cùng một flow/session xuất hiện trong cả hai nguồn cảnh báo, mức độ ưu tiên được tăng lên (confirmed alert).
+
+\subsection{Môi trường giả lập tấn công xuyên thiết bị}
+\label{subsec:deploy-attack-sim}
+
+Môi trường thực nghiệm End-to-End gồm hai máy trên cùng mạng LAN gia đình:
+
+\begin{itemize}
+    \item \textbf{Máy victim} (Windows 11 + WSL2 Ubuntu): IP 192.168.1.x trên mạng LAN. WSL2 cấu hình Mirrored Networking để share IP với Windows host. Cài đặt: Apache2 + DVWA (cổng 80), OpenSSH Server (cổng 22), FTP Server (vsftpd, cổng 21). Snort, CICFlowMeter và FT-Transformer chạy bên trong WSL2.
+
+    \item \textbf{Máy tấn công} (Kali Linux laptop): kết nối cùng WiFi router với máy victim. Các công cụ sử dụng: nmap (PortScan), hydra (BruteForce SSH/FTP), slowhttptest/hping3 (DoS), curl scripts (Web Attack: SQLi và XSS payload vào DVWA).
+\end{itemize}
+
+Quy trình thực nghiệm End-to-End: (1) khởi động Snort, CICFlowMeter và Inference Engine trên máy victim; (2) từ máy tấn công, thực hiện lần lượt từng loại tấn công theo kịch bản có kiểm soát; (3) ghi nhận alert từ cả hai nguồn (Snort và ML) và đối chiếu với nhãn tấn công thực tế; (4) đánh giá detection rate, false alarm rate và thời gian phát hiện.
+
+Kết quả thực nghiệm End-to-End được trình bày chi tiết tại Mục \ref{sec:tn-e2e}.
 
 \end{document}

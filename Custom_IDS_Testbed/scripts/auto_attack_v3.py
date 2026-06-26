@@ -120,20 +120,16 @@ def phase_portscan(target, writer):
 
     scans = [
         # (command, description, estimated_flows)
-        (f"sudo nmap -sT -T5 -p 1-5000 {target}",
+        # Chỉ dùng -sT (KHÔNG -sV) + --max-retries 0 để mỗi port = đúng 1 probe
+        # → unique dst_port count cao, discriminative với Benign
+        (f"sudo nmap -sT -T5 -p 1-5000 --max-retries 0 {target}",
          "TCP Connect scan ports 1-5000", 5000),
 
-        (f"sudo nmap -sT -T5 -p 5001-9000 {target}",
-         "TCP Connect scan ports 5001-9000", 4000),
+        (f"sudo nmap -sT -T5 -p 5001-10000 --max-retries 0 {target}",
+         "TCP Connect scan ports 5001-10000", 5000),
 
-        (f"sudo nmap -sV -T4 -p 1-2000 {target}",
-         "Version Detect scan ports 1-2000", 2000),
-
-        (f"sudo nmap -sT -T5 -p 9001-13000 {target}",
-         "TCP Connect scan ports 9001-13000", 4000),
-
-        (f"sudo nmap -sT -T4 -p 13001-16000 {target}",
-         "TCP Connect scan ports 13001-16000", 3000),
+        (f"sudo nmap -sT -T4 -p 10001-16000 --max-retries 0 {target}",
+         "TCP Connect scan ports 10001-16000", 6000),
     ]
 
     total = len(scans)
@@ -355,11 +351,13 @@ def main():
     print(f"[*] Bắt đầu lúc: {start_time.strftime('%H:%M:%S')}")
     print(f"[*] Ground Truth log: {log_file}")
 
-    with open(log_file, mode='w', newline='') as csvfile:
+    file_exists = os.path.exists(log_file)
+    with open(log_file, mode='a', newline='') as csvfile:
         fieldnames = ['attack_type', 'src_ip', 'dst_ip', 'dst_port',
                       'start_time_ms', 'end_time_ms', 'params']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
+        if not file_exists:
+            writer.writeheader()
 
         phases = {
             'portscan': ("PHASE 1: PortScan", phase_portscan),

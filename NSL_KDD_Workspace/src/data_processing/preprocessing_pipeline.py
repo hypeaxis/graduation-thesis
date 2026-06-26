@@ -97,6 +97,46 @@ def _map_labels(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict]:
     return df, stats
 
 
+# Authentication services used in guess_passwd signal
+_AUTH_SERVICES = frozenset({
+    'telnet', 'ftp', 'ftp_data', 'pop_3', 'imap4', 'ssh', 'login', 'rlogin', 'smtp',
+})
+
+
+def _engineer_behavioral_features(df: pd.DataFrame) -> pd.DataFrame:
+    """v3 features (kept for backward compat; shown to hurt in v8 experiment)."""
+    out = df.copy()
+
+    on_auth = out['service'].isin(_AUTH_SERVICES)
+    small_bytes = (out['src_bytes'] < 300) & (out['dst_bytes'] < 1000)
+    low_count = out['count'] < 5
+    out['small_auth_session'] = (on_auth & small_bytes & low_count).astype(float)
+
+    out['privilege_escalation'] = (
+        (out['root_shell'] > 0) |
+        (out['su_attempted'] > 0) |
+        (out['num_root'] > 0)
+    ).astype(float)
+
+    return out
+
+
+def _engineer_v5_features(df: pd.DataFrame) -> pd.DataFrame:
+    """v5 drift-invariant features for guess_passwd detection.
+
+    no_data_transfer: dst_bytes < 2000 — fires 99% of guess_passwd (train+test),
+      only 10% of warezmaster (which transfers large files). No drift observed.
+
+    failed_login_ratio: num_failed_logins / count — captures repeated failed
+      login attempts normalised by connection count. Some drift (0.80 → 0.35)
+      but still 0.0 for warezmaster, so net discriminative power is preserved.
+    """
+    out = df.copy()
+    out['no_data_transfer']   = (out['dst_bytes'] < 2000).astype(float)
+    out['failed_login_ratio'] = out['num_failed_logins'] / out['count'].clip(lower=1)
+    return out
+
+
 def _one_hot(df: pd.DataFrame) -> pd.DataFrame:
     return pd.get_dummies(df, columns=['protocol_type', 'service', 'flag'])
 
@@ -105,6 +145,7 @@ def fit_train_preprocessor(
     train_txt_path: str,
     output_train_csv: str,
     artifacts_dir: str,
+    data_version: str = 'v3',
 ) -> None:
     train_path = Path(train_txt_path)
     out_csv = Path(output_train_csv)
@@ -114,6 +155,11 @@ def fit_train_preprocessor(
     df = _read_raw(train_path)
     df = _basic_clean(df)
     df, stats = _map_labels(df)
+    if data_version == 'v3':
+        df = _engineer_behavioral_features(df)
+    elif data_version == 'v5':
+        df = _engineer_v5_features(df)
+    # v2: no extra features
     df = _one_hot(df)
 
     X = df.drop(columns=['label'])
@@ -152,6 +198,7 @@ def transform_test_with_preprocessor(
     test_txt_path: str,
     output_test_csv: str,
     artifacts_dir: str,
+    data_version: str = 'v3',
 ) -> None:
     test_path = Path(test_txt_path)
     out_csv = Path(output_test_csv)
@@ -166,6 +213,10 @@ def transform_test_with_preprocessor(
     df = _read_raw(test_path)
     df = _basic_clean(df)
     df, stats = _map_labels(df)
+    if data_version == 'v3':
+        df = _engineer_behavioral_features(df)
+    elif data_version == 'v5':
+        df = _engineer_v5_features(df)
     df = _one_hot(df)
 
     X = df.drop(columns=['label'])

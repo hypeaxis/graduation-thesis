@@ -1,0 +1,7 @@
+{
+  "no_gate_meta_lr_v12": 0.6809428142663168,
+  "A_hard_gate_ftt_v9": 0.5578808556309315,
+  "B_hard_gate_meta_lr": 0.5585345270232289,
+  "C_class_aware_gate_meta_lr": 0.6809428142663168,
+  "gate_conf_tuned_on_val": 0.0
+}

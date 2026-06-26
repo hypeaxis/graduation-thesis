@@ -71,13 +71,32 @@ def parse_args() -> ArgumentParser:
     parser.add_argument('--model-version', choices=['v1', 'v2'], default='v1', help='v1=original FTTransformer, v2=grouped embedding + deeper head')
     parser.add_argument('--label-smoothing', type=float, default=0.0, help='Label smoothing factor for focal loss. 0=disabled.')
     parser.add_argument('--scheduler', choices=['plateau', 'cosine'], default='plateau', help='LR scheduler type.')
-    parser.add_argument('--smote-strategy', choices=['none', 'minority', 'auto', 'custom'], default='none', help='SMOTE oversampling strategy for minority classes.')
+    parser.add_argument('--smote-strategy', choices=['none', 'minority', 'auto', 'custom', 'u2r-only'], default='none', help='SMOTE oversampling strategy for minority classes.')
     parser.add_argument('--smote-k', type=int, default=5, help='k-neighbors for SMOTE.')
     parser.add_argument('--num-workers', type=int, default=0)
     parser.add_argument('--save-dir', type=str, default=None)
     parser.add_argument('--results-dir', type=str, default=None)
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--use-selected-features', action='store_true', help='Use top features from selected_features.json')
+    parser.add_argument(
+        '--data-version', choices=['v2', 'v3', 'v4', 'v5'], default='v2',
+        help='v2=original 122 features; v3=+behavioral (124); v4=v2+ae_recon_error (123); v5=v2+drift-invariant (124).',
+    )
+    parser.add_argument(
+        '--val-strategy',
+        choices=['iid', 'boost-minority'],
+        default='iid',
+        help=(
+            'iid: stratified 15%% split from train (default). '
+            'boost-minority: higher val%% for R2L/U2R so checkpoint selection '
+            'is not blind to minority classes.'
+        ),
+    )
+    parser.add_argument(
+        '--optimize-thresholds',
+        action='store_true',
+        help='After training, search per-class decision thresholds on val set to maximize macro-F1.',
+    )
     parser.add_argument('--task-type', choices=['5-class', '4-class-attack'], default='5-class', help='Task type for FT-Transformer')
     return parser.parse_args()
 
@@ -113,13 +132,21 @@ def apply_smote(X: np.ndarray, y: np.ndarray, strategy: str, k_neighbors: int, s
     print(f'  Pre-SMOTE class distribution: {dict(enumerate(class_counts.tolist()))}')
 
     if strategy == 'custom':
-        # Custom: boost R2L to ~5000, U2R to ~1000, leave others unchanged
+        # Boost R2L to ~5000, U2R to ~1000
         sampling_strategy = {}
         for cls_idx, count in enumerate(class_counts):
             if cls_idx == 3:  # R2L
                 sampling_strategy[cls_idx] = max(count, 5000)
             elif cls_idx == 4:  # U2R
                 sampling_strategy[cls_idx] = max(count, 1000)
+        if not sampling_strategy:
+            return X, y
+    elif strategy == 'u2r-only':
+        # Only boost U2R (to 300); leave R2L untouched to avoid narrow-manifold trap
+        sampling_strategy = {}
+        for cls_idx, count in enumerate(class_counts):
+            if cls_idx == 4:  # U2R
+                sampling_strategy[cls_idx] = max(count, 300)
         if not sampling_strategy:
             return X, y
     elif strategy == 'auto':
@@ -148,10 +175,48 @@ def apply_smote(X: np.ndarray, y: np.ndarray, strategy: str, k_neighbors: int, s
     return X_resampled.astype(np.float32), y_resampled.astype(np.int64)
 
 
-def load_datasets(data_dir: Path, val_size: float, seed: int, smote_strategy: str = 'none', smote_k: int = 5, use_selected_features: bool = False, task_type: str = '5-class'):
-    train_path = data_dir / 'data/processed/cleaned5Grouped_v2_KddTrain+.csv'
-    test_path = data_dir / 'data/processed/cleaned5Grouped_v2_KddTest+.csv'
-    artifacts_dir = data_dir / 'models'
+def _minority_boost_split(
+    X: np.ndarray,
+    y: np.ndarray,
+    seed: int,
+    per_class_val_frac: dict[int, float] | None = None,
+    per_class_val_max: dict[int, int] | None = None,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Per-class val split: minority classes get higher val fraction.
+
+    Default fracs give ~398 R2L in val; U2R capped at 5 (per_class_val_max)
+    to avoid train starvation (52 → 47 train instead of 31).
+    """
+    if per_class_val_frac is None:
+        per_class_val_frac = {0: 0.10, 1: 0.10, 2: 0.15, 3: 0.40, 4: 0.40}
+    if per_class_val_max is None:
+        per_class_val_max = {4: 5}  # U2R: cap val at 5 samples, keep ~47 for train
+
+    rng = np.random.default_rng(seed)
+    train_idx: list[int] = []
+    val_idx: list[int] = []
+
+    unique_classes = np.unique(y)
+    for cls in unique_classes:
+        cls_idx = np.where(y == cls)[0]
+        frac = per_class_val_frac.get(int(cls), 0.15)
+        n_val = max(1, int(len(cls_idx) * frac))
+        if int(cls) in per_class_val_max:
+            n_val = min(n_val, per_class_val_max[int(cls)])
+        perm = rng.permutation(cls_idx)
+        val_idx.extend(perm[:n_val].tolist())
+        train_idx.extend(perm[n_val:].tolist())
+
+    train_idx_arr = np.array(train_idx)
+    val_idx_arr = np.array(val_idx)
+    return X[train_idx_arr], X[val_idx_arr], y[train_idx_arr], y[val_idx_arr]
+
+
+def load_datasets(data_dir: Path, val_size: float, seed: int, smote_strategy: str = 'none', smote_k: int = 5, use_selected_features: bool = False, task_type: str = '5-class', val_strategy: str = 'iid', data_version: str = 'v2'):
+    train_path = data_dir / f'data/processed/cleaned5Grouped_{data_version}_KddTrain+.csv'
+    test_path  = data_dir / f'data/processed/cleaned5Grouped_{data_version}_KddTest+.csv'
+    _artifacts_map = {'v3': 'models/artifacts_preprocess_v3', 'v4': 'models/artifacts_preprocess_v4', 'v5': 'models/artifacts_preprocess_v5'}
+    artifacts_dir = data_dir / _artifacts_map.get(data_version, 'models/artifacts_preprocess')
 
     if not train_path.exists() or not test_path.exists():
         raise FileNotFoundError('Preprocessed NSL-KDD CSV files are missing. Run DataPreprocrss5ClassTrain.py and DataPreprocess5ClassTest.py first.')
@@ -179,13 +244,18 @@ def load_datasets(data_dir: Path, val_size: float, seed: int, smote_strategy: st
     X_test = test_df.drop(columns=['label']).to_numpy(dtype=np.float32)
     y_test = test_df['label'].to_numpy(dtype=np.int64)
 
-    X_train, X_val, y_train, y_val = train_test_split(
-        X_train_full,
-        y_train_full,
-        test_size=val_size,
-        stratify=y_train_full,
-        random_state=seed,
-    )
+    if val_strategy == 'boost-minority':
+        X_train, X_val, y_train, y_val = _minority_boost_split(X_train_full, y_train_full, seed)
+        print('Val strategy: boost-minority (R2L=40%, U2R≤5 samples, Probe=15%, Normal/DoS=10%)')
+    else:
+        X_train, X_val, y_train, y_val = train_test_split(
+            X_train_full,
+            y_train_full,
+            test_size=val_size,
+            stratify=y_train_full,
+            random_state=seed,
+        )
+        print(f'Val strategy: iid stratified {val_size:.0%}')
 
     # Apply SMOTE on train set only (never on val/test)
     if smote_strategy != 'none':
@@ -399,6 +469,75 @@ def evaluate(model, loader, class_names: list[str], device: torch.device, output
     }
 
 
+def collect_probs(model: torch.nn.Module, loader: DataLoader, device: torch.device) -> tuple[np.ndarray, np.ndarray]:
+    model.eval()
+    all_probs: list[np.ndarray] = []
+    all_labels: list[np.ndarray] = []
+    with torch.no_grad():
+        for features, labels in loader:
+            logits = model(features.to(device))
+            probs = torch.softmax(logits, dim=1).cpu().numpy()
+            all_probs.append(probs)
+            all_labels.append(labels.numpy())
+    return np.concatenate(all_probs), np.concatenate(all_labels)
+
+
+def predict_with_thresholds(probs: np.ndarray, thresholds: list[float] | np.ndarray) -> np.ndarray:
+    """Predict by argmax of (prob[c] - threshold[c]).
+
+    Lowering threshold[c] makes the model more willing to predict class c,
+    increasing recall at the cost of precision for that class.
+    """
+    margins = probs - np.array(thresholds)[np.newaxis, :]
+    return np.argmax(margins, axis=1)
+
+
+def optimize_thresholds(
+    probs: np.ndarray,
+    labels: np.ndarray,
+    num_classes: int,
+    n_restarts: int = 5,
+    seed: int = 42,
+) -> tuple[list[float], float]:
+    """Coordinate descent to find per-class thresholds maximising val macro-F1.
+
+    Returns (thresholds, best_macro_f1).
+    Uses multiple random restarts to avoid poor local minima.
+    """
+    from scipy.optimize import minimize
+
+    def neg_macro_f1(thresholds: np.ndarray) -> float:
+        preds = predict_with_thresholds(probs, thresholds)
+        return -f1_score(labels, preds, average='macro', zero_division=0)
+
+    bounds = [(0.0, 0.95)] * num_classes
+    rng = np.random.default_rng(seed)
+    best_thresholds = np.full(num_classes, 1.0 / num_classes)
+    best_score = -neg_macro_f1(best_thresholds)
+
+    # Restart 0: uniform starting point
+    starts = [np.full(num_classes, 1.0 / num_classes)]
+    # Additional random restarts
+    for _ in range(n_restarts - 1):
+        starts.append(rng.uniform(0.05, 0.85, size=num_classes))
+
+    for x0 in starts:
+        result = minimize(
+            neg_macro_f1,
+            x0,
+            method='Nelder-Mead',
+            options={'maxiter': 10_000, 'xatol': 1e-5, 'fatol': 1e-5, 'adaptive': True},
+        )
+        score = -result.fun
+        if score > best_score:
+            best_score = score
+            best_thresholds = result.x
+
+    # Clip to valid range
+    best_thresholds = np.clip(best_thresholds, 0.0, 0.95)
+    return best_thresholds.tolist(), best_score
+
+
 def plot_history(history: dict[str, list[float]], output_dir: Path) -> None:
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
@@ -425,7 +564,8 @@ def main() -> None:
     args = parse_args()
     set_seed(args.seed)
 
-    base_dir = Path(__file__).resolve().parent
+    # Script lives in src/training/ — go up to workspace root where data/ and models/ live
+    base_dir = Path(__file__).resolve().parent.parent.parent
     default_output_dir = base_dir / 'models/weights' / 'ft_transformer_nslkdd'
     model_dir = Path(args.save_dir) if args.save_dir else default_output_dir / 'models'
     results_dir = Path(args.results_dir) if args.results_dir else default_output_dir / 'results'
@@ -440,7 +580,7 @@ def main() -> None:
     else:
         device = torch.device('cpu')
 
-    dataset_bundle = load_datasets(base_dir, args.val_size, args.seed, args.smote_strategy, args.smote_k, args.use_selected_features, args.task_type)
+    dataset_bundle = load_datasets(base_dir, args.val_size, args.seed, args.smote_strategy, args.smote_k, args.use_selected_features, args.task_type, args.val_strategy, args.data_version)
     loaders = create_loaders(
         dataset_bundle,
         args.batch_size,
@@ -625,6 +765,34 @@ def main() -> None:
     metrics = evaluate(model, loaders['test'], class_names, device, results_dir)
     plot_history(history, results_dir)
 
+    # --- Threshold optimization (Phase 1) ---
+    per_class_thresholds: list[float] | None = None
+    threshold_val_f1: float | None = None
+    threshold_test_f1: float | None = None
+
+    if args.optimize_thresholds:
+        print('\n--- Threshold Optimization ---')
+        val_probs, val_labels = collect_probs(model, loaders['val'], device)
+        per_class_thresholds, threshold_val_f1 = optimize_thresholds(
+            val_probs, val_labels, num_classes, n_restarts=5, seed=args.seed,
+        )
+        print(f'Tuned thresholds: {[round(t, 4) for t in per_class_thresholds]}')
+        print(f'Val macro-F1 with thresholds: {threshold_val_f1:.4f} (vs argmax: {best_val_f1:.4f})')
+
+        test_probs, test_labels = collect_probs(model, loaders['test'], device)
+        threshold_preds = predict_with_thresholds(test_probs, per_class_thresholds)
+        threshold_test_f1 = f1_score(test_labels, threshold_preds, average='macro', zero_division=0)
+        threshold_report = classification_report(
+            test_labels, threshold_preds, target_names=class_names, digits=4, zero_division=0,
+        )
+        print(f'\nTest macro-F1 with thresholds: {threshold_test_f1:.4f} (vs argmax: {metrics["macro_f1"]:.4f})')
+        print('\nPer-class (threshold-adjusted):')
+        print(threshold_report)
+        with open(results_dir / 'classification_report_threshold.txt', 'w', encoding='utf-8') as f:
+            f.write(threshold_report)
+        np.save(results_dir / 'val_probs.npy', val_probs)
+        np.save(results_dir / 'val_labels.npy', val_labels)
+
     summary = {
         'model': f'FT-Transformer-{args.model_version}',
         'model_version': args.model_version,
@@ -637,6 +805,8 @@ def main() -> None:
         'test_weighted_f1': metrics['weighted_f1'],
         'test_macro_precision': metrics['macro_precision'],
         'test_macro_recall': metrics['macro_recall'],
+        'threshold_test_macro_f1': threshold_test_f1,
+        'val_strategy': args.val_strategy,
         'focal_alpha_mode': focal_alpha_mode,
         'label_smoothing': args.label_smoothing,
         'smote_strategy': args.smote_strategy,
@@ -667,6 +837,9 @@ def main() -> None:
         'feature_columns_path': str(base_dir / 'models' / 'selected_features.json') if args.use_selected_features else str(base_dir / 'models' / 'feature_columns.json'),
         'default_snort_feature_csv': str(base_dir.parent / 'final' / 'snort_features_122.csv'),
         'default_snort_prediction_csv': str(base_dir.parent / 'final' / 'snort_ft_transformer_predictions.csv'),
+        'per_class_thresholds': per_class_thresholds,
+        'threshold_val_macro_f1': threshold_val_f1,
+        'threshold_test_macro_f1': threshold_test_f1,
     }
 
     with open(results_dir / 'training_summary.json', 'w', encoding='utf-8') as file:
@@ -678,8 +851,10 @@ def main() -> None:
     pd.DataFrame([summary]).drop(columns=['class_names', 'config']).to_csv(results_dir / 'training_summary.csv', index=False)
 
     print('\nTraining complete')
-    print(f'Best validation Macro-F1: {best_val_f1:.4f} at epoch {best_epoch}')
-    print(f'Test Macro-F1: {metrics["macro_f1"]:.4f}')
+    print(f'Best validation Macro-F1 (argmax): {best_val_f1:.4f} at epoch {best_epoch}')
+    print(f'Test Macro-F1 (argmax):            {metrics["macro_f1"]:.4f}')
+    if threshold_test_f1 is not None:
+        print(f'Test Macro-F1 (thresholds):        {threshold_test_f1:.4f}')
     print(f'Artifacts saved to: {output_dir}')
 
 

@@ -1,21 +1,290 @@
 \documentclass[../DoAn.tex]{subfiles}
 \begin{document}
-Chương này có độ dài không quá 10 trang. Chương này sinh viên trình bày về phân tích rõ ngữ cảnh bài toán cũng như các kết quả nghiên cứu tương tự. Đồng thời, sinh viên có thể trình bày thêm về các kiến thức nền tảng. Mỗi chương nên có đoạn mở đầu chươnggiới thiệu những nội dung sẽ trình bày trong chương.
 
-\section{Ngữ cảnh của bài toán}
-\ldots
+\section{Ngữ cảnh bài toán phát hiện xâm nhập mạng}
+\label{sec:ngu-canh}
 
-\section{Các kết quả nghiên cứu tương tự}
-Trong phần này sinh viên trình bày các nghiên cứu liên quan (related work), chú ý phân tích rõ những ưu nhược điểm của chúng. Từ đó, nêu bật lên động lực để thực hiện nghiên cứu của đồ án này.
+Phát hiện xâm nhập mạng có thể được hình thức hóa như một bài toán phân loại có giám sát trên dữ liệu lưu lượng mạng. Đầu vào là tập hợp các đặc trưng thống kê mô tả một \textit{flow} --- chuỗi các gói tin giữa hai đầu cuối xác định bởi bộ 5-tuple (IP nguồn, IP đích, cổng nguồn, cổng đích, giao thức) trong một khoảng thời gian nhất định. Đầu ra là nhãn lớp: Benign (lưu lượng bình thường) hoặc một trong các loại tấn công đang xét.
 
+Phương pháp trích xuất đặc trưng phổ biến nhất trong nghiên cứu IDS hiện đại là phân tích ở tầng flow, thay vì tầng gói tin (packet-level). Công cụ CICFlowMeter \cite{lashkari2017} trích xuất từ mỗi flow một vector gồm 77--80 đặc trưng thống kê, bao gồm: thời lượng flow, số lượng gói tin theo cả hai hướng (forward/backward), các thống kê về độ dài gói tin (trung bình, độ lệch chuẩn, tối thiểu, tối đa), thời gian giữa các gói tin liên tiếp (IAT), số lượng flag TCP, và các chỉ số tốc độ (bytes/giây, gói tin/giây). Cách tiếp cận này có ưu điểm là không cần giải mã payload --- hoạt động được cả với lưu lượng mã hóa --- nhưng cũng có giới hạn căn bản trong việc phát hiện các tấn công ẩn hoàn toàn trong nội dung gói tin (sẽ được phân tích chi tiết ở Mục \ref{sec:pt-infiltration}).
 
-\section{Tên của kiến thức nền tảng số 1}
-Tiêu đề và nội dung của chương này sẽ thay đổi tuỳ thuộc vào từng đồ án. Chú ý trình bày những kiến thức có liên quan mật thiết nhất đối với đồ án của mình, Tránh trình bày lan man những kiến thức phổ thông không cần thiết. 
+Bài toán phân loại flow-based IDS phải đối mặt với thách thức mất cân bằng dữ liệu không điển hình. Ngay trong nhóm tấn công, sự phân tầng kích thước cũng cực đoan: DoS/DDoS có thể có hàng triệu flow trong khi Infiltration chỉ có vài nghìn. Điều này đòi hỏi metric phù hợp hơn là accuracy --- cụ thể là Macro F1 (đánh giá đều tất cả các lớp không kể kích thước) và Matthews Correlation Coefficient (MCC) cho đánh giá tổng thể trên dữ liệu mất cân bằng cực đoan.
 
-\section{Tên của kiến thức nền tảng số 2}
-Tiêu đề và nội dung của chương này sẽ thay đổi tuỳ thuộc vào từng đồ án. Chú ý trình bày những kiến thức có liên quan mật thiết nhất đối với đồ án của mình, Tránh trình bày lan man những kiến thức phổ thông không cần thiết.
+\section{Các nghiên cứu liên quan}
+\label{sec:lien-quan}
 
+Lĩnh vực IDS dựa trên học máy đã trải qua nhiều thế hệ phát triển. Giai đoạn đầu (2000--2015) chủ yếu sử dụng Decision Tree, Naive Bayes, SVM trên bộ dữ liệu KDD Cup 1999 \cite{kdd99} và phiên bản cải tiến NSL-KDD \cite{tavallaee2009}. NSL-KDD giải quyết một số vấn đề của KDD Cup gốc (loại bỏ bản ghi trùng lặp, cân bằng lại phân phối lớp) nhưng vẫn là dữ liệu từ năm 1998 --- không phản ánh các giao thức và kỹ thuật tấn công hiện đại.
 
-\textbf{Lưu ý}: Mỗi chương nên có đoạn kết thúc chương,  tổng kết lại các nội dung đã trình bày.
+Sự ra đời của CIC-IDS-2017 \cite{sharafaldin2018} đánh dấu bước tiến quan trọng: dữ liệu thu thập từ mạng thực tế vào năm 2017 với 15 nhãn gốc (Benign và 14 loại tấn công hiện đại), được gộp thành 9 lớp mô hình, sử dụng CICFlowMeter để trích xuất 77 đặc trưng flow có ngữ nghĩa rõ ràng. Nhiều nghiên cứu trên CIC-IDS-2017 đạt Accuracy trên 99\% và F1 trên 0,95 với Random Forest và XGBoost \cite{panigrahi2018,liu2019}. Tuy nhiên, phần lớn các kết quả này được đánh giá trong điều kiện in-distribution và ít quan tâm đến khả năng triển khai thực tế trên hạ tầng khác.
+
+Về kiến trúc học sâu cho dữ liệu bảng, Gorishniy và cộng sự \cite{gorishniy2021} đề xuất FT-Transformer --- áp dụng kiến trúc Transformer lên từng đặc trưng riêng biệt. Trên nhiều benchmark tabular, FT-Transformer đạt kết quả cạnh tranh với XGBoost, đặc biệt trên các tập dữ liệu có nhiều đặc trưng liên tục. Với dữ liệu IDS có 77 đặc trưng số thực, FT-Transformer là lựa chọn phù hợp hơn MLP truyền thống nhờ cơ chế Attention học tương tác đặc trưng tường minh.
+
+Về học chuyển giao trong IDS, hầu hết công trình hiện có \cite{zhao2020transfer,singla2020} tập trung vào chuyển giao giữa các dataset cùng không gian đặc trưng. Vấn đề covariate shift do sự khác biệt hạ tầng thu thập dữ liệu (switch vật lý vs. môi trường ảo hóa) là khoảng trống nghiên cứu mà đề tài này trực tiếp giải quyết. Kỹ thuật Layer Freezing và Model Surgery được đề xuất trong đề tài không có tiền lệ trực tiếp trong tài liệu IDS đã khảo sát.
+
+\section{Kiến trúc Feature Tokenizer Transformer}
+\label{sec:ftt}
+
+FT-Transformer \cite{gorishniy2021} là kiến trúc Transformer được thiết kế riêng cho dữ liệu dạng bảng. Ý tưởng cốt lõi là xử lý mỗi \textit{đặc trưng} như một \textit{token} --- tương tự cách Transformer trong NLP xử lý mỗi từ như một token --- qua đó cho phép cơ chế Attention học tương tác giữa các đặc trưng một cách tường minh.
+
+\subsection{Cơ chế mã hóa đặc trưng}
+\label{subsec:ftt-tokenize}
+
+Cho một mẫu đầu vào $\mathbf{x} = [x_1, x_2, \ldots, x_k] \in \mathbb{R}^k$ với $k$ đặc trưng số thực (trường hợp của dữ liệu CICFlowMeter), bộ mã hóa đặc trưng (Feature Tokenizer) ánh xạ mỗi đặc trưng scalar $x_j$ thành một vector nhúng $\mathbf{e}_j \in \mathbb{R}^d$:
+
+\begin{equation}
+    \mathbf{e}_j = x_j \cdot \mathbf{w}_j + \mathbf{b}_j, \qquad j = 1, 2, \ldots, k
+    \label{eq:feature-tokenizer}
+\end{equation}
+
+trong đó $\mathbf{w}_j \in \mathbb{R}^d$ là vector trọng số và $\mathbf{b}_j \in \mathbb{R}^d$ là vector bias, cả hai \textit{đặc trưng riêng} cho từng đặc trưng $j$. Đây là phép chiếu tuyến tính theo từng đặc trưng: mỗi đặc trưng có tập tham số riêng, không dùng chung như trong MLP thông thường. Số tham số của Feature Tokenizer là $k \times 2d$.
+
+Ngoài $k$ vector đặc trưng, một token đặc biệt $\mathbf{e}_{[\texttt{CLS}]} \in \mathbb{R}^d$ --- được khởi tạo ngẫu nhiên và học cùng với mô hình --- được thêm vào đầu chuỗi. Token này đóng vai trò là đại diện tổng hợp toàn bộ input sau khi đi qua các tầng Attention và được dùng cho dự đoán cuối cùng. Ma trận token đầy đủ là:
+
+\begin{equation}
+    \mathbf{T} = \begin{bmatrix} \mathbf{e}_{[\texttt{CLS}]} \\ \mathbf{e}_1 \\ \vdots \\ \mathbf{e}_k \end{bmatrix} \in \mathbb{R}^{(k+1) \times d}
+    \label{eq:token-matrix}
+\end{equation}
+
+Chiều $d$ được gọi là chiều token (token dimension) và là siêu tham số quan trọng --- trong đề tài này $d = 128$.
+
+\subsection{Self-Attention và Transformer Block}
+\label{subsec:ftt-attn}
+
+Mỗi tầng Transformer bao gồm hai thành phần chính: Multi-Head Self-Attention (MHSA) và Feed-Forward Network (FFN), mỗi thành phần được bao bởi kết nối tắt (residual connection) và chuẩn hóa lớp (Layer Normalization).
+
+\textbf{Multi-Head Self-Attention} cho phép mỗi token chú ý đến tất cả các token khác trong chuỗi, học được mức độ ảnh hưởng giữa các đặc trưng. Với đầu vào $\mathbf{T}$, cơ chế Attention tính ba ma trận Query, Key, Value:
+
+\begin{equation}
+    Q = \mathbf{T} W^Q, \quad K = \mathbf{T} W^K, \quad V = \mathbf{T} W^V
+    \label{eq:qkv}
+\end{equation}
+
+trong đó $W^Q, W^K, W^V \in \mathbb{R}^{d \times d_k}$ là các ma trận chiếu học được. Điểm Attention giữa hai vị trí phản ánh mức độ liên quan, sau đó được chuẩn hóa và dùng để tổng hợp Value:
+
+\begin{equation}
+    \text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V
+    \label{eq:attention}
+\end{equation}
+
+Hệ số $1/\sqrt{d_k}$ chuẩn hóa tích vô hướng để tránh gradient vanishing khi $d_k$ lớn. MHSA chạy $h$ đầu Attention song song, mỗi đầu học một dạng tương tác khác nhau, rồi ghép kết quả:
+
+\begin{align}
+    \text{MHSA}(\mathbf{T}) &= \text{Concat}(\text{head}_1, \ldots, \text{head}_h)\, W^O \label{eq:mhsa} \\
+    \text{head}_i &= \text{Attention}(\mathbf{T} W_i^Q,\ \mathbf{T} W_i^K,\ \mathbf{T} W_i^V) \label{eq:head}
+\end{align}
+
+\textbf{Feed-Forward Network} là mạng hai lớp với hàm kích hoạt GELU, áp dụng độc lập lên từng vị trí token:
+
+\begin{equation}
+    \text{FFN}(\mathbf{z}) = \text{GELU}(\mathbf{z} W_1 + \mathbf{b}_1)\, W_2 + \mathbf{b}_2
+    \label{eq:ffn}
+\end{equation}
+
+trong đó $W_1 \in \mathbb{R}^{d \times d_{ff}}$, $W_2 \in \mathbb{R}^{d_{ff} \times d}$, và $d_{ff} = 4d$ theo thông lệ. Một \textbf{Transformer Block} hoàn chỉnh kết hợp hai thành phần trên với residual và LayerNorm:
+
+\begin{align}
+    \mathbf{T}' &= \text{LayerNorm}(\mathbf{T} + \text{MHSA}(\mathbf{T}))   \label{eq:block1} \\
+    \mathbf{T}'' &= \text{LayerNorm}(\mathbf{T}' + \text{FFN}(\mathbf{T}')) \label{eq:block2}
+\end{align}
+
+Sau $L$ tầng Transformer, vector của token $[\texttt{CLS}]$ --- ký hiệu $\mathbf{e}_{[\texttt{CLS}]}^{(L)}$ --- đi qua một lớp tuyến tính và softmax để tạo phân phối xác suất trên $C$ lớp:
+
+\begin{equation}
+    \hat{\mathbf{y}} = \text{softmax}\!\left(\mathbf{e}_{[\texttt{CLS}]}^{(L)}\, W_{cls} + \mathbf{b}_{cls}\right)
+    \label{eq:cls-head}
+\end{equation}
+
+Cấu hình FT-Transformer sử dụng trong đề tài cho Giai đoạn 2 (CIC-IDS-2017): $d = 128$, $h = 8$ đầu Attention, $L = 4$ tầng, $d_{ff} = 512$.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.82\textwidth}{!}{%
+\begin{tikzpicture}[
+    box/.style={draw, rounded corners=3pt, minimum width=2.2cm, minimum height=0.65cm,
+                font=\small, align=center, fill=blue!8, draw=blue!50},
+    cbox/.style={draw, rounded corners=3pt, minimum width=2.2cm, minimum height=0.65cm,
+                font=\small, align=center, fill=orange!12, draw=orange!60},
+    arr/.style={->, thick, >=stealth, blue!60},
+    node distance=0.7cm
+]
+% Input row
+\node[box] (f1) {$x_1$};
+\node[box, right=0.35cm of f1] (f2) {$x_2$};
+\node[right=0.2cm of f2, font=\large] (dots1) {\ldots};
+\node[box, right=0.2cm of dots1] (fk) {$x_k$};
+
+% Feature Tokenizer
+\node[cbox, below=0.9cm of f2, minimum width=6.5cm] (ft) {Feature Tokenizer\\$\mathbf{e}_j = x_j\mathbf{w}_j + \mathbf{b}_j$};
+\draw[arr] (f1.south) -- ++(0,-0.3) -| (ft.north);
+\draw[arr] (f2.south) -- (ft.north);
+\draw[arr] (fk.south) -- ++(0,-0.3) -| (ft.north);
+
+% CLS token
+\node[box, fill=green!10, draw=green!60, left=0.4cm of ft] (cls) {[CLS]};
+\draw[arr] (cls.east) -- (ft.west);
+
+% Token matrix
+\node[cbox, below=0.65cm of ft, minimum width=6.5cm] (tokens) {Token matrix $\mathbf{T}\in\mathbb{R}^{(k+1)\times d}$};
+\draw[arr] (ft) -- (tokens);
+
+% Transformer blocks
+\node[box, fill=purple!8, draw=purple!50, below=0.65cm of tokens, minimum width=6.5cm] (attn1) {Transformer Block 1 (MHSA + FFN + LayerNorm)};
+\draw[arr] (tokens) -- (attn1);
+\node[box, fill=purple!8, draw=purple!50, below=0.5cm of attn1, minimum width=6.5cm] (attn2) {Transformer Block 2};
+\draw[arr] (attn1) -- (attn2);
+\node[below=0.3cm of attn2, font=\small] (vdots) {$\vdots$ \quad ($L = 4$ tầng)};
+\draw[arr] (attn2) -- (vdots);
+
+% CLS output
+\node[cbox, below=0.5cm of vdots] (clsout) {$\mathbf{e}_{[\text{CLS}]}^{(L)}$ (output CLS token)};
+\draw[arr] (vdots) -- (clsout);
+
+% Head
+\node[box, fill=red!8, draw=red!50, below=0.6cm of clsout, minimum width=6.5cm] (head) {Linear + Softmax → $\hat{\mathbf{y}} \in \mathbb{R}^C$};
+\draw[arr] (clsout) -- (head);
+\end{tikzpicture}%
+}
+\caption{Kiến trúc FT-Transformer: mỗi đặc trưng số thực được mã hóa thành token riêng, xử lý qua $L$ tầng Self-Attention. Token [CLS] tổng hợp thông tin toàn chuỗi cho phân loại cuối.}
+\label{fig:ftt-arch}
+\end{figure}
+
+\subsection{Lợi thế so với MLP và mô hình cây trên dữ liệu dạng bảng}
+\label{subsec:ftt-compare}
+
+Điểm khác biệt căn bản giữa FT-Transformer và MLP thông thường nằm ở cách xử lý đặc trưng. Trong MLP, tất cả đặc trưng được nối thành một vector và xử lý qua các lớp Dense dùng chung trọng số --- các đặc trưng tương tác với nhau một cách ẩn và không có cơ chế rõ ràng để mô hình tập trung vào cặp đặc trưng nào quan trọng hơn. FT-Transformer mã hóa mỗi đặc trưng thành một token riêng biệt, cho phép cơ chế Attention học tường minh \textit{đặc trưng nào nên ảnh hưởng đến đặc trưng nào} --- tương tự cách Random Forest học tương tác đặc trưng qua các điểm phân nhánh, nhưng linh hoạt hơn do không bị giới hạn bởi cấu trúc cây.
+
+So với các mô hình cây (Random Forest, XGBoost), FT-Transformer có khả năng tổng quát hóa tốt hơn khi có nhiều đặc trưng liên tục với phân phối lệch --- chính xác là đặc điểm của dữ liệu CICFlowMeter, nơi nhiều đặc trưng (IAT, packet length, byte count) có phân phối power-law hoặc log-normal. Ngoài ra, là mạng nơ-ron, FT-Transformer hỗ trợ fine-tuning tham số có chọn lọc (Layer Freezing) trong giai đoạn thích nghi miền, điều mà mô hình cây không hỗ trợ.
+
+\begin{table}[H]
+    \centering
+    \caption{So sánh các kiến trúc trên dữ liệu dạng bảng}
+    \label{tab:arch-compare}
+    \begin{tabular}{lcccc}
+        \hline
+        \textbf{Tiêu chí} & \textbf{MLP} & \textbf{Random Forest} & \textbf{XGBoost} & \textbf{FT-Transformer} \\
+        \hline
+        Tương tác đặc trưng tường minh & Không & Có & Có & Có \\
+        Fine-tuning chọn lọc (Layer Freezing) & Có & Không & Không & Có \\
+        Phù hợp đặc trưng liên tục nhiều & Trung bình & Tốt & Tốt & Rất tốt \\
+        Hỗ trợ mở rộng đặc trưng (Model Surgery) & Có & Không & Không & Có \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\section{Các kỹ thuật xử lý mất cân bằng dữ liệu}
+\label{sec:imbalance}
+
+Mất cân bằng dữ liệu là thách thức đặc trưng của bài toán IDS. Khi tỷ lệ lớp thiểu số (tấn công) quá nhỏ so với lớp đa số (Benign), mô hình học máy bị kéo về phía tối ưu hóa cho lớp đa số và bỏ qua lớp thiểu số --- đây chính xác là hành vi không mong muốn trong bối cảnh an ninh mạng, nơi bỏ sót một cuộc tấn công nghiêm trọng hơn nhiều so với báo nhầm một kết nối lành tính. Ba kỹ thuật chính được sử dụng trong đề tài được trình bày dưới đây.
+
+\subsection{Focal Loss}
+\label{subsec:focal-loss}
+
+Hàm mất mát Cross-Entropy tiêu chuẩn cho bài toán đa lớp với $C$ lớp được định nghĩa:
+
+\begin{equation}
+    \mathcal{L}_{CE}(\mathbf{y}, \hat{\mathbf{y}}) = -\sum_{c=1}^{C} y_c \log \hat{y}_c
+    \label{eq:ce}
+\end{equation}
+
+trong đó $y_c \in \{0,1\}$ là nhãn one-hot và $\hat{y}_c$ là xác suất dự đoán cho lớp $c$. Ký hiệu $p_t$ là xác suất dự đoán cho nhãn đúng (với bài toán nhị phân):
+
+\begin{equation}
+    p_t = \begin{cases} \hat{y} & \text{nếu } y = 1 \\ 1 - \hat{y} & \text{nếu } y = 0 \end{cases}
+    \label{eq:pt}
+\end{equation}
+
+Khi đó Cross-Entropy viết lại thành $\mathcal{L}_{CE} = -\log(p_t)$. Vấn đề cốt lõi với dữ liệu mất cân bằng: mẫu Benign dễ phân loại (có $p_t \approx 0{,}99$) vẫn đóng góp gradient $-\log(0{,}99) \approx 0{,}01$ vào quá trình tối ưu. Nhỏ nhưng khi có hàng triệu mẫu Benign, đóng góp gradient tổng hợp áp đảo hoàn toàn gradient từ vài nghìn mẫu tấn công thiểu số, khiến mô hình học để phân loại tốt Benign và bỏ qua các lớp nhỏ.
+
+Focal Loss \cite{lin2017focal} giải quyết vấn đề này bằng cách thêm hệ số điều chỉnh $(1 - p_t)^\gamma$ để làm giảm đóng góp của các mẫu dễ:
+
+\begin{equation}
+    \mathcal{L}_{FL}(p_t) = -\alpha_t\, (1 - p_t)^\gamma \log(p_t)
+    \label{eq:focal-loss}
+\end{equation}
+
+Tham số $\gamma \geq 0$ là \textit{tham số tập trung} (focusing parameter): khi $\gamma = 0$, Focal Loss rút gọn về Cross-Entropy thông thường. Khi $\gamma > 0$, hệ số $(1 - p_t)^\gamma$ downweight mạnh các mẫu dễ và giữ nguyên trọng số cho mẫu khó. Với $\gamma = 2$, mẫu có $p_t = 0{,}9$ chỉ đóng góp $(1-0{,}9)^2 = 0{,}01$ lần so với mẫu có $p_t = 0{,}5$ --- giảm 100 lần.
+
+Tham số $\alpha_t \in (0, 1)$ là hệ số cân bằng lớp, thường đặt tỷ lệ nghịch với tần suất lớp để bù thêm cho các lớp thiểu số.
+
+\subsection{SMOTE}
+\label{subsec:smote}
+
+SMOTE (Synthetic Minority Over-sampling Technique) \cite{chawla2002} tạo ra các mẫu tổng hợp cho lớp thiểu số bằng nội suy tuyến tính trong không gian đặc trưng, thay vì chỉ nhân bản mẫu gốc (oversampling ngây thơ). Với mỗi mẫu thiểu số $\mathbf{x}_i$, SMOTE xác định $K$ láng giềng gần nhất trong cùng lớp $\{\mathbf{x}_{k_1}, \ldots, \mathbf{x}_{k_K}\}$ và tạo mẫu mới bằng nội suy ngẫu nhiên:
+
+\begin{equation}
+    \mathbf{x}_{new} = \mathbf{x}_i + \lambda\, (\mathbf{x}_{k_r} - \mathbf{x}_i), \qquad \lambda \sim \text{Uniform}(0, 1)
+    \label{eq:smote}
+\end{equation}
+
+trong đó $\mathbf{x}_{k_r}$ là láng giềng được chọn ngẫu nhiên từ $K$ láng giềng của $\mathbf{x}_i$. Mẫu mới $\mathbf{x}_{new}$ nằm trên đoạn thẳng nối $\mathbf{x}_i$ và $\mathbf{x}_{k_r}$, đảm bảo nằm trong vùng đặc trưng của lớp thiểu số và tạo ra sự đa dạng thực sự (không phải bản sao).
+
+Phiên bản mở rộng \textbf{SMOTE-ENN} kết hợp SMOTE với Edited Nearest Neighbors (ENN): sau khi tạo mẫu tổng hợp, ENN loại bỏ những mẫu (cả tổng hợp lẫn gốc) bị phân loại sai bởi $K$-NN. Bước ENN làm sạch vùng biên giữa các lớp, loại bỏ noise và các mẫu ngoại lai, giúp mô hình học biên giới quyết định rõ ràng hơn.
+
+\subsection{Weighted Random Sampling và Class Weights}
+\label{subsec:weighted-sampling}
+
+Weighted Random Sampling điều chỉnh xác suất chọn mẫu trong mỗi mini-batch để tạo ra phân phối cân bằng hơn trong quá trình huấn luyện, mà không cần tạo thêm dữ liệu. Trọng số của mẫu $i$ thuộc lớp $c$ được tính:
+
+\begin{equation}
+    w_i = \frac{N}{K \cdot n_c}
+    \label{eq:class-weight}
+\end{equation}
+
+trong đó $N$ là tổng số mẫu, $K$ là số lớp, và $n_c$ là số mẫu của lớp $c$. Tập $\{w_i\}$ được chuẩn hóa thành xác suất chọn mẫu, đảm bảo mỗi lớp xuất hiện với tần suất tương đương trong mỗi batch huấn luyện.
+
+Để tránh trọng số cực đoan gây mất ổn định, thực tế thường dùng biến thể làm mượt $w_i = \sqrt{N/(K \cdot n_c)}$ và clip về khoảng $[w_{min}, w_{max}]$. Trong Giai đoạn 4 (Testbed V8.5), class weights được tính theo $\sqrt{N/(K \cdot n_c)}$ và clip về $[0{,}5;\; 2{,}0]$, cho BruteForce weight $= 1{,}328$ và PortScan weight $= 1{,}587$.
+
+Ngoài Weighted Sampling tác động vào quá trình lấy mẫu batch, \textbf{Label Smoothing} tác động vào nhãn mục tiêu: thay vì one-hot cứng, nhãn được làm mềm bằng cách phân phối một phần nhỏ $\varepsilon$ sang các lớp còn lại:
+
+\begin{equation}
+    y_c^{smooth} = (1 - \varepsilon)\, y_c + \frac{\varepsilon}{C}
+    \label{eq:label-smooth}
+\end{equation}
+
+Label Smoothing với $\varepsilon = 0{,}10$ được sử dụng trong V8.5 để giảm overfitting của mô hình lên các pattern training cụ thể.
+
+\section{Học chuyển giao và thích nghi miền}
+\label{sec:transfer}
+
+Học chuyển giao (Transfer Learning) là kỹ thuật tái sử dụng kiến thức học được từ miền nguồn (source domain) để giải quyết bài toán trong miền đích (target domain). Trực giác căn bản là: các tầng thấp của mô hình học các biểu diễn chung (đặc trưng tổng quát), trong khi các tầng cao học biểu diễn đặc thù nhiệm vụ cụ thể.
+
+Trong bối cảnh đề tài, miền nguồn là CIC-IDS-2017 (thu thập trên mạng switch vật lý, gigabit) và miền đích là Testbed WSL (thu thập qua NAT và card mạng ảo). Sự khác biệt hạ tầng tạo ra \textit{Covariate Shift}: phân phối đặc trưng $P_{source}(\mathbf{x}) \neq P_{target}(\mathbf{x})$ dù hàm nhãn $P(y \mid \mathbf{x})$ về mặt lý thuyết không thay đổi. Chứng cứ định lượng: mô hình CIC áp dụng trực tiếp lên Testbed đạt MCC $= -0{,}015$ (tệ hơn cả dự đoán ngẫu nhiên).
+
+Kỹ thuật \textbf{Layer Freezing Fine-tuning} giải quyết covariate shift bằng cách đóng băng các tầng thấp của mô hình (tham số $\theta_{freeze}$ không được cập nhật) và chỉ tối ưu các tầng cao và đầu phân loại (tham số $\theta_{fine}$):
+
+\begin{equation}
+    \theta_{fine}^{*} = \arg\min_{\theta_{fine}}\; \mathcal{L}\!\left(f_{\theta_{freeze},\, \theta_{fine}}(\mathbf{x}_{target}),\; y_{target}\right)
+    \label{eq:layer-freeze}
+\end{equation}
+
+Rủi ro chính của fine-tuning là \textit{Catastrophic Forgetting}: khi cập nhật quá nhiều tham số, mô hình có thể quên kiến thức từ miền nguồn. Chỉ số này được định lượng:
+
+\begin{equation}
+    CF = \frac{\text{Acc}_{source,\, before} - \text{Acc}_{source,\, after}}{\text{Acc}_{source,\, before}} \times 100\%
+    \label{eq:cf}
+\end{equation}
+
+Trong đề tài, chiến lược đóng băng 2 tầng Attention đầu và chỉ cập nhật 2 tầng cuối cùng với đầu phân loại đạt $CF = 0{,}61\%$ --- trong ngưỡng chấp nhận được cho ứng dụng thực tế.
+
+\textbf{Model Surgery} là kỹ thuật mở rộng kiến trúc mô hình có sẵn để hỗ trợ không gian đặc trưng mới mà không cần huấn luyện lại từ đầu. Khi Testbed yêu cầu thêm 3 đặc trưng kỹ thuật mới (IAT\_CV, Bwd\_Pkt\_Ratio, Pkt\_Size\_Ratio), chiều đầu vào được mở rộng $77 \rightarrow 80$: ma trận embedding $\mathbf{W}^{emb} \in \mathbb{R}^{77 \times d}$ được mở rộng thành $\mathbb{R}^{80 \times d}$, với 77 hàng cũ giữ nguyên (transplant) và 3 hàng mới khởi tạo ngẫu nhiên để học trong giai đoạn fine-tuning.
+
+\section{Hệ thống IDS lai ghép: phát hiện theo luật và theo hành vi bất thường}
+\label{sec:hybrid}
+
+Hệ thống IDS lai ghép kết hợp hai hướng tiếp cận bổ sung cho nhau, nhằm tận dụng điểm mạnh và bù đắp điểm yếu của từng phương pháp. Trong kiến trúc của đề tài, hai thành phần chính là Snort và FT-Transformer.
+
+\textbf{Snort} \cite{roesch1999} hoạt động ở tầng gói tin (packet-level), phân tích payload và header của từng gói tin theo thời gian thực với độ trễ cỡ microsecond. Với cơ sở dữ liệu luật được cập nhật thường xuyên bởi cộng đồng (Snort Community Rules, Emerging Threats), Snort phát hiện hiệu quả các tấn công đã biết với tỷ lệ false positive thấp khi luật được viết cẩn thận. Điểm yếu là không thể phát hiện tấn công chưa có luật, và không có khả năng phát hiện các tấn công khai thác hành vi (behavioral exploits) không để lại signature đặc trưng trong payload.
+
+\textbf{FT-Transformer} hoạt động ở tầng flow, nhận đầu vào là vector đặc trưng CICFlowMeter được tổng hợp từ một kết nối hoàn chỉnh. Khả năng học pattern từ dữ liệu cho phép phát hiện các tấn công có hành vi bất thường ở mức thống kê dù chưa được biết cụ thể. Điểm yếu là độ trễ cao hơn (cần đợi flow hoàn chỉnh) và nhạy cảm với covariate shift.
+
+Trong pipeline End-to-End của đề tài, hai thành phần chạy song song và độc lập trên cùng luồng traffic:
+
+\begin{itemize}
+    \item Snort lắng nghe trực tiếp trên interface mạng, tạo cảnh báo ngay khi phát hiện luật khớp với gói tin.
+    \item CICFlowMeter thu thập PCAP từ cùng interface, tổng hợp flow và trích xuất vector đặc trưng 80 chiều sau khi flow hoàn chỉnh (timeout hoặc RST/FIN), đưa vào FT-Transformer để phân loại.
+    \item Cảnh báo từ bất kỳ nguồn nào đều được ghi log và đẩy lên hệ thống cảnh báo thống nhất.
+\end{itemize}
+
+Sự kết hợp này đảm bảo: tấn công có luật Snort được phát hiện gần real-time ở tầng packet; tấn công dựa trên bất thường hành vi được phát hiện ở tầng flow. Đặc biệt quan trọng là hai thành phần hoạt động \textit{độc lập} --- lỗi hoặc sự vắng mặt của một thành phần không ảnh hưởng đến thành phần kia, đảm bảo tính sẵn sàng của hệ thống giám sát.
 
 \end{document}

@@ -1,0 +1,532 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.1 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+\datalist[entry]{none/global//global/global}
+  \entry{ibm2023}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=I}{%
+         family={{IBM Security}},
+         familyi={I\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{I1}
+    \strng{fullhash}{I1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{howpublished}{IBM Corporation, Armonk, NY}
+    \field{note}{(visited on 01/05/2024)}
+    \field{title}{Cost of a Data Breach Report 2023}
+    \verb{url}
+    \verb https://www.ibm.com/reports/data-breach
+    \endverb
+    \field{year}{2023}
+  \endentry
+
+  \entry{roesch1999}{inproceedings}{}
+    \name{author}{1}{}{%
+      {{hash=RM}{%
+         family={Roesch},
+         familyi={R\bibinitperiod},
+         given={Martin},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{RM1}
+    \strng{fullhash}{RM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Proc. 13th USENIX Systems Administration Conf. (LISA)}
+    \field{pages}{229\bibrangedash 238}
+    \field{title}{{Snort} --- Lightweight Intrusion Detection for Networks}
+    \list{location}{1}{%
+      {Seattle, WA}%
+    }
+    \field{year}{1999}
+  \endentry
+
+  \entry{sharafaldin2018}{inproceedings}{}
+    \name{author}{3}{}{%
+      {{hash=SI}{%
+         family={Sharafaldin},
+         familyi={S\bibinitperiod},
+         given={Iman},
+         giveni={I\bibinitperiod},
+      }}%
+      {{hash=LAH}{%
+         family={Lashkari},
+         familyi={L\bibinitperiod},
+         given={Arash\bibnamedelima Habibi},
+         giveni={A\bibinitperiod\bibinitdelim H\bibinitperiod},
+      }}%
+      {{hash=GAA}{%
+         family={Ghorbani},
+         familyi={G\bibinitperiod},
+         given={Ali\bibnamedelima A.},
+         giveni={A\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{SILAHGAA1}
+    \strng{fullhash}{SILAHGAA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Proc. 4th Int. Conf. Information Systems Security and
+  Privacy (ICISSP)}
+    \field{pages}{108\bibrangedash 116}
+    \field{title}{Toward Generating a New Intrusion Detection Dataset and
+  Intrusion Traffic Characterization}
+    \list{location}{1}{%
+      {Madeira, Portugal}%
+    }
+    \field{year}{2018}
+  \endentry
+
+  \entry{gorishniy2021}{inproceedings}{}
+    \name{author}{4}{}{%
+      {{hash=GY}{%
+         family={Gorishniy},
+         familyi={G\bibinitperiod},
+         given={Yury},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=RI}{%
+         family={Rubachev},
+         familyi={R\bibinitperiod},
+         given={Ivan},
+         giveni={I\bibinitperiod},
+      }}%
+      {{hash=KV}{%
+         family={Khrulkov},
+         familyi={K\bibinitperiod},
+         given={Valentin},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=BA}{%
+         family={Babenko},
+         familyi={B\bibinitperiod},
+         given={Artem},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{GYRIKV+1}
+    \strng{fullhash}{GYRIKVBA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Advances in Neural Information Processing Systems
+  (NeurIPS)}
+    \field{pages}{18598\bibrangedash 18608}
+    \field{title}{Revisiting Deep Learning Models for Tabular Data}
+    \field{volume}{34}
+    \field{year}{2021}
+  \endentry
+
+  \entry{tavallaee2009}{inproceedings}{}
+    \name{author}{4}{}{%
+      {{hash=TM}{%
+         family={Tavallaee},
+         familyi={T\bibinitperiod},
+         given={Mahbod},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=BE}{%
+         family={Bagheri},
+         familyi={B\bibinitperiod},
+         given={Ebrahim},
+         giveni={E\bibinitperiod},
+      }}%
+      {{hash=LW}{%
+         family={Lu},
+         familyi={L\bibinitperiod},
+         given={Wei},
+         giveni={W\bibinitperiod},
+      }}%
+      {{hash=GAA}{%
+         family={Ghorbani},
+         familyi={G\bibinitperiod},
+         given={Ali\bibnamedelima A.},
+         giveni={A\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{TMBELW+1}
+    \strng{fullhash}{TMBELWGAA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Proc. IEEE Symp. Computational Intelligence for Security
+  and Defense Applications (CISDA)}
+    \field{pages}{1\bibrangedash 6}
+    \field{title}{A Detailed Analysis of the {KDD CUP 99} Data Set}
+    \list{location}{1}{%
+      {Ottawa, Canada}%
+    }
+    \field{year}{2009}
+  \endentry
+
+  \entry{lashkari2017}{inproceedings}{}
+    \name{author}{4}{}{%
+      {{hash=LAH}{%
+         family={Lashkari},
+         familyi={L\bibinitperiod},
+         given={Arash\bibnamedelima Habibi},
+         giveni={A\bibinitperiod\bibinitdelim H\bibinitperiod},
+      }}%
+      {{hash=GGD}{%
+         family={Gil},
+         familyi={G\bibinitperiod},
+         given={Gerard\bibnamedelima Dr{\'o}s},
+         giveni={G\bibinitperiod\bibinitdelim D\bibinitperiod},
+      }}%
+      {{hash=MMSI}{%
+         family={Mamun},
+         familyi={M\bibinitperiod},
+         given={Mohammad Saiful\bibnamedelima Islam},
+         giveni={M\bibinitperiod\bibinitdelim S\bibinitperiod\bibinitdelim
+  I\bibinitperiod},
+      }}%
+      {{hash=GAA}{%
+         family={Ghorbani},
+         familyi={G\bibinitperiod},
+         given={Ali\bibnamedelima A.},
+         giveni={A\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LAHGGDMMSI+1}
+    \strng{fullhash}{LAHGGDMMSIGAA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Proc. 3rd Int. Conf. Information Systems Security and
+  Privacy (ICISSP)}
+    \field{pages}{253\bibrangedash 262}
+    \field{title}{Characterization of {Tor} Traffic Using Time Based Features}
+    \list{location}{1}{%
+      {Porto, Portugal}%
+    }
+    \field{year}{2017}
+  \endentry
+
+  \entry{kdd99}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=D}{%
+         family={{DARPA/MIT Lincoln Laboratory}},
+         familyi={D\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{D1}
+    \strng{fullhash}{D1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{howpublished}{University of California, Irvine, Machine Learning
+  Repository}
+    \field{note}{(visited on 01/03/2024)}
+    \field{title}{{KDD} Cup 1999 Intrusion Detection Dataset}
+    \verb{url}
+    \verb https://kdd.ics.uci.edu/databases/kddcup99/kddcup99.html
+    \endverb
+    \field{year}{1999}
+  \endentry
+
+  \entry{panigrahi2018}{article}{}
+    \name{author}{2}{}{%
+      {{hash=PR}{%
+         family={Panigrahi},
+         familyi={P\bibinitperiod},
+         given={Ranjit},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=BS}{%
+         family={Borah},
+         familyi={B\bibinitperiod},
+         given={Samarjeet},
+         giveni={S\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{PRBS1}
+    \strng{fullhash}{PRBS1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{3.24}
+    \field{pages}{479\bibrangedash 482}
+    \field{title}{A Detailed Analysis of {CICIDS2017} Dataset for Designing
+  Intrusion Detection Systems}
+    \field{volume}{7}
+    \field{journaltitle}{International Journal of Engineering \& Technology}
+    \field{year}{2018}
+  \endentry
+
+  \entry{liu2019}{article}{}
+    \name{author}{2}{}{%
+      {{hash=LH}{%
+         family={Liu},
+         familyi={L\bibinitperiod},
+         given={Hongyu},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=LB}{%
+         family={Lang},
+         familyi={L\bibinitperiod},
+         given={Bo},
+         giveni={B\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LHLB1}
+    \strng{fullhash}{LHLB1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{20}
+    \field{pages}{4396}
+    \field{title}{Machine Learning and Deep Learning Methods for Intrusion
+  Detection Systems: A Survey}
+    \field{volume}{9}
+    \field{journaltitle}{Applied Sciences}
+    \field{year}{2019}
+  \endentry
+
+  \entry{zhao2020transfer}{article}{}
+    \name{author}{5}{}{%
+      {{hash=ZJ}{%
+         family={Zhao},
+         familyi={Z\bibinitperiod},
+         given={Juan},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=SS}{%
+         family={Shetty},
+         familyi={S\bibinitperiod},
+         given={Sachin},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=PJW}{%
+         family={Pan},
+         familyi={P\bibinitperiod},
+         given={Jan\bibnamedelima Wei},
+         giveni={J\bibinitperiod\bibinitdelim W\bibinitperiod},
+      }}%
+      {{hash=KC}{%
+         family={Kamhoua},
+         familyi={K\bibinitperiod},
+         given={Charles},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=KK}{%
+         family={Kwiat},
+         familyi={K\bibinitperiod},
+         given={Kevin},
+         giveni={K\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{ZJSSPJW+1}
+    \strng{fullhash}{ZJSSPJWKCKK1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1186/s13635-019-0084-4
+    \endverb
+    \field{number}{1}
+    \field{pages}{1\bibrangedash 13}
+    \field{title}{Transfer Learning for Detecting Unknown Network Attacks}
+    \field{volume}{2019}
+    \field{journaltitle}{EURASIP Journal on Information Security}
+    \field{year}{2019}
+  \endentry
+
+  \entry{singla2020}{inproceedings}{}
+    \name{author}{3}{}{%
+      {{hash=SA}{%
+         family={Singla},
+         familyi={S\bibinitperiod},
+         given={Ankush},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=BE}{%
+         family={Bertino},
+         familyi={B\bibinitperiod},
+         given={Elisa},
+         giveni={E\bibinitperiod},
+      }}%
+      {{hash=VD}{%
+         family={Verma},
+         familyi={V\bibinitperiod},
+         given={Dinesh},
+         giveni={D\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{SABEVD1}
+    \strng{fullhash}{SABEVD1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Proc. 15th ACM Asia Conf. Computer and Communications
+  Security (AsiaCCS)}
+    \field{pages}{127\bibrangedash 140}
+    \field{title}{Preparing Network Intrusion Detection Deep Learning Models
+  with Minimal Data Using Adversarial Domain Adaptation}
+    \list{location}{1}{%
+      {Taipei, Taiwan}%
+    }
+    \field{year}{2020}
+  \endentry
+
+  \entry{lin2017focal}{inproceedings}{}
+    \name{author}{5}{}{%
+      {{hash=LTY}{%
+         family={Lin},
+         familyi={L\bibinitperiod},
+         given={Tsung-Yi},
+         giveni={T\bibinithyphendelim Y\bibinitperiod},
+      }}%
+      {{hash=GP}{%
+         family={Goyal},
+         familyi={G\bibinitperiod},
+         given={Priya},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=GR}{%
+         family={Girshick},
+         familyi={G\bibinitperiod},
+         given={Ross},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=HK}{%
+         family={He},
+         familyi={H\bibinitperiod},
+         given={Kaiming},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=DP}{%
+         family={Doll{\'a}r},
+         familyi={D\bibinitperiod},
+         given={Piotr},
+         giveni={P\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LTYGPGR+1}
+    \strng{fullhash}{LTYGPGRHKDP1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Proc. IEEE Int. Conf. Computer Vision (ICCV)}
+    \field{pages}{2980\bibrangedash 2988}
+    \field{title}{Focal Loss for Dense Object Detection}
+    \list{location}{1}{%
+      {Venice, Italy}%
+    }
+    \field{year}{2017}
+  \endentry
+
+  \entry{chawla2002}{article}{}
+    \name{author}{4}{}{%
+      {{hash=CNV}{%
+         family={Chawla},
+         familyi={C\bibinitperiod},
+         given={Nitesh\bibnamedelima V.},
+         giveni={N\bibinitperiod\bibinitdelim V\bibinitperiod},
+      }}%
+      {{hash=BKW}{%
+         family={Bowyer},
+         familyi={B\bibinitperiod},
+         given={Kevin\bibnamedelima W.},
+         giveni={K\bibinitperiod\bibinitdelim W\bibinitperiod},
+      }}%
+      {{hash=HLO}{%
+         family={Hall},
+         familyi={H\bibinitperiod},
+         given={Lawrence\bibnamedelima O.},
+         giveni={L\bibinitperiod\bibinitdelim O\bibinitperiod},
+      }}%
+      {{hash=KWP}{%
+         family={Kegelmeyer},
+         familyi={K\bibinitperiod},
+         given={W.\bibnamedelima Philip},
+         giveni={W\bibinitperiod\bibinitdelim P\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{CNVBKWHLO+1}
+    \strng{fullhash}{CNVBKWHLOKWP1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{pages}{321\bibrangedash 357}
+    \field{title}{{SMOTE}: Synthetic Minority Over-sampling Technique}
+    \field{volume}{16}
+    \field{journaltitle}{Journal of Artificial Intelligence Research}
+    \field{year}{2002}
+  \endentry
+
+  \entry{yeo2000power}{article}{}
+    \name{author}{2}{}{%
+      {{hash=YIK}{%
+         family={Yeo},
+         familyi={Y\bibinitperiod},
+         given={In-Kwon},
+         giveni={I\bibinithyphendelim K\bibinitperiod},
+      }}%
+      {{hash=JRA}{%
+         family={Johnson},
+         familyi={J\bibinitperiod},
+         given={Richard\bibnamedelima A.},
+         giveni={R\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{YIKJRA1}
+    \strng{fullhash}{YIKJRA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{4}
+    \field{pages}{954\bibrangedash 959}
+    \field{title}{A New Family of Power Transformations to Improve Normality or
+  Symmetry}
+    \field{volume}{87}
+    \field{journaltitle}{Biometrika}
+    \field{year}{2000}
+  \endentry
+
+  \entry{yosinski2014transferable}{inproceedings}{}
+    \name{author}{4}{}{%
+      {{hash=YJ}{%
+         family={Yosinski},
+         familyi={Y\bibinitperiod},
+         given={Jason},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=CJ}{%
+         family={Clune},
+         familyi={C\bibinitperiod},
+         given={Jeff},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=BY}{%
+         family={Bengio},
+         familyi={B\bibinitperiod},
+         given={Yoshua},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=LH}{%
+         family={Lipson},
+         familyi={L\bibinitperiod},
+         given={Hod},
+         giveni={H\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{YJCJBY+1}
+    \strng{fullhash}{YJCJBYLH1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Advances in Neural Information Processing Systems
+  (NeurIPS)}
+    \field{pages}{3320\bibrangedash 3328}
+    \field{title}{How Transferable are Features in Deep Neural Networks?}
+    \field{volume}{27}
+    \field{year}{2014}
+  \endentry
+\enddatalist
+\endinput

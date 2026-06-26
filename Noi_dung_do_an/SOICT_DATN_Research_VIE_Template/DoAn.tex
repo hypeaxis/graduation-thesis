@@ -36,6 +36,8 @@
 \usepackage{listings}
 \usepackage{float}
 \usepackage{subcaption}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,calc}
 
 \usepackage[nonumberlist, nopostdot, nogroupskip, acronym]{glossaries}
 \usepackage{glossary-superragged}
@@ -56,7 +58,7 @@
 
 \addbibresource{Danh_sach_tai_lieu_tham_khao.bib} % chèn file chứa danh mục tài liệu tham khảo vào 
 
-\include{lstlisting} % Phần này cho phép chèn code và formatting code như C, C++, Python
+\input{lstlisting} % Cấu hình định dạng hiển thị code nguồn
 
 \input{Tu_viet_tat}
 
@@ -72,7 +74,7 @@
 \setlength{\headheight}{10pt}
 
 \def \TITLE{ĐỒ ÁN TỐT NGHIỆP}
-\def \AUTHOR{Trần Văn A}
+\def \AUTHOR{Đỗ Tuấn Minh}
 
 % ===================================================
 \titleformat{\chapter}[hang]{\centering\bfseries}{CHƯƠNG \thechapter.\ }{0pt}{}[]
@@ -132,7 +134,7 @@
 
 % ===================================================
 \usepackage{hyperref}
-\hypersetup{pdfborder = {0 0 0}}
+\hypersetup{pdfborder = {0 0 0}, unicode=true}
 \hypersetup{pdftitle={\TITLE},
 	pdfauthor={\AUTHOR}}
 	
@@ -314,11 +316,11 @@
     {}         % unnumbered format
     {\titlerule*[0.3pc]{.}\contentspage} 
     
-\chapter{HƯỚNG DẪN VIẾT ĐATN}
+\chapter{CẤU HÌNH MÔI TRƯỜNG THỰC NGHIỆM}
 \subfile{Chuong/Phu_luc_A}
 
 \newpage
-\chapter{ĐẶC TẢ USE CASE}
+\chapter{THÔNG SỐ MÔ HÌNH VÀ KẾT QUẢ CHI TIẾT}
 \subfile{Chuong/Phu_luc_B}
 
 \end{document}

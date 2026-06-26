@@ -1,0 +1,42 @@
+\boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
+\babel@toc {nil}{}
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Kiến trúc FT-Transformer: mỗi đặc trưng số thực được mã hóa thành token riêng, xử lý qua $L$ tầng Self-Attention. Token [CLS] tổng hợp thông tin toàn chuỗi cho phân loại cuối.\relax }}{8}{figure.caption.8}%
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Phân phối lớp trong CIC-IDS-2017 (~2,83 triệu flow, thang logarithm). Benign chiếm 82,7\%; tỉ lệ Benign:Infiltration vượt 2.750:1.\relax }}{19}{figure.caption.10}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Kiến trúc Two-Stage Cascade NIDS: Gating Network (6 lớp) lọc các tấn công phổ biến và chuyển Suspicious flows sang Expert Network (5 lớp). Hệ thống xuất 9 lớp tổng hợp từ 15 nhãn gốc.\relax }}{20}{figure.caption.11}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Kiến trúc Hybrid IDS End-to-End: Snort (tầng packet, rule-based) và FT-Transformer V8.5 (tầng flow, ML) chạy song song, alert được hợp nhất tại Alert Aggregator.\relax }}{27}{figure.caption.13}%
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.1}{\ignorespaces So sánh Macro F1 qua các phiên bản kiến trúc trên NSL-KDD (đánh giá đầu-cuối trên KDDTest+).\relax }}{37}{figure.caption.17}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Kết quả phân loại đầu-cuối trên KDDTest+ — Stacking Ensemble (FTT + LightGBM → Meta-LR).\relax }}{38}{figure.caption.19}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Cải thiện F1 của Botnet và Infiltration sau 2 vòng Hard Negative Mining (nhân bản 10×).\relax }}{40}{figure.caption.21}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.4}{\ignorespaces So sánh Expert Network (sau HNM) và Asymmetric Ensemble cuối cho hai lớp khó nhất.\relax }}{41}{figure.caption.23}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.5}{\ignorespaces So sánh Accuracy và MCC qua chuỗi can thiệp domain adaptation (CIC-IDS-2017 → Testbed WSL2).\relax }}{43}{figure.caption.25}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.6}{\ignorespaces PortScan F1 trên môi trường WSL/NAT với các thuật toán khác nhau — kết quả dưới 9\% nhất quán trên mọi mô hình cho thấy vấn đề nằm ở dữ liệu, không phải thuật toán.\relax }}{44}{figure.caption.27}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.7}{\ignorespaces V8.5 — F1-score per-class trên tập validation đa dạng miền (11.183 flows). Đường ngang thể hiện Macro F1 = 0,917.\relax }}{45}{figure.caption.29}%
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\contentsfinish 
+\contentsfinish 

@@ -1,0 +1,72 @@
+\boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
+\babel@toc {nil}{}
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {2.1}{\ignorespaces So sánh các kiến trúc trên dữ liệu dạng bảng\relax }}{9}{table.caption.9}%
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {3.1}{\ignorespaces Thành phần tập dữ liệu huấn luyện V8.5\relax }}{26}{table.caption.12}%
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {4.1}{\ignorespaces F1-score PortScan qua các thử nghiệm thuật toán và siêu tham số khác nhau (V8.2)\relax }}{30}{table.caption.14}%
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {5.1}{\ignorespaces Tổng quan các bộ dữ liệu thực nghiệm\relax }}{35}{table.caption.15}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {5.2}{\ignorespaces So sánh Macro-F1 đầu-cuối (5 lớp, KDDTest+) qua các phiên bản kiến trúc\relax }}{36}{table.caption.16}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {5.3}{\ignorespaces Kết quả phân loại đầu-cuối trên KDDTest+ (Two-Stage: AE Gate + Stacking Ensemble)\relax }}{37}{table.caption.18}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {5.4}{\ignorespaces Kết quả Hard Negative Mining qua hai vòng trên hai lớp khó nhất\relax }}{40}{table.caption.20}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {5.5}{\ignorespaces So sánh Expert Network (sau HNM) và Asymmetric Ensemble cuối trên CIC-IDS-2017\relax }}{41}{table.caption.22}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {5.6}{\ignorespaces Kết quả qua chuỗi can thiệp domain adaptation\relax }}{42}{table.caption.24}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {5.7}{\ignorespaces PortScan F1 trên dữ liệu Testbed WSL với các thuật toán và cấu hình khác nhau\relax }}{44}{table.caption.26}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {5.8}{\ignorespaces Kết quả V8.5 trên tập validation đa dạng miền\relax }}{45}{table.caption.28}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {5.9}{\ignorespaces Kết quả phát hiện End-to-End theo kịch bản tấn công\relax }}{46}{table.caption.30}%
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {B.1}{\ignorespaces Siêu tham số Autoencoder NSL-KDD Stage 1\relax }}{60}{table.caption.35}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {B.2}{\ignorespaces Siêu tham số FT-Transformer NSL-KDD Stage 2\relax }}{60}{table.caption.36}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {B.3}{\ignorespaces Siêu tham số LightGBM NSL-KDD Stage 2\relax }}{61}{table.caption.37}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {B.4}{\ignorespaces Siêu tham số Meta Logistic Regression (Stacking)\relax }}{61}{table.caption.38}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {B.5}{\ignorespaces Siêu tham số Gating Network FT-Transformer (CIC Stage 1)\relax }}{61}{table.caption.39}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {B.6}{\ignorespaces Siêu tham số Expert Network FT-Transformer (CIC Stage 2)\relax }}{62}{table.caption.40}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {B.7}{\ignorespaces Siêu tham số Random Forest và KNN (Ensemble)\relax }}{62}{table.caption.41}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {B.8}{\ignorespaces Siêu tham số FT-Transformer Testbed V8.5\relax }}{62}{table.caption.42}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {B.9}{\ignorespaces Kết quả per-class Stacking Ensemble trên KDDTest+\relax }}{63}{table.caption.43}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {B.10}{\ignorespaces Ablation study các cải tiến kiến trúc trên CIC-IDS-2017\relax }}{63}{table.caption.44}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {B.11}{\ignorespaces Kết quả per-class Asymmetric Ensemble Voting trên CIC-IDS-2017\relax }}{64}{table.caption.45}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {B.12}{\ignorespaces Kết quả chuỗi can thiệp domain adaptation\relax }}{64}{table.caption.46}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {B.13}{\ignorespaces Kết quả per-class mô hình V8.5 trên val set đa dạng miền\relax }}{64}{table.caption.47}%
+\defcounter {refsection}{0}\relax 
+\contentsline {table}{\numberline {B.14}{\ignorespaces Ảnh hưởng của tính đồng nhất miền trong tập kiểm định lên BruteForce F1\relax }}{65}{table.caption.48}%
+\contentsfinish 
+\contentsfinish 

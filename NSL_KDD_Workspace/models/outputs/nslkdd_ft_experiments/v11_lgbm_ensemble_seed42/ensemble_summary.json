@@ -1,0 +1,7 @@
+{
+  "lgbm_standalone_test_macro_f1": 0.6678232829782897,
+  "ftt_v9_test_macro_f1": 0.653487104621459,
+  "best_ensemble_alpha": 1.0,
+  "ensemble_val_macro_f1": 0.8323929052138211,
+  "ensemble_test_macro_f1": 0.6678232829782897
+}

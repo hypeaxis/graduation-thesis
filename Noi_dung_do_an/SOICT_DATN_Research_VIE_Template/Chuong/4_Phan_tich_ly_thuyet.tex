@@ -1,17 +1,134 @@
 \documentclass[../DoAn.tex]{subfiles}
 \begin{document}
 
-\textcolor{red}{Chú ý: Chương này là không bắt buộc. Nếu nghiên cứu chỉ có đánh giá thực nghiệm mà không có phần thích lý thuyết thì sinh viên không cần trình bày chương này.} 
+\section{Phân tích Focal Loss trong điều kiện mất cân bằng cực đoan}
+\label{sec:pt-focal}
 
-\section{Tên của kết quả phân tích số 1}
+Để hiểu tại sao Focal Loss vượt trội hơn Cross-Entropy tiêu chuẩn trong bài toán IDS, cần phân tích cơ chế gradient. Trong quá trình huấn luyện, mô hình cập nhật tham số theo gradient của hàm mất mát tổng hợp trên một mini-batch. Với Cross-Entropy, gradient đóng góp của từng mẫu tỷ lệ thuận với $-\log(p_t)$. Xét một batch gồm 1000 mẫu Benign dễ phân loại ($p_t = 0{,}95$) và 10 mẫu BruteForce khó ($p_t = 0{,}4$):
 
-Nếu đồ án có phần phân tích lý thuyết thì sinh viên trình bày ở chương này. 
+\begin{align}
+    \text{Tổng gradient Benign} &\propto 1000 \times (-\log 0{,}95) \approx 1000 \times 0{,}051 = 51 \label{eq:grad-benign} \\
+    \text{Tổng gradient BruteForce} &\propto 10 \times (-\log 0{,}4) \approx 10 \times 0{,}916 = 9{,}16 \label{eq:grad-bf}
+\end{align}
 
-Kết quả lý thuyết có thể là phần tính toán về độ phức tạp tính toán của thuật toán hoặc chứng minh về tỉ số hiệu năng, \ldots
+Dù mỗi mẫu BruteForce mang gradient lớn gấp 18 lần mỗi mẫu Benign, tổng gradient từ 1000 mẫu Benign vẫn áp đảo 5:1. Mô hình bị kéo liên tục về phía tối ưu cho Benign và ít có cơ hội học từ các mẫu tấn công thiểu số.
 
-Nếu đồ án không có phần phân tích lý thuyết thì sinh viên không cần viết chương này. 
+Với Focal Loss ($\gamma = 2$), gradient đóng góp được nhân với $(1-p_t)^2$:
 
-\section{Tên của kết quả phân tích số 2}
+\begin{align}
+    \text{Tổng gradient Benign (FL)} &\propto 1000 \times (1-0{,}95)^2 \times 0{,}051 \approx 0{,}128 \label{eq:grad-benign-fl} \\
+    \text{Tổng gradient BruteForce (FL)} &\propto 10 \times (1-0{,}4)^2 \times 0{,}916 \approx 3{,}30 \label{eq:grad-bf-fl}
+\end{align}
 
+Tỷ lệ đảo ngược: BruteForce giờ đóng góp gradient lớn gấp 25 lần Benign. Mô hình được buộc phải ưu tiên học từ các mẫu khó, khó phân loại --- đúng là những mẫu cần học nhất trong bài toán IDS.
+
+Tuy nhiên, Focal Loss không phải giải pháp toàn năng. Trong thực nghiệm Giai đoạn 4 của đề tài, Focal Loss giúp cải thiện BruteForce recall nhưng không giải quyết được vấn đề PortScan (F1 chỉ đạt 7,5\% bất kể siêu tham số $\gamma$ và $\alpha_t$). Lý do: vấn đề PortScan không phải là \textit{bất cân bằng gradient} (có thể giải quyết bằng Focal Loss) mà là \textit{tính không phân tách đặc trưng} --- hai lớp PortScan và Benign không thể phân biệt được trong không gian đặc trưng CICFlowMeter trên môi trường WSL, bất kể hàm mất mát nào được sử dụng.
+
+\section{Phân tích tính phân tách đặc trưng PortScan và Benign}
+\label{sec:pt-portscan}
+
+Một lớp tấn công có thể phân tách (linearly separable hoặc separable theo mô hình phi tuyến) nếu tồn tại một hàm quyết định $f(\mathbf{x})$ phân biệt được các mẫu của hai lớp với accuracy đủ cao. Ngược lại, nếu hai lớp có vùng đặc trưng chồng lên nhau đáng kể, không có thuật toán học máy nào có thể phân tách chúng một cách đáng tin cậy.
+
+Trong môi trường phần cứng thực (CIC-IDS-2017), PortScan (nmap) tạo ra hàng trăm flow TCP SYN ngắn đến nhiều cổng khác nhau trên cùng host đích --- tạo ra pattern rõ ràng: Duration rất ngắn, Flow Bytes/s gần bằng 0, FIN/ACK flags thấp, SYN flag cao. Các đặc trưng này phân biệt rõ ràng với Benign HTTP/HTTPS traffic.
+
+Trong môi trường WSL với NAT, tình huống hoàn toàn khác. Khi nmap chạy từ máy tính khác gửi SYN đến IP của WSL host, gói tin đi qua stack NAT của Windows trước khi đến WSL interface. Kết quả là CICFlowMeter trên WSL chỉ capture được khoảng 7 flow mỗi round nmap thay vì hàng trăm flow. Mỗi flow PortScan trong môi trường WSL là một kết nối TCP thông thường, rất ngắn, không có payload --- không khác gì một Benign TCP health check hay một failed connection. Bằng chứng định lượng từ thực nghiệm:
+
+\begin{table}[H]
+    \centering
+    \caption{F1-score PortScan qua các thử nghiệm thuật toán và siêu tham số khác nhau (V8.2)}
+    \label{tab:portscan-noseparability}
+    \begin{tabular}{lcc}
+        \hline
+        \textbf{Cấu hình} & \textbf{PortScan F1} & \textbf{Nhận xét} \\
+        \hline
+        FT-Transformer, CE Loss, class\_weight=1.0 & 7,5\% & Baseline \\
+        FT-Transformer, Focal Loss $\gamma=2$ & 6,8\% & Không cải thiện \\
+        FT-Transformer, class\_weight PortScan $\times$5 & 8,1\% & Không cải thiện đáng kể \\
+        Random Forest, 150 cây & 5,2\% & Cũng thất bại \\
+        KNN, K=5 & 4,9\% & Cũng thất bại \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Kết quả nhất quán thất bại qua nhiều thuật toán khác nhau là bằng chứng mạnh cho tính không phân tách: vấn đề nằm ở dữ liệu, không phải mô hình. Giải pháp duy nhất hiệu quả là thay đổi ở tầng dữ liệu --- inject dữ liệu PortScan được thu thập trên phần cứng thực (CIC Friday PortScan) làm surrogate, với các đặc trưng flow phản ánh đúng pattern của PortScan trong điều kiện thu thập đầy đủ.
+
+Bài học tổng quát: khi nhiều thuật toán khác nhau đều thất bại trên cùng một lớp, nguyên nhân gần như chắc chắn là chất lượng hoặc tính đại diện của dữ liệu thu thập, không phải năng lực của mô hình.
+
+\section{Cơ sở lý thuyết của Hard Negative Mining}
+\label{sec:pt-hnm}
+
+Hard Negative Mining (HNM) là kỹ thuật học tập trung vào các mẫu khó --- những mẫu nằm gần biên giới quyết định và bị phân loại sai hoặc với confidence thấp. Về mặt lý thuyết, HNM liên hệ chặt chẽ với tư tưởng của Boosting: thay vì huấn luyện đồng đều trên tất cả mẫu, tập trung tài nguyên huấn luyện vào những mẫu mà mô hình hiện tại xử lý kém nhất.
+
+Quá trình HNM trong đề tài được thực hiện theo hai vòng lặp. Sau vòng huấn luyện đầu (Stage 1 → Stage 2 Expert Network), toàn bộ tập validation được đưa qua mô hình và các mẫu bị phân loại sai được trích xuất. Những mẫu này --- \textit{hard negatives} --- được thêm vào tập huấn luyện cho vòng tiếp theo với trọng số tăng cường. Mô hình buộc phải học từ chính những trường hợp nó đang xử lý sai.
+
+Tại sao HNM hiệu quả hơn chỉ tăng class weight? Class weight tác động đồng đều lên toàn bộ lớp --- mọi mẫu của lớp Botnet đều được tăng cường như nhau, kể cả những mẫu đã được phân loại đúng dễ dàng. HNM tập trung vào \textit{vùng biên giới quyết định}: chỉ những mẫu mà mô hình thực sự đang nhầm lẫn mới được tăng cường, cho phép mô hình tinh chỉnh biên giới quyết định một cách hiệu quả hơn. Trong thực nghiệm Giai đoạn 2, HNM cải thiện Botnet F1 từ 0,4787 lên 0,6512 --- mức tăng 17,3\% tuyệt đối sau hai vòng; kết hợp thêm với Asymmetric Ensemble Voting, kết quả cuối đạt 0,7344.
+
+Giới hạn của HNM: kỹ thuật này hiệu quả khi hai lớp \textit{có thể phân tách} nhưng biên giới quyết định chưa được học tốt. Với PortScan/Benign trong môi trường WSL --- hai lớp không thể phân tách --- HNM không giúp được vì không tồn tại biên giới quyết định nào phân tách chúng một cách đáng tin cậy.
+
+\section{Lý thuyết Ensemble Voting và kiểm soát Variance}
+\label{sec:pt-ensemble}
+
+Lý thuyết Ensemble dựa trên phân tích Bias-Variance của lỗi tổng quát hóa. Với một mô hình đơn lẻ $f$, lỗi dự đoán có thể phân tích:
+
+\begin{equation}
+    \mathbb{E}\!\left[(y - f(\mathbf{x}))^2\right] = \underbrace{\left(\mathbb{E}[f(\mathbf{x})] - y\right)^2}_{\text{Bias}^2} + \underbrace{\mathbb{E}\!\left[(f(\mathbf{x}) - \mathbb{E}[f(\mathbf{x})])^2\right]}_{\text{Variance}} + \sigma^2_{\text{noise}}
+    \label{eq:bias-variance}
+\end{equation}
+
+Với $M$ mô hình độc lập $f_1, f_2, \ldots, f_M$ có cùng phương sai $\sigma^2$ và cùng bias, mô hình ensemble trung bình $\bar{f} = \frac{1}{M}\sum_i f_i(\mathbf{x})$ có phương sai:
+
+\begin{equation}
+    \text{Var}(\bar{f}) = \frac{\sigma^2}{M} + \frac{M-1}{M}\, \rho\, \sigma^2
+    \label{eq:ensemble-variance}
+\end{equation}
+
+trong đó $\rho$ là hệ số tương quan trung bình giữa các mô hình. Khi $\rho \rightarrow 0$ (các mô hình độc lập hoàn toàn), phương sai giảm xuống $\sigma^2/M$. Kết luận quan trọng: \textit{để ensemble hiệu quả, các mô hình thành phần phải có sự đa dạng --- sai trên những mẫu khác nhau}.
+
+Đây chính là lý do chọn bộ ba FT-Transformer + Random Forest + KNN trong đề tài. Ba mô hình có \textit{inductive bias} hoàn toàn khác nhau:
+\begin{itemize}
+    \item FT-Transformer học tương tác đặc trưng qua cơ chế Attention theo cách global.
+    \item Random Forest xây dựng quyết định từ các tập con đặc trưng ngẫu nhiên, tốt với ranh giới phi tuyến cục bộ.
+    \item KNN phân loại dựa trên lân cận khoảng cách, nhạy cảm với mật độ cục bộ.
+\end{itemize}
+
+Ba mô hình có xu hướng sai trên những mẫu khác nhau --- đảm bảo $\rho$ thấp, tức là ensemble giảm được variance đáng kể.
+
+\textbf{Asymmetric Voting} là sự mở rộng của majority voting tiêu chuẩn khi không phải tất cả lỗi đều có chi phí như nhau. Hai luật bất đối xứng được thiết kế dựa trên đặc thù của từng lớp:
+
+\begin{itemize}
+    \item \textbf{Infiltration Priority Rule}: Nếu RF hoặc KNN bỏ phiếu cho Infiltration, kết quả cuối là Infiltration --- bất kể FT-Transformer nghĩ gì. Lý do: Infiltration rất hiếm (dưới 0,1\% tập dữ liệu) và bỏ sót Infiltration có hậu quả nghiêm trọng hơn nhiều so với false alarm. Luật này tăng recall cho Infiltration đổi lấy một ít precision.
+
+    \item \textbf{Botnet Consensus Rule}: Kết quả là Botnet chỉ khi cả ba mô hình đều bỏ phiếu Botnet. Lý do: Botnet pattern rất đa dạng trong CIC-IDS-2017 (nhiều biến thể C2 communication) và FT-Transformer thường nhầm Benign traffic thành Botnet. Yêu cầu đồng thuận tăng precision đổi lấy một ít recall.
+\end{itemize}
+
+Hai luật này phản ánh sự hiểu biết domain-specific về chi phí lỗi, không phải tối ưu toán học thuần túy.
+
+\section{Cơ sở của Layer Freezing trong Transfer Learning}
+\label{sec:pt-freezing}
+
+Cơ sở lý thuyết của Layer Freezing xuất phát từ quan sát thực nghiệm trong cộng đồng deep learning: các tầng thấp của mạng nơ-ron sâu học các biểu diễn tổng quát (low-level features), trong khi các tầng cao học biểu diễn đặc thù nhiệm vụ (task-specific features) \cite{yosinski2014transferable}. Điều này đã được xác nhận trực quan qua việc trực quan hóa filter trong CNN: các filter tầng đầu học edge detector và texture, trong khi các filter tầng sâu học hình dạng đối tượng cụ thể.
+
+Với FT-Transformer trong bối cảnh IDS, phân tầng này có ý nghĩa cụ thể:
+\begin{itemize}
+    \item Các tầng Attention đầu học các mẫu tương tác đặc trưng tổng quát: duration ngắn thường đi với byte count thấp; SYN flood thường đi với FIN flag thấp. Những mẫu này là bất biến theo môi trường thu thập.
+    \item Các tầng Attention sâu học phân biệt tinh tế giữa các lớp tấn công cụ thể, phụ thuộc nhiều hơn vào phân phối đặc trưng của môi trường cụ thể.
+\end{itemize}
+
+Khi đóng băng 2 tầng Attention đầu và chỉ cập nhật 2 tầng cuối + đầu phân loại, mô hình giữ lại kiến thức tổng quát từ CIC (đã học trên 2,8 triệu flow) trong khi thích nghi các biểu diễn cấp cao với phân phối Testbed. Catastrophic Forgetting 0,61\% cho thấy chiến lược này thành công trong việc cân bằng \textit{plasticity} (khả năng học mới) và \textit{stability} (giữ lại kiến thức cũ) --- hai đại lượng luôn xung đột nhau trong học chuyển giao.
+
+Nếu toàn bộ tầng được mở đóng băng, mô hình overfits nhanh chóng vào Testbed (ít dữ liệu hơn) và quên pattern từ CIC --- đây là nguyên nhân Re-fit Scaler thất bại: scaler mới thay đổi phân phối đặc trưng đầu vào đột ngột, khiến toàn bộ biểu diễn học được trở nên vô nghĩa.
+
+\section{Giới hạn của dữ liệu flow-based tĩnh: trường hợp Infiltration}
+\label{sec:pt-infiltration}
+
+Tấn công Infiltration là trường hợp giới hạn căn bản của hướng tiếp cận phát hiện dựa trên đặc trưng flow tĩnh. Để hiểu tại sao, cần phân tích bản chất của Infiltration trong CIC-IDS-2017: kẻ tấn công xâm nhập vào mạng nội bộ thông qua một lỗ hổng ứng dụng, sau đó thực hiện lateral movement và data exfiltration theo tốc độ chậm, cố ý bắt chước lưu lượng bình thường.
+
+Đặc trưng CICFlowMeter mô tả từng flow theo kiểu tĩnh --- một snapshot của kết nối 5-tuple trong một khoảng thời gian. Với Infiltration, mỗi flow riêng lẻ trông như một kết nối hợp lệ: một HTTP GET nhỏ, một DNS query bình thường, một SSH session ngắn. Pattern bất thường chỉ lộ ra khi quan sát \textit{chuỗi} các flow theo thời gian: tần suất kết nối đến server bên ngoài tăng bất thường, các DNS query đến domain lạ, hay lượng data upload lớn bất thường vào đêm khuya.
+
+Đây là vấn đề phân tích dữ liệu chuỗi thời gian (temporal analysis), không phải phân loại một điểm dữ liệu đơn lẻ. Các mô hình phân loại flow đơn lẻ --- bao gồm cả FT-Transformer --- về nguyên lý không thể nắm bắt thông tin ngữ cảnh này. Kết quả trong đề tài xác nhận: dù đã áp dụng Hard Negative Mining và Ensemble Voting, Infiltration F1 chỉ đạt 0,7407 trên CIC-IDS-2017 --- một trong những kết quả thấp nhất trong 9 lớp.
+
+Giải pháp tiềm năng cho vấn đề Infiltration nằm ngoài phạm vi đề tài hiện tại nhưng đáng được đề cập: session aggregation (tổng hợp nhiều flow của cùng một session thành một vector đặc trưng dài hơn), temporal graph analysis (phân tích đồ thị kết nối theo thời gian), hoặc payload inspection kết hợp với flow-level analysis. Đây là hướng phát triển tự nhiên tiếp theo cho hệ thống.
+
+Giới hạn tương tự cũng xuất hiện với Botnet trong giai đoạn C2 communication: các flow C2 riêng lẻ trông như Benign DNS/HTTP, nhưng pattern periodic heartbeat chỉ rõ khi quan sát nhiều flow liên tiếp. Đây là lý do Botnet F1 dù đã cải thiện đáng kể (0,4787 → 0,7344 nhờ HNM) vẫn là lớp có kết quả thấp nhất trong Stage 2.
 
 \end{document}

