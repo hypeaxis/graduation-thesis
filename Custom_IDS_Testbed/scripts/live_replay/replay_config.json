@@ -1,6 +1,6 @@
 {
-  "attacker_ip": "192.168.0.104",
-  "victim_ip": "192.168.0.102",
+  "attacker_ip": "192.168.0.106",
+  "victim_ip": "192.168.0.101",
   "model": {
     "model_pt": "Phase3_4_Retrain/v8/v8.5_Combined/v8_5_model.pt",
     "scaler_pkl": "Phase3_4_Retrain/v8/v8.5_Combined/v8_5_scaler.pkl",

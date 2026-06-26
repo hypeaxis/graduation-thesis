@@ -29,8 +29,8 @@ PortScan chỉ thu lại nếu muốn demo dài hơn 325 flow.
 ## 1. Chuẩn bị (làm 1 lần)
 
 ### 1.1. Sơ đồ 2 máy
-- **Máy 1 (Attacker):** WSL Ubuntu trên Win10, IP `192.168.0.104` — chạy `collect_isolated.sh`.
-- **Máy 3 (Victim):** WSL Ubuntu trên Win11, IP `192.168.0.102` — chạy `tcpdump` + dịch vụ mục tiêu.
+- **Máy 1 (Attacker):** WSL Ubuntu trên Win10, IP `192.168.0.106` — chạy `collect_isolated.sh`.
+- **Máy 3 (Victim):** WSL Ubuntu trên Win11, IP `192.168.0.101` — chạy `tcpdump` + dịch vụ mục tiêu.
 
 > ⚠️ **Giữ IP cố định** suốt cả 4 phiên. Nhãn được gán theo IP attacker nên IP đổi giữa chừng sẽ làm hỏng nhãn.
 
@@ -53,52 +53,138 @@ chmod +x collect_isolated.sh
 
 ---
 
-## 2. Quy trình thu MỘT loại (lặp cho từng loại)
+## 2. Quy trình thu từng loại
 
 Mỗi loại = **1 phiên tcpdump riêng → 1 pcap riêng → 1 Flow.csv riêng** (không flow-bleed).
+Quy ước: **Máy 3 = Victim** (`192.168.0.101`), **Máy 1 = Attacker** (`192.168.0.106`).
 
-### Bước A — Trên Máy 3 (Victim): bật tcpdump RIÊNG cho loại này
-Đặt tên pcap = `<loại>_only.pcap`. Ví dụ Brute Force:
+> **Khung 4 bước chung** (mọi loại đều theo): **(A)** Victim bật tcpdump riêng → **(B)**
+> Attacker chạy `collect_isolated.sh` → **(C)** Victim Ctrl+C dừng tcpdump rồi chạy
+> CICFlowMeter → **(D)** copy `*_Flow.csv` về `~/Graduation-Thesis/docs/` trên Máy 1.
+> Bên dưới là lệnh **đầy đủ, điền sẵn** cho từng loại — làm tuần tự từng loại một.
+
+---
+
+### 2.1. PortScan ✅ (đã có run11 — chỉ thu lại nếu muốn nhiều flow hơn)
+
+- **Dịch vụ Victim cần bật:** không cần dịch vụ cụ thể (chỉ quét cổng), chỉ cần máy bật.
+- **Tool:** `nmap -sT` cổng 1–16000 · **Thời gian:** ~5 phút · **Kỳ vọng:** vài nghìn flow PortScan.
+
 ```bash
+# (A) MÁY 3 — Victim:
+sudo tcpdump -i eth0 -w ~/portscan_only.pcap
+
+# (B) MÁY 1 — Attacker:
+cd ~/Graduation-Thesis/Custom_IDS_Testbed/scripts
+./collect_isolated.sh --type portscan
+
+# (C) MÁY 3 — Victim (sau khi script báo xong): Ctrl+C dừng tcpdump, rồi:
+sudo ./cfm ~/portscan_only.pcap ~/cicflow/
+
+# (D) Copy về Máy 1:
+cp ~/cicflow/portscan_only.pcap_Flow.csv /mnt/c/Users/<ban>/Desktop/
+#   trên Máy 1:
+cp /mnt/c/Users/<ban>/Desktop/portscan_only.pcap_Flow.csv ~/Graduation-Thesis/docs/
+```
+
+---
+
+### 2.2. Brute Force (SSH + FTP)
+
+- **Dịch vụ Victim cần bật:** SSH (22) + FTP (21).
+- **Tool:** `hydra` + rockyou trên SSH/FTP · **Thời gian:** ~20 phút · **Kỳ vọng:** ~16k–20k flow.
+
+```bash
+# (A) MÁY 3 — Victim: bật dịch vụ rồi tcpdump
+sudo service ssh start && sudo service vsftpd start
 sudo tcpdump -i eth0 -w ~/bruteforce_only.pcap
-```
-> Để cửa sổ này chạy. **Không** chạy benign trong phiên thu attack (giữ file thuần).
 
-### Bước B — Trên Máy 1 (Attacker): chạy script thu loại đó
-```bash
+# (B) MÁY 1 — Attacker:
+cd ~/Graduation-Thesis/Custom_IDS_Testbed/scripts
 ./collect_isolated.sh --type bruteforce
-```
-Script sẽ: kiểm tra ping → nhắc bạn xác nhận tcpdump đã chạy (nhấn Enter) → chạy đúng
-phase tấn công → cool-down 20s → in bước tiếp theo.
 
-### Bước C — Trên Máy 3 (Victim): dừng tcpdump & trích đặc trưng
-```bash
-# Ctrl+C để dừng tcpdump
-sudo ./cfm ~/bruteforce_only.pcap ~/cicflow/      # CICFlowMeter offline
-```
-→ sinh ra `bruteforce_only.pcap_Flow.csv` trong `~/cicflow/`.
+# (C) MÁY 3 — Victim: Ctrl+C dừng tcpdump, rồi:
+sudo ./cfm ~/bruteforce_only.pcap ~/cicflow/
 
-### Bước D — Copy Flow.csv về Máy 1
-```bash
-# Ví dụ qua thư mục chia sẻ Windows
+# (D) Copy về Máy 1:
 cp ~/cicflow/bruteforce_only.pcap_Flow.csv /mnt/c/Users/<ban>/Desktop/
-# rồi trên Máy 1:
 cp /mnt/c/Users/<ban>/Desktop/bruteforce_only.pcap_Flow.csv ~/Graduation-Thesis/docs/
 ```
 
-### Bước E — Lặp lại A→D cho 3 loại còn lại
+---
+
+### 2.3. Web Attack (HTTP Brute + SQLi + XSS)
+
+- **Dịch vụ Victim cần bật:** Apache/DVWA (cổng 80).
+- **Tool:** `hydra http` + `sqlmap` + `curl` burst · **Thời gian:** ~15 phút · **Kỳ vọng:** ~14k–20k flow.
+
 ```bash
-# Web Attack
-#   Victim:  sudo tcpdump -i eth0 -w ~/webattack_only.pcap
+# (A) MÁY 3 — Victim: bật web rồi tcpdump
+sudo service apache2 start          # đảm bảo DVWA truy cập được ở http://<victim>/DVWA/
+sudo tcpdump -i eth0 -w ~/webattack_only.pcap
+
+# (B) MÁY 1 — Attacker:
+cd ~/Graduation-Thesis/Custom_IDS_Testbed/scripts
 ./collect_isolated.sh --type webattack
 
-# DoS
-#   Victim:  sudo tcpdump -i eth0 -w ~/dos_only.pcap
+# (C) MÁY 3 — Victim: Ctrl+C dừng tcpdump, rồi:
+sudo ./cfm ~/webattack_only.pcap ~/cicflow/
+
+# (D) Copy về Máy 1:
+cp ~/cicflow/webattack_only.pcap_Flow.csv /mnt/c/Users/<ban>/Desktop/
+cp /mnt/c/Users/<ban>/Desktop/webattack_only.pcap_Flow.csv ~/Graduation-Thesis/docs/
+```
+
+---
+
+### 2.4. DoS (Hulk + Slowloris)
+
+- **Dịch vụ Victim cần bật:** Apache (cổng 80).
+- **Yêu cầu Attacker:** có sẵn `hulk/hulk.py` (đã nằm trong repo) + `pip3 install slowloris`.
+- **Tool:** `hulk` + `slowloris` · **Thời gian:** ~5 phút · **Kỳ vọng:** ~15k–20k flow.
+- ⚠️ Đây là ca model **yếu nhất** (domain shift) — đừng để cuối demo, hoặc để cuối kèm giải thích.
+
+```bash
+# (A) MÁY 3 — Victim:
+sudo service apache2 start
+sudo tcpdump -i eth0 -w ~/dos_only.pcap
+
+# (B) MÁY 1 — Attacker:
+cd ~/Graduation-Thesis/Custom_IDS_Testbed/scripts
 ./collect_isolated.sh --type dos
 
-# Benign baseline (5–10 phút, KHÔNG attack)
-#   Victim:  sudo tcpdump -i eth0 -w ~/benign_only.pcap
+# (C) MÁY 3 — Victim: Ctrl+C dừng tcpdump, rồi:
+sudo ./cfm ~/dos_only.pcap ~/cicflow/
+
+# (D) Copy về Máy 1:
+cp ~/cicflow/dos_only.pcap_Flow.csv /mnt/c/Users/<ban>/Desktop/
+cp /mnt/c/Users/<ban>/Desktop/dos_only.pcap_Flow.csv ~/Graduation-Thesis/docs/
+```
+
+---
+
+### 2.5. Benign baseline (KHÔNG chạy attack)
+
+- **Dịch vụ Victim cần bật:** bật **HẾT** (apache2 + ssh + vsftpd) để traffic benign đa dạng.
+- **Tool:** `auto_benign_v2.py` · **Thời gian:** ~10 phút (`--duration 600`) · **Kỳ vọng:** vài nghìn
+  flow benign, **không** có flow xuất phát từ `192.168.0.106`.
+- ⚠️ Tuyệt đối **không** chạy bất kỳ tấn công nào song song trong phiên này.
+
+```bash
+# (A) MÁY 3 — Victim: bật hết dịch vụ rồi tcpdump
+sudo service apache2 start && sudo service ssh start && sudo service vsftpd start
+sudo tcpdump -i eth0 -w ~/benign_only.pcap
+
+# (B) MÁY 1 — Attacker:
+cd ~/Graduation-Thesis/Custom_IDS_Testbed/scripts
 ./collect_isolated.sh --type benign --duration 600
+
+# (C) MÁY 3 — Victim: Ctrl+C dừng tcpdump, rồi:
+sudo ./cfm ~/benign_only.pcap ~/cicflow/
+
+# (D) Copy về Máy 1:
+cp ~/cicflow/benign_only.pcap_Flow.csv /mnt/c/Users/<ban>/Desktop/
+cp /mnt/c/Users/<ban>/Desktop/benign_only.pcap_Flow.csv ~/Graduation-Thesis/docs/
 ```
 
 ---
@@ -107,7 +193,7 @@ cp /mnt/c/Users/<ban>/Desktop/bruteforce_only.pcap_Flow.csv ~/Graduation-Thesis/
 
 Vì mỗi file isolated chỉ có 1 loại, gán nhãn theo IP cực đơn giản:
 
-- **File attack** (`<loại>_only.pcap_Flow.csv`): flow có `Src IP == 192.168.0.104`
+- **File attack** (`<loại>_only.pcap_Flow.csv`): flow có `Src IP == 192.168.0.106`
   (attacker) → nhãn = `<loại>`; còn lại (phản hồi victim, nền) → `Benign`.
 - **File benign** (`benign_only.pcap_Flow.csv`): toàn bộ → `Benign`.
 
@@ -131,7 +217,7 @@ for f in sorted(glob.glob('*_only.pcap_Flow.csv')):
 PY
 ```
 Tiêu chí đạt:
-- File attack: phần lớn flow đi từ/đến IP attacker `192.168.0.104`. Tổng flow > vài trăm.
+- File attack: phần lớn flow đi từ/đến IP attacker `192.168.0.106`. Tổng flow > vài trăm.
 - File benign: KHÔNG có flow từ IP attacker; đa dạng port/đích là tốt.
 
 ---
