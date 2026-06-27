@@ -12,10 +12,31 @@ và hiển thị phát hiện theo thời gian thực trên dashboard.
         baseline benign (chạy nền) + tiêm tấn công (chồng lên)
 ```
 
-Thành phần:
-- `live_replay_server.py` — backend FastAPI + WebSocket (nạp V8.5 một lần, predict-on-load).
-- `dashboard.html` — giao diện (vanilla JS, **không cần internet/CDN**).
-- `replay_config.json` — khai báo đường dẫn model + file replay + IP attacker.
+## Kiến trúc (SOLID)
+
+Logic tách thành package `ids_replay/`, mỗi module một trách nhiệm; `server.py` là
+composition root (wire dependency). Thêm tính năng = thêm lớp, không sửa code cũ.
+
+```
+server.py                      # composition root (Dependency Injection)
+ids_replay/
+├── config.py        Settings                      — nạp cấu hình
+├── features.py      FeatureExtractor              — CSV → 80 feature (+ port_spread)
+├── model.py         Classifier (Protocol)         — interface; FTTransformerClassifier impl
+├── postprocess.py   PredictionRule (Protocol)     — Open/Closed: ConfidenceThresholdRule,
+│                    RulePipeline                     PortScanRule (thêm luật không sửa pipeline)
+├── corpus.py        CorpusLoader                  — CSV → events đã dự đoán + gán nhãn
+├── scenarios.py     ScenarioService               — danh sách kịch bản + 'mixed'
+├── explain.py       ExplainService                — feature importance
+├── streaming.py     ConnectionManager, ReplayEngine — WebSocket + vòng play/pause/speed
+└── api.py           create_app(...)               — FastAPI, nhận service qua DI
+dashboard.html · replay_config.json · data/
+```
+
+- **SRP**: mỗi module 1 việc. **OCP**: thêm `PredictionRule` mới chỉ cần thêm vào list ở
+  `server.py`. **LSP/ISP**: `Classifier`/`PredictionRule` là Protocol nhỏ gọn. **DIP**: các
+  service phụ thuộc abstraction, được inject ở composition root.
+- `live_replay_server.py` chỉ còn là **shim** (`from server import app`) để giữ lệnh chạy cũ.
 
 ---
 
@@ -40,8 +61,9 @@ Nếu thiếu (môi trường khác):
 
 ```bash
 cd /home/ning/Graduation-Thesis/Replay_Live_Detection
-/home/ning/Graduation-Thesis/.venv/bin/python3 -m uvicorn live_replay_server:app \
+/home/ning/Graduation-Thesis/.venv/bin/python3 -m uvicorn server:app \
     --host 0.0.0.0 --port 8000
+# (lệnh cũ `uvicorn live_replay_server:app` vẫn chạy được qua shim)
 ```
 
 Khi thấy log:

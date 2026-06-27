@@ -73,19 +73,36 @@ phát lại các file flow đã thu (CICFlowMeter) qua model → dashboard real-
 **Kế hoạch:** `ke-hoach-cai-thien-f1.md` (Phương án A: threshold; B: thu lại benign;
 C: fine-tune; D: cải thiện PortScan).
 
-**Đã thực hiện:**
-- **D1 (rule port-spread)** — THẤT BẠI & tắt: data portscan chỉ 6 cổng (mất port-spread),
-  benign 760 cổng → rule bắn nhầm benign. Code giữ lại, chờ D2.
-- **A (conf_threshold=0.6)** — ✅ THÀNH CÔNG (zero-cost, không train lại):
-  - Macro-F1 **0.7353 → 0.7781** · Accuracy **0.91 → 0.97** · Weighted-F1 **0.90 → 0.97**.
-  - Benign recall **75% → 95%**; 4 lớp hoạt động đều **0.95–0.99 F1**.
-  - Macro-F1 giờ chỉ còn bị **PortScan (=0)** kìm.
+**Đã thực hiện (lần lượt):**
+- **D1 lần 1 (rule port-spread)** — THẤT BẠI & tắt: data portscan lúc đó chỉ 6 cổng (mất
+  port-spread), benign 760 cổng → rule bắn nhầm benign. Code giữ lại, chờ D2.
+- **A (conf_threshold=0.6)** — ✅ zero-cost: Macro-F1 **0.7353 → 0.7781**, benign recall
+  **75% → 95%**, 4 lớp hoạt động 0.95–0.99 F1. Còn bị PortScan (=0) kìm.
+- **D2 (thu lại PortScan trên Win11 HOST)** — ✅ giải quyết gốc: WSL tcpdump không thấy gói
+  cổng đóng (Windows host RST, không bridge vào WSL) → bắt trên host → **222k flow / 22k cổng
+  duy nhất** (trước: 6–9 cổng). *(Còn phát hiện thêm: nmap thiếu `-Pn` → bỏ scan khi ping bị
+  chặn → đã fix trong auto_attack_v4.)*
+- **D1 lần 2 (bật rule, ngưỡng 15, chỉ override src=attacker)** — ✅✅ trên data tốt:
+  PortScan F1 **0.02 → 0.996** (precision 1.0); restrict src=attacker để không gắn cờ flow
+  victim phản hồi → benign recall giữ **95%**.
 
-## 8. Nút thắt còn lại & việc tiếp
-- **PortScan (F1=0)** là rào cản macro-F1 duy nhất còn lại. Phải làm **D2**: thu lại PortScan
-  với **firewall victim TẮT** (cổng đóng trả RST → flow giữ đủ dải cổng) → bật lại D1 hoặc D3.
-- Sau D2: kỳ vọng macro-F1 ~0.96.
-- B (thu lại benign "đời" hơn) và C/D3 (fine-tune) là bước nâng cao.
+**KẾT QUẢ CUỐI (2026-06-27): Macro-F1 = 0.9778, accuracy 0.977, mọi lớp ≥ 0.95.**
+
+| Lớp | F1 baseline → cuối |
+|---|---|
+| PortScan | 0.023 → **0.996** |
+| Benign | 0.857 → **0.961** (recall 95%) |
+| Web Attack | 0.892 → 0.990 |
+| Brute Force | 0.979 → 0.991 |
+| DoS | 0.926 → 0.951 |
+| **Macro-F1** | **0.735 → 0.978** |
+
+## 8. Trạng thái & việc còn lại
+- ✅ Mục tiêu F1 (>0.90) **đã đạt** (0.978). Mọi lớp ≥0.95.
+- Việc vận hành còn lại: `git pull` data portscan 222k về máy demo; commit cấu hình
+  (`portscan_rule.enabled=true` + rule src=attacker); restart server.
+- Nâng cao (tùy chọn): B (thu benign "đời" hơn), C/D3 (fine-tune model 81-feature) — không
+  bắt buộc vì F1 đã tốt.
 
 ## 9. Cách chạy demo
 ```bash
@@ -97,8 +114,15 @@ cd /home/ning/Graduation-Thesis/Replay_Live_Detection
 
 ## 10. Bài học chính
 1. **Label-by-IP cần đúng IP NAT** (host `.106`, không phải IP WSL).
-2. **PortScan cần firewall victim TẮT** để cổng đóng trả RST, nếu không scan flows bị loại →
-   mất port-spread → model nhầm thành DoS.
-3. **Cân bằng lớp** quan trọng hơn "càng nhiều flow càng tốt" (bruteforce 200k vô ích).
-4. **Confidence threshold** là đòn bẩy F1 rẻ nhất khi FP là dự đoán confidence thấp.
-5. Chú ý **phiên bản Python** (3.8 vs 3.9 API).
+2. **PortScan trên testbed WSL phải capture TRÊN WINDOWS HOST**, không phải tcpdump trong WSL:
+   gói tới cổng đóng do Windows host xử lý (RST), không bridge vào WSL namespace → WSL tcpdump
+   chỉ thấy cổng mở → mất port-spread → model nhầm thành DoS. Bắt trên host → 22k cổng.
+3. **nmap cần `-Pn`**: ping victim bị chặn → nmap tưởng host down → bỏ scan (chỉ vài flow sót).
+4. **Hybrid rule (port-spread, src=scanner) bù được feature thiếu**: V8.5 không có
+   `Custom_PortScan_Intensity` nên không phân biệt PortScan vs DoS; rule đếm cổng/host quét
+   override → đúng tinh thần Snort + ML, PortScan F1 0.02→0.996 không cần train lại.
+5. **Cân bằng lớp** quan trọng hơn "càng nhiều flow càng tốt" (bruteforce 200k vô ích).
+6. **Confidence threshold** là đòn bẩy F1 rẻ nhất khi FP là dự đoán confidence thấp.
+7. Chú ý **phiên bản Python** (3.8 vs 3.9 API, vd `asyncio.to_thread`).
+8. **Đo trước rồi mới sửa**: snapshot baseline giúp phát hiện PortScan (không chỉ Benign) mới
+   là nút thắt chính, tránh tối ưu nhầm chỗ.
