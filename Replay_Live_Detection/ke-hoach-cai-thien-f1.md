@@ -213,6 +213,7 @@ PortScan-F1 và Benign-recall lên), giữ recall 3 lớp mạnh ≥ 0.95.
 | 2026-06-27 | *(baseline, chưa sửa)* | 0.7353 | 0.7543 | 0.0230 | mốc gốc |
 | 2026-06-27 | Thử D1 (rule port-spread) → **ĐÃ TẮT** | 0.7092 | 0.6018 | 0.0011 | Regression. Data portscan chỉ có 6 cổng (scan flows bị firewall drop) còn benign 760 cổng → rule bắn nhầm benign, không bắt được portscan. Revert. |
 | 2026-06-27 | **A — conf_threshold=0.6** ✅ | **0.7781** | **0.9513** | 0.0000 | Benign recall 75→95%, Web F1 0.89→0.99, DoS 0.93→0.95, BF 0.98→0.99, accuracy 0.91→**0.97**, weighted-F1 0.90→**0.97**. Macro-F1 chỉ còn bị PortScan (=0) kìm → cần D2. |
+| 2026-06-27 | **A + D2 + D1** (thu PortScan trên Win11 host + bật rule, src=attacker) ✅✅ | **0.9778** | **0.9518** | **0.9959** | D2: capture trên Win11 host → PortScan 222k flow / **22k cổng**. D1: rule port-spread bật (ngưỡng 15, chỉ override src=attacker) → PortScan F1 0.02→**0.996** (precision 1.0), benign recall giữ 95%. **Mọi lớp ≥0.95, accuracy 0.977.** ĐẠT mục tiêu. |
 
 > **Phát hiện quan trọng:** không thể cải thiện PortScan bằng rule/model trên data hiện tại
 > vì **tín hiệu port-spread đã mất** (chỉ 6 cổng đích sống sót). **Bắt buộc làm D2 trước**

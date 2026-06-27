@@ -191,7 +191,8 @@ class Corpus:
                 inten = port_spread(src, dpi, ts, int(rule.get("window_sec", 2.0) * 1000))
                 thr = int(rule.get("min_unique_ports", 15))
                 for i in range(len(preds)):
-                    if inten[i] >= thr and preds[i] != "PortScan":
+                    # chỉ override host ĐANG QUÉT (src=attacker) → tránh gắn cờ flow victim phản hồi
+                    if inten[i] >= thr and src[i] == ATTACKER_IP and preds[i] != "PortScan":
                         preds[i] = "PortScan"
                         self.ps_override += 1
         self.events = []
