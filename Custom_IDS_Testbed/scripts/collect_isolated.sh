@@ -22,7 +22,7 @@
 #
 # Tham số:
 #   --type      portscan | bruteforce | webattack | dos | benign   (bắt buộc)
-#   --target    IP victim (mặc định 192.168.0.101)
+#   --target    IP victim (mặc định 192.168.0.103)
 #   --duration  Số giây chạy benign (chỉ dùng cho --type benign, mặc định 600)
 #   --workers   Số worker benign (mặc định 50)
 #   --skip-check  Bỏ qua kiểm tra công cụ của auto_attack_v3
@@ -31,7 +31,7 @@
 set -e
 
 # ----------------------------- Tham số mặc định -----------------------------
-TARGET="192.168.0.101"
+TARGET="192.168.0.103"
 ATTACKER_HINT="192.168.0.106"   # IP Máy 1 — dùng để gán nhãn theo IP khi build corpus
 TYPE=""
 DURATION=600

@@ -1,6 +1,6 @@
 {
   "attacker_ip": "192.168.0.106",
-  "victim_ip": "192.168.0.101",
+  "victim_ip": "192.168.0.103",
   "portscan_rule": {"enabled": false, "window_sec": 2.0, "min_unique_ports": 15, "_note": "Tắt: data portscan hiện chỉ 6 cổng (scan flows bị firewall drop). Bật lại SAU khi thu lại portscan với firewall victim TẮT (D2) để cổng đóng trả RST → flow giữ đủ port-spread."},
   "conf_threshold": 0.6,
   "_conf_threshold_note": "Phương án A: dự đoán tấn công có confidence < ngưỡng → hạ về Benign (giảm FP benign). T=0.6 cho macro-F1 cao nhất (0.778), benign recall 75%→95%, attack recall vẫn ~98%.",

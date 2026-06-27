@@ -30,7 +30,7 @@ PortScan chỉ thu lại nếu muốn demo dài hơn 325 flow.
 
 ### 1.1. Sơ đồ 2 máy
 - **Máy 1 (Attacker):** WSL Ubuntu trên Win10, IP `192.168.0.106` — chạy `collect_isolated.sh`.
-- **Máy 3 (Victim):** WSL Ubuntu trên Win11, IP `192.168.0.101` — chạy `tcpdump` + dịch vụ mục tiêu.
+- **Máy 3 (Victim):** WSL Ubuntu trên Win11, IP `192.168.0.103` — chạy `tcpdump` + dịch vụ mục tiêu.
 
 > ⚠️ **Giữ IP cố định** suốt cả 4 phiên. Nhãn được gán theo IP attacker nên IP đổi giữa chừng sẽ làm hỏng nhãn.
 
@@ -56,7 +56,7 @@ chmod +x collect_isolated.sh
 ## 2. Quy trình thu từng loại
 
 Mỗi loại = **1 phiên tcpdump riêng → 1 pcap riêng → 1 Flow.csv riêng** (không flow-bleed).
-Quy ước: **Máy 3 = Victim** (`192.168.0.101`), **Máy 1 = Attacker** (`192.168.0.106`).
+Quy ước: **Máy 3 = Victim** (`192.168.0.103`), **Máy 1 = Attacker** (`192.168.0.106`).
 
 > **Khung 4 bước chung** (mọi loại đều theo): **(A)** Victim bật tcpdump riêng → **(B)**
 > Attacker chạy `collect_isolated.sh` → **(C)** Victim Ctrl+C dừng tcpdump rồi chạy

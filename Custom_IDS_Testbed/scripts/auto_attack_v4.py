@@ -17,10 +17,10 @@ Cải tiến so với v3 (rút ra từ các lỗi thực tế khi thu data):
   4. Gán nhãn theo IP: in rõ Attacker IP (IP NAT mà victim thấy) để build corpus đúng.
 
 Cách chạy (trên Máy 1 — Attacker, mỗi loại 1 phiên capture riêng trên Victim):
-    python3 auto_attack_v4.py --target 192.168.0.101 --type portscan
-    python3 auto_attack_v4.py --target 192.168.0.101 --type bruteforce
-    python3 auto_attack_v4.py --target 192.168.0.101 --type webattack
-    python3 auto_attack_v4.py --target 192.168.0.101 --type dos
+    python3 auto_attack_v4.py --target 192.168.0.103 --type portscan
+    python3 auto_attack_v4.py --target 192.168.0.103 --type bruteforce
+    python3 auto_attack_v4.py --target 192.168.0.103 --type webattack
+    python3 auto_attack_v4.py --target 192.168.0.103 --type dos
 
 Tham số chính:
     --type     portscan | bruteforce | webattack | dos   (hoặc --phase, alias)
@@ -85,7 +85,7 @@ def check_conn(target):
 
 def check_port(target, port, name):
     """Kiểm tra 1 dịch vụ TCP có mở không (cho brute/web/dos)."""
-    out = subprocess.run(f"nmap -sT -p {port} --max-retries 1 {target}",
+    out = subprocess.run(f"nmap -sT -Pn -p {port} --max-retries 1 {target}",
                          shell=True, capture_output=True, text=True).stdout
     if f"{port}/tcp open" in out:
         log(f"  ✓ Dịch vụ {name} (cổng {port}) đang mở", "G")
@@ -99,7 +99,7 @@ def portscan_firewall_preflight(target, force):
     nếu không scan flows sẽ bị mất → PortScan data hỏng."""
     log("[preflight] Kiểm tra firewall victim (cổng đóng trả RST hay bị drop)...", "Y")
     try:
-        out = subprocess.run(f"nmap -sT -p 9000-9060 --max-retries 0 {target}",
+        out = subprocess.run(f"nmap -sT -Pn -p 9000-9060 --max-retries 0 {target}",
                              shell=True, capture_output=True, text=True, timeout=60).stdout
     except subprocess.TimeoutExpired:
         out = ""
@@ -155,7 +155,7 @@ def phase_portscan(target, writer, args):
     for r in range(1, args.rounds + 1):
         for rng in ranges:
             n += 1
-            cmd = f"sudo nmap -sT -T5 -p {rng} --max-retries 0 {target}"
+            cmd = f"sudo nmap -sT -Pn -T5 -p {rng} --max-retries 0 {target}"
             if not run_cmd(cmd, "PortScan", target, "Multiple",
                            f"TCP scan {rng} (vòng {r}/{args.rounds})", writer, n, total):
                 return
