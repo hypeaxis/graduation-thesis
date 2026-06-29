@@ -13,7 +13,7 @@ Toàn bộ thực nghiệm được thực hiện trên một máy tính cá nh�
     \item \textbf{Phần cứng:} CPU Intel Core i7 thế hệ 11, RAM 16 GB DDR4, ổ SSD. Toàn bộ quá trình huấn luyện chạy trên CPU với PyTorch CPU backend.
     \item \textbf{Hệ điều hành:} Windows 11 (host) với WSL2 Ubuntu 22.04 LTS. WSL2 cấu hình chế độ Mirrored Networking để chia sẻ địa chỉ IP với Windows host, cho phép traffic từ mạng LAN vật lý tiếp cận trực tiếp interface WSL.
     \item \textbf{Thư viện chính:} Python 3.8, PyTorch 2.0 (FT-Transformer), TensorFlow/Keras 2.12 (Autoencoder), LightGBM 4.0, scikit-learn 1.3, imbalanced-learn 0.11.
-    \item \textbf{Công cụ mạng:} CICFlowMeter v4 (trích xuất đặc trưng flow từ live interface, timeout 30 giây), Snort 3.1 (IDS rule-based, Community Rules + Emerging Threats Open).
+    \item \textbf{Công cụ mạng:} CICFlowMeter v4 (trích xuất đặc trưng flow từ live interface, timeout 30 giây), Snort 3.1 (IDS rule-based, Custom Rules + Community Rules + Emerging Threats Open).
 \end{itemize}
 
 \subsection{Bộ dữ liệu thực nghiệm}
@@ -37,7 +37,7 @@ Ba bộ dữ liệu được sử dụng qua từng giai đoạn nghiên cứu, 
     \end{tabular}
 \end{table}
 
-NSL-KDD sử dụng 41 đặc trưng gốc, được mở rộng lên 122 chiều sau mã hóa one-hot cho ba đặc trưng phân loại (\texttt{protocol\_type}: 3 giá trị, \texttt{service}: 70 giá trị, \texttt{flag}: 11 giá trị) và MinMaxScaler cho phần còn lại. CIC-IDS-2017 sử dụng trực tiếp 77 đặc trưng CICFlowMeter, chuẩn hóa bằng PowerTransformer (Yeo-Johnson). Testbed V8.5 sử dụng 80 đặc trưng (77 CIC gốc + 3 đặc trưng kỹ thuật từ Model Surgery: IAT\_CV, Bwd\_Pkt\_Ratio, Pkt\_Size\_Ratio), chuẩn hóa bằng PowerTransformer được fit trên phân phối Testbed.
+NSL-KDD sử dụng 41 đặc trưng gốc, được mở rộng lên 122 chiều sau mã hóa one-hot cho ba đặc trưng phân loại (\texttt{protocol\_type}: 3 giá trị, \texttt{service}: 70 giá trị, \texttt{flag}: 11 giá trị) và MinMaxScaler cho phần còn lại. CIC-IDS-2017 sử dụng 77 đặc trưng --- gồm 68 đặc trưng thống kê CICFlowMeter, 5 chỉ báo nhóm cổng và 4 đặc trưng tỉ lệ được kỹ thuật hóa trong pipeline tiền xử lý --- chuẩn hóa bằng PowerTransformer (Yeo-Johnson). Testbed V8.5 mở rộng tập này lên 80 đặc trưng bằng 3 đặc trưng từ bước Model Surgery (IAT\_CV, Bwd\_Pkt\_Ratio, Pkt\_Size\_Ratio), chuẩn hóa bằng PowerTransformer được fit trên phân phối Testbed.
 
 \subsection{Các chỉ số đánh giá}
 \label{subsec:tn-metrics}
@@ -67,6 +67,7 @@ Bảng~\ref{tab:nslkdd-ablation} trình bày quá trình cải thiện kiến tr
     \centering
     \caption{So sánh Macro-F1 đầu-cuối (5 lớp, KDDTest+) qua các phiên bản kiến trúc}
     \label{tab:nslkdd-ablation}
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{lcc}
         \hline
         \textbf{Kiến trúc} & \textbf{Macro F1} & \textbf{Ghi chú} \\
@@ -76,7 +77,8 @@ Bảng~\ref{tab:nslkdd-ablation} trình bày quá trình cải thiện kiến tr
         LightGBM đơn lẻ & 0,668 & Probe/U2R tốt hơn; R2L kém hơn \\
         \textbf{Stacking Ensemble (FTT + LGBM → Meta-LR)} & \textbf{0,681} & \textbf{Kết quả cuối} \\
         \hline
-    \end{tabular}
+    \end{tabular}%
+    }
 \end{table}
 
 \begin{figure}[H]
@@ -316,20 +318,22 @@ Mô hình V8.5 được đánh giá trên tập validation 11.183 flows với th
     \centering
     \caption{Kết quả V8.5 trên tập validation đa dạng miền}
     \label{tab:v85-final}
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{lcccc}
         \hline
         \textbf{Lớp} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} & \textbf{Nguồn validation} \\
         \hline
-        Benign     & --- & ---  & 0,91 & Testbed nội bộ \\
+        Benign     & 0,87 & 0,95 & 0,91 & Testbed nội bộ \\
         BruteForce & 0,83 & 0,90 & \textbf{0,86} & hydra + CIC Patator \\
-        DoS        & --- & ---  & 0,93 & Testbed nội bộ \\
-        PortScan   & --- & ---  & \textbf{1,00} & CIC Friday (surrogate) \\
-        Web Attack & --- & 0,81 & 0,88 & Testbed nội bộ \\
+        DoS        & 0,98 & 0,89 & 0,93 & Testbed nội bộ \\
+        PortScan   & 1,00 & 1,00 & \textbf{1,00} & CIC Friday (surrogate) \\
+        Web Attack & 0,96 & 0,81 & 0,88 & Testbed nội bộ \\
         \hline
         \textbf{Macro F1} & & & \textbf{0,917} & \\
         Balanced Accuracy & & & \textbf{0,911} & \\
         \hline
-    \end{tabular}
+    \end{tabular}%
+    }
 \end{table}
 
 \begin{figure}[H]
@@ -348,9 +352,12 @@ V8.5 đạt Macro F1 = 91,7\% trên 5 lớp tấn công trong điều kiện val
 \section{Thử nghiệm hệ thống End-to-End}
 \label{sec:tn-e2e}
 
-Thử nghiệm End-to-End đánh giá hệ thống Hybrid IDS hoàn chỉnh --- Snort (rule-based) và FT-Transformer V8.5 (ML-based) chạy song song trên máy victim --- với các kịch bản tấn công thực từ máy Kali Linux.
+Hệ thống Hybrid IDS được đánh giá ở hai mức bổ sung cho nhau. Mức thứ nhất đối chiếu khả năng phát hiện của tầng chữ ký (Snort) và tầng học máy (FT-Transformer V8.5) trên từng loại tấn công, kiểm chứng giả thuyết hai tầng bù điểm mù cho nhau. Mức thứ hai đo hiệu năng phân loại định lượng của hệ thống phát hiện theo phát lại (Mục~\ref{subsec:deploy-replay}) trên toàn bộ corpus Testbed. Đường xử lý thời gian thực hoàn toàn chưa được hiện thực hóa trong phạm vi đồ án; các số liệu của tầng học máy dưới đây đo trên hệ thống replay, dùng đúng mô hình, bộ tiền xử lý và logic quyết định mà phiên bản thời gian thực sẽ sử dụng.
 
-\textbf{Cấu hình:} Snort 3.1 (Community Rules + Emerging Threats Open), CICFlowMeter v4 (live capture, flow timeout 30 giây), và FT-Transformer V8.5 inference engine chạy đồng thời trên WSL2 của máy victim. Máy tấn công (Kali Linux) thực hiện lần lượt từng kịch bản trên cùng mạng LAN. Alert từ cả hai nguồn được ghi nhận với timestamp và đối chiếu với nhãn tấn công thực tế.
+\subsection{Khả năng phát hiện theo loại tấn công}
+\label{subsec:e2e-complementarity}
+
+\textbf{Cấu hình:} Năm phiên thu cô lập --- mỗi loại tấn công một phiên riêng, máy tấn công IP \texttt{192.168.0.106}, victim \texttt{192.168.0.103} --- cung cấp corpus phát lại, mỗi tệp lấy tối đa 8.000 flow để cân bằng giữa các lớp. Tầng học máy phân loại các flow này qua mô hình V8.5; tầng Snort 3.1 (bộ luật Custom Rules kết hợp Community Rules và Emerging Threats Open) được đối chiếu trên cùng các kịch bản tấn công. Nhãn đối chứng gán theo IP nguồn.
 
 \begin{table}[H]
     \centering
@@ -370,7 +377,7 @@ Thử nghiệm End-to-End đánh giá hệ thống Hybrid IDS hoàn chỉnh --- 
     \end{tabular}
 \end{table}
 
-\textit{Ký hiệu: \checkmark = phát hiện đúng, $\circ$ = phát hiện một phần, $\times$ = không cảnh báo (đúng với lưu lượng bình thường).}
+\textit{Ký hiệu: \checkmark = phát hiện đúng, $\circ$ = phát hiện một phần, $\times$ = không cảnh báo (đúng với lưu lượng bình thường).} Cột ML phản ánh kết quả của V8.5 trên corpus phát lại; cột Snort phản ánh độ phủ luật trên cùng tập tấn công.
 
 \textbf{Tính bổ sung giữa hai tầng phát hiện:}
 
@@ -380,6 +387,49 @@ Trường hợp Web Attack XSS minh họa rõ nhất lý do cần cả hai: XSS 
 
 Độ trễ phát hiện của ML: BruteForce và PortScan được phát hiện nhanh (mỗi connection đóng sau vài giây); DoS slowhttptest cần đợi đến khi CICFlowMeter timeout flow (tối đa 30 giây). Đây là sự đánh đổi cố hữu của phương pháp flow-based --- không thể tránh hoàn toàn mà chỉ có thể giảm bằng cách điều chỉnh timeout và kết hợp với Snort real-time.
 
-Thực nghiệm End-to-End xác nhận giả thuyết cốt lõi của đề tài: kiến trúc Hybrid IDS (signature-based + ML-based) đạt độ bao phủ tấn công rộng hơn bất kỳ hướng tiếp cận đơn lẻ nào, và sự kết hợp hai tầng này không thể thay thế cho nhau --- mỗi tầng là điều kiện cần để bù đắp điểm mù của tầng còn lại.
+Đối chiếu hai tầng qua corpus phát lại xác nhận giả thuyết cốt lõi của đề tài: kiến trúc Hybrid IDS (signature-based + ML-based) đạt độ bao phủ tấn công rộng hơn bất kỳ hướng tiếp cận đơn lẻ nào, và sự kết hợp hai tầng này không thể thay thế cho nhau --- mỗi tầng là điều kiện cần để bù đắp điểm mù của tầng còn lại.
+
+\subsection{Hiệu năng định lượng trên corpus phát lại}
+\label{subsec:tn-replay-quant}
+
+Trên corpus gộp năm phiên (40.000 flow, 8.000 mỗi loại; PortScan dùng bản thu lại trên Windows host, xem Mục~\ref{subsec:tn-baihoc}), hiệu năng của hệ thống được nâng dần qua hai can thiệp hậu xử lý, đo bằng Macro F1 để phạt đều mọi lớp (Bảng~\ref{tab:replay-progress}).
+
+\begin{table}[H]
+    \centering
+    \caption{Tiến triển Macro F1 của hệ thống replay theo từng can thiệp hậu xử lý}
+    \label{tab:replay-progress}
+    \begin{tabular}{lccc}
+        \hline
+        \textbf{Cấu hình} & \textbf{Macro F1} & \textbf{Benign Recall} & \textbf{PortScan F1} \\
+        \hline
+        V8.5, không hậu xử lý                     & 0,679 & 75,4\% & 0,000 \\
+        \quad + ngưỡng tin cậy $T=0{,}6$          & 0,725 & 95,2\% & 0,000 \\
+        \quad + luật quét cổng                    & \textbf{0,978} & \textbf{95,2\%} & \textbf{0,996} \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Ở cấu hình cuối, mọi lớp đạt F1 không dưới 0,95: PortScan 0,996, BruteForce 0,991, DoS 0,951, Web Attack 0,990, Benign 0,961; accuracy tổng 0,977.
+
+Macro F1 = 0,978 trên corpus phát lại và Macro F1 = 91,7\% mà V8.5 đạt trên tập validation đa dạng miền (Mục~\ref{sec:tn-testbed}) không so sánh trực tiếp được: chúng đo trên hai tập dữ liệu khác nhau, và 0,978 còn bao gồm chuỗi luật hậu xử lý mà 91,7\% không có. Trên chính corpus phát lại, mô hình đơn lẻ chỉ đạt Macro F1 = 0,679 (Bảng~\ref{tab:replay-progress}); hai luật hậu xử lý nâng nó lên 0,978 --- ngưỡng tin cậy đưa Benign Recall từ 75,4\% lên 95,2\%, và luật quét cổng đưa PortScan từ không phát hiện được (F1 0,000) lên 0,996.
+
+\subsection{Lỗi sai và bài học}
+\label{subsec:tn-baihoc}
+
+Quá trình xây dựng hệ thống replay bộc lộ một số lỗi đặc thù của môi trường ảo hóa và NAT, cùng vài nguyên tắc kỹ thuật rút ra từ việc sửa chúng.
+
+\textbf{Gán nhãn theo IP phải dùng đúng IP sau NAT.} Lưu lượng từ WSL bị NAT qua máy Windows host, nên máy victim quan sát được địa chỉ nguồn là IP LAN của host (\texttt{192.168.0.106}), không phải IP nội bộ của WSL. Lần gán nhãn đầu dùng IP WSL khiến toàn bộ flow tấn công bị gán sai. Nhãn đối chứng phải lấy theo IP nguồn quan sát được tại điểm thu, không phải IP danh nghĩa của máy phát.
+
+\textbf{PortScan phải bắt trên máy Windows host, không phải trong WSL.} Gói tới cổng đóng được chính Windows host trả RST và không bắc cầu vào không gian mạng của WSL; tcpdump trong WSL vì vậy chỉ thấy số ít cổng mở. Mất đi dải cổng bị quét, một phiên PortScan thu trong WSL trông giống DoS --- nhiều flow ngắn tới ít cổng --- và đây chính là nguyên nhân gốc khiến PortScan F1 chỉ đạt 0,000 ở cấu hình đầu. Thu lại trên host khôi phục đặc trưng quét cổng: số cổng đích duy nhất tăng từ 6--9 lên hơn 22.000.
+
+\textbf{nmap cần tùy chọn \texttt{-Pn}.} Khi victim chặn ping, nmap mặc định coi host đã tắt và bỏ qua bước quét, chỉ để lại vài flow rải rác. Bỏ bước kiểm tra sống bằng \texttt{-Pn} là điều kiện để thu được một phiên quét đầy đủ.
+
+\textbf{Một luật chữ ký có thể bù đặc trưng còn thiếu rẻ hơn tái huấn luyện.} Bộ 80 đặc trưng của V8.5 không mã hóa mức độ quét cổng, nên mô hình không thể tách PortScan khỏi DoS. Một luật đếm cổng đích theo nguồn --- đúng tinh thần chữ ký --- bù trực tiếp điểm mù đó, nâng PortScan F1 từ 0,000 lên 0,996 mà không chạm tới trọng số mô hình. So với việc thêm đặc trưng thứ 81 rồi huấn luyện lại toàn bộ, luật hậu xử lý đạt cùng mục tiêu với chi phí thấp hơn nhiều và giữ nguyên hành vi đã kiểm chứng của mô hình trên bốn lớp còn lại.
+
+\textbf{Đo trước khi sửa.} Ảnh chụp chỉ số ở mốc gốc cho thấy điểm kéo Macro F1 xuống mạnh nhất là PortScan (F1 0,000), không phải false positive của Benign như giả định ban đầu. Sửa theo trực giác sẽ dồn công nhầm vào Benign trong khi nút thắt thực nằm ở PortScan.
+
+\textbf{Ngưỡng tin cậy là đòn bẩy rẻ nhất khi cảnh báo giả là dự đoán độ tin cậy thấp.} Phần lớn false positive của Benign là các dự đoán tấn công sát ranh giới quyết định. Một ngưỡng duy nhất ($T=0{,}6$) nâng Benign Recall từ 75,4\% lên 95,2\% mà không phải huấn luyện lại và không làm tụt recall của các lớp tấn công vốn được dự đoán với độ tin cậy cao.
+
+\textbf{Cân bằng lớp quan trọng hơn khối lượng thô.} Phiên BruteForce thu được 200.000 flow nhưng không đóng góp gì hơn một tập con cân bằng khoảng 8.000 flow; thu thừa một lớp chỉ làm lệch corpus và tốn công xử lý.
 
 \end{document}

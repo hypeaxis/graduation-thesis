@@ -40,7 +40,7 @@ Kiến trúc học sâu cho dữ liệu dạng bảng --- nhóm đặc trưng m�
 
 \textbf{Giai đoạn 3} giải quyết covariate shift: mô hình CIC chỉ đạt 21,93\% Accuracy khi áp dụng trực tiếp lên Testbed WSL (MCC = $-0{,}015$), trong khi Re-fit Scaler đơn thuần còn làm tình trạng xấu hơn (6,87\%). Sau chẩn đoán định lượng, giải pháp là thu thập dữ liệu Testbed đặc thù và tái huấn luyện hoàn toàn. Mô hình V8.5 giải quyết hai bài toán đặc thù WSL: PortScan không phân tách trong NAT (dữ liệu surrogate từ CIC Friday hardware) và BruteForce thiếu diversity (mixed hydra + CIC Patator). Kết quả: Macro F1 91,7\% trên val set đa dạng miền.
 
-Toàn bộ hệ thống được tích hợp trong pipeline End-to-End: Snort chạy ở tầng packet (real-time, rule-based) song song với FT-Transformer ở tầng flow (ML-based), bù đắp lẫn nhau để đạt độ bao phủ tấn công rộng hơn bất kỳ hướng tiếp cận đơn lẻ nào.
+Hai tầng được tích hợp thành một hệ thống lai ghép: Snort ở tầng gói (rule-based) bù đắp cho FT-Transformer ở tầng flow (ML-based) để đạt độ bao phủ tấn công rộng hơn bất kỳ hướng tiếp cận đơn lẻ nào. Hệ thống được hiện thực hóa và đánh giá ở dạng phát hiện theo phát lại (replay-based live detection); đường xử lý thời gian thực hoàn toàn được để lại như một hướng phát triển.
 
 \section{Đóng góp của đồ án}
 \label{sec:dg}
@@ -54,7 +54,7 @@ Toàn bộ hệ thống được tích hợp trong pipeline End-to-End: Snort ch
 
     \item \textbf{Chẩn đoán covariate shift định lượng và xây dựng Testbed thực:} Định lượng mức độ covariate shift: direct transfer Accuracy 21,93\% (MCC $-0{,}015$); Re-fit Scaler làm tình trạng xấu hơn (6,87\%). Thu thập dataset V8.5 (111.825 flows, 5 lớp) trong môi trường mạng LAN thực; xác định và giải quyết PortScan không phân tách trong NAT bằng dữ liệu surrogate; đánh giá robustness với val set đa dạng miền. Mô hình V8.5 đạt Macro F1 91,7\%.
 
-    \item \textbf{Hệ thống Hybrid IDS End-to-End trên phần cứng phổ thông:} Pipeline Snort 3 + CICFlowMeter + FTT V8.5 chạy song song trên WSL2 Ubuntu, không yêu cầu GPU. Thực nghiệm End-to-End xác nhận tính bổ sung hai tầng: DoS slowhttptest chỉ phát hiện được bởi ML; XSS payload ngắn chỉ phát hiện được bởi Snort; không loại tấn công nào bị bỏ sót hoàn toàn bởi cả hai tầng.
+    \item \textbf{Hệ thống Hybrid IDS phát hiện theo phát lại trên phần cứng phổ thông:} Hệ thống tích hợp Snort 3 và FT-Transformer V8.5 trên WSL2 Ubuntu, không yêu cầu GPU, được hiện thực hóa ở dạng phát hiện theo phát lại với giao diện thời gian thực. Thực nghiệm xác nhận tính bổ sung hai tầng: DoS slowhttptest chỉ phát hiện được bởi ML, XSS payload ngắn chỉ phát hiện được bởi Snort. Một luật hậu xử lý kiểu chữ ký (đếm cổng đích theo nguồn) bù cho đặc trưng quét cổng mà mô hình thiếu, nâng PortScan F1 từ 0,000 lên 0,996 mà không cần huấn luyện lại. Đường xử lý thời gian thực hoàn toàn được đề xuất như một hướng phát triển.
 \end{enumerate}
 
 \section{Bố cục đồ án}

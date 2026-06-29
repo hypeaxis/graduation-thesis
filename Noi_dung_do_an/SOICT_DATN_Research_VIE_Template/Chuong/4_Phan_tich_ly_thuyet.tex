@@ -37,6 +37,7 @@ Trong môi trường WSL với NAT, tình huống hoàn toàn khác. Khi nmap ch
     \centering
     \caption{F1-score PortScan qua các thử nghiệm thuật toán và siêu tham số khác nhau (V8.2)}
     \label{tab:portscan-noseparability}
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{lcc}
         \hline
         \textbf{Cấu hình} & \textbf{PortScan F1} & \textbf{Nhận xét} \\
@@ -47,7 +48,8 @@ Trong môi trường WSL với NAT, tình huống hoàn toàn khác. Khi nmap ch
         Random Forest, 150 cây & 5,2\% & Cũng thất bại \\
         KNN, K=5 & 4,9\% & Cũng thất bại \\
         \hline
-    \end{tabular}
+    \end{tabular}%
+    }
 \end{table}
 
 Kết quả nhất quán thất bại qua nhiều thuật toán khác nhau là bằng chứng mạnh cho tính không phân tách: vấn đề nằm ở dữ liệu, không phải mô hình. Giải pháp duy nhất hiệu quả là thay đổi ở tầng dữ liệu --- inject dữ liệu PortScan được thu thập trên phần cứng thực (CIC Friday PortScan) làm surrogate, với các đặc trưng flow phản ánh đúng pattern của PortScan trong điều kiện thu thập đầy đủ.

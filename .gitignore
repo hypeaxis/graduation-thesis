@@ -84,3 +84,17 @@ snort.log.*
 # Isolated capture Flow CSVs (replay corpus)
 !Custom_IDS_Testbed/docs/*_only.pcap_Flow.csv
 *.restore
+
+# LaTeX build artifacts (KHÔNG track — gây xung đột & hỏng incremental build)
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.out
+*.toc
+*.synctex.gz
+*.run.xml
+*-blx.bib

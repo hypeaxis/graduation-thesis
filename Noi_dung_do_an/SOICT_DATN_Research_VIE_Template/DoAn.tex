@@ -1,4 +1,4 @@
-\documentclass[a4paper,13pt,3p,twoside]{report}
+\documentclass[a4paper,13pt,3p,oneside]{report}
 \usepackage{scrextend}
 \changefontsizes{13pt}
 \usepackage[utf8]{vietnam}
@@ -67,7 +67,7 @@
 
 \fancypagestyle{plain}{%
 \fancyhf{} % clear all header and footer fields
-\fancyfoot[RO,RE]{\thepage} %RO=right odd, RE=right even
+\fancyfoot[R]{\thepage} %page number on the right
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}}
 
@@ -107,7 +107,7 @@
     {0pt} %sep
     {} % before
     [] % after
-\titlespacing{\subsection}{30pt}{\parskip}{0.5\parskip}
+\titlespacing{\subsection}{0pt}{\parskip}{0.5\parskip}
 
 \renewcommand\thesubsubsection{\alph{subsubsection}}
 \titleformat
@@ -118,7 +118,7 @@
     {0pt} %sep
     {} % before
     [] % after
-\titlespacing{\subsubsection}{50pt}{\parskip}{0.5\parskip}
+\titlespacing{\subsubsection}{0pt}{\parskip}{0.5\parskip}
 
 % \newcommand{\titlesize}{\fontsize{18pt}{23pt}\selectfont}
 % \newcommand{\subtitlesize}{\fontsize{16pt}{21pt}\selectfont}
@@ -156,6 +156,11 @@
 \onehalfspacing
 \setlength{\parskip}{6pt}
 \setlength{\parindent}{15pt}
+
+% Cải thiện ngắt dòng - tránh tràn lề phải
+\tolerance=1000                    % Cho phép giãn dòng linh hoạt hơn (mặc định 200)
+\emergencystretch=2em              % Thêm khoảng giãn khẩn cấp khi không thể ngắt dòng
+\hfuzz=3pt                         % Bỏ qua tràn lề nhỏ hơn 3pt (không nhìn thấy được)
 
 
 
@@ -258,9 +263,9 @@
 
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[RE, LO]{\leftmark}
+\fancyhead[L]{\leftmark}
 %\fancyhead[LE]{\rightmark}
-\fancyfoot[RE, LO]{\thepage}
+\fancyfoot[R]{\thepage}
 
 \chapter{GIỚI THIỆU ĐỀ TÀI}
 \subfile{Chuong/1_Gioi_thieu} % Phần mở đầu
@@ -290,11 +295,7 @@
 \chapter{KẾT LUẬN}
 \subfile{Chuong/6_Ket_luan}
 
-\newpage
-%\pagestyle{fancy} % Áp dụng header và footer
-\chapter*{MỘT SỐ LƯU Ý VỀ TÀI LIỆU THAM KHẢO} %Kết luận và hướng phát triển}
-\label{chapter:reference}
-\subfile{Chuong/7_Tai_lieu_tham_khao}
+
 
 % ===================================================
 \newpage

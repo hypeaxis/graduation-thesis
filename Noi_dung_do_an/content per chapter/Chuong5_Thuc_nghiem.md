@@ -82,8 +82,8 @@ MCC nằm trong [-1, 1]: giá trị âm cho thấy mô hình phân loại sai h�
 | Normal | 0,7154 | 0,9682 | 0,8228 | 9.711 |
 | DoS | 0,9630 | 0,8032 | 0,8759 | 7.458 |
 | Probe | 0,8024 | 0,7852 | 0,7937 | 2.421 |
-| R2L | 0,9681 | 0,2523 | 0,4003 | 2.754 |
-| U2R | 0,5517 | 0,4776 | 0,5120 | 198 |
+| R2L | 0,9681 | 0,2523 | 0,4003 | 2.885 |
+| U2R | 0,5517 | 0,4776 | 0,5120 | 67 |
 | **Macro F1** | | | **0,6809** | |
 
 ### 5.2.3 Phân tích chi tiết từng lớp
@@ -156,15 +156,15 @@ HNM 2 vòng vượt class weight ×10 với +0,1294 Botnet F1 (+24,8%) và +0,17
 
 | Lớp | Precision | Recall | F1-score | Support |
 |---|---|---|---|---|
-| Benign | 0,9983 | 0,9981 | 0,9982 | 461.948 |
-| DoS | 0,9923 | 0,9941 | 0,9932 | 22.117 |
-| DDoS | 0,9978 | 0,9985 | 0,9982 | 25.694 |
-| PortScan | 0,9967 | 0,9973 | 0,9970 | 15.887 |
-| BruteForce | 0,9834 | 0,9812 | 0,9823 | 3.211 |
-| Web Attack | 0,8823 | 0,8711 | 0,8767 | 2.180 |
-| Botnet | 0,7521 | 0,7215 | 0,7344 | 1.956 |
-| Infiltration | 0,8102 | 0,6851 | 0,7407 | 36 |
-| Heartbleed | 0,6000 | 0,6000 | 0,6000 | 10 |
+| Benign | 0,9992 | 0,9953 | 0,9972 | 2.031.715 |
+| DoS | 0,9683 | 0,9963 | 0,9821 | 225.024 |
+| DDoS | 0,9984 | 0,9982 | 0,9983 | 114.453 |
+| PortScan | 0,9936 | 0,9990 | 0,9963 | 142.079 |
+| BruteForce | 0,9473 | 0,9989 | 0,9724 | 12.369 |
+| Web Attack | 0,9084 | 0,9810 | 0,9433 | 1.950 |
+| Botnet | 0,7947 | 0,6826 | 0,7344 | 1.758 |
+| Infiltration | 0,9524 | 0,6061 | 0,7407 | 33 |
+| Heartbleed | 1,0000 | 1,0000 | 1,0000 | 10 |
 | **Macro F1** | | | **0,9294** | |
 | **Accuracy** | | | **99,55%** | |
 
@@ -239,20 +239,19 @@ Chênh lệch 14% BruteForce F1 phản ánh **chất lượng đánh giá**, kh�
 
 | Lớp | Precision | Recall | F1-score | Support | Nguồn validation |
 |---|---|---|---|---|---|
-| Benign | 0,93 | 0,89 | 0,91 | 5.195 | Testbed nội bộ |
-| BruteForce | 0,92 | 0,80 | 0,86 | 793 | hydra + CIC Patator |
-| DoS | 0,95 | 0,91 | 0,93 | 1.979 | Testbed nội bộ |
-| PortScan | 1,00 | 1,00 | 1,00 | 503 | CIC Friday (surrogate) |
-| Web Attack | 0,90 | 0,86 | 0,88 | 2.713 | Testbed nội bộ |
-| **Macro avg** | **0,94** | **0,89** | **0,917** | **11.183** | |
+| Benign | 0,87 | 0,95 | 0,91 | 5.200 | Testbed nội bộ |
+| BruteForce | 0,83 | 0,90 | 0,86 | 798 | hydra + CIC Patator |
+| DoS | 0,98 | 0,89 | 0,93 | 1.978 | Testbed nội bộ |
+| PortScan | 1,00 | 1,00 | 1,00 | 500 | CIC Friday (surrogate) |
+| Web Attack | 0,96 | 0,81 | 0,88 | 2.707 | Testbed nội bộ |
+| **Macro avg** | **0,93** | **0,91** | **0,917** | **11.183** | |
 | **Balanced Accuracy** | | | **91,1%** | | |
-| **MCC** | | | **0,891** | | |
 
-**Phân tích BruteForce (F1=0,86, Recall=0,80):** 20% BruteForce bị bỏ sót chủ yếu là hydra với timeout dài — connection pattern giống Benign SSH bình thường nếu không đủ mật độ. Precision 0,92 cho thấy false alarm thấp.
+**Phân tích BruteForce (F1=0,86, Recall=0,90):** 10% BruteForce bị bỏ sót chủ yếu là hydra với timeout dài — connection pattern giống Benign SSH bình thường nếu không đủ mật độ. Precision 0,83 cho thấy false alarm ở mức chấp nhận được.
 
-**Phân tích Web Attack (F1=0,88, Recall=0,86):** 14% bị bỏ sót là XSS payload ngắn và SQLi thất bại — flow statistics không phân biệt được với Benign HTTP POST. Tầng Snort bổ sung phát hiện đúng những gì ML bỏ sót (xem Mục 5.6).
+**Phân tích Web Attack (F1=0,88, Recall=0,81):** 19% bị bỏ sót là XSS payload ngắn và SQLi thất bại — flow statistics không phân biệt được với Benign HTTP POST. Tầng Snort bổ sung phát hiện đúng những gì ML bỏ sót (xem Mục 5.6).
 
-**Phân tích Benign (F1=0,91, Recall=0,89):** Precision 0,93 — 7% non-Benign bị nhầm là Benign (FN), chủ yếu là DoS slowhttptest ở giai đoạn đầu khi connection chưa đủ dài để phân biệt.
+**Phân tích Benign (F1=0,91, Recall=0,95):** Recall cao (95%) nhưng Precision 0,87 — khoảng 13% flow bị gán Benign thực ra là tấn công nhẹ, chủ yếu Benign SSH/FTP bị nhầm với BruteForce.
 
 ---
 

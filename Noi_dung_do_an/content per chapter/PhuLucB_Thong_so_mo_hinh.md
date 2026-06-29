@@ -130,7 +130,7 @@
 | Optimizer | AdamW (lr=1e-4) |
 | Epochs | 50 (Early Stopping patience=7) |
 | Batch size | 256 |
-| Số features đầu vào | 80 (77 CICFlowMeter + 3 đặc trưng bổ sung) |
+| Số features đầu vào | 80 (77 đặc trưng pipeline CIC + 3 đặc trưng Model Surgery) |
 | Số lớp đầu ra | 5 (Benign, BruteForce, DoS, PortScan, WebAttack) |
 
 **3 đặc trưng bổ sung cho môi trường NAT:**
@@ -146,12 +146,12 @@
 
 | Lớp | Precision | Recall | F1-score | Support |
 |---|---|---|---|---|
-| Normal | 0,9334 | 0,9142 | 0,9237 | 9.711 |
-| DoS | 0,8123 | 0,8304 | 0,8213 | 7.458 |
-| Probe | 0,7891 | 0,7782 | 0,7836 | 2.421 |
-| R2L | 0,4203 | 0,3012 | 0,3506 | 2.754 |
-| U2R | 0,4121 | 0,3784 | 0,3945 | 198 |
-| **Macro avg** | **0,6934** | **0,6405** | **0,6547** | |
+| Normal | 0,7154 | 0,9682 | 0,8228 | 9.711 |
+| DoS | 0,9630 | 0,8032 | 0,8759 | 7.458 |
+| Probe | 0,8024 | 0,7852 | 0,7937 | 2.421 |
+| R2L | 0,9681 | 0,2523 | 0,4003 | 2.885 |
+| U2R | 0,5517 | 0,4776 | 0,5120 | 67 |
+| **Macro avg** | **0,8001** | **0,6573** | **0,6809** | |
 | **Macro F1** | | | **0,6809** | |
 
 *Lưu ý:* Macro F1 = 0,6809 được tính theo giao thức train/val/test tách biệt hoàn toàn, không dùng KDDTest+ cho tuning.
@@ -182,15 +182,15 @@ False Negative Rate (tấn công bị gán Benign): 0,67%
 
 | Lớp | Precision | Recall | F1-score | Support |
 |---|---|---|---|---|
-| Benign | 0,9983 | 0,9981 | 0,9982 | 461.948 |
-| DoS | 0,9923 | 0,9941 | 0,9932 | 22.117 |
-| DDoS | 0,9978 | 0,9985 | 0,9982 | 25.694 |
-| PortScan | 0,9967 | 0,9973 | 0,9970 | 15.887 |
-| BruteForce | 0,9834 | 0,9812 | 0,9823 | 3.211 |
-| Web Attack | 0,8823 | 0,8711 | 0,8767 | 2.180 |
-| Botnet | 0,7521 | 0,7215 | 0,7344 | 1.956 |
-| Infiltration | 0,8102 | 0,6851 | 0,7407 | 36 |
-| Heartbleed | 0,6000 | 0,6000 | 0,6000 | 10 |
+| Benign | 0,9992 | 0,9953 | 0,9972 | 2.031.715 |
+| DoS | 0,9683 | 0,9963 | 0,9821 | 225.024 |
+| DDoS | 0,9984 | 0,9982 | 0,9983 | 114.453 |
+| PortScan | 0,9936 | 0,9990 | 0,9963 | 142.079 |
+| BruteForce | 0,9473 | 0,9989 | 0,9724 | 12.369 |
+| Web Attack | 0,9084 | 0,9810 | 0,9433 | 1.950 |
+| Botnet | 0,7947 | 0,6826 | 0,7344 | 1.758 |
+| Infiltration | 0,9524 | 0,6061 | 0,7407 | 33 |
+| Heartbleed | 1,0000 | 1,0000 | 1,0000 | 10 |
 | **Macro avg** | | | **0,9294** | |
 
 ### B.2.5 Kết quả chẩn đoán covariate shift
@@ -205,14 +205,14 @@ False Negative Rate (tấn công bị gán Benign): 0,67%
 
 | Lớp | Precision | Recall | F1-score | Support |
 |---|---|---|---|---|
-| Benign | 0,93 | 0,89 | 0,91 | 5.195 |
-| BruteForce | 0,92 | 0,80 | 0,86 | 793 |
-| DoS | 0,95 | 0,91 | 0,93 | 1.979 |
-| PortScan | 1,00 | 1,00 | 1,00 | 503 |
-| WebAttack | 0,90 | 0,86 | 0,88 | 2.713 |
-| **Macro avg** | **0,94** | **0,89** | **0,916** | **11.183** |
+| Benign | 0,87 | 0,95 | 0,91 | 5.200 |
+| BruteForce | 0,83 | 0,90 | 0,86 | 798 |
+| DoS | 0,98 | 0,89 | 0,93 | 1.978 |
+| PortScan | 1,00 | 1,00 | 1,00 | 500 |
+| WebAttack | 0,96 | 0,81 | 0,88 | 2.707 |
+| **Macro avg** | **0,93** | **0,91** | **0,917** | **11.183** |
 | **Balanced Accuracy** | | | **91,1%** | |
-| **MCC** | | | **0,891** | |
+| **MCC** | | | **0,865** | |
 
 ### B.2.7 So sánh val set đồng nhất vs đa dạng miền (V8.4 vs V8.5)
 

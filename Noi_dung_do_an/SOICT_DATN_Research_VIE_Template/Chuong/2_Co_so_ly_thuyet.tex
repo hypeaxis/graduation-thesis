@@ -159,6 +159,7 @@ So với các mô hình cây (Random Forest, XGBoost), FT-Transformer có khả 
     \centering
     \caption{So sánh các kiến trúc trên dữ liệu dạng bảng}
     \label{tab:arch-compare}
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{lcccc}
         \hline
         \textbf{Tiêu chí} & \textbf{MLP} & \textbf{Random Forest} & \textbf{XGBoost} & \textbf{FT-Transformer} \\
@@ -168,7 +169,8 @@ So với các mô hình cây (Random Forest, XGBoost), FT-Transformer có khả 
         Phù hợp đặc trưng liên tục nhiều & Trung bình & Tốt & Tốt & Rất tốt \\
         Hỗ trợ mở rộng đặc trưng (Model Surgery) & Có & Không & Không & Có \\
         \hline
-    \end{tabular}
+    \end{tabular}%
+    }
 \end{table}
 
 \section{Các kỹ thuật xử lý mất cân bằng dữ liệu}

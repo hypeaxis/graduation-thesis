@@ -21,7 +21,7 @@ Chương 5 trình bày kết quả thực nghiệm qua ba giai đoạn và kiể
 
 **Giai đoạn 2 — CIC-IDS-2017:** Two-Stage Cascade với Asymmetric Ensemble Voting đạt Macro F1 = 0,9294 và Accuracy = 99,55%. Infiltration F1 = 0,7407 và Botnet F1 = 0,7344. Từng cải tiến có đóng góp định lượng: Two-Stage (+0,099), HNM 2 vòng (+0,036), Asymmetric Voting (+0,011 so với Majority Vote).
 
-**Giai đoạn 3 — Testbed V8.5:** Macro F1 = 91,7%, Balanced Accuracy = 91,1%, MCC = 0,891 trên val set đa dạng miền. PortScan F1 = 100% với dữ liệu surrogate. BruteForce F1 = 86% (Recall = 80%) trên mixed hydra + CIC Patator.
+**Giai đoạn 3 — Testbed V8.5:** Macro F1 = 91,7%, Balanced Accuracy = 91,1%, MCC = 0,865 trên val set đa dạng miền. PortScan F1 = 100% với dữ liệu surrogate. BruteForce F1 = 86% (Recall = 90%) trên mixed hydra + CIC Patator.
 
 ### 6.1.3 Bốn đóng góp
 
@@ -47,7 +47,7 @@ Chương 5 trình bày kết quả thực nghiệm qua ba giai đoạn và kiể
 
 **Infiltration và Botnet:** như phân tích tại Mục 4.6, flow đơn lẻ không mang đủ thông tin để phân biệt. Infiltration F1 = 0,7407 là kết quả tốt nhất có thể đạt được với phân tích flow-based trên CIC — không phải vì kiến trúc kém mà vì giới hạn căn bản của phương pháp.
 
-**Web Attack (F1=0,8767 CIC, 0,88 Testbed):** XSS và SQLi payload ngắn tạo flow statistics giống Benign HTTP POST. Tầng Snort bù đắp phần này.
+**Web Attack (F1=0,9433 CIC, 0,88 Testbed):** XSS và SQLi payload ngắn tạo flow statistics giống Benign HTTP POST. Tầng Snort bù đắp phần này.
 
 **Độ trễ phát hiện ML:** DoS slowhttptest cần đợi 30 giây (CICFlowMeter timeout) trước khi phát hiện được. Tấn công đã gây hậu quả trong 30 giây đó.
 

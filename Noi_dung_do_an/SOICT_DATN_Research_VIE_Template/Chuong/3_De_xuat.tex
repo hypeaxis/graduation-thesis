@@ -16,6 +16,53 @@ Hệ thống NIDS được đề xuất trong đề tài được xây dựng qu
 
 Hệ thống cuối cùng (Mục \ref{sec:deploy}) tích hợp Snort và FT-Transformer trong pipeline End-to-End chạy song song, thu thập traffic thực, trích xuất đặc trưng và phân loại theo thời gian gần-thực.
 
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    node distance=1.5cm and 2cm,
+    phase/.style={draw, rounded corners=3pt, minimum width=3.5cm, minimum height=1.2cm, 
+                 font=\small\bfseries, align=center, fill=blue!5, draw=blue!60},
+    dataset/.style={draw, rounded corners=3pt, minimum width=2cm, minimum height=0.6cm,
+                   font=\footnotesize, align=center, fill=gray!10, draw=gray!60},
+    arrow/.style={-{Stealth[length=6pt]}, thick, draw=blue!80!black},
+    desc/.style={font=\scriptsize\itshape, align=center, color=black!70}
+]
+
+% Nodes for Phases
+\node[phase] (p1) {Giai đoạn 1\\Khảo sát nền tảng};
+\node[phase, right=of p1] (p2) {Giai đoạn 2\\Thiết kế Two-Stage};
+\node[phase, right=of p2] (p3) {Giai đoạn 3\\Thích nghi miền (DA)};
+\node[phase, below=of p3] (p4) {Giai đoạn 4\\Tái huấn luyện};
+\node[phase, left=of p4, fill=green!10, draw=green!60] (deploy) {Triển khai End-to-End\\(Hệ thống Replay)};
+
+% Nodes for Datasets
+\node[dataset, above=0.4cm of p1] (d1) {NSL-KDD};
+\node[dataset, above=0.4cm of p2] (d2) {CIC-IDS-2017};
+\node[dataset, above=0.4cm of p3] (d3) {CIC $\to$ WSL Testbed};
+\node[dataset, right=0.6cm of p4] (d4) {Testbed Dataset\\(Custom)};
+
+% Connect datasets to phases
+\draw[dashed, gray] (d1) -- (p1);
+\draw[dashed, gray] (d2) -- (p2);
+\draw[dashed, gray] (d3) -- (p3);
+\draw[dashed, gray] (d4) -- (p4);
+
+% Arrows between phases
+\draw[arrow] (p1) -- node[above, desc] {Đổi dataset vì\\thiếu tính hiện đại} (p2);
+\draw[arrow] (p2) -- node[above, desc] {Đưa mô hình CIC\\vào môi trường thực} (p3);
+\draw[arrow] (p3) -- node[right, desc] {Domain shift quá lớn,\\cần thu data riêng} (p4);
+\draw[arrow] (p4) -- node[above, desc] {Mô hình V8.5} (deploy);
+
+% Highlight connections
+\draw[arrow, dashed, green!60!black] (p2.south) |- node[near start, left, desc] {Kiến trúc Two-Stage} (deploy.east);
+
+\end{tikzpicture}%
+}
+\caption{Tổng quan quá trình nghiên cứu: từ khảo sát nền tảng đến triển khai End-to-End thực tế. Mỗi giai đoạn giải quyết một giới hạn phát sinh từ giai đoạn trước.}
+\label{fig:overview-phases}
+\end{figure}
+
 \section{Giai đoạn 1: Xây dựng mô hình nền tảng trên NSL-KDD}
 \label{sec:gd1}
 
@@ -301,7 +348,7 @@ Kết quả sau Layer Freezing: MCC tăng từ $-0{,}015$ lên $0{,}6825$, Accur
 \subsection{Model Surgery: mở rộng không gian đặc trưng}
 \label{subsec:gd3-surgery}
 
-Phân tích phân phối đặc trưng Testbed so với CIC cho thấy một số đặc trưng có thể cải thiện khả năng phân biệt trong môi trường WSL nhưng không có trong tập 77 đặc trưng CIC gốc. Ba đặc trưng kỹ thuật mới được thiết kế và tính toán từ dữ liệu CICFlowMeter:
+Phân tích phân phối đặc trưng Testbed so với CIC cho thấy một số đặc trưng có thể cải thiện khả năng phân biệt trong môi trường WSL nhưng không có trong tập 77 đặc trưng của pipeline CIC. Ba đặc trưng kỹ thuật mới được thiết kế và tính toán từ dữ liệu CICFlowMeter:
 
 \begin{itemize}
     \item \textbf{Custom\_IAT\_CV} (Coefficient of Variation của Inter-Arrival Time): $\text{IAT\_CV} = \sigma_{IAT} / (\mu_{IAT} + \varepsilon)$ --- đo tính đều đặn của timing gói tin; Botnet C2 heartbeat có CV thấp (periodic), Benign browsing có CV cao (irregular).
@@ -437,19 +484,30 @@ Kết quả đánh giá trên tập validation 11.183 flows: Macro F1 = 91,7\%, 
 
 \end{tikzpicture}%
 }
-\caption{Kiến trúc Hybrid IDS End-to-End: Snort (tầng packet, rule-based) và FT-Transformer V8.5 (tầng flow, ML) chạy song song, alert được hợp nhất tại Alert Aggregator.}
+\caption{Kiến trúc mục tiêu của hệ thống Hybrid IDS End-to-End: Snort (tầng packet, rule-based) và FT-Transformer V8.5 (tầng flow, ML) chạy song song, alert được hợp nhất tại Alert Aggregator. Đường xử lý thời gian thực hoàn toàn là thiết kế mục tiêu; bản đã hiện thực và đánh giá là hệ thống phát hiện theo phát lại (Mục~\ref{subsec:deploy-replay}).}
 \label{fig:e2e-pipeline}
 \end{figure}
 
-Hệ thống End-to-End được thiết kế theo kiến trúc ba thành phần chạy song song trên máy victim:
+Kiến trúc mục tiêu của hệ thống End-to-End gồm bốn thành phần chạy song song trên máy victim (Hình~\ref{fig:e2e-pipeline}):
 
-\textbf{Snort} chạy ở chế độ IDS (không inline) trên interface mạng WSL, lắng nghe toàn bộ traffic. Ruleset sử dụng kết hợp Snort Community Rules và Emerging Threats Open, cập nhật định kỳ. Khi một gói tin khớp luật, Snort ghi alert vào log file với timestamp, source/dest IP/port, và tên luật kích hoạt. Snort hoạt động ở mức gói tin, xử lý real-time với độ trễ cỡ microsecond.
+\textbf{Snort} chạy ở chế độ IDS (không inline) trên interface mạng WSL, lắng nghe toàn bộ traffic. Ruleset sử dụng kết hợp bộ luật cộng đồng (Snort Community Rules, Emerging Threats Open) và đặc biệt là \textbf{bộ luật tự thiết kế (Custom Rules)} được tinh chỉnh riêng cho các công cụ tấn công trên Testbed (như Nmap PortScan, Hydra SSH/FTP, Slowloris, Hulk, SQLmap). Khi một gói tin khớp luật, Snort ghi alert vào log file với timestamp, source/dest IP/port, và tên luật kích hoạt. Snort hoạt động ở mức gói tin, xử lý real-time với độ trễ cỡ microsecond.
 
 \textbf{CICFlowMeter} chạy trong chế độ capture liên tục, đọc packets từ interface WSL. Mỗi khi một flow hoàn chỉnh (TCP connection đóng bằng RST/FIN hoặc timeout 30 giây), CICFlowMeter tính toán 80 đặc trưng thống kê và ghi vào file CSV. Một process Python giám sát file CSV này và đẩy các dòng mới vào hàng đợi phân loại.
 
 \textbf{FT-Transformer Inference Engine} đọc từ hàng đợi, áp dụng PowerTransformer (Testbed scaler) và đưa vào mô hình V8.5 để phân loại. Kết quả (nhãn lớp + confidence score) được ghi vào alert log thứ hai với thông tin flow đầy đủ.
 
 \textbf{Alert Aggregator} đọc cả hai alert logs (Snort + ML) và hợp nhất vào một dashboard. Khi cùng một flow/session xuất hiện trong cả hai nguồn cảnh báo, mức độ ưu tiên được tăng lên (confirmed alert).
+
+Trong bốn thành phần trên, đường xử lý thời gian thực hoàn toàn --- bắt gói liên tục từ interface, lắp ghép flow trực tuyến và đưa qua mô hình ngay khi flow đóng --- đòi hỏi một dịch vụ truyền dòng ổn định mà phạm vi đồ án chưa hiện thực hóa trọn vẹn. Phần được xây dựng, kiểm thử và đánh giá đầy đủ là hệ thống phát hiện theo phát lại (replay-based live detection): thay vì bắt gói trực tiếp, hệ thống phát lại các tệp flow đã trích xuất sẵn qua đúng mô hình V8.5, đúng bộ tiền xử lý và đúng logic quyết định mà phiên bản thời gian thực sẽ sử dụng. Chỉ tầng thu gói và lắp ghép flow ở đầu vào được thay bằng việc đọc lại flow có sẵn; toàn bộ thành phần phía sau giữ nguyên. Cách tiếp cận này cho phép đánh giá định lượng hành vi phân loại của hệ thống trên dữ liệu Testbed thật, đồng thời tách biệt phần kỹ thuật truyền dòng còn dang dở. Việc hoàn thiện đường thời gian thực được đề xuất như một hướng phát triển tại Mục~\ref{sec:kl-tuonglai}.
+
+\subsection{Hệ thống phát hiện theo phát lại}
+\label{subsec:deploy-replay}
+
+Hệ thống replay nạp mô hình V8.5 một lần, đọc tệp flow CICFlowMeter (\texttt{*\_Flow.csv}) của từng kịch bản tấn công, phân loại toàn bộ flow rồi phát kết quả ra giao diện qua WebSocket theo nhịp mô phỏng thời gian thực, có điều khiển play, pause và tốc độ. Nhãn đối chứng được gán theo IP nguồn: flow xuất phát từ máy tấn công nhận nhãn loại tấn công của phiên thu, các flow còn lại nhận nhãn Benign. Gán nhãn theo IP loại bỏ sự mơ hồ của việc ghép cảnh báo theo cửa sổ thời gian giữa hai nguồn dữ liệu.
+
+Trên đầu ra của mô hình, hệ thống áp một chuỗi luật hậu xử lý theo thứ tự cố định. Luật thứ nhất là ngưỡng tin cậy: một dự đoán thuộc lớp tấn công nhưng có xác suất cực đại dưới ngưỡng $T$ được hạ về Benign. Với $T = 0{,}6$, luật cắt phần lớn cảnh báo giả sinh ra từ các dự đoán lưỡng lự mà không chạm tới các dự đoán tấn công có độ tin cậy cao. Luật thứ hai bù cho một đặc trưng mà bộ 80 chiều của V8.5 không chứa --- mức độ quét cổng: với mỗi IP nguồn, hệ thống đếm số cổng đích duy nhất tiếp xúc trong một cửa sổ ngắn (mặc định 2 giây), và nếu số này vượt ngưỡng (15 cổng) với flow xuất phát từ máy quét, nhãn được ghi đè thành PortScan. Mỗi luật là một đơn vị độc lập theo nguyên tắc Open/Closed --- thêm luật mới không sửa luật đã có.
+
+Luật quét cổng là hiện thân trực tiếp của nguyên lý lai ghép: một heuristic kiểu chữ ký --- đếm cổng đích theo nguồn --- bù chính xác điểm mù của mô hình thống kê, vốn không phân biệt được PortScan với DoS khi cả hai biểu hiện thành nhiều flow ngắn. Kết quả định lượng của chuỗi luật này được trình bày tại Mục~\ref{sec:tn-e2e}.
 
 \subsection{Môi trường giả lập tấn công xuyên thiết bị}
 \label{subsec:deploy-attack-sim}
