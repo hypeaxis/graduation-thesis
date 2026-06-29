@@ -1,6 +1,6 @@
 # Chương 1. Giới thiệu đề tài
 
-Phát hiện xâm nhập mạng là bài toán phân loại lưu lượng mạng thành Benign và các loại tấn công trong thời gian thực. Tần suất và thiệt hại của tấn công mạng tăng liên tục — theo báo cáo IBM 2023, chi phí trung bình một vụ vi phạm dữ liệu đạt 4,45 triệu USD và thời gian phát hiện trung bình là 204 ngày. Chương này đặt vấn đề và phân tích tại sao các hướng tiếp cận hiện hành chưa giải quyết triệt để bài toán này, từ đó dẫn đến định hướng giải pháp của đồ án. Phần 1.1 mô tả bài toán và ba thách thức cốt lõi. Phần 1.2 phân tích giới hạn của IDS dựa trên chữ ký, IDS thống kê và IDS học máy truyền thống. Phần 1.3 trình bày mục tiêu và kiến trúc giải pháp lai ghép qua ba giai đoạn nghiên cứu. Phần 1.4 liệt kê bốn đóng góp chính. Phần 1.5 mô tả bố cục các chương còn lại.
+Phát hiện xâm nhập mạng là bài toán phân loại lưu lượng mạng thành Benign và các loại tấn công trong thời gian thực. Tần suất và thiệt hại của tấn công mạng tăng liên tục — theo báo cáo IBM 2023, chi phí trung bình một vụ vi phạm dữ liệu đạt 4,45 triệu USD và thời gian phát hiện trung bình là 204 ngày. Chương này đặt vấn đề và phân tích tại sao các hướng tiếp cận hiện hành chưa giải quyết triệt để bài toán này, từ đó dẫn đến định hướng giải pháp của đồ án. Phần 1.1 mô tả bài toán và ba thách thức cốt lõi. Phần 1.2 phân tích giới hạn của IDS dựa trên dấu hiệu, IDS thống kê và IDS học máy truyền thống. Phần 1.3 trình bày mục tiêu và kiến trúc giải pháp lai ghép qua ba giai đoạn nghiên cứu. Phần 1.4 liệt kê bốn đóng góp chính. Phần 1.5 mô tả bố cục các chương còn lại.
 
 ---
 
@@ -25,13 +25,13 @@ Trong lưu lượng mạng thực tế, Benign chiếm 83–99% và nhiều lo�
 Các benchmark dataset (NSL-KDD năm 1998, CIC-IDS-2017 trên switch vật lý Gigabit) có phân phối đặc trưng khác với môi trường triển khai thực (card mạng ảo Hyper-V, NAT Windows). Mô hình huấn luyện trên CIC-IDS-2017 đạt Accuracy 99,55% nhưng chỉ đạt 21,93% khi áp dụng trực tiếp lên Testbed WSL2 — sụt giảm 77,62%.
 
 **Thách thức 3 — Giới hạn của bất kỳ hướng tiếp cận đơn lẻ nào:**
-Rule-based IDS (Snort) phát hiện nhanh nhưng bỏ sót tấn công chưa có chữ ký. ML-based IDS phát hiện pattern thống kê nhưng cần thời gian tích lũy flow và bỏ sót các tấn công có flow statistics giống Benign. Không hướng tiếp cận nào đơn lẻ đủ để phủ toàn bộ vector tấn công.
+Rule-based IDS (Snort) phát hiện nhanh nhưng bỏ sót tấn công chưa có dấu hiệu. ML-based IDS phát hiện pattern thống kê nhưng cần thời gian tích lũy flow và bỏ sót các tấn công có flow statistics giống Benign. Không hướng tiếp cận nào đơn lẻ đủ để phủ toàn bộ vector tấn công.
 
 ---
 
 ## 1.2 Phân tích giới hạn các hướng tiếp cận hiện hành
 
-### 1.2.1 IDS dựa trên chữ ký (Signature-based)
+### 1.2.1 IDS dựa trên dấu hiệu (Signature-based)
 
 Snort, Suricata: phát hiện tấn công đã biết bằng cách khớp pattern trong payload hoặc header gói tin. Latency thấp (microsecond per packet).
 
@@ -97,7 +97,7 @@ Triển khai pipeline hoàn chỉnh Snort 3 + CICFlowMeter + FTT V8.5 chạy son
 |---|---|
 | **Chương 2** | Cơ sở lý thuyết: FT-Transformer, Focal Loss, Layer Freezing, Snort, kiến trúc Hybrid IDS |
 | **Chương 3** | Phương pháp đề xuất: chi tiết ba giai đoạn, tất cả kiến trúc và thuật toán |
-| **Chương 4** | Phân tích lý thuyết: giải thích tại sao từng quyết định thiết kế là phù hợp |
+| **Chương 4** | Phân tích mô hình: giải thích tại sao từng quyết định thiết kế là phù hợp |
 | **Chương 5** | Đánh giá thực nghiệm: kết quả định lượng và kiểm chứng |
 | **Chương 6** | Kết luận và hướng phát triển |
 | **Phụ lục A** | Cấu hình môi trường thực nghiệm chi tiết |

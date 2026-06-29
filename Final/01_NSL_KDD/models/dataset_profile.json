@@ -1,0 +1,68 @@
+{
+  "source": "cleaned5Grouped_v2_KddTrain+.csv",
+  "total_rows": 125973,
+  "selected_features": [
+    "count",
+    "srv_count",
+    "same_srv_rate",
+    "diff_srv_rate",
+    "dst_host_count",
+    "dst_host_srv_count",
+    "dst_host_same_srv_rate",
+    "dst_host_diff_srv_rate",
+    "serror_rate",
+    "srv_serror_rate",
+    "rerror_rate",
+    "srv_rerror_rate"
+  ],
+  "feature_means": {
+    "count": 0.16459404069175626,
+    "srv_count": 0.05428158175664731,
+    "same_srv_rate": 0.6609276591015536,
+    "diff_srv_rate": 0.06305263826375493,
+    "dst_host_count": 0.7143095867259449,
+    "dst_host_srv_count": 0.45354119611376414,
+    "dst_host_same_srv_rate": 0.5212416946488534,
+    "dst_host_diff_srv_rate": 0.08295110857088424,
+    "serror_rate": 0.2844845323998,
+    "srv_serror_rate": 0.28248537384995204,
+    "rerror_rate": 0.11995848316702784,
+    "srv_rerror_rate": 0.12118326943075104
+  },
+  "feature_p95": {
+    "count": 0.5596868884540117,
+    "srv_count": 0.309197651663405,
+    "same_srv_rate": 1.0,
+    "diff_srv_rate": 0.29,
+    "dst_host_count": 1.0,
+    "dst_host_srv_count": 1.0,
+    "dst_host_same_srv_rate": 1.0,
+    "dst_host_diff_srv_rate": 0.56,
+    "serror_rate": 1.0,
+    "srv_serror_rate": 1.0,
+    "rerror_rate": 1.0,
+    "srv_rerror_rate": 1.0
+  },
+  "feature_std": {
+    "count": 0.22408640480754297,
+    "srv_count": 0.14214393610064363,
+    "same_srv_rate": 0.43962111749493993,
+    "diff_srv_rate": 0.18031369182042994,
+    "dst_host_count": 0.389042428525454,
+    "dst_host_srv_count": 0.434126672114695,
+    "dst_host_same_srv_rate": 0.4489475817872073,
+    "dst_host_diff_srv_rate": 0.18892105005276214,
+    "serror_rate": 0.44645385229848333,
+    "srv_serror_rate": 0.4470207240814901,
+    "rerror_rate": 0.32043424890492866,
+    "srv_rerror_rate": 0.32364594341324743
+  },
+  "label_counts": {
+    "0": 67343,
+    "1": 45927,
+    "2": 11656,
+    "3": 995,
+    "4": 52
+  },
+  "notes": "Reference profile generated from NSL-KDD cleaned5Grouped_v2_KddTrain+."
+}

@@ -1,4 +1,4 @@
-# Chương 4. Phân tích lý thuyết
+# Chương 4. Phân tích mô hình
 
 Chương 3 trình bày phương pháp đề xuất và các quyết định thiết kế. Chương này phân tích lý thuyết các quyết định quan trọng nhất — những quyết định không hiển nhiên mà thực nghiệm đơn thuần không đủ để giải thích. Phần 4.1 phân tích cơ chế Focal Loss trong điều kiện mất cân bằng cực đoan. Phần 4.2 phân tích tại sao PortScan không thể phân tách trong môi trường WSL2. Phần 4.3 phân tích cơ sở lý thuyết của Hard Negative Mining so với tăng class weight. Phần 4.4 phân tích lý thuyết Ensemble Voting và kiểm soát variance. Phần 4.5 phân tích cơ sở của phương pháp thích nghi miền — tại sao Re-fit Scaler thất bại. Phần 4.6 phân tích giới hạn căn bản của phân tích flow tĩnh với tấn công Infiltration và Botnet.
 

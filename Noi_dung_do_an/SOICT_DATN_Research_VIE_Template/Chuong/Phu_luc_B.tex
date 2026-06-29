@@ -117,8 +117,8 @@
         Epochs & 30 (Early Stopping patience=5) \\
         Batch size & 512 \\
         Số features đầu vào & 77 \\
-        Số lớp đầu ra & 2 (Benign, Suspicious) \\
-        Ngưỡng phân loại & 0,85 (confidence Benign $<$ 85\% $\to$ Suspicious) \\
+        Số lớp đầu ra & 6 (Benign, DoS, DDoS, PortScan, Brute Force, Suspicious) \\
+        Ngưỡng phân loại & 0,85 ($P(\text{Suspicious}) \geq 85\%$ $\to$ chuyển Stage 2; ngược lại Benign) \\
         \hline
     \end{tabular}
 \end{table}
@@ -143,7 +143,7 @@
         Epochs & 50 (Early Stopping patience=7) \\
         Batch size & 256 \\
         Số features đầu vào & 34 (sau lọc correlation $> 0{,}95$) \\
-        Số lớp đầu ra & 9 (Benign + 8 nhóm tấn công) \\
+        Số lớp đầu ra & 5 (Benign, Web Attack, Bot, Infiltration, Heartbleed) \\
         \hline
     \end{tabular}
 \end{table}

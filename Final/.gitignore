@@ -1,0 +1,24 @@
+# ───────────────────────────────────────────────────────────────
+# .gitignore NESTED cho gói Final/
+# Mục đích: RE-INCLUDE trọng số demo (*.pt/*.pkl/*.h5/*.onnx) vốn bị
+# .gitignore gốc của repo chặn — nhưng CHỈ trong phạm vi Final/.
+# KHÔNG sửa .gitignore gốc.
+# ───────────────────────────────────────────────────────────────
+!**/*.pt
+!**/*.pkl
+!**/*.h5
+!**/*.onnx
+
+# Re-include corpus MẪU dos_only (bị *.csv của .gitignore gốc chặn) để demo replay có dữ liệu
+!05_Replay_Detection/data/dos_only.pcap_Flow.csv
+
+# Vẫn loại rác build/môi trường
+__pycache__/
+*.pyc
+.venv/
+venv/
+node_modules/
+*.log
+
+# Loại data nặng nếu lỡ copy nhầm (giữ file mẫu dos_only đã commit thủ công)
+*.pcap

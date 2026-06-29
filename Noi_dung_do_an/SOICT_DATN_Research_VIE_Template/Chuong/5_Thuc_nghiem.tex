@@ -352,7 +352,7 @@ V8.5 đạt Macro F1 = 91,7\% trên 5 lớp tấn công trong điều kiện val
 \section{Thử nghiệm hệ thống End-to-End}
 \label{sec:tn-e2e}
 
-Hệ thống Hybrid IDS được đánh giá ở hai mức bổ sung cho nhau. Mức thứ nhất đối chiếu khả năng phát hiện của tầng chữ ký (Snort) và tầng học máy (FT-Transformer V8.5) trên từng loại tấn công, kiểm chứng giả thuyết hai tầng bù điểm mù cho nhau. Mức thứ hai đo hiệu năng phân loại định lượng của hệ thống phát hiện theo phát lại (Mục~\ref{subsec:deploy-replay}) trên toàn bộ corpus Testbed. Đường xử lý thời gian thực hoàn toàn chưa được hiện thực hóa trong phạm vi đồ án; các số liệu của tầng học máy dưới đây đo trên hệ thống replay, dùng đúng mô hình, bộ tiền xử lý và logic quyết định mà phiên bản thời gian thực sẽ sử dụng.
+Hệ thống Hybrid IDS được đánh giá ở hai mức bổ sung cho nhau. Mức thứ nhất đối chiếu khả năng phát hiện của tầng dấu hiệu (Snort) và tầng học máy (FT-Transformer V8.5) trên từng loại tấn công, kiểm chứng giả thuyết hai tầng bù điểm mù cho nhau. Mức thứ hai đo hiệu năng phân loại định lượng của hệ thống phát hiện theo phát lại (Mục~\ref{subsec:deploy-replay}) trên toàn bộ corpus Testbed. Đường xử lý thời gian thực hoàn toàn chưa được hiện thực hóa trong phạm vi đồ án; các số liệu của tầng học máy dưới đây đo trên hệ thống replay, dùng đúng mô hình, bộ tiền xử lý và logic quyết định mà phiên bản thời gian thực sẽ sử dụng.
 
 \subsection{Khả năng phát hiện theo loại tấn công}
 \label{subsec:e2e-complementarity}
@@ -424,7 +424,7 @@ Quá trình xây dựng hệ thống replay bộc lộ một số lỗi đặc t
 
 \textbf{nmap cần tùy chọn \texttt{-Pn}.} Khi victim chặn ping, nmap mặc định coi host đã tắt và bỏ qua bước quét, chỉ để lại vài flow rải rác. Bỏ bước kiểm tra sống bằng \texttt{-Pn} là điều kiện để thu được một phiên quét đầy đủ.
 
-\textbf{Một luật chữ ký có thể bù đặc trưng còn thiếu rẻ hơn tái huấn luyện.} Bộ 80 đặc trưng của V8.5 không mã hóa mức độ quét cổng, nên mô hình không thể tách PortScan khỏi DoS. Một luật đếm cổng đích theo nguồn --- đúng tinh thần chữ ký --- bù trực tiếp điểm mù đó, nâng PortScan F1 từ 0,000 lên 0,996 mà không chạm tới trọng số mô hình. So với việc thêm đặc trưng thứ 81 rồi huấn luyện lại toàn bộ, luật hậu xử lý đạt cùng mục tiêu với chi phí thấp hơn nhiều và giữ nguyên hành vi đã kiểm chứng của mô hình trên bốn lớp còn lại.
+\textbf{Một luật dấu hiệu có thể bù đặc trưng còn thiếu rẻ hơn tái huấn luyện.} Bộ 80 đặc trưng của V8.5 không mã hóa mức độ quét cổng, nên mô hình không thể tách PortScan khỏi DoS. Một luật đếm cổng đích theo nguồn --- đúng tinh thần dấu hiệu --- bù trực tiếp điểm mù đó, nâng PortScan F1 từ 0,000 lên 0,996 mà không chạm tới trọng số mô hình. So với việc thêm đặc trưng thứ 81 rồi huấn luyện lại toàn bộ, luật hậu xử lý đạt cùng mục tiêu với chi phí thấp hơn nhiều và giữ nguyên hành vi đã kiểm chứng của mô hình trên bốn lớp còn lại.
 
 \textbf{Đo trước khi sửa.} Ảnh chụp chỉ số ở mốc gốc cho thấy điểm kéo Macro F1 xuống mạnh nhất là PortScan (F1 0,000), không phải false positive của Benign như giả định ban đầu. Sửa theo trực giác sẽ dồn công nhầm vào Benign trong khi nút thắt thực nằm ở PortScan.
 

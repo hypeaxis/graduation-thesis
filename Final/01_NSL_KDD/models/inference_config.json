@@ -1,0 +1,32 @@
+{
+  "checkpoint_path": "best_model.pt",
+  "class_names": [
+    "DoS",
+    "Probe",
+    "R2L",
+    "U2R"
+  ],
+  "num_features": 122,
+  "num_classes": 4,
+  "model_kwargs": {
+    "num_features": 122,
+    "num_classes": 4,
+    "d_model": 128,
+    "num_heads": 8,
+    "num_layers": 4,
+    "d_ff": 512,
+    "dropout": 0.1
+  },
+  "feature_columns_path": "feature_columns.json",
+  "scaler_path": "scaler.pkl",
+  "default_snort_feature_csv": "log/snort_features_122.csv",
+  "default_snort_prediction_csv": "log/snort_ft_transformer_predictions.csv",
+  "autoencoder_threshold": 0.008481,
+  "threshold_calibration_quantile": 0.99,
+  "high_confidence_threshold": 0.95,
+  "dominant_label_warning_threshold": 0.9,
+  "stage1_normal_gate_override_threshold": 0.985,
+  "slow_attack_ratio_override_threshold": 0.35,
+  "slow_attack_score_override_threshold": 0.65,
+  "slow_attack_override_min_rows": 4
+}

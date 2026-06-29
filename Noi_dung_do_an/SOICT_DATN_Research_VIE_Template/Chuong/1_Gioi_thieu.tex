@@ -13,13 +13,13 @@ Hệ thống phát hiện xâm nhập mạng (NIDS) là cơ chế giám sát ch�
 
     \item \textbf{Covariate Shift giữa dataset nghiên cứu và môi trường triển khai:} Các bộ dữ liệu nghiên cứu chuẩn được thu thập trong điều kiện lab kiểm soát --- phần cứng chuyên dụng, switch vật lý, kịch bản tấn công cố định. Khi mô hình được triển khai sang môi trường thực tế với hạ tầng khác (NAT, card mạng ảo, router thông thường), phân phối đặc trưng thay đổi và hiệu năng sụt giảm nghiêm trọng. Đây là khoảng cách giữa nghiên cứu và thực chiến mà phần lớn tài liệu hiện tại bỏ qua.
 
-    \item \textbf{Giới hạn của IDS dựa trên chữ ký:} Snort và các IDS signature-based truyền thống chỉ phát hiện được những tấn công đã được mã hóa thành luật cụ thể. Chúng không có khả năng phát hiện biến thể mới, công cụ tấn công hiện đại, hay kỹ thuật zero-day --- chính xác là những gì kẻ tấn công có động cơ cao sẽ sử dụng.
+    \item \textbf{Giới hạn của IDS dựa trên dấu hiệu:} Snort và các IDS signature-based truyền thống chỉ phát hiện được những tấn công đã được mã hóa thành luật cụ thể. Chúng không có khả năng phát hiện biến thể mới, công cụ tấn công hiện đại, hay kỹ thuật zero-day --- chính xác là những gì kẻ tấn công có động cơ cao sẽ sử dụng.
 \end{itemize}
 
 \section{Các giải pháp hiện tại và hạn chế}
 \label{sec:gp}
 
-\textbf{IDS dựa trên chữ ký} là hướng tiếp cận phổ biến nhất trong sản xuất thực tế. Snort \cite{roesch1999}, IDS mã nguồn mở được triển khai rộng rãi nhất thế giới, duy trì cơ sở dữ liệu hàng chục nghìn luật mô tả pattern của các tấn công đã biết, xử lý traffic ở tốc độ gigabit với tỷ lệ false positive thấp. Hạn chế căn bản chỉ có một nhưng nghiêm trọng: bất kỳ tấn công nào chưa có luật --- dù là biến thể nhỏ của tấn công đã biết --- đều bị bỏ qua hoàn toàn. Trong bối cảnh các chiến dịch tấn công ngày càng sử dụng công cụ tùy biến và kỹ thuật evasion, giới hạn này ngày càng rõ nét.
+\textbf{IDS dựa trên dấu hiệu} là hướng tiếp cận phổ biến nhất trong sản xuất thực tế. Snort \cite{roesch1999}, IDS mã nguồn mở được triển khai rộng rãi nhất thế giới, duy trì cơ sở dữ liệu hàng chục nghìn luật mô tả pattern của các tấn công đã biết, xử lý traffic ở tốc độ gigabit với tỷ lệ false positive thấp. Hạn chế căn bản chỉ có một nhưng nghiêm trọng: bất kỳ tấn công nào chưa có luật --- dù là biến thể nhỏ của tấn công đã biết --- đều bị bỏ qua hoàn toàn. Trong bối cảnh các chiến dịch tấn công ngày càng sử dụng công cụ tùy biến và kỹ thuật evasion, giới hạn này ngày càng rõ nét.
 
 \textbf{IDS dựa trên bất thường thống kê} xây dựng profile hành vi bình thường và cảnh báo khi có độ lệch đáng kể. Hướng này về lý thuyết có thể phát hiện tấn công zero-day, nhưng tỷ lệ false alarm cao là trở ngại thực tế lớn. Một buổi backup đêm, một cơn tăng đột biến video streaming, hay một bản cập nhật phần mềm lớn đều có thể kích hoạt cảnh báo. Tình trạng \textit{alert fatigue} --- đội ngũ SOC bị choáng ngợp bởi hàng trăm cảnh báo giả mỗi ngày đến mức bắt đầu bỏ qua cả cảnh báo thật --- là vấn đề thực tiễn nghiêm trọng trong nhiều tổ chức.
 
@@ -54,7 +54,7 @@ Hai tầng được tích hợp thành một hệ thống lai ghép: Snort ở t
 
     \item \textbf{Chẩn đoán covariate shift định lượng và xây dựng Testbed thực:} Định lượng mức độ covariate shift: direct transfer Accuracy 21,93\% (MCC $-0{,}015$); Re-fit Scaler làm tình trạng xấu hơn (6,87\%). Thu thập dataset V8.5 (111.825 flows, 5 lớp) trong môi trường mạng LAN thực; xác định và giải quyết PortScan không phân tách trong NAT bằng dữ liệu surrogate; đánh giá robustness với val set đa dạng miền. Mô hình V8.5 đạt Macro F1 91,7\%.
 
-    \item \textbf{Hệ thống Hybrid IDS phát hiện theo phát lại trên phần cứng phổ thông:} Hệ thống tích hợp Snort 3 và FT-Transformer V8.5 trên WSL2 Ubuntu, không yêu cầu GPU, được hiện thực hóa ở dạng phát hiện theo phát lại với giao diện thời gian thực. Thực nghiệm xác nhận tính bổ sung hai tầng: DoS slowhttptest chỉ phát hiện được bởi ML, XSS payload ngắn chỉ phát hiện được bởi Snort. Một luật hậu xử lý kiểu chữ ký (đếm cổng đích theo nguồn) bù cho đặc trưng quét cổng mà mô hình thiếu, nâng PortScan F1 từ 0,000 lên 0,996 mà không cần huấn luyện lại. Đường xử lý thời gian thực hoàn toàn được đề xuất như một hướng phát triển.
+    \item \textbf{Hệ thống Hybrid IDS phát hiện theo phát lại trên phần cứng phổ thông:} Hệ thống tích hợp Snort 3 và FT-Transformer V8.5 trên WSL2 Ubuntu, không yêu cầu GPU, được hiện thực hóa ở dạng phát hiện theo phát lại với giao diện thời gian thực. Thực nghiệm xác nhận tính bổ sung hai tầng: DoS slowhttptest chỉ phát hiện được bởi ML, XSS payload ngắn chỉ phát hiện được bởi Snort. Một luật hậu xử lý kiểu dấu hiệu (đếm cổng đích theo nguồn) bù cho đặc trưng quét cổng mà mô hình thiếu, nâng PortScan F1 từ 0,000 lên 0,996 mà không cần huấn luyện lại. Đường xử lý thời gian thực hoàn toàn được đề xuất như một hướng phát triển.
 \end{enumerate}
 
 \section{Bố cục đồ án}

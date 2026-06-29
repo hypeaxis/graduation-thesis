@@ -133,7 +133,7 @@ from sklearn.preprocessing import PowerTransformer
 import joblib
 
 # Load scaler da train tren Testbed V8.5
-scaler = joblib.load('models/testbed_v85_scaler.pkl')
+scaler = joblib.load('models/v8_5_scaler.pkl')
 
 # Load flow CSV tu CICFlowMeter
 flows = pd.read_csv('/tmp/flows/capture_ICTAI_Flow.csv')
@@ -158,10 +158,10 @@ sudo snort -c /usr/local/etc/snort/snort.lua -i eth0 \
 sudo tcpdump -i eth0 -w /tmp/live_capture.pcap &
 
 # 3. Khoi dong inference daemon (Python)
-python3 inference_daemon.py \
+python3 testbed_inference.py \
     --pcap /tmp/live_capture.pcap \
-    --model models/ftt_v85.pt \
-    --scaler models/testbed_v85_scaler.pkl \
+    --model models/v8_5_model.pt \
+    --scaler models/v8_5_scaler.pkl \
     --output /var/log/ids/ml_alerts.log &
 
 echo "IDS Pipeline started. Snort + FTT V8.5 active."
@@ -172,7 +172,7 @@ echo "IDS Pipeline started. Snort + FTT V8.5 active."
 \begin{lstlisting}[language=bash, caption={Dừng tất cả tiến trình pipeline}]
 sudo pkill -f "snort -c"
 sudo pkill -f "tcpdump -i eth0"
-sudo pkill -f "inference_daemon.py"
+sudo pkill -f "testbed_inference.py"
 \end{lstlisting}
 
 \textbf{Theo dõi log:}

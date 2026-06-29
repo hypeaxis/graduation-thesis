@@ -507,7 +507,7 @@ Hệ thống replay nạp mô hình V8.5 một lần, đọc tệp flow CICFlowM
 
 Trên đầu ra của mô hình, hệ thống áp một chuỗi luật hậu xử lý theo thứ tự cố định. Luật thứ nhất là ngưỡng tin cậy: một dự đoán thuộc lớp tấn công nhưng có xác suất cực đại dưới ngưỡng $T$ được hạ về Benign. Với $T = 0{,}6$, luật cắt phần lớn cảnh báo giả sinh ra từ các dự đoán lưỡng lự mà không chạm tới các dự đoán tấn công có độ tin cậy cao. Luật thứ hai bù cho một đặc trưng mà bộ 80 chiều của V8.5 không chứa --- mức độ quét cổng: với mỗi IP nguồn, hệ thống đếm số cổng đích duy nhất tiếp xúc trong một cửa sổ ngắn (mặc định 2 giây), và nếu số này vượt ngưỡng (15 cổng) với flow xuất phát từ máy quét, nhãn được ghi đè thành PortScan. Mỗi luật là một đơn vị độc lập theo nguyên tắc Open/Closed --- thêm luật mới không sửa luật đã có.
 
-Luật quét cổng là hiện thân trực tiếp của nguyên lý lai ghép: một heuristic kiểu chữ ký --- đếm cổng đích theo nguồn --- bù chính xác điểm mù của mô hình thống kê, vốn không phân biệt được PortScan với DoS khi cả hai biểu hiện thành nhiều flow ngắn. Kết quả định lượng của chuỗi luật này được trình bày tại Mục~\ref{sec:tn-e2e}.
+Luật quét cổng là hiện thân trực tiếp của nguyên lý lai ghép: một heuristic kiểu dấu hiệu --- đếm cổng đích theo nguồn --- bù chính xác điểm mù của mô hình thống kê, vốn không phân biệt được PortScan với DoS khi cả hai biểu hiện thành nhiều flow ngắn. Kết quả định lượng của chuỗi luật này được trình bày tại Mục~\ref{sec:tn-e2e}.
 
 \subsection{Môi trường giả lập tấn công xuyên thiết bị}
 \label{subsec:deploy-attack-sim}
