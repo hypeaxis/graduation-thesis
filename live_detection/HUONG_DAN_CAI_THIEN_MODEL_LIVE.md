@@ -23,6 +23,8 @@ Tài liệu này chia vấn đề thành **các cơ chế cụ thể có thể s
 6. **Commit từng bước riêng biệt** với message rõ ràng để dễ bisect nếu FP tăng bất ngờ.
 7. **Tấn công là TẠO chủ động, không "chờ bắt".** Không bao giờ phụ thuộc vào việc tình cờ bắt được tấn công trên mạng thật (xem Mục 2).
 
+> 📌 **Quy ước IP — `replay_config.json` là NGUỒN CHÂN LÝ.** Trong tài liệu này `<VICTIM_IP>` = máy đang được bảo vệ (nơi chạy live capture), `<ATTACKER_IP>` = máy thứ hai sinh tấn công. Giá trị thật đọc từ [`replay_config.json`](replay_config.json) — hiện tại: `victim_ip = 192.168.0.103`, `attacker_ip = 192.168.0.106`. **Trước khi kiểm chứng tấn công (Bước 3), xác nhận 2 IP này khớp với LAN thật của bạn rồi cập nhật `replay_config.json` cho đúng** — bắn sai IP thì `PortScanRule` không kích hoạt và mọi số đo TP/FP đều vô nghĩa.
+
 ---
 
 ## 1. Chẩn đoán gốc rễ: 5 cơ chế (không phải 1 khối đen)
@@ -48,7 +50,7 @@ Trên mạng thật, tỉ lệ benign:attack ≈ **99:1**. Nếu thu thụ độ
 | Luồng | Cách thu | Nhãn | Ghi chú |
 |---|---|---|---|
 | **Benign thật** | Thụ động, phiên dài, đa dạng (duyệt web, streaming, tải file, traffic nền OS) | Gán `Benign` cả mẻ | Dễ, dồi dào |
-| **Tấn công thật** | **Chủ động** từ máy thứ hai bắn vào `192.168.1.121`, mỗi loại 1 phiên (nmap portscan, hping3/slowloris DoS, hydra brute-force, web attack) | **Gán theo `ATTACKER_IP` + cửa sổ thời gian** → nhãn sạch | Bạn quyết khối lượng |
+| **Tấn công thật** | **Chủ động** từ máy thứ hai bắn vào `<VICTIM_IP>`, mỗi loại 1 phiên (nmap portscan, hping3/slowloris DoS, hydra brute-force, web attack) | **Gán theo `ATTACKER_IP` + cửa sổ thời gian** → nhãn sạch | Bạn quyết khối lượng |
 
 Nhãn "theo IP tấn công + thời điểm" **sạch hơn** nhãn CIC-IDS-2017 gốc vì bạn biết chính xác flow nào là tấn công.
 
@@ -110,7 +112,7 @@ Mỗi bước ghi rõ: **Tiền đề** (cần retrain? cần data gì?) → **M
 
 **Việc làm:**
 1. **Benign:** chạy pipeline live trong phiên dài, tạo hoạt động đa dạng (duyệt web, streaming, tải file, để máy chạy nền) → gom CSV từ `data/live/processed/` → `data/analysis/benign_real.csv`. Mục tiêu ≥ vài nghìn flow (56 flow chỉ đủ định hướng, KHÔNG đủ để calibrate/kết luận).
-2. **Tấn công:** từ **máy thứ hai** bắn từng loại vào `192.168.1.121`; ghi lại `ATTACKER_IP` + mốc thời gian; lọc flow theo đó → `data/analysis/<attack>_real.csv`, gán nhãn tương ứng.
+2. **Tấn công:** từ **máy thứ hai** bắn từng loại vào `<VICTIM_IP>`; ghi lại `ATTACKER_IP` + mốc thời gian; lọc flow theo đó → `data/analysis/<attack>_real.csv`, gán nhãn tương ứng.
 
 **Kiểm chứng:** đếm số flow mỗi lớp; kiểm 84/84 cột, 0 NaN/inf trên các file thu.
 
@@ -156,11 +158,11 @@ Mỗi bước ghi rõ: **Tiền đề** (cần retrain? cần data gì?) → **M
 > FP thấp vô nghĩa nếu bỏ sót tấn công. Chạy sau MỖI thay đổi giảm-FP.
 
 **Việc làm:**
-- Từ **máy thứ hai trong LAN**, chạy portscan/DoS vào `192.168.1.121`.
-- Đặt `attacker_ip` trong `replay_config.json` = IP máy tấn công để `PortScanRule` kích hoạt.
+- Từ **máy thứ hai trong LAN**, chạy portscan/DoS vào `<VICTIM_IP>`.
+- Đặt `attacker_ip` trong `replay_config.json` = `<ATTACKER_IP>` (IP máy thứ hai) để `PortScanRule` kích hoạt.
 - Ghi **cả TP-rate lẫn FP-rate** — hai con số phải đi cùng nhau trong bảng Mục 6.
 
-**Lưu ý mạng (WSL mirrored):** self-scan (quét chính `192.168.1.121` từ cùng máy) đi qua **loopback, không qua eth0** → không bắt được; **phải bắn từ máy khác**. Traffic giữa 2 máy khác trong LAN cần SPAN/port-mirroring.
+**Lưu ý mạng (WSL mirrored):** self-scan (quét chính `<VICTIM_IP>` từ cùng máy) đi qua **loopback, không qua eth0** → không bắt được; **phải bắn từ máy khác**. Traffic giữa 2 máy khác trong LAN cần SPAN/port-mirroring.
 
 ---
 
