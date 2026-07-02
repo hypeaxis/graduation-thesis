@@ -10,8 +10,11 @@ set -euo pipefail
 PCAP="${1:?can duong dan pcap}"
 
 # --- cau hinh (co the override bang bien moi truong) ---
+HERE="$(cd "$(dirname "$0")" && pwd)"
+REPO_LIVE="$(cd "$HERE/.." && pwd)"        # = .../live_detection (ban repo chua script)
 CFM_BIN="${CFM_BIN:-/home/ning/CICFlowMeter/build/distributions/CICFlowMeter-4.0/bin/cfm}"
-DROP_DIR="${DROP_DIR:-/mnt/d/ĐỒ ÁN/graduation-thesis/live_detection/data/live}"
+# DROP_DIR thuong duoc capture_and_extract.sh export sang; neu goi doc lap thi mac dinh = data/live cua chinh repo nay.
+DROP_DIR="${DROP_DIR:-$REPO_LIVE/data/live}"
 WORK_DIR="${WORK_DIR:-/home/ning/live_cap/work}"   # noi cfm ghi tam (ext4, nhanh)
 
 mkdir -p "$WORK_DIR" "$DROP_DIR"

@@ -151,10 +151,16 @@ getcap "$(readlink -f "$(which tcpdump)")"   # kiểm tra: có 'cap_net_raw' là
 |---|---|---|
 | `IFACE` | `eth0` | interface bắt gói |
 | `CHUNK_SEC` | `8` | độ dài mỗi chunk = độ trễ near-real-time |
-| `DROP_DIR` | `/mnt/d/…/live_detection/data/live` | nơi đẩy CSV cho server |
+| `DROP_DIR` | `<repo>/live_detection/data/live` (tự suy ra theo vị trí script, **không** còn hardcode `/mnt/d`) | nơi đẩy CSV cho server. **Phải trùng thư mục server watch.** Mặc định script trỏ vào `data/live` của chính bản repo chứa nó → chạy server + script từ cùng một bản repo là khớp ngay. |
 | `CAP_DIR` | `/home/ning/live_cap/pcap` | nơi tcpdump ghi pcap tạm (ext4, nhanh) |
 | `CFM_BIN` | `/home/ning/CICFlowMeter/.../bin/cfm` | đường dẫn cfm |
 | `BPF` | `ip and (tcp or udp)` | bộ lọc gói (giống CICFlowMeter) |
+
+> ⚠️ **Server và script phải cùng một `data/live`.** Server đọc thư mục qua biến `LIVE_DROP_DIR`
+> (mặc định = `data/live` của bản repo chứa `server.py`). Nếu bạn chạy server ở một bản repo và
+> capture ở bản khác (vd server `/home/ning/…`, script `/mnt/d/…`), phải set cho khớp — ví dụ:
+> - Windows/server: `set LIVE_DROP_DIR=D:\ĐỒ ÁN\graduation-thesis\live_detection\data\live` rồi `uvicorn server:app ...`
+> - WSL/script: `DROP_DIR="/mnt/d/ĐỒ ÁN/graduation-thesis/live_detection/data/live" bash .../capture_and_extract.sh`
 
 Ví dụ chunk 5 giây trên interface khác:
 ```bash

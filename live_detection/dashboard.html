@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IDS Replay Demo — V8.5</title>
+<title>IDS Hybrid NIDS — LIVE & REPLAY · V8.5</title>
 <style>
   :root{
     --bg:#f4f6fa; --panel:#ffffff; --border:#e3e8ef; --txt:#1f2937; --muted:#6b7280;
@@ -13,8 +13,24 @@
   *{box-sizing:border-box;}
   body{margin:0;font-family:'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);font-size:14px;}
   .container{max-width:1180px;margin:0 auto;padding:16px;}
-  h1{font-size:17px;margin:0 0 14px;font-weight:700;}
+  h1{font-size:17px;margin:0 0 14px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;box-shadow:0 1px 2px rgba(0,0,0,.04);}
+
+  /* MODE SWITCHER */
+  .modebar{display:flex;gap:10px;padding:10px;margin-bottom:12px;}
+  .modebtn{flex:1;display:flex;gap:12px;align-items:center;padding:12px 16px;border:2px solid var(--border);
+    border-radius:11px;background:#fff;cursor:pointer;text-align:left;transition:.15s;}
+  .modebtn .ico{font-size:22px;line-height:1;}
+  .modebtn .t{font-weight:800;font-size:15px;}
+  .modebtn .s{color:var(--muted);font-size:12px;margin-top:2px;}
+  .modebtn:hover{border-color:#c7d2e0;}
+  .modebtn.active.replay{border-color:var(--blue);background:var(--blue-bg);}
+  .modebtn.active.live{border-color:var(--red);background:var(--red-bg);}
+
+  /* mode description strip */
+  .modedesc{padding:9px 14px;margin-bottom:12px;border-radius:9px;font-size:13px;font-weight:600;}
+  body.mode-replay .modedesc{background:var(--blue-bg);color:#1e40af;}
+  body.mode-live   .modedesc{background:var(--red-bg);color:#991b1b;}
 
   /* control bar */
   .controls{display:flex;align-items:center;gap:14px;padding:12px 16px;margin-bottom:14px;flex-wrap:wrap;}
@@ -23,10 +39,15 @@
   .btn{width:38px;height:38px;border:1px solid var(--border);border-radius:9px;background:#fff;cursor:pointer;font-size:15px;display:inline-flex;align-items:center;justify-content:center;transition:.15s;}
   .btn:hover{border-color:var(--blue);color:var(--blue);}
   .btn.play{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .btn.livego{width:auto;padding:0 16px;font-weight:800;background:var(--red);color:#fff;border-color:var(--red);}
   .btn:disabled{opacity:.4;cursor:not-allowed;}
   .spacer{flex:1;}
   input[type=range]{width:150px;accent-color:var(--blue);}
   .speedval{font-weight:700;min-width:30px;}
+
+  /* show/hide per mode */
+  body.mode-live  .only-replay{display:none !important;}
+  body.mode-replay .only-live{display:none !important;}
 
   /* metric cards */
   .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px;}
@@ -35,6 +56,8 @@
   .metric .val{font-size:30px;font-weight:800;letter-spacing:-.5px;}
   .metric.acc{background:var(--blue-bg);border-color:#cfe0fd;} .metric.acc .val{color:var(--blue);}
   .metric.f1{background:var(--green-bg);border-color:#c5ead4;} .metric.f1 .val{color:var(--green);}
+  .metric.live-atk{background:var(--red-bg);border-color:#f6c9c9;} .metric.live-atk .val{color:var(--red);}
+  .metric.live-ben{background:var(--green-bg);border-color:#c5ead4;} .metric.live-ben .val{color:var(--green);}
 
   /* main grid */
   .grid{display:grid;grid-template-columns:1.35fr 1fr;gap:14px;}
@@ -48,6 +71,7 @@
   .feed-wrap{max-height:420px;overflow:auto;}
   tr.err{background:var(--red-bg);}
   tr.err td:last-child{color:var(--red);font-weight:700;}
+  tr.atk td:last-child{color:var(--red);font-weight:700;}
   .pill{padding:2px 9px;border-radius:11px;font-size:12px;font-weight:600;display:inline-block;}
   .Benign{background:var(--green-bg);color:var(--green);}
   .PortScan{background:#e7eefe;color:var(--blue);}
@@ -62,6 +86,13 @@
   .cm .rowlbl{font-size:10px;color:var(--muted);display:flex;align-items:center;justify-content:flex-end;padding-right:4px;}
   .cap{font-size:11px;color:var(--muted);margin-top:8px;}
 
+  /* live breakdown */
+  .brk{margin:8px 0;}
+  .brk .row{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px;}
+  .brk .row .n{margin-left:auto;font-weight:700;}
+  .brk .bar{flex:1;height:9px;background:#eef1f5;border-radius:5px;overflow:hidden;max-width:160px;}
+  .brk .bar > i{display:block;height:100%;border-radius:5px;transition:width .3s;}
+
   /* explainability */
   .feat{margin:9px 0;}
   .feat .fname{font-size:12px;margin-bottom:3px;color:var(--txt);}
@@ -70,56 +101,88 @@
   .status{margin-left:6px;padding:3px 10px;border-radius:8px;font-size:12px;font-weight:700;background:var(--green-bg);color:var(--green);}
   .status.alert{background:var(--red-bg);color:var(--red);}
   .status.load{background:#fff4e5;color:var(--amber);}
+  .status.livewait{background:var(--red-bg);color:var(--red);}
 </style>
 </head>
-<body>
+<body class="mode-replay">
 <div class="container">
-  <h1>🛡️ IDS Replay Demo <span style="color:var(--muted);font-weight:400">· FT-Transformer V8.5</span>
+  <h1>🛡️ IDS Hybrid NIDS <span style="color:var(--muted);font-weight:400">· FT-Transformer V8.5</span>
       <span id="status" class="status">● Sẵn sàng</span></h1>
+
+  <!-- MODE SWITCHER: xac dinh ro 2 che do -->
+  <div class="card modebar">
+    <button class="modebtn replay active" id="mode-replay">
+      <span class="ico">🎬</span>
+      <span><span class="t">REPLAY</span><span class="s">Phát lại dataset CÓ NHÃN → đánh giá model (Accuracy / F1 / Confusion Matrix)</span></span>
+    </button>
+    <button class="modebtn live" id="mode-live">
+      <span class="ico">🔴</span>
+      <span><span class="t">LIVE</span><span class="s">Bắt gói THỜI GIAN THỰC (WSL tcpdump→cfm) · KHÔNG có nhãn thật → chỉ dự đoán + cảnh báo</span></span>
+    </button>
+  </div>
+  <div class="modedesc" id="modedesc"></div>
 
   <!-- CONTROL BAR -->
   <div class="card controls">
-    <span class="lbl">🎬 Kịch bản</span>
-    <select id="scenario"></select>
-    <button class="btn play" id="btn-play" title="Chạy">▶</button>
-    <button class="btn" id="btn-pause" title="Tạm dừng" disabled>⏸</button>
-    <button class="btn" id="btn-reset" title="Reset">↻</button>
-    <button class="btn" id="btn-live" title="Bắt gói LIVE (WSL)" style="width:auto;padding:0 12px;font-weight:700;">🔴 LIVE</button>
+    <!-- REPLAY controls -->
+    <span class="lbl only-replay">🎬 Kịch bản</span>
+    <select id="scenario" class="only-replay"></select>
+    <button class="btn play only-replay" id="btn-play" title="Chạy">▶</button>
+    <button class="btn only-replay" id="btn-pause" title="Tạm dừng" disabled>⏸</button>
+    <button class="btn only-replay" id="btn-reset" title="Reset">↻</button>
+    <!-- LIVE controls -->
+    <button class="btn livego only-live" id="btn-live" title="Bắt gói LIVE (WSL)">🔴 Bắt đầu bắt gói</button>
+    <span class="lbl only-live" id="live-hint" style="font-weight:500">Cần chạy <code>capture_and_extract.sh</code> bên WSL để có flow.</span>
     <span class="spacer"></span>
-    <span class="lbl">Tốc độ</span>
-    <input type="range" id="speed" min="0.5" max="8" step="0.5" value="2">
-    <span class="speedval" id="speedval">2×</span>
+    <span class="lbl only-replay">Tốc độ</span>
+    <input type="range" id="speed" class="only-replay" min="0.5" max="8" step="0.5" value="2">
+    <span class="speedval only-replay" id="speedval">2×</span>
   </div>
 
-  <!-- METRIC CARDS -->
-  <div class="metrics">
+  <!-- METRIC CARDS: REPLAY = do do model ; LIVE = thong ke luu luong -->
+  <div class="metrics only-replay">
     <div class="card metric acc"><div class="name">Accuracy</div><div class="val" id="m-acc">—</div></div>
-    <div class="card metric"><div class="name">Precision</div><div class="val" id="m-prec">—</div></div>
-    <div class="card metric"><div class="name">Recall</div><div class="val" id="m-rec">—</div></div>
-    <div class="card metric f1"><div class="name">F1-score</div><div class="val" id="m-f1">—</div></div>
+    <div class="card metric"><div class="name">Precision (macro)</div><div class="val" id="m-prec">—</div></div>
+    <div class="card metric"><div class="name">Recall (macro)</div><div class="val" id="m-rec">—</div></div>
+    <div class="card metric f1"><div class="name">F1-score (macro)</div><div class="val" id="m-f1">—</div></div>
+  </div>
+  <div class="metrics only-live">
+    <div class="card metric"><div class="name">Tổng flow (live)</div><div class="val" id="lm-total">0</div></div>
+    <div class="card metric live-atk"><div class="name">⚠ Flow tấn công</div><div class="val" id="lm-atk">0</div></div>
+    <div class="card metric live-ben"><div class="name">Flow benign</div><div class="val" id="lm-ben">0</div></div>
+    <div class="card metric"><div class="name">Tỉ lệ tấn công</div><div class="val" id="lm-rate">—</div></div>
   </div>
 
   <!-- MAIN -->
   <div class="grid">
     <div class="card panel">
-      <h2>📡 Live flow stream <span id="progress" style="color:var(--muted);font-weight:400;text-transform:none"></span></h2>
+      <h2><span class="only-replay">📡 Luồng flow (replay có nhãn)</span><span class="only-live">📡 Luồng flow LIVE (realtime)</span>
+          <span id="progress" style="color:var(--muted);font-weight:400;text-transform:none"></span></h2>
       <div class="feed-wrap">
         <table>
-          <thead><tr><th>Flow (src→dst)</th><th>Truth</th><th>Pred</th><th class="conf">Conf</th></tr></thead>
+          <thead><tr><th>Flow (src→dst)</th><th class="only-replay">Truth</th><th>Pred</th><th class="conf">Conf</th></tr></thead>
           <tbody id="feed"></tbody>
         </table>
       </div>
     </div>
 
     <div>
-      <div class="card panel" style="margin-bottom:14px">
+      <!-- REPLAY: confusion matrix -->
+      <div class="card panel only-replay" style="margin-bottom:14px">
         <h2>🔲 Confusion matrix</h2>
         <div class="cm" id="cm"></div>
         <div class="cap">Đường chéo đậm = dự đoán đúng · hàng = Truth, cột = Pred</div>
       </div>
+      <!-- LIVE: phan bo du doan (khong co truth) -->
+      <div class="card panel only-live" style="margin-bottom:14px">
+        <h2>📊 Phân bố dự đoán (live)</h2>
+        <div class="brk" id="live-brk"><div style="color:var(--muted);font-size:13px">Chưa có flow live nào…</div></div>
+        <div class="cap">Live không có nhãn thật → không tính được Accuracy/Confusion Matrix.</div>
+      </div>
+      <!-- Explainability: dung chung 2 che do -->
       <div class="card panel">
         <h2 id="xai-title">💡 Vì sao dự đoán?</h2>
-        <div id="xai"><div style="color:var(--muted);font-size:13px">Chạy kịch bản để xem đặc trưng quan trọng…</div></div>
+        <div id="xai"><div style="color:var(--muted);font-size:13px">Chạy để xem đặc trưng quan trọng…</div></div>
       </div>
     </div>
   </div>
@@ -129,15 +192,22 @@
 const CLS_COLOR={'Benign':'#16a34a','PortScan':'#2563eb','DoS':'#dc2626','Brute Force':'#d97706','Web Attack':'#7c3aed'};
 let CLASSES=['Benign','Brute Force','DoS','PortScan','Web Attack'];
 const cssCls=s=>s.replace(/\s/g,'');
-let cm={}, total=0, playing=false, paused=false, xaiClass=null, liveMode=false, liveCount=0;
+let cm={}, total=0, playing=false, paused=false, xaiClass=null, liveMode=false;
+let liveTotal=0, liveCnt={};   // thong ke live theo class
 
 function zeroCM(){cm={};CLASSES.forEach(t=>{cm[t]={};CLASSES.forEach(p=>cm[t][p]=0);});total=0;}
-zeroCM();
+function zeroLive(){liveTotal=0;liveCnt={};CLASSES.forEach(c=>liveCnt[c]=0);}
+zeroCM(); zeroLive();
+
+const MODE_DESC={
+  replay:'🎬 CHẾ ĐỘ REPLAY — Phát lại các file *_Flow.csv đã thu sẵn (có nhãn thật). Dùng để ĐÁNH GIÁ model: hiển thị Accuracy, Precision, Recall, F1 và Confusion Matrix.',
+  live:'🔴 CHẾ ĐỘ LIVE — Bắt gói trực tiếp trên card mạng (WSL: tcpdump → CICFlowMeter cfm → data/live/). KHÔNG có nhãn thật nên chỉ hiển thị dự đoán realtime + cảnh báo tấn công.'
+};
 
 // ---------- init ----------
 async function init(){
   const d=await (await fetch('/api/scenarios')).json();
-  CLASSES=d.classes||CLASSES; zeroCM();
+  CLASSES=d.classes||CLASSES; zeroCM(); zeroLive();
   const sel=document.getElementById('scenario');
   sel.innerHTML='';
   d.scenarios.forEach(s=>{
@@ -145,11 +215,33 @@ async function init(){
     o.value=s.key; o.textContent=s.label+(s.available?'':' (chưa có)'); o.disabled=!s.available;
     sel.appendChild(o);
   });
-  // chọn mặc định kịch bản available đầu tiên
   const first=d.scenarios.find(s=>s.available); if(first) sel.value=first.key;
   buildCMgrid();
+  setMode('replay');   // mac dinh: replay
 }
 init();
+
+// ---------- mode switch ----------
+function setMode(mode){
+  const toLive = (mode==='live');
+  document.body.classList.toggle('mode-live', toLive);
+  document.body.classList.toggle('mode-replay', !toLive);
+  document.getElementById('mode-replay').classList.toggle('active', !toLive);
+  document.getElementById('mode-live').classList.toggle('active', toLive);
+  document.getElementById('modedesc').textContent = MODE_DESC[toLive?'live':'replay'];
+  // doi che do => dung engine dang chay + xoa feed cho sach
+  clearFeed();
+  if(toLive){ post('/api/reset',{}); setStatus('livewait'); }   // dung replay
+  else { if(liveMode) post('/api/live/stop',{}); liveMode=false; setLiveBtn(); setStatus('idle'); }
+}
+document.getElementById('mode-replay').onclick=()=>{ if(document.body.classList.contains('mode-live')) setMode('replay'); };
+document.getElementById('mode-live').onclick  =()=>{ if(document.body.classList.contains('mode-replay')) setMode('live');  };
+
+function clearFeed(){
+  zeroCM(); zeroLive(); document.getElementById('feed').innerHTML='';
+  renderMetrics(); renderCM(); renderLiveMetrics(); renderLiveBrk();
+  document.getElementById('progress').textContent='';
+}
 
 // ---------- controls ----------
 const speed=document.getElementById('speed');
@@ -163,7 +255,7 @@ document.getElementById('btn-play').onclick=async()=>{
 document.getElementById('btn-pause').onclick=()=>post(paused?'/api/resume':'/api/pause',{});
 document.getElementById('btn-reset').onclick=()=>post('/api/reset',{});
 document.getElementById('btn-live').onclick=async()=>{
-  if(liveMode){ await post('/api/live/stop',{}); liveMode=false; setLiveBtn(); setStatus('idle'); return; }
+  if(liveMode){ await post('/api/live/stop',{}); liveMode=false; setLiveBtn(); setStatus('livewait'); return; }
   const r=await post('/api/live/start',{});
   if(!r.ok){alert(r.error||'Không bật được LIVE');return;}
 };
@@ -181,57 +273,58 @@ connect();
 
 function handle(m){
   if(m.type==='flow'){ onFlow(m); }
-  else if(m.type==='play'){ playing=true;paused=false; liveMode=false; setLiveBtn(); setStatus('run'); setPauseBtn();
+  else if(m.type==='play'){ playing=true;paused=false; setPauseBtn(); setStatus('run');
       document.getElementById('progress').textContent='0 / '+m.n; }
   else if(m.type==='loading'){ setStatus('load',m.what); }
-  else if(m.type==='reset'){ zeroCM(); document.getElementById('feed').innerHTML='';
-      renderMetrics(); renderCM(); document.getElementById('progress').textContent=''; }
+  else if(m.type==='reset'){ clearFeed(); }
   else if(m.type==='paused'){ paused=m.paused; setPauseBtn(); setStatus(paused?'pause':'run'); }
   else if(m.type==='progress'){ document.getElementById('progress').textContent=m.i+' / '+m.n; }
   else if(m.type==='done'){ playing=false; setStatus('done'); setPauseBtn(); }
-  else if(m.type==='live_start'){ liveMode=true; liveCount=0; playing=false; paused=false;
-      zeroCM(); document.getElementById('feed').innerHTML=''; renderMetrics(); renderCM();
-      setPauseBtn(); setLiveBtn(); setStatus('live');
+  else if(m.type==='live_start'){ liveMode=true; playing=false; paused=false;
+      zeroLive(); document.getElementById('feed').innerHTML=''; renderLiveMetrics(); renderLiveBrk();
+      setPauseBtn(); setLiveBtn(); setStatus('livewait');
       document.getElementById('progress').textContent='LIVE · chờ flow…'; }
-  else if(m.type==='live_batch'){ liveCount=m.total;
+  else if(m.type==='live_batch'){
       document.getElementById('progress').textContent='LIVE · '+m.total+' flow'; }
 }
 
 function onFlow(m){
-  const isLive = !m.truth;            // LIVE: không có nhãn thật
-  // confusion matrix + metrics chỉ áp dụng khi có truth (replay)
-  if(!isLive && cm[m.truth] && m.pred in cm[m.truth]){ cm[m.truth][m.pred]++; total++; }
-  renderMetrics(); renderCM();
-  // bảng flow
+  const isLive = !m.truth;            // LIVE: khong co nhan that
+  if(isLive){
+    liveTotal++; if(!(m.pred in liveCnt)) liveCnt[m.pred]=0; liveCnt[m.pred]++;
+    renderLiveMetrics(); renderLiveBrk();
+  } else {
+    if(cm[m.truth] && m.pred in cm[m.truth]){ cm[m.truth][m.pred]++; total++; }
+    renderMetrics(); renderCM();
+  }
+  // bang flow
   const tb=document.getElementById('feed');
   const tr=document.createElement('tr');
   const wrong = !isLive && m.truth!==m.pred;
-  if(wrong) tr.className='err';
-  const tag = wrong?(m.truth==='Benign'?'⚠ FP':'⚠ FN'):'';
-  const truthCell = isLive ? '<td style="color:var(--muted)">—</td>'
-                           : `<td><span class="pill ${cssCls(m.truth)}">${m.truth}</span></td>`;
+  const atk   = isLive && m.pred!=='Benign';
+  if(wrong) tr.className='err'; else if(atk) tr.className='atk';
+  const tag = wrong?(m.truth==='Benign'?'⚠ FP':'⚠ FN'):(atk?'⚠':'');
+  const truthCell = isLive ? '' : `<td><span class="pill ${cssCls(m.truth)}">${m.truth}</span></td>`;
   tr.innerHTML=`<td>${m.src}→${m.dst}:${m.dst_port}</td>`+truthCell+
                `<td><span class="pill ${cssCls(m.pred)}">${m.pred}</span></td>`+
                `<td class="conf">${(m.conf*100).toFixed(0)}% ${tag}</td>`;
   tb.prepend(tr);
   while(tb.children.length>60) tb.removeChild(tb.lastChild);
-  // explainability theo class tấn công dự đoán
   if(m.pred!=='Benign' && m.pred!==xaiClass) loadXAI(m.pred);
-  // trạng thái: LIVE giữ nhãn LIVE; có tấn công thì cảnh báo
   const attack = isLive ? (m.pred!=='Benign') : anyAttack();
   setStatus(attack?'alert':(isLive?'live':'run'));
 }
-function anyAttack(){return CLASSES.some(c=>c!=='Benign' && Object.values(cm[c]).reduce((a,b)=>a+b,0)>0 && cm[c][c]>0);}
+function anyAttack(){return CLASSES.some(c=>c!=='Benign' && cm[c] && cm[c][c]>0);}
 
-// ---------- metrics ----------
+// ---------- replay metrics ----------
 function renderMetrics(){
   if(!total){['m-acc','m-prec','m-rec','m-f1'].forEach(id=>document.getElementById(id).textContent='—');return;}
   let correct=0; CLASSES.forEach(c=>correct+=cm[c][c]);
   const acc=correct/total;
   let Ps=[],Rs=[],Fs=[];
   CLASSES.forEach(c=>{
-    const rowSum=CLASSES.reduce((a,p)=>a+cm[c][p],0);      // truth==c
-    const colSum=CLASSES.reduce((a,t)=>a+cm[t][c],0);      // pred==c
+    const rowSum=CLASSES.reduce((a,p)=>a+cm[c][p],0);
+    const colSum=CLASSES.reduce((a,t)=>a+cm[t][c],0);
     if(rowSum===0 && colSum===0) return;
     const P=colSum?cm[c][c]/colSum:0, R=rowSum?cm[c][c]/rowSum:0;
     const F=(P+R)?2*P*R/(P+R):0;
@@ -241,6 +334,27 @@ function renderMetrics(){
   set('m-acc',acc); set('m-prec',mean(Ps)); set('m-rec',mean(Rs)); set('m-f1',mean(Fs));
 }
 function set(id,v){document.getElementById(id).textContent=(v*100).toFixed(1)+'%';}
+
+// ---------- live metrics ----------
+function renderLiveMetrics(){
+  const atk=CLASSES.filter(c=>c!=='Benign').reduce((a,c)=>a+(liveCnt[c]||0),0);
+  const ben=liveCnt['Benign']||0;
+  document.getElementById('lm-total').textContent=liveTotal;
+  document.getElementById('lm-atk').textContent=atk;
+  document.getElementById('lm-ben').textContent=ben;
+  document.getElementById('lm-rate').textContent=liveTotal?((atk/liveTotal*100).toFixed(1)+'%'):'—';
+}
+function renderLiveBrk(){
+  const box=document.getElementById('live-brk');
+  if(!liveTotal){box.innerHTML='<div style="color:var(--muted);font-size:13px">Chưa có flow live nào…</div>';return;}
+  const max=Math.max(1,...CLASSES.map(c=>liveCnt[c]||0));
+  box.innerHTML=CLASSES.map(c=>{
+    const n=liveCnt[c]||0; const w=Math.round((n/max)*100);
+    return `<div class="row"><span class="pill ${cssCls(c)}">${c}</span>`+
+           `<span class="bar"><i style="width:${w}%;background:${CLS_COLOR[c]||'#888'}"></i></span>`+
+           `<span class="n">${n}</span></div>`;
+  }).join('');
+}
 
 // ---------- confusion matrix ----------
 function buildCMgrid(){
@@ -252,10 +366,10 @@ function renderCM(){
   const g=document.getElementById('cm'); g.innerHTML='';
   g.style.gridTemplateColumns='46px repeat('+CLASSES.length+',1fr)';
   let max=1; CLASSES.forEach(t=>CLASSES.forEach(p=>max=Math.max(max,cm[t][p])));
-  g.appendChild(div('hdr',''));                          // góc
-  CLASSES.forEach(p=>g.appendChild(div('hdr',abbr(p)))); // header cột (Pred)
+  g.appendChild(div('hdr',''));
+  CLASSES.forEach(p=>g.appendChild(div('hdr',abbr(p))));
   CLASSES.forEach(t=>{
-    g.appendChild(div('rowlbl',abbr(t)));                // nhãn hàng (Truth)
+    g.appendChild(div('rowlbl',abbr(t)));
     CLASSES.forEach(p=>{
       const v=cm[t][p], op=v?(0.12+0.88*v/max):0;
       const c=div('cell', v||'');
@@ -286,8 +400,9 @@ function setStatus(kind,txt){
   const el=document.getElementById('status'); el.className='status';
   if(kind==='load'){el.classList.add('load');el.textContent='⏳ Đang nạp '+(txt||'')+'...';}
   else if(kind==='alert'){el.classList.add('alert');el.textContent='⚠ PHÁT HIỆN TẤN CÔNG';}
-  else if(kind==='run'){el.textContent='▶ Đang chạy';}
-  else if(kind==='live'){el.classList.add('alert');el.style.background='';el.textContent='🔴 LIVE — đang bắt gói';}
+  else if(kind==='run'){el.textContent='▶ Đang chạy (replay)';}
+  else if(kind==='live'){el.classList.add('alert');el.textContent='🔴 LIVE — đang nhận flow';}
+  else if(kind==='livewait'){el.classList.add('livewait');el.textContent='🔴 LIVE — chờ gói từ WSL';}
   else if(kind==='pause'){el.classList.add('load');el.textContent='⏸ Tạm dừng';}
   else if(kind==='done'){el.textContent='✓ Hoàn tất';}
   else{el.textContent='● Sẵn sàng';}
@@ -298,9 +413,8 @@ function setPauseBtn(){
 }
 function setLiveBtn(){
   const b=document.getElementById('btn-live');
-  b.textContent=liveMode?'⏹ Dừng LIVE':'🔴 LIVE';
-  b.style.background=liveMode?'var(--red)':''; b.style.color=liveMode?'#fff':'';
-  b.style.borderColor=liveMode?'var(--red)':'';
+  b.textContent=liveMode?'⏹ Dừng bắt gói':'🔴 Bắt đầu bắt gói';
+  b.style.background=liveMode?'#7f1d1d':'';
 }
 </script>
 </body>

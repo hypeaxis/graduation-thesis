@@ -19,19 +19,29 @@
 # ============================================================================
 set -euo pipefail
 
+HERE="$(cd "$(dirname "$0")" && pwd)"
+REPO_LIVE="$(cd "$HERE/.." && pwd)"        # = .../live_detection (dung chinh ban repo chua script nay)
+
 IFACE="${IFACE:-eth0}"
 CHUNK_SEC="${CHUNK_SEC:-8}"                 # do dai moi chunk = do tre near-real-time
 CAP_DIR="${CAP_DIR:-/home/ning/live_cap/pcap}"   # noi tcpdump ghi pcap (ext4, nhanh)
-DROP_DIR="${DROP_DIR:-/mnt/d/ĐỒ ÁN/graduation-thesis/live_detection/data/live}"
-HERE="$(cd "$(dirname "$0")" && pwd)"
+# DROP_DIR mac dinh = data/live cua CHINH ban repo nay (khong hardcode /mnt/d nua).
+# Server phai watch dung thu muc nay (xem server.py LIVE_DROP_DIR). Co the override bang bien moi truong.
+DROP_DIR="${DROP_DIR:-$REPO_LIVE/data/live}"
 export DROP_DIR                            # extract_chunk.sh doc bien nay
 export CFM_BIN="${CFM_BIN:-/home/ning/CICFlowMeter/build/distributions/CICFlowMeter-4.0/bin/cfm}"
 BPF="${BPF:-ip and (tcp or udp)}"          # loc giong CICFlowMeter (bo goi khong phai tcp/udp)
 
 mkdir -p "$CAP_DIR" "$DROP_DIR"
 
+# tcpdump -z goi extract_chunk.sh bang execlp() -> file BAT BUOC co quyen +x, neu khong se bao
+# "compress_savefile: execlp(...) failed: Permission denied" va KHONG sinh CSV nao.
+# Bit +x hay bi mat khi repo nam tren /mnt (DrvFs) -> tu chua o day cho chac.
+chmod +x "$HERE/extract_chunk.sh" 2>/dev/null || true
+
 # --- kiem tra tien dieu kien ---
 command -v tcpdump >/dev/null || { echo "[!] chua co tcpdump (sudo apt install tcpdump)"; exit 1; }
+[ -x "$HERE/extract_chunk.sh" ] || { echo "[!] extract_chunk.sh khong co quyen thuc thi (+x); tcpdump -z se that bai"; exit 1; }
 [ -x "$CFM_BIN" ] || { echo "[!] khong thay cfm: $CFM_BIN"; exit 1; }
 if ! getcap "$(readlink -f "$(which tcpdump)")" 2>/dev/null | grep -q cap_net_raw; then
   echo "[cảnh báo] tcpdump chua co cap_net_raw -> co the phai chay bang sudo."
