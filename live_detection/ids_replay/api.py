@@ -81,6 +81,8 @@ def create_app(*, scenarios: ScenarioService, explain: ExplainService,
     async def api_reset():
         engine.stop()
         engine.resume()
+        if live_engine is not None:
+            live_engine.stop()          # reset = về trạng thái sạch bất kể mode (kể cả khi LIVE đang chạy)
         await manager.broadcast({"type": "reset"})
         return {"ok": True}
 
