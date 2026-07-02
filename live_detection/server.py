@@ -2,6 +2,7 @@
 
 Chạy:  uvicorn server:app --host 0.0.0.0 --port 8000   (từ thư mục live_detection/)
 """
+import os
 from pathlib import Path
 
 from ids_replay.config import Settings
@@ -44,7 +45,10 @@ manager = ConnectionManager()
 engine = ReplayEngine(scenarios, manager)
 
 # --- nguồn LIVE: quét thư mục drop (CSV do cfm ở WSL đẩy sang) ---
-LIVE_DROP_DIR = HERE / "data" / "live"
+# Mặc định = data/live của chính bản repo này. Nếu server và script WSL chạy ở 2 bản repo
+# khác nhau (vd server ở /home/ning, capture ghi sang /mnt/d), đặt biến LIVE_DROP_DIR cho khớp.
+LIVE_DROP_DIR = Path(os.environ.get("LIVE_DROP_DIR", HERE / "data" / "live"))
+print(f"[*] Live drop dir: {LIVE_DROP_DIR}")
 live_source = LiveFlowSource(settings, extractor, classifier, pipeline, LIVE_DROP_DIR)
 live_engine = LiveEngine(live_source, manager)
 
