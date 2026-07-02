@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IDS Replay Demo — V8.5</title>
+<style>
+  :root{
+    --bg:#f4f6fa; --panel:#ffffff; --border:#e3e8ef; --txt:#1f2937; --muted:#6b7280;
+    --blue:#2563eb; --blue-bg:#eaf1fe; --green:#16a34a; --green-bg:#e9f7ef;
+    --red:#dc2626; --red-bg:#fdecec; --amber:#d97706; --purple:#7c3aed; --orange:#ea6a33;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);font-size:14px;}
+  .container{max-width:1180px;margin:0 auto;padding:16px;}
+  h1{font-size:17px;margin:0 0 14px;font-weight:700;}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;box-shadow:0 1px 2px rgba(0,0,0,.04);}
+
+  /* control bar */
+  .controls{display:flex;align-items:center;gap:14px;padding:12px 16px;margin-bottom:14px;flex-wrap:wrap;}
+  .controls .lbl{color:var(--muted);font-weight:600;}
+  select{padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:14px;font-weight:600;color:var(--txt);cursor:pointer;}
+  .btn{width:38px;height:38px;border:1px solid var(--border);border-radius:9px;background:#fff;cursor:pointer;font-size:15px;display:inline-flex;align-items:center;justify-content:center;transition:.15s;}
+  .btn:hover{border-color:var(--blue);color:var(--blue);}
+  .btn.play{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .spacer{flex:1;}
+  input[type=range]{width:150px;accent-color:var(--blue);}
+  .speedval{font-weight:700;min-width:30px;}
+
+  /* metric cards */
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px;}
+  .metric{padding:14px 16px;}
+  .metric .name{color:var(--muted);font-size:13px;margin-bottom:4px;}
+  .metric .val{font-size:30px;font-weight:800;letter-spacing:-.5px;}
+  .metric.acc{background:var(--blue-bg);border-color:#cfe0fd;} .metric.acc .val{color:var(--blue);}
+  .metric.f1{background:var(--green-bg);border-color:#c5ead4;} .metric.f1 .val{color:var(--green);}
+
+  /* main grid */
+  .grid{display:grid;grid-template-columns:1.35fr 1fr;gap:14px;}
+  .panel{padding:14px 16px;}
+  .panel h2{font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin:0 0 10px;display:flex;align-items:center;gap:6px;}
+
+  table{width:100%;border-collapse:collapse;}
+  th,td{text-align:left;padding:7px 8px;font-size:13px;border-bottom:1px solid var(--border);white-space:nowrap;}
+  th{color:var(--muted);font-weight:600;font-size:12px;}
+  td.conf{text-align:right;color:var(--muted);}
+  .feed-wrap{max-height:420px;overflow:auto;}
+  tr.err{background:var(--red-bg);}
+  tr.err td:last-child{color:var(--red);font-weight:700;}
+  .pill{padding:2px 9px;border-radius:11px;font-size:12px;font-weight:600;display:inline-block;}
+  .Benign{background:var(--green-bg);color:var(--green);}
+  .PortScan{background:#e7eefe;color:var(--blue);}
+  .DoS{background:var(--red-bg);color:var(--red);}
+  .BruteForce{background:#fdf0dd;color:var(--amber);}
+  .WebAttack{background:#f1e9fe;color:var(--purple);}
+
+  /* confusion matrix */
+  .cm{display:grid;gap:3px;margin-top:4px;}
+  .cm .cell{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#0b3a8f;}
+  .cm .hdr{font-size:10px;color:var(--muted);display:flex;align-items:center;justify-content:center;text-align:center;aspect-ratio:auto;}
+  .cm .rowlbl{font-size:10px;color:var(--muted);display:flex;align-items:center;justify-content:flex-end;padding-right:4px;}
+  .cap{font-size:11px;color:var(--muted);margin-top:8px;}
+
+  /* explainability */
+  .feat{margin:9px 0;}
+  .feat .fname{font-size:12px;margin-bottom:3px;color:var(--txt);}
+  .bar{height:9px;background:#eef1f5;border-radius:5px;overflow:hidden;}
+  .bar > i{display:block;height:100%;background:var(--orange);border-radius:5px;transition:width .3s;}
+  .status{margin-left:6px;padding:3px 10px;border-radius:8px;font-size:12px;font-weight:700;background:var(--green-bg);color:var(--green);}
+  .status.alert{background:var(--red-bg);color:var(--red);}
+  .status.load{background:#fff4e5;color:var(--amber);}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🛡️ IDS Replay Demo <span style="color:var(--muted);font-weight:400">· FT-Transformer V8.5</span>
+      <span id="status" class="status">● Sẵn sàng</span></h1>
+
+  <!-- CONTROL BAR -->
+  <div class="card controls">
+    <span class="lbl">🎬 Kịch bản</span>
+    <select id="scenario"></select>
+    <button class="btn play" id="btn-play" title="Chạy">▶</button>
+    <button class="btn" id="btn-pause" title="Tạm dừng" disabled>⏸</button>
+    <button class="btn" id="btn-reset" title="Reset">↻</button>
+    <button class="btn" id="btn-live" title="Bắt gói LIVE (WSL)" style="width:auto;padding:0 12px;font-weight:700;">🔴 LIVE</button>
+    <span class="spacer"></span>
+    <span class="lbl">Tốc độ</span>
+    <input type="range" id="speed" min="0.5" max="8" step="0.5" value="2">
+    <span class="speedval" id="speedval">2×</span>
+  </div>
+
+  <!-- METRIC CARDS -->
+  <div class="metrics">
+    <div class="card metric acc"><div class="name">Accuracy</div><div class="val" id="m-acc">—</div></div>
+    <div class="card metric"><div class="name">Precision</div><div class="val" id="m-prec">—</div></div>
+    <div class="card metric"><div class="name">Recall</div><div class="val" id="m-rec">—</div></div>
+    <div class="card metric f1"><div class="name">F1-score</div><div class="val" id="m-f1">—</div></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="grid">
+    <div class="card panel">
+      <h2>📡 Live flow stream <span id="progress" style="color:var(--muted);font-weight:400;text-transform:none"></span></h2>
+      <div class="feed-wrap">
+        <table>
+          <thead><tr><th>Flow (src→dst)</th><th>Truth</th><th>Pred</th><th class="conf">Conf</th></tr></thead>
+          <tbody id="feed"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div class="card panel" style="margin-bottom:14px">
+        <h2>🔲 Confusion matrix</h2>
+        <div class="cm" id="cm"></div>
+        <div class="cap">Đường chéo đậm = dự đoán đúng · hàng = Truth, cột = Pred</div>
+      </div>
+      <div class="card panel">
+        <h2 id="xai-title">💡 Vì sao dự đoán?</h2>
+        <div id="xai"><div style="color:var(--muted);font-size:13px">Chạy kịch bản để xem đặc trưng quan trọng…</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CLS_COLOR={'Benign':'#16a34a','PortScan':'#2563eb','DoS':'#dc2626','Brute Force':'#d97706','Web Attack':'#7c3aed'};
+let CLASSES=['Benign','Brute Force','DoS','PortScan','Web Attack'];
+const cssCls=s=>s.replace(/\s/g,'');
+let cm={}, total=0, playing=false, paused=false, xaiClass=null, liveMode=false, liveCount=0;
+
+function zeroCM(){cm={};CLASSES.forEach(t=>{cm[t]={};CLASSES.forEach(p=>cm[t][p]=0);});total=0;}
+zeroCM();
+
+// ---------- init ----------
+async function init(){
+  const d=await (await fetch('/api/scenarios')).json();
+  CLASSES=d.classes||CLASSES; zeroCM();
+  const sel=document.getElementById('scenario');
+  sel.innerHTML='';
+  d.scenarios.forEach(s=>{
+    const o=document.createElement('option');
+    o.value=s.key; o.textContent=s.label+(s.available?'':' (chưa có)'); o.disabled=!s.available;
+    sel.appendChild(o);
+  });
+  // chọn mặc định kịch bản available đầu tiên
+  const first=d.scenarios.find(s=>s.available); if(first) sel.value=first.key;
+  buildCMgrid();
+}
+init();
+
+// ---------- controls ----------
+const speed=document.getElementById('speed');
+speed.oninput=()=>{document.getElementById('speedval').textContent=speed.value+'×';
+  if(playing) post('/api/speed',{speed:+speed.value});};
+document.getElementById('btn-play').onclick=async()=>{
+  const sc=document.getElementById('scenario').value;
+  const r=await post('/api/play',{scenario:sc,speed:+speed.value});
+  if(!r.ok){alert(r.error||'Lỗi');return;}
+};
+document.getElementById('btn-pause').onclick=()=>post(paused?'/api/resume':'/api/pause',{});
+document.getElementById('btn-reset').onclick=()=>post('/api/reset',{});
+document.getElementById('btn-live').onclick=async()=>{
+  if(liveMode){ await post('/api/live/stop',{}); liveMode=false; setLiveBtn(); setStatus('idle'); return; }
+  const r=await post('/api/live/start',{});
+  if(!r.ok){alert(r.error||'Không bật được LIVE');return;}
+};
+
+async function post(u,b){return fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b||{})}).then(r=>r.json()).catch(e=>({ok:false,error:''+e}));}
+
+// ---------- websocket ----------
+let ws;
+function connect(){
+  ws=new WebSocket((location.protocol==='https:'?'wss':'ws')+'://'+location.host+'/ws');
+  ws.onmessage=e=>handle(JSON.parse(e.data));
+  ws.onclose=()=>setTimeout(connect,1000);
+}
+connect();
+
+function handle(m){
+  if(m.type==='flow'){ onFlow(m); }
+  else if(m.type==='play'){ playing=true;paused=false; liveMode=false; setLiveBtn(); setStatus('run'); setPauseBtn();
+      document.getElementById('progress').textContent='0 / '+m.n; }
+  else if(m.type==='loading'){ setStatus('load',m.what); }
+  else if(m.type==='reset'){ zeroCM(); document.getElementById('feed').innerHTML='';
+      renderMetrics(); renderCM(); document.getElementById('progress').textContent=''; }
+  else if(m.type==='paused'){ paused=m.paused; setPauseBtn(); setStatus(paused?'pause':'run'); }
+  else if(m.type==='progress'){ document.getElementById('progress').textContent=m.i+' / '+m.n; }
+  else if(m.type==='done'){ playing=false; setStatus('done'); setPauseBtn(); }
+  else if(m.type==='live_start'){ liveMode=true; liveCount=0; playing=false; paused=false;
+      zeroCM(); document.getElementById('feed').innerHTML=''; renderMetrics(); renderCM();
+      setPauseBtn(); setLiveBtn(); setStatus('live');
+      document.getElementById('progress').textContent='LIVE · chờ flow…'; }
+  else if(m.type==='live_batch'){ liveCount=m.total;
+      document.getElementById('progress').textContent='LIVE · '+m.total+' flow'; }
+}
+
+function onFlow(m){
+  const isLive = !m.truth;            // LIVE: không có nhãn thật
+  // confusion matrix + metrics chỉ áp dụng khi có truth (replay)
+  if(!isLive && cm[m.truth] && m.pred in cm[m.truth]){ cm[m.truth][m.pred]++; total++; }
+  renderMetrics(); renderCM();
+  // bảng flow
+  const tb=document.getElementById('feed');
+  const tr=document.createElement('tr');
+  const wrong = !isLive && m.truth!==m.pred;
+  if(wrong) tr.className='err';
+  const tag = wrong?(m.truth==='Benign'?'⚠ FP':'⚠ FN'):'';
+  const truthCell = isLive ? '<td style="color:var(--muted)">—</td>'
+                           : `<td><span class="pill ${cssCls(m.truth)}">${m.truth}</span></td>`;
+  tr.innerHTML=`<td>${m.src}→${m.dst}:${m.dst_port}</td>`+truthCell+
+               `<td><span class="pill ${cssCls(m.pred)}">${m.pred}</span></td>`+
+               `<td class="conf">${(m.conf*100).toFixed(0)}% ${tag}</td>`;
+  tb.prepend(tr);
+  while(tb.children.length>60) tb.removeChild(tb.lastChild);
+  // explainability theo class tấn công dự đoán
+  if(m.pred!=='Benign' && m.pred!==xaiClass) loadXAI(m.pred);
+  // trạng thái: LIVE giữ nhãn LIVE; có tấn công thì cảnh báo
+  const attack = isLive ? (m.pred!=='Benign') : anyAttack();
+  setStatus(attack?'alert':(isLive?'live':'run'));
+}
+function anyAttack(){return CLASSES.some(c=>c!=='Benign' && Object.values(cm[c]).reduce((a,b)=>a+b,0)>0 && cm[c][c]>0);}
+
+// ---------- metrics ----------
+function renderMetrics(){
+  if(!total){['m-acc','m-prec','m-rec','m-f1'].forEach(id=>document.getElementById(id).textContent='—');return;}
+  let correct=0; CLASSES.forEach(c=>correct+=cm[c][c]);
+  const acc=correct/total;
+  let Ps=[],Rs=[],Fs=[];
+  CLASSES.forEach(c=>{
+    const rowSum=CLASSES.reduce((a,p)=>a+cm[c][p],0);      // truth==c
+    const colSum=CLASSES.reduce((a,t)=>a+cm[t][c],0);      // pred==c
+    if(rowSum===0 && colSum===0) return;
+    const P=colSum?cm[c][c]/colSum:0, R=rowSum?cm[c][c]/rowSum:0;
+    const F=(P+R)?2*P*R/(P+R):0;
+    if(rowSum>0){Ps.push(P);Rs.push(R);Fs.push(F);}
+  });
+  const mean=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
+  set('m-acc',acc); set('m-prec',mean(Ps)); set('m-rec',mean(Rs)); set('m-f1',mean(Fs));
+}
+function set(id,v){document.getElementById(id).textContent=(v*100).toFixed(1)+'%';}
+
+// ---------- confusion matrix ----------
+function buildCMgrid(){
+  const g=document.getElementById('cm');
+  g.style.gridTemplateColumns='46px repeat('+CLASSES.length+',1fr)';
+  renderCM();
+}
+function renderCM(){
+  const g=document.getElementById('cm'); g.innerHTML='';
+  g.style.gridTemplateColumns='46px repeat('+CLASSES.length+',1fr)';
+  let max=1; CLASSES.forEach(t=>CLASSES.forEach(p=>max=Math.max(max,cm[t][p])));
+  g.appendChild(div('hdr',''));                          // góc
+  CLASSES.forEach(p=>g.appendChild(div('hdr',abbr(p)))); // header cột (Pred)
+  CLASSES.forEach(t=>{
+    g.appendChild(div('rowlbl',abbr(t)));                // nhãn hàng (Truth)
+    CLASSES.forEach(p=>{
+      const v=cm[t][p], op=v?(0.12+0.88*v/max):0;
+      const c=div('cell', v||'');
+      c.style.background=`rgba(37,99,235,${op.toFixed(3)})`;
+      if(op>0.55) c.style.color='#fff';
+      if(t===p) c.style.outline='2px solid rgba(37,99,235,.35)';
+      g.appendChild(c);
+    });
+  });
+}
+function div(cls,txt){const d=document.createElement('div');d.className=cls;d.textContent=txt;return d;}
+function abbr(c){return {'Benign':'BEN','Brute Force':'BF','DoS':'DoS','PortScan':'PS','Web Attack':'WEB'}[c]||c;}
+
+// ---------- explainability ----------
+async function loadXAI(cls){
+  xaiClass=cls;
+  document.getElementById('xai-title').textContent='💡 Vì sao dự đoán '+cls+'?';
+  const d=await (await fetch('/api/explain/'+encodeURIComponent(cls))).json();
+  const box=document.getElementById('xai');
+  if(!d.features||!d.features.length){box.innerHTML='<div style="color:var(--muted)">Không có dữ liệu.</div>';return;}
+  box.innerHTML=d.features.map(f=>
+    `<div class="feat"><div class="fname">${f.feature}</div>`+
+    `<div class="bar"><i style="width:${Math.round(f.importance*100)}%"></i></div></div>`).join('');
+}
+
+// ---------- status / buttons ----------
+function setStatus(kind,txt){
+  const el=document.getElementById('status'); el.className='status';
+  if(kind==='load'){el.classList.add('load');el.textContent='⏳ Đang nạp '+(txt||'')+'...';}
+  else if(kind==='alert'){el.classList.add('alert');el.textContent='⚠ PHÁT HIỆN TẤN CÔNG';}
+  else if(kind==='run'){el.textContent='▶ Đang chạy';}
+  else if(kind==='live'){el.classList.add('alert');el.style.background='';el.textContent='🔴 LIVE — đang bắt gói';}
+  else if(kind==='pause'){el.classList.add('load');el.textContent='⏸ Tạm dừng';}
+  else if(kind==='done'){el.textContent='✓ Hoàn tất';}
+  else{el.textContent='● Sẵn sàng';}
+}
+function setPauseBtn(){
+  const b=document.getElementById('btn-pause');
+  b.disabled=!playing; b.textContent=paused?'▶':'⏸'; b.title=paused?'Tiếp tục':'Tạm dừng';
+}
+function setLiveBtn(){
+  const b=document.getElementById('btn-live');
+  b.textContent=liveMode?'⏹ Dừng LIVE':'🔴 LIVE';
+  b.style.background=liveMode?'var(--red)':''; b.style.color=liveMode?'#fff':'';
+  b.style.borderColor=liveMode?'var(--red)':'';
+}
+</script>
+</body>
+</html>
