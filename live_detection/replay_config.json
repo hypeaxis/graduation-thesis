@@ -1,0 +1,27 @@
+{
+  "attacker_ip": "192.168.0.106",
+  "victim_ip": "192.168.0.103",
+  "portscan_rule": {"enabled": true, "window_sec": 2.0, "min_unique_ports": 15, "_note": "BẬT: data portscan thu lại trên Win11 host (222k flow, 22k cổng). Test: recall 99.2%, benign FP 0% tại ngưỡng 15."},
+  "conf_threshold": 0.6,
+  "_conf_threshold_note": "Phương án A: dự đoán tấn công có confidence < ngưỡng → hạ về Benign (giảm FP benign). Theo Bảng tiến trình replay (Chương 5): T=0.6 đưa Macro F1 0.679→0.725, Benign Recall 75.4%→95.2% (attack recall ~98%); kết hợp luật quét cổng → Macro F1 cuối 0.978.",
+  "_path_note": "Bản độc lập live_detection/: repo_root = chính thư mục live_detection/ (REPO_ROOT=HERE trong server.py). Mọi đường dẫn tương đối so với live_detection/. Chỉ dos_only đi kèm gói; các corpus khác xem data/README.md để tải/thu.",
+  "model": {
+    "model_pt": "models/v8_5_model.pt",
+    "scaler_pkl": "models/v8_5_scaler.pkl",
+    "encoder_pkl": "models/v8_5_encoder.pkl"
+  },
+  "replay_files": {
+    "portscan":   "data/portscan_only.pcap_Flow.csv",
+    "bruteforce": "data/bruteforce_only.pcap_Flow.csv",
+    "webattack":  "data/webattack_only.pcap_Flow.csv",
+    "dos":        "data/dos_only.pcap_Flow.csv",
+    "benign":     "data/benign_only.pcap_Flow.csv"
+  },
+  "label_map": {
+    "portscan": "PortScan",
+    "bruteforce": "Brute Force",
+    "webattack": "Web Attack",
+    "dos": "DoS",
+    "benign": "Benign"
+  }
+}

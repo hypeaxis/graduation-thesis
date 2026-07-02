@@ -1,0 +1,20 @@
+# Runtime output của phần live (không commit)
+data/live/*.csv
+data/live/*.part
+data/live/processed/
+
+# Corpus nặng thu/tải riêng (chỉ giữ dos_only mẫu)
+data/portscan_only.pcap_Flow.csv
+data/bruteforce_only.pcap_Flow.csv
+data/webattack_only.pcap_Flow.csv
+data/benign_only.pcap_Flow.csv
+
+# Python / môi trường
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Log
+logs/
+*.log
