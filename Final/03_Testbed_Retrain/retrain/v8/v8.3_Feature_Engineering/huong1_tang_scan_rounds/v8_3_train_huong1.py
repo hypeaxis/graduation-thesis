@@ -1,7 +1,7 @@
 """
 v8_3_train_huong1.py — V8.3 Hướng 1: Fine-tune V7 model với CIC PortScan injected data
 Dựa trên 4e_retrain_run7_v7.py, thay đổi:
-  - Data: /home/ning/Graduation-Thesis/Custom_IDS_Testbed/scripts/Combined_V8_3_Huong1.csv (run10 Benign/BF/WebAtk/DoS + CIC PortScan 5k)
+  - Data: Combined_V8_3_Huong1.csv (run10 Benign/BF/WebAtk/DoS + CIC PortScan 5k) — đặt env DATA_PATH nếu để nơi khác
   - Base model: v7_model.pt (đã có 5 class, 80 features — không cần model surgery)
   - lr: 3e-5 (thấp hơn v7 do domain shift CIC→testbed)
   - Epochs: 20 (nhiều hơn để học PortScan pattern)
@@ -27,7 +27,9 @@ sys.path.insert(0, os.path.join(WORKSPACE_DIR, '../../../../CIC_IDS_2017_Workspa
 # ============================================================================
 # PATHS
 # ============================================================================
-DATA_PATH       = os.path.join(WORKSPACE_DIR, '/home/ning/Graduation-Thesis/Custom_IDS_Testbed/scripts/Combined_V8_3_Huong1.csv')
+# ⚠️ Sửa cho khớp dataset bạn tự dựng, hoặc đặt env DATA_PATH (xem ../../../../HUONG_DAN_CHAY.md).
+#    Mặc định: file Combined_V8_3_Huong1.csv cùng thư mục script.
+DATA_PATH       = os.environ.get('DATA_PATH', os.path.join(WORKSPACE_DIR, 'Combined_V8_3_Huong1.csv'))
 BASE_MODEL_PATH = os.path.abspath(os.path.join(WORKSPACE_DIR, '../../../archive_v7_run7/models/v7_model.pt'))
 SCALER_77_PATH  = os.path.abspath(os.path.join(
     WORKSPACE_DIR, '../../../../CIC_IDS_2017_Workspace/models/final_cic_ids_2017/scaler_stage1.pkl'))

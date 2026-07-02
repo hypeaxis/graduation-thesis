@@ -12,11 +12,13 @@ Chạy: python3 cic_webattack_mapper.py
 Output: cic_webattack_mapped.csv
 """
 
+import os
 import pandas as pd
 import numpy as np
 
-CIC_RAW_PATH = '/home/ning/Graduation-Thesis/CIC_IDS_2017_Workspace/data/raw/' \
-               'Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv'
+# ⚠️ Sửa cho khớp máy bạn, hoặc đặt env CIC_RAW_DIR (mặc định data/raw — xem HUONG_DAN_CHAY.md).
+CIC_RAW_PATH = os.path.join(os.environ.get('CIC_RAW_DIR', 'data/raw'),
+                            'Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv')
 OUTPUT_PATH  = 'cic_webattack_mapped.csv'
 
 # Thursday: columns KHÔNG có leading space — dùng clean keys

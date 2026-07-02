@@ -42,7 +42,7 @@ scikit-learn          # scaler/encoder, RF/KNN (GĐ2)
 fastapi==0.111.0 uvicorn==0.30.0 pydantic==2.7.2
 numpy pandas joblib
 ```
-Mỗi GĐ chạy được dùng `requirements.txt` trong thư mục tương ứng.
+GĐ5 (demo chạy ngay) có sẵn `requirements.txt` — cài bằng `pip install -r requirements.txt`. Các GĐ khác dùng lệnh `pip install` ghi trực tiếp trong `HUONG_DAN_CHAY.md` của GĐ đó.
 
 ## 4. Công cụ hệ thống theo GĐ
 

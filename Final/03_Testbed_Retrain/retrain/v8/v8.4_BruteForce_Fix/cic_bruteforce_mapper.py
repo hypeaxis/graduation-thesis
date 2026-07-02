@@ -13,11 +13,13 @@ Output:
     cic_bruteforce_mapped.csv  (5,000 flows, 80 features + Label)
 """
 
+import os
 import pandas as pd
 import numpy as np
 
-CIC_RAW_PATH = '/home/ning/Graduation-Thesis/CIC_IDS_2017_Workspace/data/raw/' \
-               'Tuesday-WorkingHours.pcap_ISCX.csv'
+# ⚠️ Sửa cho khớp máy bạn, hoặc đặt env CIC_RAW_DIR (mặc định data/raw — xem HUONG_DAN_CHAY.md).
+CIC_RAW_PATH = os.path.join(os.environ.get('CIC_RAW_DIR', 'data/raw'),
+                            'Tuesday-WorkingHours.pcap_ISCX.csv')
 OUTPUT_PATH  = 'cic_bruteforce_mapped.csv'
 
 SAMPLE_PER_TOOL = 2500   # 2,500 FTP-Patator + 2,500 SSH-Patator = 5,000 tổng

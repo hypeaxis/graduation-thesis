@@ -7,8 +7,10 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import PowerTransformer
 from tqdm import tqdm
 
-RAW_DATA_DIR = "/home/ning/graduation-thesis/CIC_IDS_2017_Workspace/data/raw"
-OUTPUT_DIR = "/home/ning/graduation-thesis/CIC_IDS_2017_Workspace/data/processed"
+# ⚠️ Sửa cho khớp máy bạn, hoặc đặt biến môi trường CIC_RAW_DIR / CIC_PROCESSED_DIR
+#    (xem ../../HUONG_DAN_CHAY.md). Mặc định trỏ tương đối vào data/ của GĐ2.
+RAW_DATA_DIR = os.environ.get("CIC_RAW_DIR", "data/raw")
+OUTPUT_DIR = os.environ.get("CIC_PROCESSED_DIR", "data/processed")
 
 STAGE2_FEATURES = [
     'Port_Is_Web', 'Port_Is_RemoteAccess', 'Port_Is_WellKnown',

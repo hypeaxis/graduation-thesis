@@ -21,14 +21,17 @@ CIC-IDS-2017 (MachineLearningCSV): https://www.unb.ca/cic/datasets/ids-2017.html
 
 ## 5. Chạy/huấn luyện
 - Tham khảo `notebooks/Intrusion-Detection-CIC-IDS2017.ipynb` (đã xoá output) cho EDA + pipeline.
-- Code module trong `src/{data_processing,models,training}` và `src/archive/` (các phiên bản v5).
+- Thứ tự chạy hệ thống cuối (V7 = bản đạt 99,55% / 0,9294):
 ```bash
-python src/data_processing/<preprocess>.py
-python src/training/<train_gating>.py
-python src/training/<train_expert_hnm>.py
-python src/training/<train_ensemble_voting>.py
+# Đặt CIC MachineLearningCSV vào data/raw/ (hoặc đặt env CIC_RAW_DIR), rồi:
+python src/data_processing/cic_data_processor_v2.py                    # tiền xử lý → data/processed/
+python src/archive/phase2_train_v4_stage1.py                          # Stage1 Gating (Benign vs Attack)
+python src/training/scripts_v7/extract_hard_negatives_v7.py           # Hard Negative Mining (HNM)
+python src/training/scripts_v7/phase2_train_v7_stage2_ensemble.py     # Stage2 Expert (FTT) + RF + KNN + Asymmetric Voting
+python src/training/scripts_v7/evaluate_cascade_system_v7.py          # đánh giá → Accuracy/Macro F1
 ```
-(Tên script cụ thể xem trong `src/` — giữ nguyên cấu trúc gốc.)
+- Định nghĩa kiến trúc model: `src/models/phase2_ft_transformer_v2.py`. Các bản cũ (v5/v6) trong `src/archive/scripts_v5/`.
+- ⚠️ Các script đọc đường dẫn dữ liệu qua biến môi trường `CIC_RAW_DIR` / `CIC_PROCESSED_DIR` (mặc định `data/raw`, `data/processed`); sửa nếu đặt dữ liệu nơi khác.
 
 ## 6. Kết quả mong đợi
 Accuracy **99,55%**, Macro F1 **0,9294**. Đóng góp từng cải tiến: Two-Stage (+0,099), HNM (+0,036), Asymmetric Voting (+0,011). Report tham chiếu trong `results/`.

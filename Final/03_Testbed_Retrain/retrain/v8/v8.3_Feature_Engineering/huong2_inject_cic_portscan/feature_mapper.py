@@ -11,11 +11,13 @@ Output:
     cic_portscan_mapped.csv  (~158k PortScan flows, 81 features + Label)
 """
 
+import os
 import pandas as pd
 import numpy as np
 
-CIC_RAW_PATH = '/home/ning/Graduation-Thesis/CIC_IDS_2017_Workspace/data/raw/' \
-               'Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv'
+# ⚠️ Sửa cho khớp máy bạn, hoặc đặt env CIC_RAW_DIR (mặc định data/raw — xem HUONG_DAN_CHAY.md).
+CIC_RAW_PATH = os.path.join(os.environ.get('CIC_RAW_DIR', 'data/raw'),
+                            'Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv')
 OUTPUT_PATH  = 'cic_portscan_mapped.csv'
 
 # Mapping: CIC raw column → testbed column name

@@ -10,10 +10,12 @@ Output:
 Chạy: python3 combine_datasets.py
 """
 
+import os
 import pandas as pd
 import numpy as np
 
-SCRIPTS_DIR  = '/home/ning/Graduation-Thesis/Custom_IDS_Testbed/scripts'
+# ⚠️ Sửa cho khớp nơi bạn đặt dataset testbed, hoặc đặt env TESTBED_SCRIPTS_DIR.
+SCRIPTS_DIR  = os.environ.get('TESTBED_SCRIPTS_DIR', '.')
 RUN10_PATH   = f'{SCRIPTS_DIR}/Cleaned_Labeled_Dataset_run10.csv'
 CIC_PS_PATH  = 'cic_portscan_mapped.csv'
 OUTPUT_PATH  = 'Combined_V8_3_Huong2.csv'
