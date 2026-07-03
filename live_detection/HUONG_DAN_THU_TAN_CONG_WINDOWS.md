@@ -50,6 +50,14 @@ powershell.exe -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 | Where
 
 ## 2. Chuẩn bị (làm 1 lần)
 
+> **✅ Máy VICTIM này đã xác minh sẵn sàng (2026-07-03):**
+> - Wi-Fi = `192.168.0.103/24` (đúng `victim_ip`) — **bắt gói trên card `Wi-Fi`**. Máy còn 1 card `Ethernet 192.168.1.2` khác subnet, **bỏ qua** (attacker `192.168.0.106` đi qua Wi-Fi).
+> - `dumpcap` Wireshark 4.6.6 + Npcap (Running) — đã cài. Thư mục `C:\cap` — đã tạo.
+> - WSL `Ubuntu-20.04` (user `ning`): java 1.8 OK, `cfm` OK, ghi được vào repo qua `/mnt/d/…`.
+> - **Đường dẫn repo trong WSL:** `"/mnt/d/ĐỒ ÁN/graduation-thesis/live_detection"` (project nằm trên D:, không có bản copy trong WSL home — luôn để trong ngoặc kép vì path có dấu cách).
+>
+> Các bước 2.1–2.4 dưới đây là để tái lập trên máy khác; máy này chỉ cần chuyển thẳng sang **mục 3**.
+
 ### 2.1 VICTIM (Windows) — công cụ bắt gói
 1. Cài **Wireshark** (kèm **Npcap**): https://www.wireshark.org/download.html
    → khi cài Npcap, bật *"Install Npcap in WinPcap API-compatible Mode"*.
@@ -81,7 +89,7 @@ ping -c 2 192.168.0.103                                   # phai thay victim
 
 ### 2.4 Chốt IP trong config (nguồn chân lý)
 ```bash
-cd /home/ning/Graduation-Thesis/live_detection
+cd "/mnt/d/ĐỒ ÁN/graduation-thesis/live_detection"
 grep -E 'attacker_ip|victim_ip' replay_config.json
 # phai la: attacker_ip=192.168.0.106  victim_ip=192.168.0.103  (sua neu khac)
 ```
@@ -93,8 +101,8 @@ grep -E 'attacker_ip|victim_ip' replay_config.json
 Chạy **trước** khi tấn công. Lọc đúng traffic attacker để nhãn sạch, ghi **pcap cổ điển** (`-P`) cho cfm đọc:
 
 ```powershell
-# tên interface lấy từ mục 2.1 (vd "Wi-Fi")
-dumpcap -i "Wi-Fi" -P -f "host 192.168.0.106" -w C:\cap\atk.pcap
+# Máy này: interface = "Wi-Fi", dumpcap KHÔNG trên PATH -> dùng đường dẫn đầy đủ:
+& "C:\Program Files\Wireshark\dumpcap.exe" -i "Wi-Fi" -P -f "host 192.168.0.106" -w C:\cap\atk.pcap
 ```
 - `-P` : ghi định dạng **pcap** (không phải pcapng) → cfm V4 đọc được.
 - `-f "host 192.168.0.106"` : chỉ bắt gói đi/đến attacker → loại nhiễu benign, nhãn sạch.
@@ -169,7 +177,7 @@ dir C:\cap
 
 ### 5.2 Đưa pcap vào cfm (WSL) → CSV 84 cột
 ```bash
-cd /home/ning/Graduation-Thesis/live_detection
+cd "/mnt/d/ĐỒ ÁN/graduation-thesis/live_detection"
 CFM_BIN="${CFM_BIN:-/home/ning/CICFlowMeter/build/distributions/CICFlowMeter-4.0/bin/cfm}"
 mkdir -p data/live
 # pcap tren C:\cap thay o /mnt/c/cap trong WSL
@@ -201,7 +209,7 @@ python3 training/consolidate_attack.py
 
 ### 6.2 Cách B — một lệnh tự chứa (không cần sửa file)
 ```bash
-cd /home/ning/Graduation-Thesis/live_detection
+cd "/mnt/d/ĐỒ ÁN/graduation-thesis/live_detection"
 python3 - <<'PY'
 from pathlib import Path
 import numpy as np, pandas as pd, glob, sys
