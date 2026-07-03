@@ -28,16 +28,29 @@ if cfg.exists():
     ATTACKER_IP = json.loads(cfg.read_text()).get("attacker_ip")
 ATTACKER_IP = ATTACKER_IP or "192.168.0.106"
 
-DEFAULT_LABEL = "PortScan"     # dung khi WINDOWS de trong
+DEFAULT_LABEL = "PortScan"     # cong khong nam trong PORT_LABELS -> nhan nay
 
+# ===== CACH GAN NHAN =====
+# Uu tien: (1) neu WINDOWS co dong -> gan theo thoi gian; (2) nguoc lai neu PORT_LABELS co
+# -> gan THUAN THEO CONG DICH (khong can gio, bat bien lech dong ho, KHUYEN NGHI cho phien
+# da tan cong); (3) neu ca hai trong -> gan het DEFAULT_LABEL (phien 1 loai tan cong).
+
+# --- (2) PORT_LABELS: moi loai tan cong danh 1 cong dich rieng -> tach sach theo cong. ---
+# Cong khong liet ke o day -> DEFAULT_LABEL (PortScan). Nhan phai KHOP label_map cua model:
+# "PortScan" | "DoS" | "Brute Force" | "Web Attack".
+PORT_LABELS = {
+    80:  "Web Attack",     # HTTP: SQLi/XSS/brute login form
+    22:  "Brute Force",    # SSH-Patator (hydra ssh)
+    445: "DoS",            # SYN/connection flood
+    # 21: "Brute Force",   # (tuy chon) FTP-Patator
+}
+
+# --- (1) WINDOWS: gan theo cua so thoi gian (chi dung khi CAN moc gio, vd 1 cong nhieu loai). ---
 # Moi dong: (nhan, bat_dau, ket_thuc) HOAC (nhan, bat_dau, ket_thuc, dst_port).
-#   - dst_port (tuy chon): chi gan nhan cho flow co Dst Port == so nay -> tach sach 2 loai
-#     tan cong chay sat gio nhau (vd DoS chi danh 1 cong, PortScan trai nhieu cong).
-#   - Xu ly theo THU TU: dong sau ghi de dong truoc o phan trung -> dat loai "hep cong" sau cung.
-# Vi du (phien PortScan p1-2000 + DoS flood cong 445, chay sat nhau):
+# De TRONG de dung PORT_LABELS o tren. Vi du neu muon dung thoi gian:
 # WINDOWS = [
-#     ("PortScan", "2026-07-03 16:59:40", "2026-07-03 17:00:35"),         # ca dai gio, moi cong
-#     ("DoS",      "2026-07-03 16:59:40", "2026-07-03 17:00:35", 445),    # cung gio nhung chi cong 445
+#     ("PortScan", "2026-07-03 16:59:40", "2026-07-03 17:00:35"),
+#     ("DoS",      "2026-07-03 16:59:40", "2026-07-03 17:00:35", 445),
 # ]
 WINDOWS = []
 
@@ -107,9 +120,17 @@ if WINDOWS:
     if n_drop:
         print(f"    [bo] {n_drop} flow attacker ngoai moi cua so thoi gian")
     atk = atk[atk["Label"].notna()].copy()
+elif PORT_LABELS:
+    dport_col = pick(atk.columns, "dst port", "destination port", "dst_port")
+    if dport_col is None:
+        sys.exit("[!] PORT_LABELS can cot Dst Port nhung CSV khong co.")
+    port = pd.to_numeric(atk[dport_col], errors="coerce")
+    atk["Label"] = port.map(PORT_LABELS).fillna(DEFAULT_LABEL)
+    print(f"[*] Gan nhan THUAN THEO CONG (PORT_LABELS={PORT_LABELS}, con lai -> {DEFAULT_LABEL})")
+    print(atk["Label"].value_counts().to_string())
 else:
     atk["Label"] = DEFAULT_LABEL
-    print(f"[*] WINDOWS trong -> gan het nhan '{DEFAULT_LABEL}'")
+    print(f"[*] WINDOWS & PORT_LABELS trong -> gan het nhan '{DEFAULT_LABEL}'")
 
 if atk.empty:
     sys.exit("[!] Sau khi gan nhan con 0 flow. Kiem lai moc gio trong WINDOWS.")
