@@ -25,7 +25,7 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 ATTACKER_IP = None
 cfg = HERE / "replay_config.json"
 if cfg.exists():
-    ATTACKER_IP = json.loads(cfg.read_text()).get("attacker_ip")
+    ATTACKER_IP = json.loads(cfg.read_text(encoding="utf-8")).get("attacker_ip")
 ATTACKER_IP = ATTACKER_IP or "192.168.0.106"
 
 DEFAULT_LABEL = "PortScan"     # cong khong nam trong PORT_LABELS -> nhan nay

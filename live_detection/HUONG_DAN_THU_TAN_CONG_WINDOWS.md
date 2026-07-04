@@ -126,9 +126,9 @@ Chạy **trước** khi tấn công. Lọc đúng traffic attacker để nhãn s
 
 ```powershell
 # Máy này: interface = "Wi-Fi", dumpcap KHÔNG trên PATH -> dùng đường dẫn đầy đủ:
-& "C:\Program Files\Wireshark\dumpcap.exe" -i "Wi-Fi" -P -f "host 192.168.0.106" -w C:\cap\atk.pcap
+& "C:\Program Files\Wireshark\dumpcap.exe" -i "Wi-Fi" -F pcap -f "host 192.168.0.106" -w C:\cap\atk.pcap
 ```
-- `-P` : ghi định dạng **pcap** (không phải pcapng) → cfm V4 đọc được.
+- `-F pcap` : ghi định dạng **pcap** cổ điển (không phải pcapng) → cfm V4 đọc được. (Dumpcap ≥4.6 deprecate `-P` cũ; dùng `-F pcap`.)
 - `-f "host 192.168.0.106"` : chỉ bắt gói đi/đến attacker → loại nhiễu benign, nhãn sạch.
 - Để chạy tới khi tấn công xong; **`Ctrl-C` để dừng** (Giai đoạn 3).
 
@@ -300,7 +300,7 @@ wc -l data/analysis/portscan_real.csv data/analysis/dos_real.csv data/analysis/b
 
 ## 8. Cạm bẫy thường gặp
 - **Bắt gói trong WSL cho tấn công** → chỉ thấy ~1k packet (WSL mù với gói tới cổng Windows/đóng). **Phải** dùng `dumpcap` trên Windows.
-- **Quên `-P`** → dumpcap ghi pcapng, cfm V4 có thể không đọc. Luôn `-P`.
+- **Quên `-F pcap`** → dumpcap ghi pcapng, cfm V4 có thể không đọc. Luôn `-F pcap` (bản cũ: `-P`).
 - **Quên `-f "host 192.168.0.106"`** → pcap dính benign của cả LAN → bẩn nhãn.
 - **Sai tên interface** (`dumpcap -i`) → bắt nhầm card không có traffic. Kiểm `dumpcap -D`, chọn card mang IP `192.168.0.103`.
 - **0 flow từ attacker** → attacker_ip sai (NAT ánh xạ IP khác `.106`): xem danh sách Src IP script in ra, cập nhật `replay_config.json`.

@@ -18,3 +18,6 @@ venv/
 # Log
 logs/
 *.log
+
+# Backup benign chunk cu (khong commit)
+data/live_benign_bak_*/
