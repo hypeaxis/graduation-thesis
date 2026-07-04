@@ -1,0 +1,286 @@
+{
+  "fp_diagnosis": {
+    "n_real_benign": 50721,
+    "fpr_pct": 24.68,
+    "benign_recall_pct": 75.32,
+    "fp_conf_mean": 0.783,
+    "fp_breakdown": {
+      "DoS": 10561,
+      "Web Attack": 1863,
+      "PortScan": 95,
+      "Brute Force": 1
+    }
+  },
+  "top_ks": [
+    {
+      "feature": "Bwd_IAT_Min",
+      "ks_stat": 0.8106,
+      "p_value": 0.0,
+      "lab_median": 253.0,
+      "real_median": 0.0,
+      "lab_p99": 27729.94,
+      "real_p99": 19591.8
+    },
+    {
+      "feature": "Custom_Bwd_Pkt_Ratio",
+      "ks_stat": 0.6287,
+      "p_value": 0.0,
+      "lab_median": 0.8,
+      "real_median": 1.0,
+      "lab_p99": 3.0,
+      "real_p99": 1.562
+    },
+    {
+      "feature": "Custom_IAT_Anomaly",
+      "ks_stat": 0.5446,
+      "p_value": 0.0,
+      "lab_median": 2.2404,
+      "real_median": 22.0,
+      "lab_p99": 703125.64,
+      "real_p99": 314089.0
+    },
+    {
+      "feature": "Down_Up_Ratio",
+      "ks_stat": 0.5361,
+      "p_value": 0.0,
+      "lab_median": 0.0,
+      "real_median": 1.0,
+      "lab_p99": 3.0,
+      "real_p99": 1.0
+    },
+    {
+      "feature": "FIN_Flag_Count",
+      "ks_stat": 0.5156,
+      "p_value": 0.0,
+      "lab_median": 2.0,
+      "real_median": 1.0,
+      "lab_p99": 2.0,
+      "real_p99": 2.0
+    },
+    {
+      "feature": "Init_Win_bytes_backward",
+      "ks_stat": 0.4455,
+      "p_value": 0.0,
+      "lab_median": 63.0,
+      "real_median": 16.0,
+      "lab_p99": 80.0,
+      "real_p99": 16382.0
+    },
+    {
+      "feature": "Fwd_IAT_Max",
+      "ks_stat": 0.4338,
+      "p_value": 0.0,
+      "lab_median": 11622.5,
+      "real_median": 2.0,
+      "lab_p99": 119956897.12,
+      "real_p99": 2059196.4
+    },
+    {
+      "feature": "Fwd_IAT_Mean",
+      "ks_stat": 0.4338,
+      "p_value": 0.0,
+      "lab_median": 5041.0,
+      "real_median": 2.0,
+      "lab_p99": 39935004.4,
+      "real_p99": 1026452.7375
+    },
+    {
+      "feature": "Fwd_IAT_Total",
+      "ks_stat": 0.4337,
+      "p_value": 0.0,
+      "lab_median": 19401.5,
+      "real_median": 2.0,
+      "lab_p99": 119974190.0,
+      "real_p99": 13362483.2
+    },
+    {
+      "feature": "Bwd_Header_Length",
+      "ks_stat": 0.4335,
+      "p_value": 0.0,
+      "lab_median": 136.0,
+      "real_median": 32.0,
+      "lab_p99": 456.0,
+      "real_p99": 3080.0
+    }
+  ],
+  "top_zscore": [
+    {
+      "feature": "FIN_Flag_Count",
+      "real_max_absz": 5.84,
+      "real_pct_gt5": 59.9,
+      "real_pct_gt10": 0.0,
+      "lab_max_absz": 5.84
+    },
+    {
+      "feature": "RST_Flag_Count",
+      "real_max_absz": 73.56,
+      "real_pct_gt5": 37.36,
+      "real_pct_gt10": 37.36,
+      "lab_max_absz": 73.56
+    },
+    {
+      "feature": "Custom_Pkt_Size_Ratio",
+      "real_max_absz": 6.6,
+      "real_pct_gt5": 13.78,
+      "real_pct_gt10": 0.0,
+      "lab_max_absz": 0.15
+    },
+    {
+      "feature": "Flow_IAT_Min",
+      "real_max_absz": 64717.75,
+      "real_pct_gt5": 0.18,
+      "real_pct_gt10": 0.14,
+      "lab_max_absz": 2.63
+    },
+    {
+      "feature": "Custom_IAT_CV",
+      "real_max_absz": 9.09,
+      "real_pct_gt5": 0.07,
+      "real_pct_gt10": 0.0,
+      "lab_max_absz": 7.02
+    },
+    {
+      "feature": "Fwd_Packet_Length_Mean",
+      "real_max_absz": 6.39,
+      "real_pct_gt5": 0.04,
+      "real_pct_gt10": 0.0,
+      "lab_max_absz": 3.89
+    },
+    {
+      "feature": "Avg_Fwd_Segment_Size",
+      "real_max_absz": 6.39,
+      "real_pct_gt5": 0.04,
+      "real_pct_gt10": 0.0,
+      "lab_max_absz": 3.89
+    },
+    {
+      "feature": "Flow_Bytes_s",
+      "real_max_absz": 15.41,
+      "real_pct_gt5": 0.01,
+      "real_pct_gt10": 0.0,
+      "lab_max_absz": 0.05
+    },
+    {
+      "feature": "Total_Length_of_Fwd_Packets",
+      "real_max_absz": 4.73,
+      "real_pct_gt5": 0.0,
+      "real_pct_gt10": 0.0,
+      "lab_max_absz": 3.91
+    },
+    {
+      "feature": "Subflow_Fwd_Bytes",
+      "real_max_absz": 3.74,
+      "real_pct_gt5": 0.0,
+      "real_pct_gt10": 0.0,
+      "lab_max_absz": 3.09
+    }
+  ],
+  "top_shap": [
+    {
+      "feature": "Port_Is_Web",
+      "shap_mean_abs": 0.82963,
+      "shap_mean_signed": 0.82592
+    },
+    {
+      "feature": "min_seg_size_forward",
+      "shap_mean_abs": 0.69763,
+      "shap_mean_signed": 0.53204
+    },
+    {
+      "feature": "Fwd_Packet_Length_Max",
+      "shap_mean_abs": 0.45878,
+      "shap_mean_signed": 0.08478
+    },
+    {
+      "feature": "Avg_Bwd_Segment_Size",
+      "shap_mean_abs": 0.40391,
+      "shap_mean_signed": 0.26538
+    },
+    {
+      "feature": "RST_Flag_Count",
+      "shap_mean_abs": 0.36161,
+      "shap_mean_signed": 0.18943
+    },
+    {
+      "feature": "Total_Length_of_Fwd_Packets",
+      "shap_mean_abs": 0.3208,
+      "shap_mean_signed": 0.24457
+    },
+    {
+      "feature": "PSH_Flag_Count",
+      "shap_mean_abs": 0.27935,
+      "shap_mean_signed": -0.11365
+    },
+    {
+      "feature": "Port_Is_WellKnown",
+      "shap_mean_abs": 0.23814,
+      "shap_mean_signed": -0.21204
+    },
+    {
+      "feature": "Init_Win_bytes_forward",
+      "shap_mean_abs": 0.20648,
+      "shap_mean_signed": 0.11916
+    },
+    {
+      "feature": "Fwd_IAT_Mean",
+      "shap_mean_abs": 0.20116,
+      "shap_mean_signed": -0.16203
+    }
+  ],
+  "ablation": [
+    {
+      "feature": "Down_Up_Ratio",
+      "fp_recovered_to_benign_pct": 11.88
+    },
+    {
+      "feature": "RST_Flag_Count",
+      "fp_recovered_to_benign_pct": 2.1
+    },
+    {
+      "feature": "Fwd_IAT_Mean",
+      "fp_recovered_to_benign_pct": 1.37
+    },
+    {
+      "feature": "Bwd_IAT_Min",
+      "fp_recovered_to_benign_pct": 1.12
+    },
+    {
+      "feature": "Custom_Bwd_Pkt_Ratio",
+      "fp_recovered_to_benign_pct": 0.92
+    },
+    {
+      "feature": "Custom_IAT_CV",
+      "fp_recovered_to_benign_pct": 0.89
+    },
+    {
+      "feature": "Flow_IAT_Min",
+      "fp_recovered_to_benign_pct": 0.79
+    },
+    {
+      "feature": "Init_Win_bytes_backward",
+      "fp_recovered_to_benign_pct": 0.36
+    },
+    {
+      "feature": "Custom_IAT_Anomaly",
+      "fp_recovered_to_benign_pct": 0.16
+    },
+    {
+      "feature": "Fwd_IAT_Max",
+      "fp_recovered_to_benign_pct": 0.09
+    },
+    {
+      "feature": "FIN_Flag_Count",
+      "fp_recovered_to_benign_pct": 0.01
+    },
+    {
+      "feature": "Custom_Pkt_Size_Ratio",
+      "fp_recovered_to_benign_pct": 0.0
+    }
+  ],
+  "core_culprits": [
+    "Total_Length_of_Fwd_Packets",
+    "Fwd_IAT_Mean",
+    "FIN_Flag_Count",
+    "RST_Flag_Count"
+  ]
+}

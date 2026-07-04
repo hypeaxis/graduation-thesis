@@ -228,9 +228,9 @@ Mỗi bước ghi rõ: **Tiền đề** (cần retrain? cần data gì?) → **M
 
 | Bước | Thay đổi | FPR / Benign-Recall (benign thật) | Accuracy | Macro-F1 CIC-IDS-2017 | TP-rate tấn công thật | Ghi chú |
 |---|---|---|---|---|---|---|
-| Gốc | (chưa sửa) | ~52% FP | thấp | 0.978 | chưa đo | overconfidence 0.85–0.88 |
-| 0 | Thu dữ liệu | — | — | — | — | #benign=..., #attack=... |
-| 1 | Chẩn đoán | — | — | — | — | top feature lệch: ... |
+| Gốc | (chưa sửa) | ~52% FP (chỉ 56 flow — không tin) | thấp | 0.978 | chưa đo | overconfidence 0.85–0.88 |
+| 0 | Thu dữ liệu | benign 50,721 (+val 12,680) | — | — | — | attack: portscan 77,218 / dos 38,403 / bruteforce 10,090 / webattack 9,961 |
+| 1 | Chẩn đoán | **FPR 24.68%** / Recall 75.32% (đo lại trên 50,721 flow) | thấp | 0.978 | — | FP≈DoS (20.8%, conf 0.82). Lệch(KS): Bwd_IAT_Min, Custom_Bwd_Pkt_Ratio, Down_Up_Ratio, FIN_Flag_Count. FP(SHAP): **Port_Is_Web #1**, min_seg_size_forward, RST_Flag_Count. Chi tiết: [BUOC1_KETQUA.md](training/BUOC1_KETQUA.md) |
 | 2 | calibrate + ngưỡng/lớp | | | | | không retrain |
 | 3 | (kiểm chứng tấn công) | | | | | chạy sau mỗi bước |
 | 4.1 | log-transform | | | | | retrain |

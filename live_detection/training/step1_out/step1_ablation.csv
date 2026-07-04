@@ -1,0 +1,13 @@
+feature,fp_recovered_to_benign_pct
+Down_Up_Ratio,11.88
+RST_Flag_Count,2.1
+Fwd_IAT_Mean,1.37
+Bwd_IAT_Min,1.12
+Custom_Bwd_Pkt_Ratio,0.92
+Custom_IAT_CV,0.89
+Flow_IAT_Min,0.79
+Init_Win_bytes_backward,0.36
+Custom_IAT_Anomaly,0.16
+Fwd_IAT_Max,0.09
+FIN_Flag_Count,0.01
+Custom_Pkt_Size_Ratio,0.0
