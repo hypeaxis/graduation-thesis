@@ -19,25 +19,24 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix, balanced_accuracy_score
 from sklearn.utils.class_weight import compute_class_weight
 
-WORKSPACE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(WORKSPACE_DIR, '../../src'))
-sys.path.insert(0, os.path.join(WORKSPACE_DIR, '../../../CIC_IDS_2017_Workspace/src/models'))
+# === Bước 4 (retrain robust-log): self-contained trong live_detection/ ===
+WORKSPACE_DIR = os.path.dirname(os.path.abspath(__file__))     # live_detection/training/
+LIVE_ROOT = os.path.dirname(WORKSPACE_DIR)                     # live_detection/
+REPO_ROOT = os.path.dirname(LIVE_ROOT)                         # Graduation-Thesis/
+sys.path.insert(0, os.path.join(LIVE_ROOT, 'model_defs'))     # phase2_ft_transformer_v2, robust_log_scaler
 
 # ============================================================================
-# PATHS
+# PATHS  (ĐỌC dữ liệu/base gốc read-only; GHI checkpoint mới vào live_detection/models/)
 # ============================================================================
-DATA_PATH       = os.path.join(WORKSPACE_DIR, 'Combined_V8_5.csv')
-BASE_MODEL_PATH = os.path.abspath(os.path.join(
-    WORKSPACE_DIR, '../v8.4_BruteForce_Fix/v8_4_model.pt'))
-SCALER_77_PATH  = os.path.abspath(os.path.join(
-    WORKSPACE_DIR, '../../../CIC_IDS_2017_Workspace/models/final_cic_ids_2017/scaler_stage1.pkl'))
+DATA_PATH       = os.path.join(REPO_ROOT, 'Phase3_4_Retrain/v8/v8.5_Combined/Combined_V8_5.csv')
+BASE_MODEL_PATH = os.path.join(REPO_ROOT, 'Phase3_4_Retrain/v8/v8.4_BruteForce_Fix/v8_4_model.pt')
 
-MODEL_SAVE_PATH   = os.path.join(WORKSPACE_DIR, 'v8_5_model.pt')
-SCALER_SAVE_PATH  = os.path.join(WORKSPACE_DIR, 'v8_5_scaler.pkl')
-ENCODER_SAVE_PATH = os.path.join(WORKSPACE_DIR, 'v8_5_encoder.pkl')
+MODEL_SAVE_PATH   = os.path.join(LIVE_ROOT, 'models', 'v8_6_model.pt')
+SCALER_SAVE_PATH  = os.path.join(LIVE_ROOT, 'models', 'v8_6_robust_scaler.pkl')
+ENCODER_SAVE_PATH = os.path.join(LIVE_ROOT, 'models', 'v8_6_encoder.pkl')
 
-EPOCHS          = 15   # V8.4 converged at epoch 3 → 15 đủ dư
-EARLY_STOP_PAT  = 5    # dừng nếu không cải thiện Macro F1 sau 5 epoch
+EPOCHS          = 30   # scaling đổi hẳn (power->robust-log) -> cần nhiều epoch hơn V8.5
+EARLY_STOP_PAT  = 8    # dừng nếu không cải thiện Macro F1 sau 8 epoch
 BATCH_SIZE      = 256
 
 # Layer-wise learning rates
@@ -186,12 +185,13 @@ def main():
         n = (y_val_labels == c).sum()
         print(f"    {c:<15}: {n:>5,}")
 
-    # --- Scaler ---
-    print("\n[*] Khởi tạo HybridFeatureScaler...")
-    from hybrid_feature_scaler import HybridFeatureScaler
-    scaler = HybridFeatureScaler(scaler_77_path=SCALER_77_PATH)
-    scaler.fit_custom_scaler(X_train[:, 77:])
+    # --- Scaler (Bước 4: RobustLogScaler = log1p đuôi nặng -> robust median/IQR -> clip[-5,5]) ---
+    print("\n[*] Khởi tạo RobustLogScaler (log + robust + clip)...")
+    from robust_log_scaler import RobustLogScaler, LOG_FEATURES
+    scaler = RobustLogScaler(feature_names=EXPECTED_FEATURES_80, clip=5.0)
+    scaler.fit(X_train)                       # fit median/IQR trên train (sau log)
     scaler.save(SCALER_SAVE_PATH)
+    print(f"    log1p {len([f for f in LOG_FEATURES if f in EXPECTED_FEATURES_80])} feature đuôi nặng; clip [-5,5]")
     X_train_s = scaler.transform(X_train)
     X_val_s   = scaler.transform(X_val)
 
