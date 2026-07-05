@@ -14,8 +14,8 @@ import re, sys, time, subprocess
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-DEFAULT_LOG = HERE / "v8_6_train.log"
-TRAIN_SCRIPT = "v8_6_train_robust.py"
+DEFAULT_LOG = HERE / "v8_7_train.log"
+TRAIN_SCRIPT = r"v8_[0-9]_train"        # pgrep -f regex: khớp mọi script v8_x_train*.py
 
 EPOCH_RE = re.compile(
     r"Epoch\s+(\d+)/(\d+)\s+\|\s+Loss:\s+([\d.]+)\s+\|\s+B-Acc:\s+([\d.]+)\s+\|\s+"
@@ -42,7 +42,7 @@ def proc_status():
                 continue
             etimes, args = parts[0], parts[1]
             first = args.split()[0] if args.split() else ""
-            if "python" in first and TRAIN_SCRIPT in args:   # là tiến trình python thật (bỏ bash -c)
+            if "python" in first and "train" in args:        # là tiến trình python thật (bỏ bash -c)
                 return True, pid, int(etimes)
     except Exception:
         pass
