@@ -92,7 +92,7 @@ Giải thích 300 flow FP (nền 100 benign), lấy attribution theo **đúng l�
 | 5 | **RST_Flag_Count** | 0.36 | + | trùng với z-score |
 | 6 | Total_Length_of_Fwd_Packets | 0.32 | + | |
 
-**Phát hiện then chốt:** `Port_Is_Web` là yếu tố **#1** đẩy benign→tấn công. Đúng như cơ chế #4 dự đoán: traffic web (80/443) → `Port_Is_Web=1` → model học tương quan giả "web = tấn công" (vì trong CIC-IDS-2017 các đợt Web Attack đi qua cổng 80). → **Bằng chứng mạnh cho Bước 4.4 (bỏ feature cổng rò rỉ).**
+**Phát hiện then chốt (kèm cảnh báo):** `Port_Is_Web` là yếu tố SHAP **#1** — model *dựa vào* nó rất nhiều. Ban đầu trông như bằng chứng cơ chế #4 (leakage cổng). **NHƯNG ablation ở Mục 5b bác bỏ điều này:** ép `Port_Is_Web` về median lab → **0% FP hồi phục**, vì `lab_median = real_median = 1.0` (cả lab lẫn real đều chủ yếu là web). Feature model-dùng-nhiều ≠ feature gây-shift. Thủ phạm nhân quả thật là **`min_seg_size_forward`** (SHAP #2, ablation 32%) và cụm hình-dạng-flow — xem Mục 5b.
 
 ---
 
@@ -108,19 +108,30 @@ Giải thích 300 flow FP (nền 100 benign), lấy attribution theo **đúng l�
 | Bwd_IAT_Min | 1.12% |
 | Custom_Bwd_Pkt_Ratio | 0.92% |
 
-**5b. Nhắm nhóm SHAP + reset theo NHÓM** (`step1_ablation_extra.py`):
+**5b. Nhắm nhóm SHAP + reset theo NHÓM** (`step1_ablation_extra.py`, mẫu 4,000 FP):
 
-> ⏳ **CHƯA CHẠY XONG — chạy tiếp sau.** Script đã sẵn sàng (đã giới hạn `torch.set_num_threads(4)`
-> + lấy mẫu `FP_SAMPLE=4000` để tránh treo CPU). Base predict đã xác nhận **FP 12,520 / 24.68%**
-> (khớp script chính). Còn lại 14 lượt ablation nhóm — chạy:
-> ```
-> python training/step1_ablation_extra.py     # từ live_detection/
-> ```
-> Sẽ đo: `Port_Is_Web` đơn lẻ (kiểm chứng SHAP #1), nhóm `Port_Is_*` (5 cổng), nhóm `SHAP-top6`,
-> và `SHAP-top6 + Down_Up_Ratio` → % FP hồi phục. Kết quả ghi `step1_out/step1_ablation_extra.csv`,
-> điền bảng vào đây.
+| Mục tiêu (ép → median lab) | Loại | % FP hồi phục về Benign |
+|---|---|---|
+| **SHAP-top6 + Down_Up_Ratio** | nhóm | **76.75%** |
+| **SHAP-top6** | nhóm | **66.40%** |
+| **min_seg_size_forward** | đơn | **32.15%** |
+| Down_Up_Ratio | đơn | 11.95% |
+| Avg_Bwd_Segment_Size | đơn | 11.15% |
+| Fwd_Packet_Length_Max | đơn | 3.00% |
+| RST_Flag_Count | đơn | 1.95% |
+| Total_Length_of_Fwd_Packets | đơn | 0.60% |
+| **Port_Is_Web** | đơn | **0.00%** |
+| ALL Port_Is_* (5) | nhóm | 0.00% |
 
-→ Không có 1 feature "viên đạn bạc" đơn lẻ — FP là **shift đồng thời của cả cụm**. Điều này ủng hộ hướng **calibrate (Bước 2) + robust scaling toàn cục (Bước 4.2)** thay vì chỉ vá 1 feature; đồng thời `Port_Is_Web`/nhóm cổng là mục tiêu **bỏ leakage (Bước 4.4)**.
+**Hai kết luận nhân quả quan trọng:**
+
+1. **FP là shift ĐỒNG THỜI của một CỤM feature hình dạng flow, có thể sửa được.** Reset 6 feature SHAP-top → **66% FP quay lại Benign**; thêm `Down_Up_Ratio` → **77%**. Lever đơn mạnh nhất là `min_seg_size_forward` (32%), rồi `Down_Up_Ratio` (12%), `Avg_Bwd_Segment_Size` (11%). Không có "viên đạn bạc" đơn lẻ → ủng hộ **robust scaling toàn cục (Bước 4.2)** + **calibrate (Bước 2)**.
+
+2. **⚠️ SHAP-quan-trọng ≠ nguyên-nhân-shift — đính chính giả thuyết leakage `Port_Is_Web`.** SHAP xếp `Port_Is_Web` #1 (model *dùng* nó nhiều), NHƯNG:
+   - KS chỉ **0.175 (hạng 61/80)**, `lab_median = real_median = 1.0` → **phân bố cổng giống hệt nhau ở lab và real** (cả hai chủ yếu là web).
+   - Ablation `Port_Is_Web` (và cả nhóm `Port_Is_*`) → **0% hồi phục** (ép 1→1 không đổi gì).
+   - ⇒ `Port_Is_Web` **KHÔNG phải nguồn gây FP**. Nó là feature model dựa vào, nhưng không lệch giữa 2 miền. **Giả thuyết leakage/Bước 4.4 dựa trên SHAP là SAI hướng** cho bài toán FP này — bỏ feature cổng gần như không giảm FP (vẫn nên kiểm spurious trên *lớp tấn công* riêng, nhưng không phải đòn bẩy FP).
+   - 📌 Đây là **phát hiện phương pháp** đáng đưa vào luận văn: phải phân biệt "feature model dùng" (SHAP) với "feature đã dịch chuyển phân bố" (KS) và "feature thật sự gây lỗi" (ablation counterfactual). Chỉ khi cả ba hội tụ mới là thủ phạm chắc chắn.
 
 ---
 
@@ -129,19 +140,23 @@ Giải thích 300 flow FP (nền 100 benign), lấy attribution theo **đúng l�
 **3–5 feature LỆCH phân bố mạnh nhất (KS):**
 `Bwd_IAT_Min` · `Custom_Bwd_Pkt_Ratio` · `Custom_IAT_Anomaly` · `Down_Up_Ratio` · `FIN_Flag_Count`
 
-**3–5 feature ĐẨY FP sang tấn công mạnh nhất (SHAP):**
+**3–5 feature ĐẨY FP sang tấn công mạnh nhất (SHAP — feature model dùng):**
 `Port_Is_Web` · `min_seg_size_forward` · `Fwd_Packet_Length_Max` · `Avg_Bwd_Segment_Size` · `RST_Flag_Count`
+
+**3–5 feature GÂY FP thật sự (ablation counterfactual — hồi phục FP về Benign):**
+`min_seg_size_forward` (32%) · `Down_Up_Ratio` (12%) · `Avg_Bwd_Segment_Size` (11%) — *`Port_Is_Web` bị loại vì 0% dù SHAP #1*.
 
 **Feature CỐT LÕI (xuất hiện ≥2/3 bảng top-10 KS/z-score/SHAP):**
 `Total_Length_of_Fwd_Packets` · `Fwd_IAT_Mean` · `FIN_Flag_Count` · `RST_Flag_Count`
 
 ### Ánh xạ sang cơ chế & bước sửa tiếp theo
 
-| Cơ chế (Mục 1 playbook) | Bằng chứng Bước 1 | Bước sửa |
-|---|---|---|
-| #1 lệch thang đo → z-score nổ | Custom_Pkt_Size_Ratio, Flow_IAT_Min, Flow_Bytes_s | **4.2** robust scale + clip |
-| #2 flow siêu ngắn → rate bùng nổ | KS: IAT/packet-count đều nhỏ; Flow_Bytes_s nổ | **4.3** lọc/đánh dấu flow ngắn |
-| #4 feature cổng rò rỉ | **SHAP: Port_Is_Web #1** | **4.4** bỏ Port_Is_* rò rỉ |
-| overconfidence (0.82 DoS) | conf FP median 0.86 | **2** temperature + ngưỡng/lớp DoS |
+| Cơ chế (Mục 1 playbook) | Bằng chứng Bước 1 | Bước sửa | Ưu tiên |
+|---|---|---|---|
+| **cụm hình-dạng-flow gây FP** (mới) | **ablation: min_seg_size 32%, Down_Up_Ratio 12%, Avg_Bwd_Seg 11%; SHAP-top6+DUR = 77%** | **4.2** robust scale + **2** calibrate | ⭐ cao nhất |
+| #1 lệch thang đo → z-score nổ | Custom_Pkt_Size_Ratio (0.15→6.6), Flow_IAT_Min (z=64k), Flow_Bytes_s | **4.2** robust scale + clip | cao |
+| #2 flow siêu ngắn → rate bùng nổ | KS: IAT/packet-count đều nhỏ; Flow_Bytes_s nổ | **4.3** lọc/đánh dấu flow ngắn | vừa |
+| overconfidence (0.82 DoS) | conf FP median 0.86 | **2** temperature + ngưỡng/lớp DoS | ⭐ cao nhất |
+| ~~#4 feature cổng rò rỉ~~ (BÁC BỎ) | SHAP #1 nhưng ablation 0%, KS 0.175, lab=real median | ~~4.4~~ → chỉ kiểm spurious trên *lớp tấn công*, KHÔNG phải đòn bẩy FP | thấp |
 
-**Khuyến nghị thứ tự:** Bước 2 (calibrate — quick win, đánh trực tiếp DoS conf 0.82) → Bước 4.4 (bỏ Port_Is_Web leakage) → Bước 4.2 (robust scale cho Custom_Pkt_Size_Ratio/Flow_IAT_Min).
+**Khuyến nghị thứ tự:** **Bước 2 (calibrate)** — quick win, đánh trực tiếp DoS conf 0.82 → **Bước 4.2 (robust scale + clip)** cho cụm hình-dạng-flow (min_seg_size, segment sizes, Down_Up_Ratio, Custom_Pkt_Size_Ratio, Flow_IAT_Min) → **Bước 4.3 (lọc flow ngắn)**. Bước 4.4 (bỏ cổng) **hạ ưu tiên** vì ablation cho thấy không giảm FP.

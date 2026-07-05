@@ -1,0 +1,11 @@
+target,type,fp_recovered_pct
+SHAP-top6 + Down_Up_Ratio,group,76.75
+SHAP-top6,group,66.4
+min_seg_size_forward,single,32.15
+Down_Up_Ratio,single,11.95
+Avg_Bwd_Segment_Size,single,11.15
+Fwd_Packet_Length_Max,single,3.0
+RST_Flag_Count,single,1.95
+Total_Length_of_Fwd_Packets,single,0.6
+Port_Is_Web,single,0.0
+ALL Port_Is_* (5),group,0.0
