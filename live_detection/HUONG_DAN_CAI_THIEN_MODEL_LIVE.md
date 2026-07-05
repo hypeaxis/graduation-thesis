@@ -233,10 +233,11 @@ Mỗi bước ghi rõ: **Tiền đề** (cần retrain? cần data gì?) → **M
 | 1 | Chẩn đoán | **FPR 24.68%** / Recall 75.32% (đo lại trên 50,721 flow) | thấp | 0.978 | — | FP≈DoS (20.8%, conf 0.82). **Nhân quả (ablation)**: min_seg_size_forward 32%, Down_Up_Ratio 12%, Avg_Bwd_Seg 11%; SHAP-top6 reset→77% FP hồi phục. ⚠️ Port_Is_Web SHAP #1 nhưng ablation 0% (BÁC BỎ leakage). → ưu tiên Bước 2 + 4.2. Chi tiết: [BUOC1_KETQUA.md](training/BUOC1_KETQUA.md) |
 | 2 | calibrate + ngưỡng/lớp | **24.68% → 21.86%** (chỉ giảm phần Web Attack) | — | 0.978 | Port 36.5/DoS 21.7/BF 95.0/WA 86.0% | T=1.481 (ECE 0.21→0.15). **DoS AUROC 0.66 → KHÔNG lọc được, cần Bước 4**; Web Attack AUROC 0.95 → lọc được. Per-class sửa lỗi global-0.6 giết PortScan (0%→36.5%). Chi tiết: [BUOC2_KETQUA.md](training/BUOC2_KETQUA.md) |
 | 3 | (kiểm chứng tấn công) | | | | | chạy sau mỗi bước |
-| 4.1 | log-transform | | | | | retrain |
-| 4.2 | robust scale + clip | | | | | qua hybrid_feature_scaler |
-| 4.3 | lọc flow ngắn | | | | | |
-| 4.4 | bỏ feature rò rỉ | | | | | bằng chứng spurious? |
+| 4 | **CHẨN ĐOÁN → PIVOT** | — | — | — | — | Clip[-5,5] chỉ 0.2% DoS-FP→Benign (không do scale); RF tách benign-FP vs DoS-thật **AUROC 1.0** (feature thô đủ tách); benign-FP median 27 gói (không ngắn). **Cả 4.1–4.4 loại → sang Bước 5.** Chi tiết: [BUOC4_KETQUA.md](training/BUOC4_KETQUA.md) |
+| ~~4.1~~ | ~~log-transform~~ | | | | | ❌ clip vô tác dụng (A) |
+| ~~4.2~~ | ~~robust scale + clip~~ | | | | | ❌ 0.2% (A); scaler đã là PowerTransformer |
+| ~~4.3~~ | ~~lọc flow ngắn~~ | | | | | ❌ DoS-thật mới ngắn → giết recall DoS (C) |
+| ~~4.4~~ | ~~bỏ feature rò rỉ~~ | | | | | ❌ đã bác bỏ ở Bước 1 |
 | 5 | fine-tune benign thật | | | | | giữ attack CIC |
 | 6 | cổng one-class | | | | | tùy chọn |
 
