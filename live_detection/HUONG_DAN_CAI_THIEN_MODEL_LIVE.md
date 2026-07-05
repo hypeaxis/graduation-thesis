@@ -238,7 +238,7 @@ Mỗi bước ghi rõ: **Tiền đề** (cần retrain? cần data gì?) → **M
 | ~~4.2~~ | ~~robust scale + clip~~ | | | | | ❌ 0.2% (A); scaler đã là PowerTransformer |
 | ~~4.3~~ | ~~lọc flow ngắn~~ | | | | | ❌ DoS-thật mới ngắn → giết recall DoS (C) |
 | ~~4.4~~ | ~~bỏ feature rò rỉ~~ | | | | | ❌ đã bác bỏ ở Bước 1 |
-| 5 | fine-tune benign thật | | | | | giữ attack CIC |
+| 5 | **fine-tune + benign thật (v8_7)** | **24.26% → 0.29%** ✅ (DoS-FP 20.46%→0.25%) | — | 0.88 (CIC; attack F1 giữ) | DoS 21.2/BF 100/WA 86.5/**PS 0**% | **GIẢI QUYẾT FP DoS.** Test giữ riêng b5_benign_test. Caveat: classifier mất PortScan (0%) nhưng PortScanRule lo; Macro-F1 CIC 0.88 do 587 benign-CIC→BF. V8.5 giữ rollback. Chi tiết: [BUOC5_KETQUA.md](training/BUOC5_KETQUA.md) |
 | 6 | cổng one-class | | | | | tùy chọn |
 
 ---
