@@ -36,7 +36,11 @@ Scripts: [`split_benign_b5.py`](split_benign_b5.py), [`v8_7_train_realbenign.py`
 
 ## Đánh đổi & caveat (trung thực)
 
-1. **⚠️ Classifier mất phát hiện PortScan (38.6%→0%).** Real PortScan (gói đơn) giờ bị model xem là Benign. **NHƯNG** live pipeline có `PortScanRule` (port_spread, recall ~99% độc lập classifier) → **PortScan vẫn được bắt ở tầng luật**, không phụ thuộc classifier. Cần xác nhận rule bật khi triển khai.
+1. **Classifier PortScan 38.6%→0% — KHÔNG phải mất PortScan (đã kiểm chứng).**
+   - Nguyên nhân bản chất: real PortScan = **1 gói SYN đơn** (median 1 gói Fwd) → xét từng-flow *không phân biệt được* với 1 lần mở kết nối benign. Vì thế V8.5 cũng chỉ 38.6%; sau khi học benign thật, các SYN đơn này rơi về Benign (v8_7 gán 76,694/77,218 = 99.3% PortScan → Benign).
+   - **PortScan phải bắt bằng mẫu XUYÊN-FLOW**, không phải per-flow. `PortScanRule` (port_spread: 1 nguồn quét ≥15 cổng/2s) làm việc này độc lập classifier.
+   - **Kiểm chứng:** giả định classifier gán toàn bộ real PortScan → Benign (xấu nhất), `PortScanRule` vẫn bắt **77,208/77,218 = 100.0%** → PortScan. Vậy **PortScan không mất** ở pipeline đầy đủ.
+   - ⚠️ **KHÔNG nên** ép classifier học "SYN đơn = PortScan": sẽ gọi benign single-packet → PortScan → làm SỐNG LẠI FP vừa diệt. → giữ classifier PortScan=0%, để rule lo (đảm bảo `portscan_rule.enabled=true`).
 2. **Macro-F1 CIC 0.88** (từ ~0.95): do **587 benign CIC bị gọi nhầm Brute Force** (model dịch biên benign để fit benign THẬT). Đây là đánh đổi domain — model bớt overfit benign-lab, đổi lấy FPR benign-thật ~0. Vì triển khai là traffic thật, đây là đánh đổi ĐÚNG. **F1 lớp tấn công KHÔNG giảm** (DoS 0.93, PS 1.00, WA 0.88 trên CIC) → đạt tiêu chí Done Bước 5.
 3. **Caveat phân bố:** benign test cùng nguồn thu với benign train (khác flow, cùng session/endpoint) → 0.29% là ước lượng cho traffic *cùng loại*; traffic benign hoàn toàn mới có thể cao hơn. Vẫn là kết quả thật trên held-out.
 
