@@ -1,0 +1,12 @@
+{
+  "temperature": 1.4811,
+  "per_class_threshold": {
+    "PortScan": 0.319,
+    "DoS": 0.309,
+    "Brute Force": 0.589,
+    "Web Attack": 0.557,
+    "Benign": 0.0
+  },
+  "target_tpr": 0.95,
+  "note": "softmax(logits/T); pred tấn công conf<thr[c] -> Benign. Fit trên benign_val+holdout."
+}

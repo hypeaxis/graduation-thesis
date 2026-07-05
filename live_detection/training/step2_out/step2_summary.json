@@ -1,0 +1,53 @@
+{
+  "temperature": 1.4811221361160278,
+  "ece_calib": [
+    0.24378415189615488,
+    0.19089130601697785
+  ],
+  "ece_eval": [
+    0.2134132088278931,
+    0.15437505683017003
+  ],
+  "thresholds": {
+    "PortScan": 0.319,
+    "DoS": 0.309,
+    "Brute Force": 0.589,
+    "Web Attack": 0.557,
+    "Benign": 0.0
+  },
+  "metrics": [
+    {
+      "tag": "RAW argmax (T=1, no thr)",
+      "fpr_benign_pct": 24.68,
+      "tpr": {
+        "PortScan": 40.17,
+        "DoS": 23.48,
+        "Brute Force": 99.72,
+        "Web Attack": 90.43
+      },
+      "macro_tpr_pct": 63.45
+    },
+    {
+      "tag": "BEFORE (T=1, global 0.6)",
+      "fpr_benign_pct": 20.2,
+      "tpr": {
+        "PortScan": 0.0,
+        "DoS": 20.99,
+        "Brute Force": 98.94,
+        "Web Attack": 86.96
+      },
+      "macro_tpr_pct": 51.72
+    },
+    {
+      "tag": "AFTER  (T=1.48, per-class)",
+      "fpr_benign_pct": 21.77,
+      "tpr": {
+        "PortScan": 36.53,
+        "DoS": 21.63,
+        "Brute Force": 94.66,
+        "Web Attack": 85.27
+      },
+      "macro_tpr_pct": 59.52
+    }
+  ]
+}
