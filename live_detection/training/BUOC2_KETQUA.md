@@ -32,8 +32,8 @@ Ngưỡng = phân vị 5% của confidence (đã cal) các flow tấn công th�
 |---|---|---|
 | PortScan | 0.319 | thấp — dựa thêm `PortScanRule` |
 | **DoS** | **0.309** | rất thấp → **DoS thật bị phát hiện với conf THẤP** (dấu hiệu xấu) |
-| Brute Force | 0.589 | |
-| Web Attack | 0.557 | |
+| Brute Force | 0.588 | |
+| Web Attack | 0.534 | |
 
 ## 3. Đánh giá before/after (EVAL)
 
@@ -41,11 +41,12 @@ Ngưỡng = phân vị 5% của confidence (đã cal) các flow tấn công th�
 |---|---|---|---|---|---|---|
 | RAW (T=1, không ngưỡng) | 24.68% | 40.2% | 23.5% | 99.7% | 90.4% | 63.5% |
 | BEFORE (global 0.6 hiện hành) | 20.20% | **0.0%** ⚠️ | 21.0% | 98.9% | 87.0% | 51.7% |
-| **AFTER (T=1.48, per-class)** | **21.77%** | **36.5%** | 21.6% | 94.7% | 85.3% | **59.5%** |
+| **AFTER (T=1.48, per-class)** | **21.86%** | **36.5%** | 21.7% | 95.0% | 86.0% | **59.8%** |
 
 **Đọc bảng:**
 - Ngưỡng chung **0.6 hiện hành là con dao cùn**: giảm FPR nhưng **giết sạch phát hiện PortScan (→0%)** vì PortScan có conf thấp. Per-class **sửa lỗi này** (0%→36.5%) và giữ macro-TPR cao hơn (59.5 vs 51.7).
-- FPR AFTER (21.77%) chỉ giảm ~2.9pp so RAW — **toàn bộ mức giảm đến từ Web Attack**, DoS gần như không đổi.
+- FPR AFTER (21.86%) chỉ giảm ~2.8pp so RAW — **toàn bộ mức giảm đến từ Web Attack**, DoS gần như không đổi.
+- ⚠️ Lưu ý: AFTER (21.86%) còn **cao hơn** BEFORE-global-0.6 (20.20%) trên riêng FPR, vì ngưỡng DoS per-class (0.31) thả lỏng hơn 0.6. Per-class **không thắng global-0.6 ở con số FPR đơn thuần** — nó thắng ở chỗ **không giết PortScan** + calibrate đúng. Nhìn 1 mình FPR sẽ hiểu lầm.
 
 ## 4. Vì sao FPR không giảm mạnh: phân tích tách được/không (AUROC)
 
@@ -85,3 +86,14 @@ Tradeoff ngưỡng:
 ### Quyết định (05/07/2026): CHƯA wire vào pipeline — làm Bước 4 trước
 
 Vì calibration không cứu được DoS FP (đòn bẩy chính), wiring bây giờ chỉ chỉnh được Web Attack + PortScan mà để hành vi live ở trạng thái dở dang. **Chọn giữ nguyên pipeline hiện tại**, chuyển sang **Bước 4** (tiền xử lý chống lệch-thang-đo: 4.2 robust scale + clip, 4.3 lọc flow ngắn — nhắm đúng cụm hình-dạng-flow đã xác định ở Bước 1). Sau khi Bước 4 hạ được DoS FP, sẽ **wire calibrate + ngưỡng-theo-lớp một lần** cho cả DoS lẫn Web Attack (tham số T + threshold đã sẵn ở `calibration.json`, chỉ cần fit lại sau retrain).
+
+---
+
+## 6. Rà soát độ tin cậy (self-review 05/07/2026)
+
+Hai vấn đề phát hiện khi rà soát, đều **không làm đổi kết luận**:
+
+1. **[ĐÃ SỬA] Bug tách calib/eval.** Bản đầu gọi `rng.permutation()` lại ở Mục 2.2 trong khi state `rng` đã tiến → 30% chọn ngưỡng khác 30% calib, ~70% rơi vào eval (rò rỉ nhẹ). Đã sửa (dùng lại đúng calib split) và **chạy lại**: ngưỡng gần như y hệt (Web Attack 0.557→0.534, còn lại đổi ≤0.001; AFTER FPR 21.77→21.86%). Quantile ổn định nên tác động không đáng kể; **kết luận DoS-không-lọc-được không hề dựa vào split này** (AUROC ở `step2b` tính trên toàn bộ dữ liệu).
+2. **[CAVEAT] T fit trên tập calib nặng tấn công.** Calib chỉ 24% benign (12,680 / 53,380) trong khi triển khai thật ~99% benign → T=1.48 tối ưu cho prior lệch. Vì T đơn điệu (không đổi quyết định) và ta hoãn wiring, ảnh hưởng nhỏ; **khi wire sau Bước 4 nên fit lại T trên tập đại diện triển khai** (hoặc benign-only) và kiểm ECE lại.
+
+**Kết luận rà soát:** claim cốt lõi (DoS FP không chữa được bằng post-hoc calibration, AUROC 0.66; Web Attack chữa được, AUROC 0.95) **vững** — độc lập với cả 2 vấn đề trên. Con số ngưỡng sẽ được tái tạo sạch khi wire (sau retrain).

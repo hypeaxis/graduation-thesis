@@ -231,7 +231,7 @@ Mỗi bước ghi rõ: **Tiền đề** (cần retrain? cần data gì?) → **M
 | Gốc | (chưa sửa) | ~52% FP (chỉ 56 flow — không tin) | thấp | 0.978 | chưa đo | overconfidence 0.85–0.88 |
 | 0 | Thu dữ liệu | benign 50,721 (+val 12,680) | — | — | — | attack: portscan 77,218 / dos 38,403 / bruteforce 10,090 / webattack 9,961 |
 | 1 | Chẩn đoán | **FPR 24.68%** / Recall 75.32% (đo lại trên 50,721 flow) | thấp | 0.978 | — | FP≈DoS (20.8%, conf 0.82). **Nhân quả (ablation)**: min_seg_size_forward 32%, Down_Up_Ratio 12%, Avg_Bwd_Seg 11%; SHAP-top6 reset→77% FP hồi phục. ⚠️ Port_Is_Web SHAP #1 nhưng ablation 0% (BÁC BỎ leakage). → ưu tiên Bước 2 + 4.2. Chi tiết: [BUOC1_KETQUA.md](training/BUOC1_KETQUA.md) |
-| 2 | calibrate + ngưỡng/lớp | **24.68% → 21.77%** (chỉ giảm phần Web Attack) | — | 0.978 | Port 36.5/DoS 21.6/BF 94.7/WA 85.3% | T=1.481 (ECE 0.21→0.15). **DoS AUROC 0.66 → KHÔNG lọc được, cần Bước 4**; Web Attack AUROC 0.95 → lọc được. Per-class sửa lỗi global-0.6 giết PortScan (0%→36.5%). Chi tiết: [BUOC2_KETQUA.md](training/BUOC2_KETQUA.md) |
+| 2 | calibrate + ngưỡng/lớp | **24.68% → 21.86%** (chỉ giảm phần Web Attack) | — | 0.978 | Port 36.5/DoS 21.7/BF 95.0/WA 86.0% | T=1.481 (ECE 0.21→0.15). **DoS AUROC 0.66 → KHÔNG lọc được, cần Bước 4**; Web Attack AUROC 0.95 → lọc được. Per-class sửa lỗi global-0.6 giết PortScan (0%→36.5%). Chi tiết: [BUOC2_KETQUA.md](training/BUOC2_KETQUA.md) |
 | 3 | (kiểm chứng tấn công) | | | | | chạy sau mỗi bước |
 | 4.1 | log-transform | | | | | retrain |
 | 4.2 | robust scale + clip | | | | | qua hybrid_feature_scaler |

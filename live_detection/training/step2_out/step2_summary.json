@@ -10,9 +10,9 @@
   ],
   "thresholds": {
     "PortScan": 0.319,
-    "DoS": 0.309,
-    "Brute Force": 0.589,
-    "Web Attack": 0.557,
+    "DoS": 0.308,
+    "Brute Force": 0.588,
+    "Web Attack": 0.534,
     "Benign": 0.0
   },
   "metrics": [
@@ -40,14 +40,14 @@
     },
     {
       "tag": "AFTER  (T=1.48, per-class)",
-      "fpr_benign_pct": 21.77,
+      "fpr_benign_pct": 21.86,
       "tpr": {
         "PortScan": 36.53,
-        "DoS": 21.63,
-        "Brute Force": 94.66,
-        "Web Attack": 85.27
+        "DoS": 21.68,
+        "Brute Force": 95.04,
+        "Web Attack": 86.02
       },
-      "macro_tpr_pct": 59.52
+      "macro_tpr_pct": 59.82
     }
   ]
 }

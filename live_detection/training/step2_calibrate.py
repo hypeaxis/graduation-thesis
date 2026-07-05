@@ -70,10 +70,11 @@ for cls, f in ATTACK_FILES.items():
 print(f"    benign_val {len(L['benign_val']):,} | benign_real {len(L['benign_real']):,}")
 
 # tách calib/eval cho mỗi lớp tấn công
-calib_logits, calib_y, eval_atk = [], [], {}
+calib_logits, calib_y, eval_atk, calib_atk = [], [], {}, {}
 for cls in ATTACK_FILES:
     n = len(L[cls]); idx = rng.permutation(n); k = int(n * CALIB_FRAC)
     ci, ei = idx[:k], idx[k:]
+    calib_atk[cls] = L[cls][ci]                 # GIỮ lại để 2.2 dùng ĐÚNG calib split
     calib_logits.append(L[cls][ci]); calib_y += [CLASSES.index(cls)] * k
     eval_atk[cls] = L[cls][ei]
 # calib benign = benign_val (đã giữ riêng)
@@ -114,8 +115,7 @@ banner("2.2 Chọn ngưỡng theo từng lớp (giữ >=95% recall mỗi lớp t
 thr = {}
 for cls in ATTACK_FILES:
     ci = CLASSES.index(cls)
-    n = len(L[cls]); idx = rng.permutation(n); k = int(n * CALIB_FRAC)   # cùng seed -> cùng calib
-    p = softmax_np(L[cls][idx[:k]] / T)
+    p = softmax_np(calib_atk[cls] / T)          # ĐÚNG calib split của Mục 1 (không rò rỉ eval)
     pred_c = p.argmax(1) == ci
     if pred_c.sum() < 20:
         thr[cls] = GLOBAL_THR_BEFORE
