@@ -80,4 +80,8 @@ Tradeoff ngưỡng:
 
 **Thông điệp cho luận văn:** Bước 2 chứng minh **overconfidence không chỉ là miscalibration** — với DoS, benign-FP tự tin **ngang** tấn công thật (AUROC 0.66), nên không hậu-xử-lý nào (temperature/ngưỡng) cứu được. Đây là **bằng chứng định lượng** cho luận điểm: cần can thiệp **không gian đặc trưng** (Bước 4: robust scale + lọc flow ngắn + xử lý cụm hình-dạng-flow đã xác định ở Bước 1) mới hạ được FP DoS. Web Attack thì hậu-xử-lý là đủ.
 
-**Tham số đã lưu** (`models/v8_5_calibration.json`): `T=1.481`, ngưỡng per-class. Việc **wiring vào pipeline** (model.py + ConfidenceThresholdRule) — xem quyết định ở cuối (đổi hành vi quyết định live, có tradeoff DoS recall).
+**Tham số đã lưu** (`models/v8_5_calibration.json`): `T=1.481`, ngưỡng per-class.
+
+### Quyết định (05/07/2026): CHƯA wire vào pipeline — làm Bước 4 trước
+
+Vì calibration không cứu được DoS FP (đòn bẩy chính), wiring bây giờ chỉ chỉnh được Web Attack + PortScan mà để hành vi live ở trạng thái dở dang. **Chọn giữ nguyên pipeline hiện tại**, chuyển sang **Bước 4** (tiền xử lý chống lệch-thang-đo: 4.2 robust scale + clip, 4.3 lọc flow ngắn — nhắm đúng cụm hình-dạng-flow đã xác định ở Bước 1). Sau khi Bước 4 hạ được DoS FP, sẽ **wire calibrate + ngưỡng-theo-lớp một lần** cho cả DoS lẫn Web Attack (tham số T + threshold đã sẵn ở `calibration.json`, chỉ cần fit lại sau retrain).
