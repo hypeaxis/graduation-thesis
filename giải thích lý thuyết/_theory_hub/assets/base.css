@@ -1,0 +1,130 @@
+:root {
+  --paper: #f6f1e8;
+  --paper-strong: #efe6d8;
+  --ink: #223040;
+  --muted: #5b6773;
+  --line: #d6ccb9;
+  --card: rgba(255,255,255,.94);
+  --shadow: 0 8px 22px rgba(34,48,64,.08);
+  --hero: linear-gradient(135deg, rgba(246,238,221,.98), rgba(236,242,245,.96));
+  --mint: #1e7f5c;
+  --sky: #1d5f91;
+  --amber: #9a5b00;
+  --rose: #9f3058;
+  --violet: #6946b6;
+  --teal: #0e7c7b;
+  --slate: #344155;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: linear-gradient(180deg, #eee7d9, #f7f3ea 24%, #f3efe7 100%);
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+a {
+  color: inherit;
+}
+
+.hero h1,
+.sidebar h2,
+.content h2,
+.card h3,
+.detail-copy h2,
+.detail-copy h3,
+.detail-copy h4 {
+  font-family: Cambria, "Times New Roman", serif;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 4.2vw, 4.5rem);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  max-width: 13ch;
+}
+
+.hero p {
+  max-width: 72ch;
+  font: 400 1rem/1.7 "Segoe UI", sans-serif;
+  color: var(--muted);
+}
+
+.sidebar h2,
+.content h2 {
+  margin: 0 0 16px;
+  font-size: 1.1rem;
+  line-height: 1.28;
+}
+
+.sidebar p,
+.content p,
+.content li,
+.detail-copy p,
+.detail-copy li,
+.detail-copy blockquote {
+  font: 400 .98rem/1.75 "Segoe UI", sans-serif;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 1.35rem;
+  line-height: 1.28;
+}
+
+.card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.section-header p {
+  margin: 0;
+  max-width: 54ch;
+  color: var(--muted);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.detail-copy h2,
+.detail-copy h3,
+.detail-copy h4 {
+  margin: 1.4em 0 .6em;
+  line-height: 1.24;
+}
+
+.detail-copy h2:first-child {
+  margin-top: 0;
+}
+
+.detail-copy p,
+.detail-copy ul,
+.detail-copy blockquote,
+.detail-copy pre,
+.detail-copy .table-wrap {
+  margin: 0 0 18px;
+}
+
+.detail-copy ul {
+  padding-left: 20px;
+}
+
+.detail-copy code {
+  background: rgba(34,48,64,.08);
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: .94em;
+}
+
+.footer-note {
+  margin-top: 18px;
+  font: 500 .9rem/1.6 "Segoe UI", sans-serif;
+  color: var(--muted);
+}

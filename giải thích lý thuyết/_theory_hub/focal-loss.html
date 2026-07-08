@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-rose">
+      <header class="hero">
+        <div class="eyebrow">D. Xử lý mất cân bằng · Bài #10</div>
+        <h1>Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</h1>
+        <p>cross-entropy có điểm yếu chí mạng: khi dữ liệu lệch, hàng nghìn mẫu dễ của lớp đông cộng dồn gradient, át lớp hiếm. Model học tốt cái đã dễ, bỏ bê cái đang khó.</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p><a href="cross-entropy.html">Cross-Entropy Loss — và vì sao nó &quot;đuối&quot; khi dữ liệu lệch</a> có điểm yếu chí mạng: khi dữ liệu lệch, <strong>hàng nghìn mẫu dễ của lớp đông</strong> cộng dồn gradient, <strong>át</strong> lớp hiếm. Model học tốt cái đã dễ, bỏ bê cái đang khó.</p>
+<p><strong>Focal Loss</strong> (Lin et al., 2017) vá đúng chỗ đó: nó thêm một <strong>hệ số tự động hạ trọng số những mẫu đã dễ</strong>, để model dồn sức vào <strong>mẫu còn khó</strong> (thường là lớp thiểu số).</p>
+<blockquote><strong>So sánh đời thường:</strong> như cái <strong>loa tự cân âm</strong> — ai đang nói to (mẫu dễ, đã đúng chắc) thì vặn nhỏ lại; ai thì thầm (mẫu khó, đang sai) thì khuếch đại lên. Nhờ vậy thầy nghe được cả nhóm ít nói.</blockquote>
+<hr>
+<h3 id="c-ng-th-c-b-c-t-ng-m-nh">Công thức — bóc từng mảnh</h3>
+<pre><code>L_FL = − α_t · (1 − p_t)^γ · log(p_t)</code></pre>
+<ul><li><strong><code>log(p_t)</code></strong> → phần Cross-Entropy gốc.</li><li><strong><code>(1 − p_t)^γ</code></strong> → <strong>hệ số điều biến (modulating factor)</strong>, trái tim của Focal Loss:</li><li>Mẫu <strong>dễ</strong> (<code>p_t → 1</code>): <code>(1−p_t)</code> gần 0 → hệ số <strong>teo về 0</strong> → gần như <em>tắt tiếng</em> mẫu này.</li><li>Mẫu <strong>khó</strong> (<code>p_t</code> nhỏ): <code>(1−p_t)</code> gần 1 → hệ số <strong>giữ nguyên</strong> → mẫu này vẫn &quot;kêu to&quot;.</li><li><strong><code>γ</code> (gamma)</strong> → nút vặn độ mạnh. <code>γ=0</code> → quay về CE. <code>γ</code> càng lớn càng mạnh tay với mẫu dễ (đề tài dùng <code>γ=2</code>).</li><li><strong><code>α_t</code></strong> → trọng số theo lớp (cân thêm giữa các lớp; xem <a href="class-balanced-focal-loss.html">Class-Balanced Focal Loss — cân trọng số theo &quot;số mẫu hữu hiệu&quot;</a>).</li></ul>
+<hr>
+<h3 id="v-d-s-gradient-b-o-ng-c">Ví dụ SỐ: gradient bị ĐẢO NGƯỢC</h3>
+<p>Vẫn batch 1000 Benign (<code>p_t=0,95</code>) + 10 BruteForce (<code>p_t=0,4</code>), với <code>γ=2</code>:</p>
+<div class="table-wrap"><table><thead><tr><th>Mẫu</th><th>$p_t$</th><th>hệ số $(1-p_t)^2$</th><th>so với CE</th><th>Tổng gradient (FL)</th></tr></thead><tbody><tr><td>Benign (1000)</td><td>0,95</td><td>$0,05^2=0,0025$</td><td>giảm <strong>400×</strong></td><td>≈ <strong>0,128</strong></td></tr><tr><td>BruteForce (10)</td><td>0,40</td><td>$0,6^2=0,36$</td><td>giảm ít</td><td>≈ <strong>3,30</strong></td></tr></tbody></table></div>
+<p>→ Tỷ lệ đóng góp gradient <strong>đảo ngược</strong>: từ Benign áp đảo <strong>5,6:1</strong> thành <strong>BruteForce áp đảo 25,8:1</strong>.</p>
+<blockquote><strong>Nói đơn giản:</strong> trước đây lớp đông &quot;nói át&quot;; giờ Focal Loss bịt bớt miệng mẫu dễ → mẫu khó của lớp hiếm mới là tiếng nói chính dẫn dắt việc học.</blockquote>
+<hr>
+<h3 id="gi-i-h-n-quan-tr-ng-ch-ch-a-m-t-c-n-b-ng-gradient-kh-ng-ch-a-kh-ng-ph-n-t-ch">Giới hạn quan trọng: chỉ chữa &quot;mất cân bằng gradient&quot;, không chữa &quot;không phân tách&quot;</h3>
+<p>Focal Loss giả định: hai lớp <strong>có thể phân tách được</strong>, chỉ là lớp đông át gradient. Khi hai lớp <strong>nằm chồng lên nhau trong không gian đặc trưng</strong> (như PortScan WSL và Benign — xem <a href="portscan-inseparability-nat.html">PortScan không phân tách dưới NAT — giới hạn của DỮ LIỆU, không phải model</a>), Focal Loss <strong>bó tay</strong>: không có ranh giới nào để học tốt hơn, dù có vặn trọng số kiểu gì.</p>
+<p>Bằng chứng trong đồ án: PortScan F1 <strong>7,5% → 6,8%</strong> khi thêm Focal Loss <code>γ=2</code> (không cải thiện, thậm chí giảm nhẹ).</p>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<ul><li>Focal Loss = Cross-Entropy <strong>× hệ số <code>(1−p_t)^γ</code></strong> để <strong>hạ trọng số mẫu dễ</strong>, dồn sức vào mẫu khó.</li><li>Với <code>γ=2</code>, gradient của Benign giảm ~400× → <strong>đảo ngược</strong> ưu thế, lớp hiếm được học tử tế.</li><li><strong>Chỉ chữa mất cân bằng gradient</strong>, không chữa được trường hợp hai lớp <strong>không phân tách</strong>.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn biết <em>khi nào Focal Loss cứu được</em> (lớp hiếm phân tách được nhưng bị át) và <em>khi nào vô ích</em> (hai lớp trộn lẫn) — đúng bài học lớn của đồ án: chọn đúng thuốc cho đúng bệnh.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../D-imbalance-handling/focal-loss/focal-loss.md">Mở file Markdown gốc</a><a class="button" href="../D-imbalance-handling/focal-loss/infographic.html">Mở infographic.html</a><a class="button" href="../D-imbalance-handling/focal-loss/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó" src="../D-imbalance-handling/focal-loss/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

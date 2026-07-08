@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trung tâm lý thuyết</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell">
+      <header class="hero">
+        <div class="eyebrow">Trung tâm lý thuyết · Đồ án tốt nghiệp</div>
+        <h1>Trang tổng hợp lý thuyết để đọc lại nhanh</h1>
+        <p>Mỗi bài lý thuyết trong thư mục này được đưa về một nơi duy nhất: chia theo 7 phần, tìm nhanh bằng từ khóa, và mở ra trang chi tiết 2 cột để xem cùng lúc phần văn bản giải thích và infographic.</p>
+        <div class="stats">
+          <div class="stat"><strong>29</strong><span class="muted">lý thuyết đã tổng hợp</span></div>
+          <div class="stat"><strong>7</strong><span class="muted">cụm nội dung lớn</span></div>
+          <div class="stat"><strong>2 cột</strong><span class="muted">đọc văn bản song song infographic</span></div>
+        </div>
+      </header>
+      <main class="grid index-layout">
+        <aside class="panel sidebar">
+          <h2>Điều hướng nhanh</h2>
+          <p>Dùng ô tìm kiếm để lọc theo tên lý thuyết, cụm nội dung hoặc từ khóa mô tả.</p>
+          <input id="searchBox" class="search" type="search" placeholder="Tìm: focal loss, model surgery, Snort...">
+          <div class="nav-list"><a class="nav-link" href="#A-problem-and-data">A. Nền tảng bài toán & dữ liệu <span class="muted">(3)</span></a><a class="nav-link" href="#B-ft-transformer">B. FT-Transformer <span class="muted">(3)</span></a><a class="nav-link" href="#C-preprocessing">C. Tiền xử lý <span class="muted">(2)</span></a><a class="nav-link" href="#D-imbalance-handling">D. Xử lý mất cân bằng <span class="muted">(6)</span></a><a class="nav-link" href="#E-transfer-domain-adaptation">E. Thích nghi miền <span class="muted">(4)</span></a><a class="nav-link" href="#F-ensemble-and-system">F. Ensemble & hệ thống <span class="muted">(7)</span></a><a class="nav-link" href="#G-hybrid-and-limits">G. Hệ lai & giới hạn <span class="muted">(4)</span></a></div>
+          <div class="footer-note">Mở file này trực tiếp trong trình duyệt: <strong>_theory_hub/index.html</strong></div>
+        </aside>
+        <section class="panel content">
+            <section class="section accent-mint" id="A-problem-and-data">
+              <div class="section-header">
+                <div>
+                  <h2>A. Nền tảng bài toán &amp; dữ liệu</h2>
+                  <p>Khung bài toán IDS, flow và cách dữ liệu được biểu diễn.</p>
+                </div>
+                <div class="badge">3 bài</div>
+              </div>
+              <div class="cards">
+                <a class="card" data-theory-card data-search="phát hiện xâm nhập như một bài toán phân loại có giám sát trên flow câu hỏi gốc của ids (intrusion detection system — hệ thống phát hiện xâm nhập) rất đơn giản: &quot;kết nối mạng này là bình thường hay là tấn công?&quot; a. nền tảng bài toán &amp; dữ liệu" href="ids-supervised-flow-classification.html">
+                  <span class="badge">#1 · A. Nền tảng bài toán &amp; dữ liệu</span>
+                  <h3>Phát hiện xâm nhập như một bài toán phân loại có giám sát trên flow</h3>
+                  <p>Câu hỏi gốc của IDS (Intrusion Detection System — hệ thống phát hiện xâm nhập) rất đơn giản: &quot;Kết nối mạng này là bình thường hay là tấn công?&quot;</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="trích xuất đặc trưng flow bằng cicflowmeter mô hình máy học không &quot;ăn&quot; được gói tin thô — nó cần một dãy số có độ dài cố định. nhưng một flow có thể gồm 2 gói hoặc 2000 gói, dài ngắn khác nhau. làm sao biến một flow bất kỳ a. nền tảng bài toán &amp; dữ liệu" href="flow-features-cicflowmeter.html">
+                  <span class="badge">#2 · A. Nền tảng bài toán &amp; dữ liệu</span>
+                  <h3>Trích xuất đặc trưng flow bằng CICFlowMeter</h3>
+                  <p>Mô hình máy học không &quot;ăn&quot; được gói tin thô — nó cần một dãy số có độ dài cố định. Nhưng một flow có thể gồm 2 gói hoặc 2000 gói, dài ngắn khác nhau. Làm sao biến một flow bất kỳ</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="mất cân bằng dữ liệu &amp; chỉ số đánh giá đúng (macro-f1, mcc) trong dữ liệu ids, các lớp lệch nhau khủng khiếp: a. nền tảng bài toán &amp; dữ liệu" href="class-imbalance-metrics.html">
+                  <span class="badge">#3 · A. Nền tảng bài toán &amp; dữ liệu</span>
+                  <h3>Mất cân bằng dữ liệu &amp; chỉ số đánh giá đúng (Macro-F1, MCC)</h3>
+                  <p>Trong dữ liệu IDS, các lớp lệch nhau khủng khiếp:</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                </div>
+            </section>
+            
+            <section class="section accent-sky" id="B-ft-transformer">
+              <div class="section-header">
+                <div>
+                  <h2>B. FT-Transformer</h2>
+                  <p>Ba khối lý thuyết cốt lõi của kiến trúc Transformer cho dữ liệu bảng.</p>
+                </div>
+                <div class="badge">3 bài</div>
+              </div>
+              <div class="cards">
+                <a class="card" data-theory-card data-search="feature tokenizer — biến mỗi con số thành một &quot;token&quot; transformer vốn sinh ra cho câu chữ: đầu vào là một chuỗi token (từ), mỗi từ đã là một vector nhúng. nhưng dữ liệu của ta là dạng bảng (tabular) — chỉ là k con số rời rạc (duration... b. ft-transformer" href="feature-tokenizer.html">
+                  <span class="badge">#4 · B. FT-Transformer</span>
+                  <h3>Feature Tokenizer — biến mỗi con số thành một &quot;token&quot;</h3>
+                  <p>Transformer vốn sinh ra cho câu chữ: đầu vào là một chuỗi token (từ), mỗi từ đã là một vector nhúng. Nhưng dữ liệu của ta là dạng bảng (tabular) — chỉ là k con số rời rạc (duration...</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="multi-head self-attention — cho các đặc trưng &quot;hỏi chuyện&quot; nhau nhiều tấn công không lộ ra ở một đặc trưng đơn lẻ, mà ở tổ hợp của chúng. ví dụ: &quot;khi src_bytes cao và rerror_rate cao đồng thời → tấn công r2l&quot;. một mình src_bytes b. ft-transformer" href="multi-head-self-attention.html">
+                  <span class="badge">#5 · B. FT-Transformer</span>
+                  <h3>Multi-Head Self-Attention — cho các đặc trưng &quot;hỏi chuyện&quot; nhau</h3>
+                  <p>Nhiều tấn công không lộ ra ở một đặc trưng đơn lẻ, mà ở tổ hợp của chúng. Ví dụ: &quot;khi src_bytes cao VÀ rerror_rate cao đồng thời → tấn công R2L&quot;. Một mình src_bytes</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="transformer block &amp; feed-forward network (pre-layernorm) self-attention giỏi cho các token trao đổi thông tin với nhau, nhưng bản thân nó chỉ là phép trộn tuyến tính. để mạng thực sự mạnh, ta cần thêm: b. ft-transformer" href="transformer-block-ffn.html">
+                  <span class="badge">#6 · B. FT-Transformer</span>
+                  <h3>Transformer Block &amp; Feed-Forward Network (Pre-LayerNorm)</h3>
+                  <p>Self-Attention giỏi cho các token trao đổi thông tin với nhau, nhưng bản thân nó chỉ là phép trộn tuyến tính. Để mạng thực sự mạnh, ta cần thêm:</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                </div>
+            </section>
+            
+            <section class="section accent-amber" id="C-preprocessing">
+              <div class="section-header">
+                <div>
+                  <h2>C. Tiền xử lý</h2>
+                  <p>Biến đổi phân phối và lọc bớt đặc trưng trước khi học.</p>
+                </div>
+                <div class="badge">2 bài</div>
+              </div>
+              <div class="cards">
+                <a class="card" data-theory-card data-search="power transformer — yeo-johnson: &quot;bẻ cong thước đo&quot; cho dữ liệu lệch dữ liệu thật đời hay bị lệch (skewed) — đặc biệt là dữ liệu mạng: số byte, số packet, thời lượng flow… đa số nhỏ, nhưng thỉnh thoảng có vài giá trị cực to (một cuộc tấn công c. tiền xử lý" href="yeo-johnson-power-transform.html">
+                  <span class="badge">#7 · C. Tiền xử lý</span>
+                  <h3>Power Transformer — Yeo-Johnson: &quot;bẻ cong thước đo&quot; cho dữ liệu lệch</h3>
+                  <p>Dữ liệu thật đời hay bị lệch (skewed) — đặc biệt là dữ liệu mạng: số byte, số packet, thời lượng flow… đa số nhỏ, nhưng thỉnh thoảng có vài giá trị cực to (một cuộc tấn công</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="lọc tương quan pearson — bỏ bớt đặc trưng &quot;kể chuyện trùng nhau&quot; cicflowmeter cho 77 đặc trưng, nhưng nhiều cái nói gần như cùng một điều. ví dụ flow_bytes/s và flow_packets/s thường lên xuống cùng nhau; giữ cả hai chẳng thêm thông tin mà chỉ tă... c. tiền xử lý" href="pearson-correlation-filter.html">
+                  <span class="badge">#8 · C. Tiền xử lý</span>
+                  <h3>Lọc tương quan Pearson — bỏ bớt đặc trưng &quot;kể chuyện trùng nhau&quot;</h3>
+                  <p>CICFlowMeter cho 77 đặc trưng, nhưng nhiều cái nói gần như cùng một điều. Ví dụ Flow_Bytes/s và Flow_Packets/s thường lên xuống cùng nhau; giữ cả hai chẳng thêm thông tin mà chỉ tă...</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                </div>
+            </section>
+            
+            <section class="section accent-rose" id="D-imbalance-handling">
+              <div class="section-header">
+                <div>
+                  <h2>D. Xử lý mất cân bằng</h2>
+                  <p>Các cơ chế làm model học tốt hơn với lớp hiếm và ranh giới khó.</p>
+                </div>
+                <div class="badge">6 bài</div>
+              </div>
+              <div class="cards">
+                <a class="card" data-theory-card data-search="cross-entropy loss — và vì sao nó &quot;đuối&quot; khi dữ liệu lệch khi model phân loại, ta cần một cách đo model sai bao nhiêu để mà sửa. cross-entropy (ce — entropy chéo) là hàm mất mát (loss) tiêu chuẩn cho bài toán phân loại: nó phạt nặng khi m... d. xử lý mất cân bằng" href="cross-entropy.html">
+                  <span class="badge">#9 · D. Xử lý mất cân bằng</span>
+                  <h3>Cross-Entropy Loss — và vì sao nó &quot;đuối&quot; khi dữ liệu lệch</h3>
+                  <p>Khi model phân loại, ta cần một cách đo model sai bao nhiêu để mà sửa. Cross-Entropy (CE — entropy chéo) là hàm mất mát (loss) tiêu chuẩn cho bài toán phân loại: nó phạt nặng khi m...</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="focal loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó cross-entropy có điểm yếu chí mạng: khi dữ liệu lệch, hàng nghìn mẫu dễ của lớp đông cộng dồn gradient, át lớp hiếm. model học tốt cái đã dễ, bỏ bê cái đang khó. d. xử lý mất cân bằng" href="focal-loss.html">
+                  <span class="badge">#10 · D. Xử lý mất cân bằng</span>
+                  <h3>Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</h3>
+                  <p>cross-entropy có điểm yếu chí mạng: khi dữ liệu lệch, hàng nghìn mẫu dễ của lớp đông cộng dồn gradient, át lớp hiếm. Model học tốt cái đã dễ, bỏ bê cái đang khó.</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="class-balanced focal loss — cân trọng số theo &quot;số mẫu hữu hiệu&quot; focal-loss có phần α_t để cân giữa các lớp. câu hỏi: đặt α cho mỗi lớp bằng bao nhiêu? d. xử lý mất cân bằng" href="class-balanced-focal-loss.html">
+                  <span class="badge">#11 · D. Xử lý mất cân bằng</span>
+                  <h3>Class-Balanced Focal Loss — cân trọng số theo &quot;số mẫu hữu hiệu&quot;</h3>
+                  <p>focal-loss có phần α_t để cân giữa các lớp. Câu hỏi: đặt α cho mỗi lớp bằng bao nhiêu?</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="smote &amp; smote-enn — &quot;vẽ thêm&quot; mẫu thiểu số một cách khác để chống mất cân bằng: thay vì chỉnh loss (focal-loss), ta chỉnh dữ liệu — tạo thêm mẫu cho lớp hiếm cho bớt lệch. d. xử lý mất cân bằng" href="smote-smote-enn.html">
+                  <span class="badge">#12 · D. Xử lý mất cân bằng</span>
+                  <h3>SMOTE &amp; SMOTE-ENN — &quot;vẽ thêm&quot; mẫu thiểu số</h3>
+                  <p>Một cách khác để chống mất cân bằng: thay vì chỉnh loss (focal-loss), ta chỉnh dữ liệu — tạo thêm mẫu cho lớp hiếm cho bớt lệch.</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="weighted random sampling — &quot;bốc thăm thiên vị&quot; lớp hiếm còn một cách nữa để chống mất cân bằng, khác cả loss (focal-loss) lẫn tạo mẫu (smote-smote-enn): thay đổi tần suất mỗi mẫu được đưa vào batch huấn luyện. d. xử lý mất cân bằng" href="weighted-random-sampling.html">
+                  <span class="badge">#13 · D. Xử lý mất cân bằng</span>
+                  <h3>Weighted Random Sampling — &quot;bốc thăm thiên vị&quot; lớp hiếm</h3>
+                  <p>Còn một cách nữa để chống mất cân bằng, khác cả loss (focal-loss) lẫn tạo mẫu (smote-smote-enn): thay đổi tần suất mỗi mẫu được đưa vào batch huấn luyện.</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="label smoothing — dạy model bớt &quot;kiêu ngạo&quot; khi huấn luyện, ta thường đưa nhãn dạng cứng (hard label): đúng lớp = 1, sai = 0. điều này ép model tự tin 100% vào một đáp án. hệ quả: model dễ kiêu ngạo (overconfident) và overfi... d. xử lý mất cân bằng" href="label-smoothing.html">
+                  <span class="badge">#14 · D. Xử lý mất cân bằng</span>
+                  <h3>Label Smoothing — dạy model bớt &quot;kiêu ngạo&quot;</h3>
+                  <p>Khi huấn luyện, ta thường đưa nhãn dạng cứng (hard label): đúng lớp = 1, sai = 0. Điều này ép model tự tin 100% vào một đáp án. Hệ quả: model dễ kiêu ngạo (overconfident) và overfi...</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                </div>
+            </section>
+            
+            <section class="section accent-violet" id="E-transfer-domain-adaptation">
+              <div class="section-header">
+                <div>
+                  <h2>E. Thích nghi miền</h2>
+                  <p>Lệch phân phối, freezing, surgery và các giới hạn khi chuyển miền.</p>
+                </div>
+                <div class="badge">4 bài</div>
+              </div>
+              <div class="cards">
+                <a class="card" data-theory-card data-search="covariate shift — khi &quot;cảm giác đầu vào&quot; đổi, model lạc lối model của đồ án học rất tốt trên cic-ids-2017. nhưng khi đem áp thẳng sang testbed (wsl2) tự dựng, nó sụp đổ: mcc = −0,015 (còn tệ hơn đoán bừa). vì sao? e. thích nghi miền" href="covariate-shift.html">
+                  <span class="badge">#15 · E. Thích nghi miền</span>
+                  <h3>Covariate Shift — khi &quot;cảm giác đầu vào&quot; đổi, model lạc lối</h3>
+                  <p>Model của đồ án học rất tốt trên CIC-IDS-2017. Nhưng khi đem áp thẳng sang Testbed (WSL2) tự dựng, nó sụp đổ: MCC = −0,015 (còn tệ hơn đoán bừa). Vì sao?</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="layer freezing &amp; catastrophic forgetting — giữ nền, học lại phần ngọn khi gặp covariate-shift, ta muốn fine-tune (tinh chỉnh) model cho miền mới (testbed). nhưng có hai cái bẫy: e. thích nghi miền" href="layer-freezing-catastrophic-forgetting.html">
+                  <span class="badge">#16 · E. Thích nghi miền</span>
+                  <h3>Layer Freezing &amp; Catastrophic Forgetting — giữ nền, học lại phần ngọn</h3>
+                  <p>Khi gặp covariate-shift, ta muốn fine-tune (tinh chỉnh) model cho miền mới (Testbed). Nhưng có hai cái bẫy:</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="model surgery — &quot;ghép thêm ngăn kéo&quot; cho model không phá đồ cũ sang testbed, ta phát hiện cần 3 đặc trưng mới đặc thù cho môi trường nat (iat_cv, bwd_pkt_ratio, pkt_size_ratio) để phân biệt tốt hơn. nhưng model cũ được huấn luyện với đúng 77 đ... e. thích nghi miền" href="model-surgery.html">
+                  <span class="badge">#17 · E. Thích nghi miền</span>
+                  <h3>Model Surgery — &quot;ghép thêm ngăn kéo&quot; cho model không phá đồ cũ</h3>
+                  <p>Sang Testbed, ta phát hiện cần 3 đặc trưng mới đặc thù cho môi trường NAT (IAT_CV, Bwd_Pkt_Ratio, Pkt_Size_Ratio) để phân biệt tốt hơn. Nhưng model cũ được huấn luyện với đúng 77 đ...</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="scaler–embedding coupling — vì sao &quot;đổi mỗi scaler&quot; lại thất bại khi gặp covariate-shift, ý tưởng đầu tiên rất tự nhiên: &quot;phân phối đổi thì mình fit lại scaler (powertransformer) trên testbed là xong!&quot;. nghe hợp lý — nhưng thực nghiệm cho kết qu... e. thích nghi miền" href="scaler-embedding-coupling.html">
+                  <span class="badge">#18 · E. Thích nghi miền</span>
+                  <h3>Scaler–Embedding Coupling — vì sao &quot;đổi mỗi scaler&quot; lại thất bại</h3>
+                  <p>Khi gặp covariate-shift, ý tưởng đầu tiên rất tự nhiên: &quot;Phân phối đổi thì mình fit lại scaler (PowerTransformer) trên Testbed là xong!&quot;. Nghe hợp lý — nhưng thực nghiệm cho kết qu...</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                </div>
+            </section>
+            
+            <section class="section accent-teal" id="F-ensemble-and-system">
+              <div class="section-header">
+                <div>
+                  <h2>F. Ensemble &amp; hệ thống</h2>
+                  <p>Cascade, voting, stacking và lý do phải đa dạng hóa mô hình.</p>
+                </div>
+                <div class="badge">7 bài</div>
+              </div>
+              <div class="cards">
+                <a class="card" data-theory-card data-search="two-stage cascade (gating + expert) — chia để trị bắt một model vừa phải lọc ~83% benign ra khỏi tấn công, vừa phải phân biệt tinh tế giữa 9 loại tấn công là quá tải. gradient bị xé làm hai nhiệm vụ đối chọi: học &quot;benign vs attack... f. ensemble &amp; hệ thống" href="two-stage-cascade-gating-expert.html">
+                  <span class="badge">#19 · F. Ensemble &amp; hệ thống</span>
+                  <h3>Two-Stage Cascade (Gating + Expert) — chia để trị</h3>
+                  <p>Bắt một model vừa phải lọc ~83% Benign ra khỏi tấn công, vừa phải phân biệt tinh tế giữa 9 loại tấn công là quá tải. Gradient bị xé làm hai nhiệm vụ đối chọi: học &quot;Benign vs Attack...</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="autoencoder gate + ngưỡng tái tạo — &quot;vẽ lại được thì là quen&quot; ở nhánh nsl-kdd, tầng 1 (gating) cần quyết định &quot;flow này có bất thường không?&quot;. thay vì huấn luyện một bộ phân loại nhị phân thông thường, đồ án dùng một ý tưởng đẹp: autoencoder... f. ensemble &amp; hệ thống" href="autoencoder-gate-threshold.html">
+                  <span class="badge">#20 · F. Ensemble &amp; hệ thống</span>
+                  <h3>Autoencoder Gate + ngưỡng tái tạo — &quot;vẽ lại được thì là quen&quot;</h3>
+                  <p>Ở nhánh NSL-KDD, tầng 1 (Gating) cần quyết định &quot;flow này có bất thường không?&quot;. Thay vì huấn luyện một bộ phân loại nhị phân thông thường, đồ án dùng một ý tưởng đẹp: Autoencoder...</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="stacking ensemble — hội đồng có &quot;chủ tọa&quot; biết tổng hợp khi có nhiều mô hình cùng dự đoán, cách đơn giản là bỏ phiếu (voting) — nhưng voting đối xử mọi mô hình ngang nhau và không học được mô hình nào giỏi ở tình huống nào. f. ensemble &amp; hệ thống" href="stacking-ensemble.html">
+                  <span class="badge">#21 · F. Ensemble &amp; hệ thống</span>
+                  <h3>Stacking Ensemble — hội đồng có &quot;chủ tọa&quot; biết tổng hợp</h3>
+                  <p>Khi có nhiều mô hình cùng dự đoán, cách đơn giản là bỏ phiếu (voting) — nhưng voting đối xử mọi mô hình ngang nhau và không học được mô hình nào giỏi ở tình huống nào.</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="bias–variance &amp; ensemble giảm variance — vì sao &quot;hỏi nhiều người&quot; tốt hơn vì sao gộp nhiều mô hình (ensemble) lại tốt hơn một mô hình? câu trả lời nằm ở phân rã bias–variance và một điều kiện cốt lõi: các mô hình phải sai trên những mẫu khác nhau. f. ensemble &amp; hệ thống" href="bias-variance-ensemble.html">
+                  <span class="badge">#22 · F. Ensemble &amp; hệ thống</span>
+                  <h3>Bias–Variance &amp; Ensemble giảm Variance — vì sao &quot;hỏi nhiều người&quot; tốt hơn</h3>
+                  <p>Vì sao gộp nhiều mô hình (ensemble) lại tốt hơn một mô hình? Câu trả lời nằm ở phân rã Bias–Variance và một điều kiện cốt lõi: các mô hình phải sai trên những mẫu khác nhau.</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="đa dạng inductive bias (ftt + rf + knn) — sai khác nhau nên bù được cho nhau bias-variance-ensemble cho ta điều kiện vàng: ensemble chỉ mạnh khi các mô hình sai trên những mẫu khác nhau (tương quan ρ thấp). câu hỏi thực tế: làm sao đảm bảo chúng sai khác nh... f. ensemble &amp; hệ thống" href="inductive-bias-diversity.html">
+                  <span class="badge">#23 · F. Ensemble &amp; hệ thống</span>
+                  <h3>Đa dạng Inductive Bias (FTT + RF + KNN) — sai khác nhau nên bù được cho nhau</h3>
+                  <p>bias-variance-ensemble cho ta điều kiện vàng: ensemble chỉ mạnh khi các mô hình sai trên những mẫu khác nhau (tương quan ρ thấp). Câu hỏi thực tế: làm sao đảm bảo chúng sai khác nh...</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="asymmetric voting — bỏ phiếu theo chi phí sai, không phải theo đa số cách gộp ensemble quen thuộc là majority voting (đa số 2/3). nó tối ưu khi chi phí của mọi loại sai là như nhau. nhưng trong ids, cái giá của các kiểu sai rất khác nhau tùy lớp: f. ensemble &amp; hệ thống" href="asymmetric-cost-sensitive-voting.html">
+                  <span class="badge">#24 · F. Ensemble &amp; hệ thống</span>
+                  <h3>Asymmetric Voting — bỏ phiếu theo CHI PHÍ sai, không phải theo đa số</h3>
+                  <p>Cách gộp ensemble quen thuộc là Majority Voting (đa số 2/3). Nó tối ưu khi chi phí của mọi loại sai là NHƯ NHAU. Nhưng trong IDS, cái giá của các kiểu sai rất khác nhau tùy lớp:</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="hard negative mining — chỉ ôn lại những câu làm sai với các lớp khó (botnet, infiltration), cách quen thuộc là tăng class weight — nhân trọng số cho toàn bộ mẫu của lớp đó. nhưng cách này lãng phí: nó tăng gradient cho cả những mẫu... f. ensemble &amp; hệ thống" href="hard-negative-mining.html">
+                  <span class="badge">#25 · F. Ensemble &amp; hệ thống</span>
+                  <h3>Hard Negative Mining — chỉ ôn lại những câu làm SAI</h3>
+                  <p>Với các lớp khó (Botnet, Infiltration), cách quen thuộc là tăng class weight — nhân trọng số cho toàn bộ mẫu của lớp đó. Nhưng cách này lãng phí: nó tăng gradient cho cả những mẫu...</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                </div>
+            </section>
+            
+            <section class="section accent-slate" id="G-hybrid-and-limits">
+              <div class="section-header">
+                <div>
+                  <h2>G. Hệ lai &amp; giới hạn</h2>
+                  <p>Hệ lai Snort + FTT, hợp nhất cảnh báo và những giới hạn nguyên lý.</p>
+                </div>
+                <div class="badge">4 bài</div>
+              </div>
+              <div class="cards">
+                <a class="card" data-theory-card data-search="snort + ft-transformer — hệ lai bù điểm mù cho nhau không một phương pháp nào bắt được mọi kiểu tấn công. đồ án ghép hai hướng đối lập để chúng che điểm mù cho nhau: g. hệ lai &amp; giới hạn" href="snort-hybrid-ids.html">
+                  <span class="badge">#26 · G. Hệ lai &amp; giới hạn</span>
+                  <h3>Snort + FT-Transformer — hệ lai bù điểm mù cho nhau</h3>
+                  <p>Không một phương pháp nào bắt được mọi kiểu tấn công. Đồ án ghép hai hướng đối lập để chúng che điểm mù cho nhau:</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="alert aggregator — hợp nhất cảnh báo, xác nhận chéo hệ lai của đồ án có hai nguồn cảnh báo chạy song song (snort-hybrid-ids): snort (packet-level) và ftt (flow-level). nếu cứ để hai luồng cảnh báo đổ thẳng ra màn hình, đội vận hành... g. hệ lai &amp; giới hạn" href="alert-aggregator.html">
+                  <span class="badge">#27 · G. Hệ lai &amp; giới hạn</span>
+                  <h3>Alert Aggregator — hợp nhất cảnh báo, xác nhận chéo</h3>
+                  <p>Hệ lai của đồ án có hai nguồn cảnh báo chạy song song (snort-hybrid-ids): Snort (packet-level) và FTT (flow-level). Nếu cứ để hai luồng cảnh báo đổ thẳng ra màn hình, đội vận hành...</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="portscan không phân tách dưới nat — giới hạn của dữ liệu, không phải model đây là một trong những bài học sâu sắc nhất của đồ án: có những thất bại không thể sửa bằng thuật toán, vì gốc rễ nằm ở cách dữ liệu được thu thập. g. hệ lai &amp; giới hạn" href="portscan-inseparability-nat.html">
+                  <span class="badge">#28 · G. Hệ lai &amp; giới hạn</span>
+                  <h3>PortScan không phân tách dưới NAT — giới hạn của DỮ LIỆU, không phải model</h3>
+                  <p>Đây là một trong những bài học sâu sắc nhất của đồ án: có những thất bại không thể sửa bằng thuật toán, vì gốc rễ nằm ở cách dữ liệu được thu thập.</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                
+                <a class="card" data-theory-card data-search="giới hạn của flow tĩnh — infiltration &amp; botnet cần phân tích thời gian có những tấn công mà mỗi flow đơn lẻ trông hoàn toàn bình thường — dấu hiệu chỉ lộ ra khi nhìn chuỗi nhiều flow theo thời gian. với các tấn công này, mô hình phân loại từng flow mộ... g. hệ lai &amp; giới hạn" href="static-flow-limits-temporal.html">
+                  <span class="badge">#29 · G. Hệ lai &amp; giới hạn</span>
+                  <h3>Giới hạn của flow tĩnh — Infiltration &amp; Botnet cần phân tích THỜI GIAN</h3>
+                  <p>Có những tấn công mà mỗi flow đơn lẻ trông hoàn toàn bình thường — dấu hiệu chỉ lộ ra khi nhìn chuỗi nhiều flow theo thời gian. Với các tấn công này, mô hình phân loại từng flow mộ...</p>
+                  <div class="meta">Mở trang đọc 2 cột: văn bản + infographic</div>
+                </a>
+                </div>
+            </section>
+            </section>
+      </main>
+    </div>
+    <script src="assets/hub.js" defer></script>
+    
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alert Aggregator — Tự học</title>
+<style>
+  :root{--bg:#FBF8F1;--ink:#2B3A55;--panel-1:#E8F5E9;--panel-2:#E3F2FD;--panel-3:#F3E5F5;--panel-4:#FFF0E6;
+    --accent-yellow:#FFF6D6;--border:#D9D2C5;--good:#2E7D32;--bad:#C62828;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:#EFEAE0;padding:28px;font-family:'Quicksand','Segoe UI',system-ui,sans-serif;line-height:1.5;color:var(--ink);}
+  .ig{background:var(--bg);border-radius:16px;padding:32px;max-width:900px;margin:0 auto;box-shadow:0 6px 24px rgba(43,58,85,.08);
+    background-image:linear-gradient(var(--border) 1px,transparent 1px);background-size:100% 30px;background-position:0 96px;}
+  h1{text-align:center;font-size:25px;margin:0 0 4px;} .sub{text-align:center;font-size:15px;opacity:.8;margin-bottom:22px;}
+  .flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;background:#fff;border:2px solid var(--ink);border-radius:12px;padding:16px;margin-bottom:20px;}
+  .flow .box{background:var(--panel-2);border-radius:8px;padding:9px 13px;font-size:13px;font-weight:600;} .flow .arrow{opacity:.55;font-size:18px;}
+  .flow .conf{background:var(--panel-1);}
+  .row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+  .panel{flex:1;min-width:220px;border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .p1{background:var(--panel-1);}.p2{background:var(--panel-2);}.p3{background:var(--panel-3);}.p4{background:var(--panel-4);}
+  .panel h3{margin:0 0 8px;font-size:15px;} .panel p{margin:0;font-size:14px;}
+  .example{background:var(--accent-yellow);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px;}
+  .example h3{margin:0 0 8px;font-size:16px;} .good{color:var(--good);font-weight:700;} .bad{color:var(--bad);font-weight:700;}
+  .callout{background:#fff;border-left:5px solid var(--panel-1);border-radius:10px;padding:16px 18px;margin-bottom:14px;font-size:15px;}
+  .kicker{text-align:center;font-weight:700;color:var(--bad);margin-top:8px;font-size:16px;}
+</style>
+</head>
+<body>
+<div class="ig">
+  <h1>✦ Alert Aggregator: xác nhận chéo ✦</h1>
+  <div class="sub">Gom cảnh báo Snort + FTT, khử trùng lặp, nâng độ tin khi hai bên cùng chỉ một sự việc</div>
+
+  <div class="flow">
+    <span class="box">Snort alert</span>
+    <span class="box">FTT alert</span>
+    <span class="arrow">→</span>
+    <span class="box">Đối chiếu theo session</span><span class="arrow">→</span>
+    <span class="box conf">Cùng session? → Confirmed ⬆ ưu tiên</span>
+  </div>
+
+  <div class="row">
+    <div class="panel p1"><h3>Confirmed alert</h3><p><b>Cả hai nguồn</b> báo cùng session → hợp nhất 1 cảnh báo, <b>ưu tiên tăng</b> (độ tin cao).</p></div>
+    <div class="panel p2"><h3>Single-source</h3><p>Chỉ một nguồn báo → vẫn ghi nhận, <b>ưu tiên thấp hơn</b>.</p></div>
+    <div class="panel p3"><h3>Vì sao độc lập quan trọng?</h3><p>Snort & FTT sai kiểu khác nhau → cùng báo nhầm y hệt là <b>rất hiếm</b> → đồng thuận đáng tin.</p></div>
+  </div>
+
+  <div class="example">
+    <h3>🔔 Ví dụ</h3>
+    <p>· <b>SQLi</b>: Snort (payload) + FTT (flow lạ) trùng session → <span class="good">confirmed, ưu tiên cao</span> → xử lý trước.<br>
+       · <b>DoS chậm</b>: chỉ FTT bắt → single-source, ưu tiên vừa.</p>
+  </div>
+
+  <div class="callout">💡 <b>Analogy:</b> hai bảo vệ độc lập cùng bấm chuông về một phòng → gần như chắc có chuyện →
+    nâng ưu tiên. Cùng tinh thần với <b>Bias-Variance</b>: nguồn độc lập đồng thuận thì đáng tin.</div>
+
+  <div class="kicker">Hai chứng cứ độc lập trùng khớp = đáng tin hơn nhiều!</div>
+</div>
+</body>
+</html>

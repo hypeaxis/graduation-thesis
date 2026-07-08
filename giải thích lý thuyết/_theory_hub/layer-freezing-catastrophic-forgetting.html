@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Layer Freezing &amp; Catastrophic Forgetting — giữ nền, học lại phần ngọn</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-violet">
+      <header class="hero">
+        <div class="eyebrow">E. Thích nghi miền · Bài #16</div>
+        <h1>Layer Freezing &amp; Catastrophic Forgetting — giữ nền, học lại phần ngọn</h1>
+        <p>Khi gặp covariate-shift, ta muốn fine-tune (tinh chỉnh) model cho miền mới (Testbed). Nhưng có hai cái bẫy:</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Khi gặp <a href="covariate-shift.html">Covariate Shift — khi &quot;cảm giác đầu vào&quot; đổi, model lạc lối</a>, ta muốn <strong>fine-tune (tinh chỉnh)</strong> model cho miền mới (Testbed). Nhưng có hai cái bẫy:</p>
+<p>1. Testbed <strong>rất ít dữ liệu</strong> — train lại toàn bộ từ đầu sẽ overfit. 2. Nếu cập nhật <em>tất cả</em> tham số, model <strong>quên sạch</strong> kiến thức CIC đã học — gọi là <strong>Catastrophic Forgetting (quên thảm hoạ)</strong>.</p>
+<p><strong>Layer Freezing (đóng băng tầng)</strong> giải cả hai: <strong>giữ nguyên (đóng băng) các tầng thấp</strong>, chỉ <strong>cập nhật các tầng cao</strong>. Ít tham số phải học → hợp với ít dữ liệu, và kiến thức nền được bảo toàn.</p>
+<blockquote><strong>So sánh đời thường:</strong> bạn đã giỏi tiếng Anh, giờ sang vùng có tiếng lóng địa phương. Bạn <strong>giữ nguyên ngữ pháp nền tảng</strong> (tầng thấp), chỉ <strong>học lại một ít từ vựng địa phương</strong> (tầng cao) — chứ không đi học lại tiếng Anh từ đầu.</blockquote>
+<hr>
+<h3 id="v-sao-ph-n-t-ng-l-i-h-p-l">Vì sao phân tầng lại hợp lý?</h3>
+<p>Trong FT-Transformer, các tầng học ở <strong>mức trừu tượng khác nhau</strong>:</p>
+<p>flow ngắn&quot;<em>, </em>&quot;SYN cao → scan&quot;*. Những cái này đúng ở cả CIC lẫn Testbed.</p>
+<ul><li><strong>Tầng Attention THẤP</strong> → học <strong>quan hệ tổng quát</strong>, bất biến theo môi trường: *&quot;duration ngắn + byte thấp →</li><li><strong>Tầng CAO</strong> → học <strong>phân biệt đặc thù miền</strong>: <em>&quot;Botnet heartbeat vs Benign idle&quot;</em> — phụ thuộc phân phối CIC.</li></ul>
+<p>→ Khi sang Testbed: <strong>đóng băng tầng thấp</strong> (giữ cái tổng quát), <strong>cập nhật tầng cao</strong> (học lại cái đặc thù).</p>
+<pre><code>θ_fine* = argmin_{θ_fine}  L( f_{θ_freeze, θ_fine}(x_target),  y_target )</code></pre>
+<ul><li><strong><code>θ_freeze</code></strong> → tham số tầng thấp, <strong>giữ nguyên</strong>.</li><li><strong><code>θ_fine</code></strong> → tham số tầng cao + head, <strong>được cập nhật</strong>.</li></ul>
+<hr>
+<h3 id="o-qu-n-th-m-ho-catastrophic-forgetting">Đo &quot;quên thảm hoạ&quot;: Catastrophic Forgetting</h3>
+<pre><code>CF = (Acc_source_before − Acc_source_after) / Acc_source_before × 100%</code></pre>
+<ul><li>Đo model <strong>tụt bao nhiêu % hiệu năng trên CIC (miền nguồn)</strong> sau khi fine-tune cho Testbed.</li><li>CF thấp = ít quên = giữ được kiến thức cũ.</li></ul>
+<p><strong>Kết quả đồ án:</strong> đóng băng <strong>2/4 tầng</strong> → <strong>CF = 0,61%</strong> → vẫn giữ <strong>99,39%</strong> hiệu năng CIC. Đây là điểm cân bằng <strong>plasticity (dẻo — học cái mới) ↔ stability (ổn — nhớ cái cũ)</strong>.</p>
+<blockquote><strong>Nói đơn giản:</strong> học thêm giọng địa phương mà gần như không quên tiếng Anh gốc (chỉ rơi 0,61%).</blockquote>
+<hr>
+<h3 id="v-d-tr-c-gi-c">Ví dụ trực giác</h3>
+<ul><li>Đóng băng <strong>0 tầng</strong> (train hết): học Testbed tốt nhưng <strong>quên CIC nhiều</strong> (CF cao).</li><li>Đóng băng <strong>cả 4 tầng</strong> (chỉ chỉnh head): nhớ CIC nhưng <strong>học Testbed kém</strong> (quá cứng).</li><li>Đóng băng <strong>2/4 tầng</strong>: điểm ngọt — nhớ CIC (CF 0,61%) <em>và</em> thích nghi Testbed.</li></ul>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<p>khi ít dữ liệu và tránh quên.</p>
+<ul><li><strong>Layer Freezing:</strong> đóng băng tầng thấp (kiến thức tổng quát), chỉ cập nhật tầng cao (đặc thù miền) → hợp</li><li><strong>Catastrophic Forgetting</strong> đo bằng <code>CF</code> = % tụt hiệu năng miền nguồn; đóng băng 2/4 tầng → <strong>CF = 0,61%</strong>.</li><li>Là cách cân bằng <strong>plasticity ↔ stability</strong>.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Đây là kỹ thuật <strong>không thể làm với Random Forest/XGBoost</strong> — một lý do đồ án chọn FT-Transformer (<a href="multi-head-self-attention.html">Multi-Head Self-Attention — cho các đặc trưng &quot;hỏi chuyện&quot; nhau</a>). Thường đi kèm <a href="model-surgery.html">Model Surgery — &quot;ghép thêm ngăn kéo&quot; cho model không phá đồ cũ</a> để thêm đặc trưng mới.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../E-transfer-domain-adaptation/layer-freezing-catastrophic-forgetting/layer-freezing-catastrophic-forgetting.md">Mở file Markdown gốc</a><a class="button" href="../E-transfer-domain-adaptation/layer-freezing-catastrophic-forgetting/infographic.html">Mở infographic.html</a><a class="button" href="../E-transfer-domain-adaptation/layer-freezing-catastrophic-forgetting/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Layer Freezing & Catastrophic Forgetting — giữ nền, học lại phần ngọn" src="../E-transfer-domain-adaptation/layer-freezing-catastrophic-forgetting/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

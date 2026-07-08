@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scaler–Embedding Coupling — Tự học</title>
+<style>
+  :root{--bg:#FBF8F1;--ink:#2B3A55;--panel-1:#E8F5E9;--panel-2:#E3F2FD;--panel-3:#F3E5F5;--panel-4:#FFF0E6;
+    --accent-yellow:#FFF6D6;--border:#D9D2C5;--good:#2E7D32;--bad:#C62828;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:#EFEAE0;padding:28px;font-family:'Quicksand','Segoe UI',system-ui,sans-serif;line-height:1.5;color:var(--ink);}
+  .ig{background:var(--bg);border-radius:16px;padding:32px;max-width:900px;margin:0 auto;box-shadow:0 6px 24px rgba(43,58,85,.08);
+    background-image:linear-gradient(var(--border) 1px,transparent 1px);background-size:100% 30px;background-position:0 96px;}
+  h1{text-align:center;font-size:24px;margin:0 0 4px;} .sub{text-align:center;font-size:15px;opacity:.8;margin-bottom:22px;}
+  .flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;background:#fff;border:2px solid var(--ink);border-radius:12px;padding:16px;margin-bottom:20px;}
+  .flow .box{background:var(--panel-2);border-radius:8px;padding:9px 13px;font-size:13.5px;font-weight:600;} .flow .arrow{opacity:.55;font-size:18px;}
+  .row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+  .panel{flex:1;min-width:200px;border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .p1{background:var(--panel-1);}.p2{background:var(--panel-2);}.p3{background:var(--panel-3);}.p4{background:var(--panel-4);}
+  .panel h3{margin:0 0 8px;font-size:15px;} .panel p{margin:0;font-size:14px;}
+  .example{background:var(--accent-yellow);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px;}
+  .example h3{margin:0 0 8px;font-size:16px;} .good{color:var(--good);font-weight:700;} .bad{color:var(--bad);font-weight:700;}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;} td{padding:6px 10px;border-bottom:1px dashed var(--border);}
+  .callout{background:#fff;border-left:5px solid var(--bad);border-radius:10px;padding:16px 18px;margin-bottom:14px;font-size:15px;}
+  .kicker{text-align:center;font-weight:700;color:var(--bad);margin-top:8px;font-size:16px;}
+  code{background:rgba(43,58,85,.06);padding:1px 5px;border-radius:5px;font-size:13px;}
+</style>
+</head>
+<body>
+<div class="ig">
+  <h1>✦ Scaler ↔ Embedding: khoá tay nhau ✦</h1>
+  <div class="sub">Vì sao "fit lại mỗi scaler" nghe hợp lý mà làm Accuracy rơi 21,93% → 6,87%?</div>
+
+  <div class="flow">
+    <span class="box">X_raw</span><span class="arrow">→</span>
+    <span class="box">f_CIC: PowerTransformer</span><span class="arrow">→</span>
+    <span class="box">X_scaled</span><span class="arrow">→</span>
+    <span class="box">g_CIC: FTT embedding</span><span class="arrow">→</span>
+    <span class="box">H_latent</span>
+  </div>
+
+  <div class="row">
+    <div class="panel p1"><h3>Hai mảnh học CÙNG NHAU</h3><p><b>g_CIC</b> được học để <b>kỳ vọng</b> đầu vào có phân phối mà <b>f_CIC</b> tạo ra. Chúng khớp nhau.</p></div>
+    <div class="panel p3"><h3>Đổi mỗi f → vỡ</h3><p>Thay f_CIC bằng f_Testbed: X_scaled đổi phân phối, nhưng g_CIC <b>vẫn đọc theo phân phối cũ</b> → mâu thuẫn.</p></div>
+    <div class="panel p4"><h3>Analogy</h3><p>Đổi thước bản đồ từ <b>km sang dặm</b> mà không báo người đọc → đi lạc hết.</p></div>
+  </div>
+
+  <div class="example">
+    <h3>🔢 Bằng chứng thực nghiệm</h3>
+    <table>
+      <tr><td>Transfer thẳng</td><td>21,93%</td><td>kém do covariate shift</td></tr>
+      <tr><td><b>Re-fit Scaler (đổi mỗi scaler)</b></td><td class="bad">6,87%</td><td><b>TỆ HƠN</b> — mâu thuẫn nội bộ</td></tr>
+      <tr><td>Layer Freezing (đổi đồng thời)</td><td class="good">cải thiện</td><td>scaler + fine-tune cùng lúc</td></tr>
+    </table>
+  </div>
+
+  <div class="callout">⚠️ <b>Nguyên tắc:</b> scaler phải đổi <b>CÙNG LÚC</b> với ít nhất một phần tham số model —
+    không thể đổi một trong hai độc lập. Đây là lý do <b>Layer Freezing</b> mới là lời giải đúng.</div>
+
+  <div class="kicker">Một kết quả phản trực giác đáng ghi vào luận văn!</div>
+</div>
+</body>
+</html>

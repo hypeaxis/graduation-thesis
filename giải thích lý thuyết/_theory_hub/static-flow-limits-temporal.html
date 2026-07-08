@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Giới hạn của flow tĩnh — Infiltration &amp; Botnet cần phân tích THỜI GIAN</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-slate">
+      <header class="hero">
+        <div class="eyebrow">G. Hệ lai &amp; giới hạn · Bài #29</div>
+        <h1>Giới hạn của flow tĩnh — Infiltration &amp; Botnet cần phân tích THỜI GIAN</h1>
+        <p>Có những tấn công mà mỗi flow đơn lẻ trông hoàn toàn bình thường — dấu hiệu chỉ lộ ra khi nhìn chuỗi nhiều flow theo thời gian. Với các tấn công này, mô hình phân loại từng flow mộ...</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Có những tấn công mà <strong>mỗi flow đơn lẻ trông hoàn toàn bình thường</strong> — dấu hiệu chỉ lộ ra khi nhìn <strong>chuỗi nhiều flow theo thời gian</strong>. Với các tấn công này, mô hình phân loại <strong>từng flow một</strong> (FTT, RF, KNN) về nguyên lý <strong>không thể</strong> bắt được. Đây là <strong>giới hạn căn bản</strong>, không phải lỗi cấu hình.</p>
+<p>Hai thủ phạm điển hình: <strong>Infiltration</strong> và <strong>Botnet C2</strong>.</p>
+<blockquote><strong>So sánh đời thường:</strong> nhìn <strong>một khung hình lẻ</strong> từ camera, bạn không biết ai đang lén lút — người đó chỉ đang đứng bình thường. Phải xem <strong>cả đoạn video</strong> (chuỗi thời gian) mới thấy hành vi rình mò lặp đi lặp lại.</blockquote>
+<hr>
+<h3 id="infiltration-d-u-hi-u-n-m-ngo-i-t-m-flow-t-nh">Infiltration: dấu hiệu nằm ngoài tầm flow tĩnh</h3>
+<p>Infiltration (CIC) là leo thang đặc quyền qua ứng dụng (Dropbox, iexplore). Mỗi flow CICFlowMeter bắt được chỉ là <strong>HTTP/HTTPS request bình thường</strong> — thống kê flow <strong>không phân biệt</strong> được với duyệt web thường.</p>
+<p>Dấu hiệu thật chỉ lộ khi quan sát <strong>theo thời gian</strong>:</p>
+<ul><li>Tần suất kết nối ra server ngoài <strong>tăng bất thường</strong>.</li><li><strong>DNS query</strong> tới domain <strong>chưa từng thấy</strong>.</li><li><strong>Upload dữ liệu</strong> bất thường vào đêm khuya.</li></ul>
+<p>→ Đây là bài toán <strong>phân tích chuỗi thời gian (temporal analysis)</strong>, không phải phân loại điểm dữ liệu đơn lẻ.</p>
+<hr>
+<h3 id="botnet-c2-nh-p-tim-n-trong-d-ng-th-i-gian">Botnet C2: nhịp tim ẩn trong dòng thời gian</h3>
+<p>Botnet C2 giao tiếp theo <strong>nhịp đập định kỳ (periodic heartbeat)</strong> ở tần suất thấp — <strong>mỗi flow C2 riêng lẻ trông như DNS/HTTP bình thường</strong>. Chỉ khi nhìn nhiều flow liên tiếp mới thấy <strong>tính chu kỳ</strong> (interval cố định, domain bất thường).</p>
+<p>Vì thế Botnet F1 dù đã cải thiện đáng kể (0,4787 → 0,7344 nhờ <a href="hard-negative-mining.html">Hard Negative Mining — chỉ ôn lại những câu làm SAI</a> + ensemble) <strong>vẫn thuộc nhóm thấp nhất</strong> — cộng thêm sự đa dạng cao của các biến thể C2.</p>
+<blockquote><strong>Nói đơn giản:</strong> một tiếng &quot;tít&quot; thì bình thường; nhưng &quot;tít... tít... tít&quot; <strong>đều đặn mỗi 30 giây</strong> mới là dấu hiệu máy đang bị điều khiển từ xa. Model nhìn một &quot;tít&quot; thì chịu.</blockquote>
+<hr>
+<h3 id="h-qu-h-ng-gi-i-quy-t">Hệ quả &amp; hướng giải quyết</h3>
+<div class="table-wrap"><table><thead><tr><th>Giới hạn</th><th>Tấn công ảnh hưởng</th><th>Hướng giải quyết</th></tr></thead><tbody><tr><td>Flow đơn lẻ thiếu ngữ cảnh</td><td>Infiltration, Botnet</td><td><strong>Session aggregation</strong> (gộp nhiều flow → 1 vector dài)</td></tr><tr><td>Không có phân tích payload</td><td>Infiltration, Web Attack</td><td><strong>DPI</strong> + multi-modal (flow + payload encoder)</td></tr><tr><td>Không phân tích thời gian</td><td>Infiltration, Botnet</td><td><strong>Graph/LSTM</strong> trên chuỗi flow (temporal)</td></tr></tbody></table></div>
+<p>Các hướng này <strong>nằm ngoài phạm vi đồ án hiện tại</strong> nhưng là <strong>mở rộng tự nhiên tiếp theo</strong>.</p>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<ul><li>Một số tấn công (<strong>Infiltration, Botnet C2</strong>) có <strong>mỗi flow trông như Benign</strong>; dấu hiệu chỉ ở <strong>chuỗi thời gian</strong>.</li><li>Mô hình phân loại <strong>flow đơn lẻ</strong> (FTT/RF/KNN) <strong>về nguyên lý không bắt được</strong> ngữ cảnh temporal này.</li><li>Hướng đi: <strong>session aggregation, DPI multi-modal, graph/LSTM temporal</strong>.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn viết được phần <strong>&quot;Giới hạn &amp; Hướng phát triển&quot;</strong> của luận văn một cách thuyết phục — chỉ ra <em>ranh giới lý thuyết</em> của cách tiếp cận flow tĩnh, thay vì đổ lỗi cho model. Liên hệ <a href="flow-features-cicflowmeter.html">Trích xuất đặc trưng flow bằng CICFlowMeter</a> (nguồn gốc giới hạn) và <a href="portscan-inseparability-nat.html">PortScan không phân tách dưới NAT — giới hạn của DỮ LIỆU, không phải model</a> (một giới hạn dữ liệu khác).</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../G-hybrid-and-limits/static-flow-limits-temporal/static-flow-limits-temporal.md">Mở file Markdown gốc</a><a class="button" href="../G-hybrid-and-limits/static-flow-limits-temporal/infographic.html">Mở infographic.html</a><a class="button" href="../G-hybrid-and-limits/static-flow-limits-temporal/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Giới hạn của flow tĩnh — Infiltration & Botnet cần phân tích THỜI GIAN" src="../G-hybrid-and-limits/static-flow-limits-temporal/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

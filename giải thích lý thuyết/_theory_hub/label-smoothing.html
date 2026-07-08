@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Label Smoothing — dạy model bớt &quot;kiêu ngạo&quot;</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-rose">
+      <header class="hero">
+        <div class="eyebrow">D. Xử lý mất cân bằng · Bài #14</div>
+        <h1>Label Smoothing — dạy model bớt &quot;kiêu ngạo&quot;</h1>
+        <p>Khi huấn luyện, ta thường đưa nhãn dạng cứng (hard label): đúng lớp = 1, sai = 0. Điều này ép model tự tin 100% vào một đáp án. Hệ quả: model dễ kiêu ngạo (overconfident) và overfi...</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Khi huấn luyện, ta thường đưa nhãn dạng <strong>cứng (hard label)</strong>: đúng lớp = 1, sai = 0. Điều này ép model <strong>tự tin 100%</strong> vào một đáp án. Hệ quả: model dễ <strong>kiêu ngạo (overconfident)</strong> và <strong>overfit</strong> — nhớ vẹt dữ liệu train, kém khi gặp dữ liệu mới.</p>
+<p><strong>Label Smoothing (làm mượt nhãn)</strong> sửa nhẹ: thay vì bắt model tin tuyệt đối, ta <strong>chừa lại một chút nghi ngờ</strong>.</p>
+<blockquote><strong>So sánh đời thường:</strong> thay vì bắt học sinh trả lời &quot;chắc chắn 100% đáp án A&quot;, ta dạy em &quot;khoảng 90% là A, chừa 10% cho khả năng mình nhầm&quot;. Thái độ khiêm tốn này giúp em <strong>tổng quát hoá</strong> tốt hơn, ít bảo thủ.</blockquote>
+<hr>
+<h3 id="c-ng-th-c-b-c-t-ng-m-nh">Công thức — bóc từng mảnh</h3>
+<pre><code>y_c^smooth = (1 − ε) · y_c + ε / C</code></pre>
+<ul><li><strong><code>y_c</code></strong> → nhãn cứng gốc (1 hoặc 0).</li><li><strong><code>ε</code> (epsilon)</strong> → mức làm mượt (đề tài V8.5 dùng <code>ε = 0,10</code>).</li><li><strong><code>(1 − ε)·y_c</code></strong> → kéo đỉnh &quot;1&quot; xuống còn <code>1 − ε</code> (vd 0,90).</li><li><strong><code>ε / C</code></strong> → rải phần <code>ε</code> đều cho <strong>tất cả C lớp</strong> (mỗi lớp được một chút xác suất nhỏ).</li></ul>
+<p>Ví dụ 5 lớp, <code>ε = 0,10</code>: nhãn cứng <code>[0, 1, 0, 0, 0]</code> → nhãn mượt <code>[0,02, 0,92, 0,02, 0,02, 0,02]</code>.</p>
+<blockquote><strong>Nói đơn giản:</strong> đỉnh nhọn &quot;1&quot; bị bạt xuống 0,92, phần dư 0,08 chia đều cho các lớp còn lại → mục tiêu &quot;mềm&quot; hơn, model không bị ép tin tuyệt đối.</blockquote>
+<hr>
+<h3 id="khi-n-o-kh-ng-n-n-d-ng-b-i-h-c-t-n">Khi nào KHÔNG nên dùng — bài học từ đồ án</h3>
+<p>Label Smoothing <strong>rải xác suất cho mọi lớp</strong>, kể cả lớp cực hiếm. Với <strong>Heartbleed chỉ 10 mẫu</strong>, việc này <strong>làm loãng</strong> tín hiệu vốn đã ít ỏi → hại nhiều hơn lợi.</p>
+<p>Vì thế đồ án <strong>dùng <code>ε=0,10</code> cho Testbed V8.5</strong> (giảm overfit) nhưng <strong>KHÔNG dùng cho CIC Expert Network</strong> (vì ảnh hưởng xấu tới các lớp siêu hiếm như Heartbleed).</p>
+<blockquote><strong>Bài học:</strong> cùng một kỹ thuật, tốt ở ngữ cảnh này nhưng hại ở ngữ cảnh khác — phải hiểu <em>vì sao</em> mới dùng đúng chỗ.</blockquote>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<ul><li>Label Smoothing biến nhãn cứng <code>1/0</code> thành nhãn mềm: <code>y^smooth = (1−ε)y + ε/C</code>.</li><li>Tác dụng: giảm <strong>overconfidence</strong> và <strong>overfit</strong>, giúp model tổng quát hoá tốt hơn.</li><li><strong>Cẩn trọng:</strong> làm loãng tín hiệu lớp siêu hiếm → đồ án dùng cho V8.5 nhưng bỏ với CIC Expert (Heartbleed 10 mẫu).</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn biết một &quot;nút chỉnh&quot; nhỏ để chống overfit, và quan trọng hơn — biết <strong>khi nào tắt nó đi</strong>, một quyết định tinh tế đáng ghi trong luận văn.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../D-imbalance-handling/label-smoothing/label-smoothing.md">Mở file Markdown gốc</a><a class="button" href="../D-imbalance-handling/label-smoothing/infographic.html">Mở infographic.html</a><a class="button" href="../D-imbalance-handling/label-smoothing/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Label Smoothing — dạy model bớt "kiêu ngạo"" src="../D-imbalance-handling/label-smoothing/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

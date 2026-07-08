@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Asymmetric Voting — bỏ phiếu theo CHI PHÍ sai, không phải theo đa số</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-teal">
+      <header class="hero">
+        <div class="eyebrow">F. Ensemble &amp; hệ thống · Bài #24</div>
+        <h1>Asymmetric Voting — bỏ phiếu theo CHI PHÍ sai, không phải theo đa số</h1>
+        <p>Cách gộp ensemble quen thuộc là Majority Voting (đa số 2/3). Nó tối ưu khi chi phí của mọi loại sai là NHƯ NHAU. Nhưng trong IDS, cái giá của các kiểu sai rất khác nhau tùy lớp:</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Cách gộp ensemble quen thuộc là <strong>Majority Voting (đa số 2/3)</strong>. Nó <strong>tối ưu khi chi phí của mọi loại sai là NHƯ NHAU</strong>. Nhưng trong IDS, <strong>cái giá của các kiểu sai rất khác nhau tùy lớp</strong>:</p>
+<p>bỏ qua cả cảnh báo thật. <strong>Cũng đắt, nhưng theo kiểu khác.</strong></p>
+<ul><li>Bỏ sót một <strong>Infiltration</strong> → có thể để lộ dữ liệu (data breach) hàng tháng trời. <strong>Cực đắt.</strong></li><li>Báo nhầm quá nhiều <strong>Botnet</strong> → đội SOC ngập trong báo động giả, <strong>mệt mỏi cảnh báo (alert fatigue)</strong> rồi</li></ul>
+<p><strong>Asymmetric / Cost-sensitive Voting</strong> điều chỉnh luật bỏ phiếu <strong>theo chi phí sai của từng lớp</strong>, thay vì đếm phiếu ngang nhau.</p>
+<blockquote><strong>So sánh đời thường:</strong> <strong>báo cháy</strong> thì thà báo nhầm còn hơn bỏ sót (một mạng người &gt; vài lần hú còi thừa). Nhưng <strong>báo động trộm gọi cảnh sát</strong> thì cần chắc chắn, kẻo gọi hoài cảnh sát sẽ chẳng thèm đến. Hai loại báo động, hai ngưỡng khác nhau.</blockquote>
+<hr>
+<h3 id="hai-lo-i-chi-ph-sai">Hai loại chi phí sai</h3>
+<ul><li><strong>FN (False Negative — bỏ sót)</strong>: có tấn công mà báo là bình thường.</li><li><strong>FP (False Positive — báo nhầm)</strong>: bình thường mà báo là tấn công.</li></ul>
+<p>Tùy lớp mà cái nào đắt hơn → chọn luật gộp khác nhau.</p>
+<hr>
+<h3 id="lu-t-b-t-i-x-ng-b-c-t-ng-m-nh">Luật bất đối xứng — bóc từng mảnh</h3>
+<div class="table-wrap"><table><thead><tr><th>Lớp</th><th>Vấn đề của FTT</th><th>Chi phí</th><th>Luật gộp</th></tr></thead><tbody><tr><td><strong>Infiltration</strong></td><td>FTT hay <strong>bỏ sót</strong> (FN cao)</td><td>FN <strong>rất đắt</strong> (lộ dữ liệu)</td><td><strong>OR</strong>(RF, KNN) → Infiltration</td></tr><tr><td><strong>Botnet</strong></td><td>FTT hay <strong>báo dư</strong> (FP cao)</td><td>FP đắt (alert fatigue)</td><td><strong>AND</strong>(FTT, RF, KNN) → Botnet</td></tr><tr><td>Các lớp khác</td><td>Cân bằng</td><td>—</td><td><strong>Majority (2/3)</strong></td></tr></tbody></table></div>
+<p><strong>tăng Recall</strong> (bắt được nhiều hơn), đổi lấy giảm Precision. Hợp lý vì FN quá đắt.</p>
+<p>Recall vừa phải. Hợp lý vì FTT sau HNM hay báo dư Botnet.</p>
+<ul><li><strong>Infiltration Priority Rule (OR):</strong> <em>chỉ cần MỘT trong RF/KNN</em> nói Infiltration là gán Infiltration →</li><li><strong>Botnet Consensus Rule (AND):</strong> <em>phải CẢ BA</em> đồng thuận mới gán Botnet → <strong>giảm mạnh FP</strong>, đổi lấy giảm</li></ul>
+<blockquote><strong>Nói đơn giản:</strong> với lớp &quot;thà bắt nhầm còn hơn bỏ sót&quot; → dùng OR (dễ dãi). Với lớp &quot;phải chắc mới báo&quot; → dùng AND (khắt khe).</blockquote>
+<hr>
+<h3 id="v-d-tr-c-gi-c">Ví dụ trực giác</h3>
+<p>Một flow, ba phiếu: FTT=Benign, RF=Infiltration, KNN=Benign.</p>
+<ul><li><strong>Majority 2/3:</strong> → Benign (bỏ sót Infiltration → nguy hiểm!).</li><li><strong>OR-rule cho Infiltration:</strong> chỉ cần RF kêu → <strong>gán Infiltration</strong> → cứu được ca bỏ sót đắt giá.</li></ul>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<p>fatigue); còn lại <strong>Majority</strong>.</p>
+<ul><li><strong>Majority Voting</strong> chỉ tối ưu khi chi phí FP = FN. IDS thì <strong>không</strong> — mỗi lớp một kiểu chi phí.</li><li><strong>Asymmetric Voting:</strong> Infiltration dùng <strong>OR</strong> (tăng Recall, sợ FN); Botnet dùng <strong>AND</strong> (giảm FP, sợ alert</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn thấy ensemble không chỉ là &quot;gộp cho chính xác hơn&quot; mà còn là <strong>công cụ quản trị rủi ro</strong> theo chi phí thực tế — một điểm sáng thực tiễn của đồ án. Nền lý thuyết: <a href="bias-variance-ensemble.html">Bias–Variance &amp; Ensemble giảm Variance — vì sao &quot;hỏi nhiều người&quot; tốt hơn</a>, <a href="inductive-bias-diversity.html">Đa dạng Inductive Bias (FTT + RF + KNN) — sai khác nhau nên bù được cho nhau</a>.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../F-ensemble-and-system/asymmetric-cost-sensitive-voting/asymmetric-cost-sensitive-voting.md">Mở file Markdown gốc</a><a class="button" href="../F-ensemble-and-system/asymmetric-cost-sensitive-voting/infographic.html">Mở infographic.html</a><a class="button" href="../F-ensemble-and-system/asymmetric-cost-sensitive-voting/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Asymmetric Voting — bỏ phiếu theo CHI PHÍ sai, không phải theo đa số" src="../F-ensemble-and-system/asymmetric-cost-sensitive-voting/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

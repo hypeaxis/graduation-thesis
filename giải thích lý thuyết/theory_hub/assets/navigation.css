@@ -1,0 +1,28 @@
+.search {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.9);
+  font: 500 .96rem/1.2 "Segoe UI", sans-serif;
+  color: var(--ink);
+}
+
+.nav-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.nav-link {
+  text-decoration: none;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.65);
+  border: 1px solid rgba(34,48,64,.08);
+  font: 600 .94rem/1.35 "Segoe UI", sans-serif;
+}
+
+.nav-link:hover {
+  background: rgba(255,255,255,.96);
+}

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scaler–Embedding Coupling — vì sao &quot;đổi mỗi scaler&quot; lại thất bại</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-violet">
+      <header class="hero">
+        <div class="eyebrow">E. Thích nghi miền · Bài #18</div>
+        <h1>Scaler–Embedding Coupling — vì sao &quot;đổi mỗi scaler&quot; lại thất bại</h1>
+        <p>Khi gặp covariate-shift, ý tưởng đầu tiên rất tự nhiên: &quot;Phân phối đổi thì mình fit lại scaler (PowerTransformer) trên Testbed là xong!&quot;. Nghe hợp lý — nhưng thực nghiệm cho kết qu...</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Khi gặp <a href="covariate-shift.html">Covariate Shift — khi &quot;cảm giác đầu vào&quot; đổi, model lạc lối</a>, ý tưởng đầu tiên rất tự nhiên: <em>&quot;Phân phối đổi thì mình <strong>fit lại scaler</strong> (PowerTransformer) trên Testbed là xong!&quot;</em>. Nghe hợp lý — nhưng thực nghiệm cho kết quả <strong>tệ hơn</strong>: Accuracy từ 21,93% (transfer thẳng) <strong>rơi xuống 6,87%</strong> khi Re-fit Scaler.</p>
+<p>Vì sao? Vì <strong>scaler và embedding của model bị &quot;khoá tay nhau&quot; (coupled)</strong> — không thể thay một cái độc lập.</p>
+<blockquote><strong>So sánh đời thường:</strong> một bản đồ được vẽ theo <strong>thang đo cây số</strong>. Giờ bạn lén đổi thước sang <strong>dặm</strong> nhưng <strong>không báo cho người đọc bản đồ</strong>. Người đọc vẫn hiểu mọi khoảng cách theo cây số → đi lạc hết. Đổi thước mà không đổi cách đọc = thảm hoạ.</blockquote>
+<hr>
+<h3 id="model-g-m-hai-m-nh-h-c-c-ng-nhau">Model gồm hai mảnh học CÙNG NHAU</h3>
+<p>FT-Transformer thực chất là chuỗi hai thành phần, cả hai đều học từ CIC:</p>
+<pre><code>X_raw ──[ f_CIC: PowerTransformer ]──▶ X_scaled ──[ g_CIC: FTT embedding ]──▶ H_latent</code></pre>
+<ul><li><strong><code>f_CIC</code></strong> → scaler, ánh xạ dữ liệu thô → dữ liệu đã chuẩn hoá <strong>theo phân phối CIC</strong>.</li><li><strong><code>g_CIC</code></strong> → embedding của FTT, được học để <strong>kỳ vọng đầu vào có phân phối <code>f_CIC(X_CIC)</code></strong>.</li></ul>
+<p>Mấu chốt: <code>g_CIC</code> đã học rằng <em>&quot;giá trị <code>x_j</code> nằm trong khoảng [a,b] theo scaler CIC thì mang ý nghĩa Z&quot;</em>.</p>
+<hr>
+<h3 id="v-sao-re-fit-scaler-ph-v-m-i-th">Vì sao Re-fit Scaler phá vỡ mọi thứ</h3>
+<p>Khi thay <code>f_CIC</code> bằng <code>f_Testbed</code> (fit scaler mới trên Testbed):</p>
+<p>1. <code>X_scaled^new = f_Testbed(X_raw^Testbed)</code> có <strong>phân phối khác</strong> <code>f_CIC(X_raw^CIC)</code>. 2. Nhưng <code>g_CIC</code> <strong>vẫn kỳ vọng phân phối cũ</strong> → <strong>mâu thuẫn nội bộ</strong>. 3. Khoảng giá trị ứng với &quot;ý nghĩa Z&quot; đã <strong>dịch chuyển</strong>, nhưng embedding <strong>không hề hay biết</strong> → hiểu sai toàn bộ.</p>
+<blockquote><strong>Nói đơn giản:</strong> bạn đổi đơn vị đầu vào, nhưng cái &quot;bộ não&quot; phía sau vẫn đọc theo đơn vị cũ → càng chỉnh càng loạn. Kết quả: Accuracy 21,93% → <strong>6,87%</strong>.</blockquote>
+<hr>
+<h3 id="nguy-n-t-c-r-t-ra">Nguyên tắc rút ra</h3>
+<blockquote><strong>Scaler phải được thay đổi CÙNG LÚC với ít nhất một phần tham số model — không thể đổi một trong hai một cách độc lập.</strong></blockquote>
+<p>Đây chính là lý do giải pháp đúng là <strong><a href="layer-freezing-catastrophic-forgetting.html">Layer Freezing &amp; Catastrophic Forgetting — giữ nền, học lại phần ngọn</a></strong> (đổi scaler <em>và</em> fine-tune tầng cao cùng nhau), chứ không phải chỉ thay scaler.</p>
+<hr>
+<h3 id="v-d-s">Ví dụ SỐ</h3>
+<div class="table-wrap"><table><thead><tr><th>Cách làm</th><th>Accuracy</th><th>Nhận xét</th></tr></thead><tbody><tr><td>Transfer thẳng (giữ nguyên tất cả)</td><td>21,93%</td><td>kém do covariate shift</td></tr><tr><td><strong>Re-fit Scaler (đổi mỗi scaler)</strong></td><td><strong>6,87%</strong></td><td><strong>tệ hơn</strong> — mâu thuẫn scaler↔embedding</td></tr><tr><td>Layer Freezing (đổi scaler + fine-tune)</td><td>cải thiện rõ</td><td>đổi đồng thời → khớp lại</td></tr></tbody></table></div>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<ul><li>FTT = <strong>scaler <code>f_CIC</code> + embedding <code>g_CIC</code></strong> học cùng nhau; <code>g</code> kỳ vọng đúng phân phối mà <code>f</code> tạo ra.</li><li><strong>Re-fit Scaler đơn lẻ</strong> tạo <strong>mâu thuẫn nội bộ</strong> (embedding đọc sai khoảng giá trị) → Accuracy 21,93% → 6,87%.</li><li><strong>Nguyên tắc:</strong> đổi scaler phải <strong>đồng thời</strong> với việc cập nhật (một phần) tham số model.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn giải thích được một kết quả <em>phản trực giác</em> trong luận văn — vì sao một bước tưởng &quot;hiển nhiên đúng&quot; lại làm hỏng, và vì sao <a href="layer-freezing-catastrophic-forgetting.html">Layer Freezing &amp; Catastrophic Forgetting — giữ nền, học lại phần ngọn</a> mới là lời giải.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../E-transfer-domain-adaptation/scaler-embedding-coupling/scaler-embedding-coupling.md">Mở file Markdown gốc</a><a class="button" href="../E-transfer-domain-adaptation/scaler-embedding-coupling/infographic.html">Mở infographic.html</a><a class="button" href="../E-transfer-domain-adaptation/scaler-embedding-coupling/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Scaler–Embedding Coupling — vì sao "đổi mỗi scaler" lại thất bại" src="../E-transfer-domain-adaptation/scaler-embedding-coupling/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

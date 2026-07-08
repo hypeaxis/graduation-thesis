@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lọc tương quan Pearson — bỏ bớt đặc trưng &quot;kể chuyện trùng nhau&quot;</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-amber">
+      <header class="hero">
+        <div class="eyebrow">C. Tiền xử lý · Bài #8</div>
+        <h1>Lọc tương quan Pearson — bỏ bớt đặc trưng &quot;kể chuyện trùng nhau&quot;</h1>
+        <p>CICFlowMeter cho 77 đặc trưng, nhưng nhiều cái nói gần như cùng một điều. Ví dụ Flow_Bytes/s và Flow_Packets/s thường lên xuống cùng nhau; giữ cả hai chẳng thêm thông tin mà chỉ tă...</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>CICFlowMeter cho <strong>77 đặc trưng</strong>, nhưng nhiều cái <strong>nói gần như cùng một điều</strong>. Ví dụ <code>Flow_Bytes/s</code> và <code>Flow_Packets/s</code> thường lên xuống cùng nhau; giữ cả hai chẳng thêm thông tin mà chỉ <strong>tăng chiều, thêm nhiễu, train chậm</strong> — đặc biệt hại cho Expert Network vốn cần gọn.</p>
+<p><strong>Lọc tương quan Pearson</strong> giải quyết: đo mức &quot;đi cùng nhau&quot; của từng cặp đặc trưng, nếu <strong>quá giống</strong> thì <strong>bỏ bớt một cái</strong>.</p>
+<blockquote><strong>So sánh đời thường:</strong> hai nhân chứng kể lại vụ việc <strong>y hệt nhau</strong> → chỉ cần nghe một người là đủ. Nghe cả hai không thêm thông tin, chỉ <strong>tốn thời gian và gây rối</strong>.</blockquote>
+<hr>
+<h3 id="h-s-pearson-b-c-t-ng-m-nh">Hệ số Pearson — bóc từng mảnh</h3>
+<pre><code>r(X, Y) = Cov(X, Y) / (σ_X · σ_Y)</code></pre>
+<ul><li><strong><code>Cov(X, Y)</code></strong> → hiệp phương sai: X và Y có xu hướng <strong>cùng tăng/cùng giảm</strong> không.</li><li><strong><code>σ_X, σ_Y</code></strong> → độ lệch chuẩn, để chuẩn hoá về khoảng cố định.</li><li><strong><code>r</code></strong> → nằm trong <strong>[−1, +1]</strong>:</li><li><code>r = +1</code>: đi cùng nhau hoàn hảo (một tăng, kia tăng y hệt).</li><li><code>r = 0</code>: không liên quan tuyến tính.</li><li><code>r = −1</code>: ngược nhau hoàn hảo.</li></ul>
+<blockquote><strong>Nói đơn giản:</strong> <code>r</code> đo &quot;hai cột này có kể chung một câu chuyện không&quot;. <code>|r|</code> càng gần 1 càng trùng lặp.</blockquote>
+<hr>
+<h3 id="lu-t-l-c-trong-n">Luật lọc trong đồ án</h3>
+<pre><code>Nếu |r| &gt; 0,95 giữa hai đặc trưng  →  bỏ đi MỘT trong hai</code></pre>
+<ul><li>Ngưỡng <strong>0,95</strong> = &quot;gần như trùng&quot;. Cặp nào vượt ngưỡng → giữ một, bỏ một.</li><li>Kết quả: <strong>77 → 34 đặc trưng</strong> cho <strong>Expert Network</strong>.</li></ul>
+<p><strong>Điểm tinh tế:</strong> <strong>KHÔNG lọc cho Gating Network</strong> — Gating giữ <strong>đầy đủ 77 đặc trưng</strong>.</p>
+<hr>
+<h3 id="v-sao-expert-l-c-m-gating-th-kh-ng">Vì sao Expert lọc mà Gating thì không?</h3>
+<p>cũng không sao, và không nên bỏ sót manh mối lọc tấn công.</p>
+<p>bớt overfit, học phân biệt tấn công sắc nét hơn. Xem <a href="two-stage-cascade-gating-expert.html">Two-Stage Cascade (Gating + Expert) — chia để trị</a>.</p>
+<ul><li><strong>Gating</strong> làm bài toán <strong>nhị phân đơn giản</strong> (&quot;đáng ngờ không?&quot;) — cần <strong>tín hiệu đầy đủ</strong>, kể cả dư một chút</li><li><strong>Expert</strong> làm bài toán <strong>9 lớp tinh vi</strong> trên chỉ ~17,3% traffic — <strong>giảm chiều</strong> giúp gradient tập trung,</li></ul>
+<blockquote><strong>Nói nôm na:</strong> người gác cổng cần nghe hết mọi tiếng động; chuyên gia phân tích thì cần bàn làm việc gọn gàng.</blockquote>
+<hr>
+<h3 id="v-d-tr-c-gi-c">Ví dụ trực giác</h3>
+<p>Cặp <code>Flow_Bytes/s</code> ↔ <code>Flow_Packets/s</code> có <code>r = 0,97 &gt; 0,95</code> → bỏ một. Model mất gần như <strong>0 thông tin</strong> (vì cái còn lại đã &quot;kể&quot; gần hết), nhưng <strong>giảm được một chiều</strong> → nhẹ và ổn định hơn.</p>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<ul><li><strong>Pearson <code>r</code></strong> đo mức hai đặc trưng &quot;đi cùng nhau&quot; (<code>[−1,1]</code>); <code>|r|</code> gần 1 = trùng lặp.</li><li>Đồ án bỏ đặc trưng có <strong><code>|r| &gt; 0,95</code></strong> → <strong>77 → 34</strong> cho <strong>Expert</strong>; <strong>giữ đủ 77 cho Gating</strong>.</li><li>Giảm chiều → bớt nhiễu, bớt overfit, train nhanh, gradient tập trung.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn giải thích được một <strong>quyết định thiết kế tinh tế</strong> (lọc cho Expert nhưng không cho Gating) và hiểu vì sao Expert dùng cấu hình nhỏ (<code>d=64</code>). Gắn với <a href="yeo-johnson-power-transform.html">Power Transformer — Yeo-Johnson: &quot;bẻ cong thước đo&quot; cho dữ liệu lệch</a> (cùng nằm ở bước tiền xử lý).</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../C-preprocessing/pearson-correlation-filter/pearson-correlation-filter.md">Mở file Markdown gốc</a><a class="button" href="../C-preprocessing/pearson-correlation-filter/infographic.html">Mở infographic.html</a><a class="button" href="../C-preprocessing/pearson-correlation-filter/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Lọc tương quan Pearson — bỏ bớt đặc trưng "kể chuyện trùng nhau"" src="../C-preprocessing/pearson-correlation-filter/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

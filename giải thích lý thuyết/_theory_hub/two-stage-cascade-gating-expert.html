@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Two-Stage Cascade (Gating + Expert) — chia để trị</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-teal">
+      <header class="hero">
+        <div class="eyebrow">F. Ensemble &amp; hệ thống · Bài #19</div>
+        <h1>Two-Stage Cascade (Gating + Expert) — chia để trị</h1>
+        <p>Bắt một model vừa phải lọc ~83% Benign ra khỏi tấn công, vừa phải phân biệt tinh tế giữa 9 loại tấn công là quá tải. Gradient bị xé làm hai nhiệm vụ đối chọi: học &quot;Benign vs Attack...</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Bắt <strong>một model</strong> vừa phải <strong>lọc ~83% Benign</strong> ra khỏi tấn công, vừa phải <strong>phân biệt tinh tế giữa 9 loại tấn công</strong> là quá tải. Gradient bị <strong>xé làm hai nhiệm vụ</strong> đối chọi: học &quot;Benign vs Attack&quot; và học &quot;Attack A vs Attack B&quot; cùng lúc → cả hai đều kém.</p>
+<p><strong>Two-Stage Cascade (thác hai tầng)</strong> chia bài toán thành hai chuyên gia nối tiếp — một kiểu <strong>Mixture of Experts (MoE — hỗn hợp chuyên gia)</strong>:</p>
+<p>1. <strong>Gating Network</strong> — tầng sàng lọc: <em>&quot;flow này có đáng ngờ không?&quot;</em> (nhị phân). 2. <strong>Expert Network</strong> — tầng chuyên sâu: <em>&quot;nếu đáng ngờ thì là loại tấn công nào?&quot;</em> (9 lớp).</p>
+<blockquote><strong>So sánh đời thường:</strong> như <strong>bệnh viện phân luồng</strong>. <strong>Y tá sàng lọc</strong> (Gating) nhìn nhanh xem ai khoẻ cho về, ai đáng ngờ chuyển vào trong. <strong>Bác sĩ chuyên khoa</strong> (Expert) chỉ tập trung chẩn đoán sâu cho nhóm đáng ngờ, không bị đám đông người khoẻ làm nhiễu.</blockquote>
+<hr>
+<h3 id="t-ng-1-gating-network">Tầng 1 — Gating Network</h3>
+<ul><li>Bài toán <strong>nhị phân</strong> đơn giản: Benign vs Suspicious, dùng <strong>đầy đủ 77 đặc trưng</strong>.</li><li><strong>Ngưỡng bảo thủ 85%</strong> (không phải 50%): chỉ cho một flow &quot;thoát&quot; ra Benign nếu model <strong>rất chắc</strong> nó lành.</li><li>Kết quả: <strong>~82,7% traffic (Benign) thoát khỏi pipeline</strong>; <strong>~17,3% (Suspicious)</strong> đi tiếp xuống Expert.</li></ul>
+<p><strong>Vì sao ngưỡng 85%?</strong> Bỏ sót một Infiltration ở tầng 1 là <strong>mất vĩnh viễn</strong> (không có cơ hội thứ hai). Nên thà đẩy thêm chút Benign xuống tầng 2 (tốn công) còn hơn để lọt tấn công. → <strong>ưu tiên recall tấn công</strong>.</p>
+<hr>
+<h3 id="t-ng-2-expert-network">Tầng 2 — Expert Network</h3>
+<p>Benign<strong> → dồn toàn lực </strong>phân biệt giữa các loại tấn công**.</p>
+<ul><li>Chỉ nhận <strong>~17,3% traffic</strong> (các flow Suspicious) → phân loại thành <strong>9 lớp</strong>.</li><li>Dùng <strong>34 đặc trưng</strong> (sau lọc tương quan — xem <a href="pearson-correlation-filter.html">Lọc tương quan Pearson — bỏ bớt đặc trưng &quot;kể chuyện trùng nhau&quot;</a>), cấu hình nhỏ hơn (<code>d=64, L=3</code>).</li><li><strong>Lợi ích then chốt:</strong> vì 83% Benign đã bị lọc ở tầng 1, gradient của Expert **không còn phải &quot;đấu&quot; với biển</li></ul>
+<blockquote><strong>Nói đơn giản:</strong> tách &quot;gác cổng&quot; khỏi &quot;chẩn đoán chuyên sâu&quot; → mỗi tầng làm tốt một việc, thay vì một model ôm đồm cả hai rồi hỏng cả hai.</blockquote>
+<hr>
+<h3 id="v-d-tr-c-gi-c">Ví dụ trực giác</h3>
+<ul><li>Một model đơn: 100% traffic vào, gradient bị ~83% Benign chi phối → các lớp tấn công hiếm bị chèn ép.</li><li>Cascade: Gating tống 82,7% Benign ra trước → Expert chỉ còn xử lý 17,3% đã &quot;cô đặc tấn công&quot; → học sắc nét hơn.</li></ul>
+<p>Kết quả đồ án (CIC Stage 2): <strong>Accuracy 99,55%, Macro-F1 = 0,9294</strong>.</p>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<p>traffic) — một dạng <strong>Mixture of Experts</strong>.</p>
+<ul><li><strong>Two-Stage Cascade</strong> = <strong>Gating</strong> (nhị phân, lọc Benign, ngưỡng bảo thủ 85%) → <strong>Expert</strong> (9 lớp, chỉ ~17,3%</li><li>Tách hai nhiệm vụ đối chọi → mỗi tầng chuyên biệt → gradient Expert tập trung phân biệt tấn công.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn nắm <strong>xương sống kiến trúc</strong> của hệ CIC trong đồ án, và hiểu vì sao chia tầng lại thắng một model &quot;ôm đồm&quot;. Các mảnh ghép: <a href="hard-negative-mining.html">Hard Negative Mining — chỉ ôn lại những câu làm SAI</a> (trong Expert), và ensemble <a href="bias-variance-ensemble.html">Bias–Variance &amp; Ensemble giảm Variance — vì sao &quot;hỏi nhiều người&quot; tốt hơn</a> ở đầu ra.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../F-ensemble-and-system/two-stage-cascade-gating-expert/two-stage-cascade-gating-expert.md">Mở file Markdown gốc</a><a class="button" href="../F-ensemble-and-system/two-stage-cascade-gating-expert/infographic.html">Mở infographic.html</a><a class="button" href="../F-ensemble-and-system/two-stage-cascade-gating-expert/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Two-Stage Cascade (Gating + Expert) — chia để trị" src="../F-ensemble-and-system/two-stage-cascade-gating-expert/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

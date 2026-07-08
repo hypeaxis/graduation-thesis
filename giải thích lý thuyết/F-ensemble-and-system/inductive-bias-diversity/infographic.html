@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inductive Bias Diversity — Tự học</title>
+<style>
+  :root{--bg:#FBF8F1;--ink:#2B3A55;--panel-1:#E8F5E9;--panel-2:#E3F2FD;--panel-3:#F3E5F5;--panel-4:#FFF0E6;
+    --accent-yellow:#FFF6D6;--border:#D9D2C5;--good:#2E7D32;--bad:#C62828;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:#EFEAE0;padding:28px;font-family:'Quicksand','Segoe UI',system-ui,sans-serif;line-height:1.5;color:var(--ink);}
+  .ig{background:var(--bg);border-radius:16px;padding:32px;max-width:900px;margin:0 auto;box-shadow:0 6px 24px rgba(43,58,85,.08);
+    background-image:linear-gradient(var(--border) 1px,transparent 1px);background-size:100% 30px;background-position:0 96px;}
+  h1{text-align:center;font-size:25px;margin:0 0 4px;} .sub{text-align:center;font-size:15px;opacity:.8;margin-bottom:22px;}
+  .row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+  .panel{flex:1;min-width:240px;border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .p1{background:var(--panel-1);}.p2{background:var(--panel-2);}.p3{background:var(--panel-3);}.p4{background:var(--panel-4);}
+  .panel h3{margin:0 0 8px;font-size:15px;} .panel p{margin:0;font-size:13.5px;}
+  .example{background:var(--accent-yellow);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px;}
+  .example h3{margin:0 0 10px;font-size:16px;} .good{color:var(--good);font-weight:700;} .bad{color:var(--bad);font-weight:700;}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;} td{padding:6px 10px;border-bottom:1px dashed var(--border);} th{text-align:left;padding:6px 10px;font-size:13px;}
+  .callout{background:#fff;border-left:5px solid var(--panel-2);border-radius:10px;padding:16px 18px;margin-bottom:14px;font-size:15px;}
+  .kicker{text-align:center;font-weight:700;color:var(--bad);margin-top:8px;font-size:16px;}
+  code{background:rgba(43,58,85,.06);padding:1px 5px;border-radius:5px;font-size:13px;}
+</style>
+</head>
+<body>
+<div class="ig">
+  <h1>✦ Đa dạng Inductive Bias: FTT + RF + KNN ✦</h1>
+  <div class="sub">Ba cách nhìn khác nhau → sai ở chỗ khác nhau → ρ thấp → ensemble mới lợi</div>
+
+  <div class="example">
+    <h3>🧩 Ba inductive bias, ba kiểu sai</h3>
+    <table>
+      <tr><th>Model</th><th>Cách nhìn</th><th>Sai trên mẫu nào</th></tr>
+      <tr><td><b>FT-Transformer</b></td><td>tương tác đặc trưng (toàn cục)</td><td>tương tác phức tạp, không nhất quán</td></tr>
+      <tr><td><b>Random Forest</b></td><td>phân vùng không gian (cục bộ)</td><td>gần biên phức tạp ở chiều cao</td></tr>
+      <tr><td><b>KNN</b></td><td>lân cận, học lười</td><td>vùng thưa, xa điểm train</td></tr>
+    </table>
+  </div>
+
+  <div class="row">
+    <div class="panel p1"><h3>Vì sao đa dạng?</h3><p>"Inductive bias" = giả định ngầm về dữ liệu. Khác nhau → nhìn khác → <b>sai khác chỗ</b> → bù cho nhau.</p></div>
+    <div class="panel p2"><h3>Ví dụ Botnet vùng thưa</h3><p>KNN dễ sai (không hàng xóm gần) nhưng <b>FTT vẫn đúng</b> nhờ bắt tương tác đặc trưng → ensemble cứu được.</p></div>
+    <div class="panel p3"><h3>Đừng ghép model giống nhau</h3><p>FTT+FTT+FTT → cùng bias → cùng sai → ρ cao → ensemble <b>vô ích</b>.</p></div>
+  </div>
+
+  <div class="callout">💡 <b>Ý nghĩa:</b> muốn hội đồng khôn ngoan, đừng mời ba người <b>suy nghĩ y hệt nhau</b>.
+    Đây là cách <b>hiện thực hoá</b> điều kiện ρ thấp của Bias-Variance. Đầu ra ghép bằng Asymmetric Voting.</div>
+
+  <div class="kicker">Ba chuyên gia soi ba kiểu, che điểm mù của nhau!</div>
+</div>
+</body>
+</html>

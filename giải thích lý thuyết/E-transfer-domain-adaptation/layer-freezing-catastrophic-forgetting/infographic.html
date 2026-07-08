@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Layer Freezing & Catastrophic Forgetting — Tự học</title>
+<style>
+  :root{--bg:#FBF8F1;--ink:#2B3A55;--panel-1:#E8F5E9;--panel-2:#E3F2FD;--panel-3:#F3E5F5;--panel-4:#FFF0E6;
+    --accent-yellow:#FFF6D6;--border:#D9D2C5;--good:#2E7D32;--bad:#C62828;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:#EFEAE0;padding:28px;font-family:'Quicksand','Segoe UI',system-ui,sans-serif;line-height:1.5;color:var(--ink);}
+  .ig{background:var(--bg);border-radius:16px;padding:32px;max-width:900px;margin:0 auto;box-shadow:0 6px 24px rgba(43,58,85,.08);
+    background-image:linear-gradient(var(--border) 1px,transparent 1px);background-size:100% 30px;background-position:0 96px;}
+  h1{text-align:center;font-size:24px;margin:0 0 4px;} .sub{text-align:center;font-size:15px;opacity:.8;margin-bottom:22px;}
+  .formula{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:14px 18px;text-align:center;margin:0 auto 20px;max-width:700px;font-family:'Cambria Math','Georgia',serif;font-size:16px;}
+  .row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+  .panel{flex:1;min-width:200px;border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .p1{background:var(--panel-1);}.p2{background:var(--panel-2);}.p3{background:var(--panel-3);}.p4{background:var(--panel-4);}
+  .panel h3{margin:0 0 8px;font-size:15px;} .panel p{margin:0;font-size:14px;}
+  .example{background:var(--accent-yellow);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px;}
+  .example h3{margin:0 0 8px;font-size:16px;} .good{color:var(--good);font-weight:700;} .bad{color:var(--bad);font-weight:700;}
+  table{border-collapse:collapse;width:100%;font-size:14px;} td{padding:6px 10px;border-bottom:1px dashed var(--border);}
+  .callout{background:#fff;border-left:5px solid var(--panel-1);border-radius:10px;padding:16px 18px;margin-bottom:14px;font-size:15px;}
+  .kicker{text-align:center;font-weight:700;color:var(--bad);margin-top:8px;font-size:16px;}
+  code{background:rgba(43,58,85,.06);padding:1px 5px;border-radius:5px;font-size:13px;}
+</style>
+</head>
+<body>
+<div class="ig">
+  <h1>✦ Layer Freezing: giữ nền, học lại phần ngọn ✦</h1>
+  <div class="sub">Đóng băng tầng thấp (tổng quát), cập nhật tầng cao (đặc thù miền) → tránh <b>quên thảm hoạ</b></div>
+
+  <div class="formula">θ<sub>fine</sub>* = argmin<sub>θ<sub>fine</sub></sub> L( f<sub>θ<sub>freeze</sub>, θ<sub>fine</sub></sub>(x<sub>target</sub>), y<sub>target</sub> )</div>
+
+  <div class="row">
+    <div class="panel p1"><h3>Tầng THẤP (đóng băng)</h3><p>Quan hệ <b>tổng quát</b>, bất biến: "SYN cao → scan", "duration ngắn → flow ngắn". Đúng ở mọi miền.</p></div>
+    <div class="panel p2"><h3>Tầng CAO (cập nhật)</h3><p>Phân biệt <b>đặc thù miền</b>: "Botnet heartbeat vs Benign idle" → học lại cho Testbed.</p></div>
+    <div class="panel p3"><h3>Analogy</h3><p>Đã giỏi tiếng Anh, sang vùng tiếng lóng: <b>giữ ngữ pháp</b>, chỉ học thêm <b>từ địa phương</b>.</p></div>
+  </div>
+
+  <div class="example">
+    <h3>🔢 Catastrophic Forgetting: CF = (Acc_before − Acc_after) / Acc_before</h3>
+    <table>
+      <tr><td>Đóng băng 0 tầng (train hết)</td><td class="bad">quên CIC nhiều (CF cao)</td></tr>
+      <tr><td>Đóng băng cả 4 tầng</td><td class="bad">học Testbed kém (quá cứng)</td></tr>
+      <tr><td><b>Đóng băng 2/4 tầng</b></td><td class="good">CF = 0,61% → giữ 99,39% CIC ✓</td></tr>
+    </table>
+  </div>
+
+  <div class="callout">💡 <b>Điểm ngọt plasticity ↔ stability:</b> học giọng địa phương mà gần như không quên tiếng Anh gốc.
+    Kỹ thuật này <b>không làm được với Random Forest/XGBoost</b> — lý do chọn FT-Transformer.</div>
+
+  <div class="kicker">Dẻo để học cái mới, ổn để nhớ cái cũ!</div>
+</div>
+</body>
+</html>

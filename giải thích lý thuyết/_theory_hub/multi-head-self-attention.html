@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Multi-Head Self-Attention — cho các đặc trưng &quot;hỏi chuyện&quot; nhau</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-sky">
+      <header class="hero">
+        <div class="eyebrow">B. FT-Transformer · Bài #5</div>
+        <h1>Multi-Head Self-Attention — cho các đặc trưng &quot;hỏi chuyện&quot; nhau</h1>
+        <p>Nhiều tấn công không lộ ra ở một đặc trưng đơn lẻ, mà ở tổ hợp của chúng. Ví dụ: &quot;khi src_bytes cao VÀ rerror_rate cao đồng thời → tấn công R2L&quot;. Một mình src_bytes</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Nhiều tấn công <strong>không lộ ra ở một đặc trưng đơn lẻ</strong>, mà ở <strong>tổ hợp</strong> của chúng. Ví dụ: <em>&quot;khi <code>src_bytes</code> cao <strong>VÀ</strong> <code>rerror_rate</code> cao <strong>đồng thời</strong> → tấn công R2L&quot;</em>. Một mình <code>src_bytes</code> cao thì bình thường; phải nhìn <strong>quan hệ</strong> giữa các đặc trưng mới thấy.</p>
+<p><strong>Self-Attention</strong> là cơ chế cho phép mỗi token (đặc trưng) <strong>hỏi mọi token khác &quot;bạn liên quan tới tôi cỡ nào?&quot;</strong>, rồi trộn thông tin theo mức liên quan đó. Đây là trái tim của Transformer.</p>
+<blockquote><strong>Nói nôm na:</strong> thay vì mỗi đặc trưng tự làm việc một mình, chúng được ngồi lại &quot;họp nhóm&quot; — ai liên quan tới ai nhiều thì lắng nghe nhau nhiều.</blockquote>
+<hr>
+<h3 id="ba-vai-query-key-value">Ba vai: Query, Key, Value</h3>
+<p>Từ ma trận token <code>T</code>, ta chiếu ra ba ma trận:</p>
+<pre><code>Q = T·W^Q    (Query — &quot;tôi đang tìm gì&quot;)
+K = T·W^K    (Key   — &quot;tôi có gì để chào&quot;)
+V = T·W^V    (Value — &quot;thông tin thực tôi mang&quot;)</code></pre>
+<blockquote><strong>So sánh đời thường:</strong> như tra cứu thư viện. <strong>Query</strong> = câu hỏi bạn mang tới; <strong>Key</strong> = nhãn trên gáy mỗi cuốn sách; <strong>Value</strong> = nội dung bên trong sách. Bạn so câu hỏi (Q) với nhãn (K) để biết cuốn nào đáng đọc, rồi lấy nội dung (V) của cuốn đó.</blockquote>
+<hr>
+<h3 id="c-ng-th-c-attention-b-c-t-ng-m-nh">Công thức Attention — bóc từng mảnh</h3>
+<pre><code>Attention(Q, K, V) = softmax( QKᵀ / √d_k ) · V</code></pre>
+<p><strong>vanishing gradient</strong> (gradient teo). Chia cho <code>√d_k</code> giữ giá trị ở mức vừa phải.</p>
+<p>những token liên quan.</p>
+<ul><li><strong><code>QKᵀ</code></strong> → nhân Query với Key: ra <strong>điểm liên quan</strong> giữa mọi cặp token (token i hợp token j cỡ nào).</li><li><strong><code>/ √d_k</code></strong> → chia cho căn số chiều. Khi <code>d_k</code> lớn, tích <code>QKᵀ</code> dễ ra số khổng lồ → softmax bão hoà →</li><li><strong><code>softmax(…)</code></strong> → biến điểm liên quan thành <strong>trọng số</strong> cộng lại bằng 1 (phân bổ sự chú ý).</li><li><strong><code>· V</code></strong> → dùng trọng số đó <strong>trộn Value</strong> của các token → token mới = tổng có trọng số thông tin của</li></ul>
+<blockquote><strong>Nói đơn giản:</strong> mỗi token = &quot;trung bình có trọng số&quot; thông tin của những token mà nó thấy liên quan nhất.</blockquote>
+<hr>
+<h3 id="multi-head-nhi-u-g-c-nh-n-song-song">&quot;Multi-Head&quot; — nhiều góc nhìn song song</h3>
+<p>Thay vì một Attention, ta chạy <strong><code>h</code> đầu (head) song song</strong>, mỗi head có bộ <code>W^Q, W^K, W^V</code> riêng:</p>
+<pre><code>MHSA(T) = Concat(head₁, …, head_h) · Wᴼ</code></pre>
+<p>Mỗi head học <strong>một kiểu quan hệ khác nhau</strong>: head này chuyên bắt cặp &quot;duration ↔ byte&quot;, head kia bắt &quot;SYN flag ↔ số flow&quot;… rồi nối lại.</p>
+<blockquote><strong>So sánh:</strong> như đọc một vụ án bằng nhiều chuyên gia — người soi tài chính, người soi thời gian, người soi hành vi — rồi tổng hợp. Nhiều góc nhìn tốt hơn một.</blockquote>
+<hr>
+<h3 id="v-d-tr-c-gi-c">Ví dụ trực giác</h3>
+<p>Token &quot;src_bytes&quot; mang Query &quot;tôi có bất thường không?&quot;. Nó so với Key của mọi token khác:</p>
+<ul><li>Với &quot;rerror_rate&quot;: điểm liên quan <strong>cao</strong> → softmax cho trọng số lớn → hút mạnh thông tin từ nó.</li><li>Với &quot;duration&quot;: điểm liên quan thấp → gần như bỏ qua.</li></ul>
+<p>→ Token &quot;src_bytes&quot; sau Attention đã &quot;biết&quot; rằng <code>rerror_rate</code> cũng đang cao → tổ hợp này đẩy về phía <strong>R2L</strong>. Đây là thứ MLP phải học <em>ngầm</em> và kém hiệu quả hơn.</p>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<p>theo trọng số softmax.</p>
+<ul><li>Self-Attention cho mỗi đặc trưng <strong>hỏi mọi đặc trưng khác mức liên quan</strong> qua <code>Q·Kᵀ</code>, rồi <strong>trộn Value</strong></li><li>Hệ số <strong><code>1/√d_k</code></strong> chống vanishing gradient khi số chiều lớn.</li><li><strong>Multi-Head</strong> = nhiều Attention song song, mỗi cái bắt một kiểu quan hệ → giàu hơn.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Đây chính là lý do đồ án <strong>chọn FT-Transformer thay vì MLP/RF/XGBoost</strong>: Attention học <strong>tường minh</strong> tương tác đặc trưng, thay vì học ngầm. Nó cũng là nền để hiểu vì sao <a href="layer-freezing-catastrophic-forgetting.html">Layer Freezing &amp; Catastrophic Forgetting — giữ nền, học lại phần ngọn</a> hiệu quả — tầng Attention thấp học quan hệ tổng quát.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../B-ft-transformer/multi-head-self-attention/multi-head-self-attention.md">Mở file Markdown gốc</a><a class="button" href="../B-ft-transformer/multi-head-self-attention/infographic.html">Mở infographic.html</a><a class="button" href="../B-ft-transformer/multi-head-self-attention/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Multi-Head Self-Attention — cho các đặc trưng "hỏi chuyện" nhau" src="../B-ft-transformer/multi-head-self-attention/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

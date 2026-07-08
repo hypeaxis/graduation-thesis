@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cross-Entropy Loss — và vì sao nó &quot;đuối&quot; khi dữ liệu lệch</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-rose">
+      <header class="hero">
+        <div class="eyebrow">D. Xử lý mất cân bằng · Bài #9</div>
+        <h1>Cross-Entropy Loss — và vì sao nó &quot;đuối&quot; khi dữ liệu lệch</h1>
+        <p>Khi model phân loại, ta cần một cách đo model sai bao nhiêu để mà sửa. Cross-Entropy (CE — entropy chéo) là hàm mất mát (loss) tiêu chuẩn cho bài toán phân loại: nó phạt nặng khi m...</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Khi model phân loại, ta cần một cách <strong>đo model sai bao nhiêu</strong> để mà sửa. <strong>Cross-Entropy (CE — entropy chéo)</strong> là hàm mất mát (loss) tiêu chuẩn cho bài toán phân loại: nó phạt nặng khi model <strong>tự tin nhưng sai</strong>.</p>
+<p>Hiểu CE là bước đệm bắt buộc để hiểu vì sao đồ án phải chuyển sang <strong>Focal Loss</strong> (<a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a>).</p>
+<hr>
+<h3 id="c-ng-th-c-b-c-t-ng-m-nh">Công thức — bóc từng mảnh</h3>
+<pre><code>L_CE = − Σ_c  y_c · log(ŷ_c)</code></pre>
+<p><code>log</code> âm sâu (loss lớn).</p>
+<ul><li><strong><code>y_c</code></strong> → nhãn đúng (1 nếu đúng lớp c, 0 nếu không) — dạng one-hot.</li><li><strong><code>ŷ_c</code></strong> → xác suất model dự đoán cho lớp c.</li><li><strong><code>log(ŷ_c)</code></strong> → càng đoán đúng với xác suất cao thì <code>log</code> càng gần 0 (loss nhỏ); đoán sai/tự tin bậy thì</li></ul>
+<p>Vì <code>y</code> one-hot, tổng rút gọn còn: <code>L_CE = −log(p_t)</code>, với <strong><code>p_t</code></strong> = xác suất model gán cho <strong>nhãn đúng</strong>.</p>
+<blockquote><strong>Nói nôm na:</strong> loss = &quot;mức ngạc nhiên&quot;. Model gán 0,95 cho đáp án đúng → ít ngạc nhiên (loss 0,05). Gán 0,01 cho đáp án đúng → sốc nặng (loss 4,6).</blockquote>
+<hr>
+<h3 id="v-n-ch-m-ng-gradient-b-l-p-ng-nu-t">Vấn đề chí mạng: gradient bị lớp đông nuốt</h3>
+<p>Xét một batch: <strong>1000 mẫu Benign dễ</strong> (<code>p_t = 0,95</code>) và <strong>10 mẫu BruteForce khó</strong> (<code>p_t = 0,4</code>).</p>
+<pre><code>Tổng gradient Benign     ∝ 1000 × (−log 0,95) ≈ 1000 × 0,051 = 51
+Tổng gradient BruteForce ∝ 10   × (−log 0,40) ≈ 10   × 0,916 = 9,16</code></pre>
+<p>Kết quả đau lòng: <strong>dù mỗi mẫu BruteForce gánh gradient lớn hơn 18× mỗi mẫu Benign</strong>, nhưng vì Benign đông gấp 100 lần, <strong>tổng gradient Benign vẫn áp đảo 5,6:1</strong>.</p>
+<p>→ Model bị kéo liên tục về phía &quot;làm tốt Benign&quot;, <strong>ít cơ hội học lớp thiểu số</strong>.</p>
+<blockquote><strong>So sánh đời thường:</strong> một lớp học có 1000 em đã giỏi cứ rì rầm khoe điểm, át hết tiếng 10 em đang thật sự cần thầy kèm. Thầy (model) bị cuốn theo số đông, bỏ quên nhóm cần nhất.</blockquote>
+<hr>
+<h3 id="v-d-s-tr-c-quan">Ví dụ SỐ trực quan</h3>
+<div class="table-wrap"><table><thead><tr><th>Mẫu</th><th>$p_t$</th><th>gradient/mẫu</th><th>× số lượng</th><th>Tổng</th></tr></thead><tbody><tr><td>Benign (1000)</td><td>0,95</td><td>0,051</td><td>×1000</td><td><strong>51</strong></td></tr><tr><td>BruteForce (10)</td><td>0,40</td><td>0,916</td><td>×10</td><td><strong>9,16</strong></td></tr></tbody></table></div>
+<p>Tỷ lệ đóng góp <strong>BruteForce : Benign = 1 : 5,6</strong> → sai hướng ta mong muốn (ta muốn model <em>chú ý hơn</em> vào lớp hiếm).</p>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<p>(Benign áp đảo BruteForce 5,6:1 dù mỗi mẫu hiếm quan trọng hơn).</p>
+<ul><li>Cross-Entropy = <code>−log(p_t)</code>, phạt theo &quot;mức ngạc nhiên&quot; khi đoán sai nhãn đúng.</li><li><strong>Điểm yếu:</strong> khi dữ liệu lệch, <strong>rất nhiều mẫu dễ của lớp đông</strong> cộng dồn gradient, <strong>át</strong> lớp hiếm</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn thấy rõ <em>gốc rễ</em> của vấn đề mất cân bằng nằm ở <strong>gradient</strong>, từ đó hiểu vì sao <a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a> (thêm hệ số hạ trọng số mẫu dễ) lại là liều thuốc đúng bệnh — chứ không phải cứ đổi kiến trúc model.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../D-imbalance-handling/cross-entropy/cross-entropy.md">Mở file Markdown gốc</a><a class="button" href="../D-imbalance-handling/cross-entropy/infographic.html">Mở infographic.html</a><a class="button" href="../D-imbalance-handling/cross-entropy/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Cross-Entropy Loss — và vì sao nó "đuối" khi dữ liệu lệch" src="../D-imbalance-handling/cross-entropy/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

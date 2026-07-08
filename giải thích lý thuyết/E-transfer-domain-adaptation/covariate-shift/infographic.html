@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Covariate Shift — Tự học</title>
+<style>
+  :root{--bg:#FBF8F1;--ink:#2B3A55;--panel-1:#E8F5E9;--panel-2:#E3F2FD;--panel-3:#F3E5F5;--panel-4:#FFF0E6;
+    --accent-yellow:#FFF6D6;--border:#D9D2C5;--good:#2E7D32;--bad:#C62828;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:#EFEAE0;padding:28px;font-family:'Quicksand','Segoe UI',system-ui,sans-serif;line-height:1.5;color:var(--ink);}
+  .ig{background:var(--bg);border-radius:16px;padding:32px;max-width:900px;margin:0 auto;box-shadow:0 6px 24px rgba(43,58,85,.08);
+    background-image:linear-gradient(var(--border) 1px,transparent 1px);background-size:100% 30px;background-position:0 96px;}
+  h1{text-align:center;font-size:26px;margin:0 0 4px;} .sub{text-align:center;font-size:15px;opacity:.8;margin-bottom:22px;}
+  .formula{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:16px 18px;text-align:center;margin:0 auto 20px;max-width:680px;font-family:'Cambria Math','Georgia',serif;font-size:18px;}
+  .row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+  .panel{flex:1;min-width:200px;border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .p1{background:var(--panel-1);}.p2{background:var(--panel-2);}.p3{background:var(--panel-3);}.p4{background:var(--panel-4);}
+  .panel h3{margin:0 0 8px;font-size:15px;} .panel p{margin:0;font-size:14px;}
+  .example{background:var(--accent-yellow);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px;}
+  .example h3{margin:0 0 8px;font-size:16px;} .good{color:var(--good);font-weight:700;} .bad{color:var(--bad);font-weight:700;}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;} td{padding:6px 10px;border-bottom:1px dashed var(--border);}
+  .callout{background:#fff;border-left:5px solid var(--panel-2);border-radius:10px;padding:16px 18px;margin-bottom:14px;font-size:15px;}
+  .kicker{text-align:center;font-weight:700;color:var(--bad);margin-top:8px;font-size:16px;}
+  code{background:rgba(43,58,85,.06);padding:1px 5px;border-radius:5px;font-size:13px;}
+</style>
+</head>
+<body>
+<div class="ig">
+  <h1>✦ Covariate Shift: đổi "cảm giác đầu vào" ✦</h1>
+  <div class="sub">Model giỏi trên CIC nhưng sang Testbed sụp đổ (MCC = −0,015). Vì sao?</div>
+
+  <div class="formula">P<sub>source</sub>(x) ≠ P<sub>target</sub>(x) &nbsp; nhưng &nbsp; P(y | x) ≈ không đổi</div>
+
+  <div class="row">
+    <div class="panel p1"><h3>Analogy</h3><p>Học lái ở <b>sân bằng phẳng</b>, ra <b>đường gồ ghề</b>: luật lái không đổi, cảm giác mặt đường đổi → lúng túng.</p></div>
+    <div class="panel p2"><h3>P(y|x) giữ nguyên</h3><p>"Cái gì là tấn công" không đổi. Chỉ <b>vùng đầu vào</b> dịch sang chỗ model chưa từng thấy khi học.</p></div>
+    <div class="panel p3"><h3>Hệ quả</h3><p>Model bị hỏi về vùng lạ → đoán sai <b>có hệ thống</b> → MCC âm.</p></div>
+  </div>
+
+  <div class="example">
+    <h3>🔧 Vì sao phân phối đổi?</h3>
+    <table>
+      <tr><td>Card ảo Hyper-V (overhead)</td><td class="bad">đổi packet size & timing</td></tr>
+      <tr><td>NAT Windows (thêm độ trễ)</td><td class="bad">lệch IAT & flag counts</td></tr>
+      <tr><td>PowerTransformer fit trên CIC</td><td class="bad">ánh xạ sai trên Testbed</td></tr>
+    </table>
+  </div>
+
+  <div class="callout">💡 <b>Chẩn đoán đúng bệnh:</b> đầu vào <b>dịch</b>, không phải model dốt. Kê đúng thuốc:
+    <b>Layer Freezing</b> + <b>Model Surgery</b> — và hiểu vì sao "đổi mỗi scaler" lại thất bại.</div>
+
+  <div class="kicker">MCC âm = sai có hệ thống, không phải sai ngẫu nhiên!</div>
+</div>
+</body>
+</html>

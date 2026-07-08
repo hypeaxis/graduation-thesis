@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weighted Random Sampling — Tự học</title>
+<style>
+  :root{--bg:#FBF8F1;--ink:#2B3A55;--panel-1:#E8F5E9;--panel-2:#E3F2FD;--panel-3:#F3E5F5;--panel-4:#FFF0E6;
+    --accent-yellow:#FFF6D6;--border:#D9D2C5;--good:#2E7D32;--bad:#C62828;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:#EFEAE0;padding:28px;font-family:'Quicksand','Segoe UI',system-ui,sans-serif;line-height:1.5;color:var(--ink);}
+  .ig{background:var(--bg);border-radius:16px;padding:32px;max-width:900px;margin:0 auto;box-shadow:0 6px 24px rgba(43,58,85,.08);
+    background-image:linear-gradient(var(--border) 1px,transparent 1px);background-size:100% 30px;background-position:0 96px;}
+  h1{text-align:center;font-size:25px;margin:0 0 4px;} .sub{text-align:center;font-size:15px;opacity:.8;margin-bottom:22px;}
+  .split{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
+  .formula{flex:1;min-width:270px;background:#fff;border:2px solid var(--ink);border-radius:12px;padding:14px 18px;text-align:center;font-family:'Cambria Math','Georgia',serif;font-size:18px;}
+  .formula .lbl{font-size:13px;font-weight:700;opacity:.7;font-family:'Quicksand',sans-serif;margin-bottom:6px;}
+  .row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+  .panel{flex:1;min-width:200px;border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .p1{background:var(--panel-1);}.p2{background:var(--panel-2);}.p3{background:var(--panel-3);}.p4{background:var(--panel-4);}
+  .panel h3{margin:0 0 8px;font-size:15px;} .panel p{margin:0;font-size:14px;}
+  .example{background:var(--accent-yellow);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px;}
+  .example h3{margin:0 0 8px;font-size:16px;} .good{color:var(--good);font-weight:700;} .bad{color:var(--bad);font-weight:700;}
+  .callout{background:#fff;border-left:5px solid var(--panel-3);border-radius:10px;padding:16px 18px;margin-bottom:14px;font-size:15px;}
+  .kicker{text-align:center;font-weight:700;color:var(--bad);margin-top:8px;font-size:16px;}
+  code{background:rgba(43,58,85,.06);padding:1px 5px;border-radius:5px;font-size:13px;}
+</style>
+</head>
+<body>
+<div class="ig">
+  <h1>✦ Weighted Sampling: "bốc thăm thiên vị" ✦</h1>
+  <div class="sub">Chỉnh <b>tần suất</b> mẫu vào batch → lớp hiếm được bốc ra thường xuyên hơn</div>
+
+  <div class="split">
+    <div class="formula"><div class="lbl">CƠ BẢN</div>w<sub>i</sub> = N / (K · n<sub>c</sub>)</div>
+    <div class="formula"><div class="lbl">V8.5 (làm mượt)</div>w<sub>i</sub> = √(N / (K·n<sub>c</sub>)) , clip [0,5; 2,0]</div>
+  </div>
+
+  <div class="row">
+    <div class="panel p1"><h3>Cơ chế</h3><p>Lớp ít mẫu (n_c nhỏ) → w lớn → hay được bốc. Như hòm phiếu bỏ <b>nhiều vé hơn</b> cho lớp hiếm.</p></div>
+    <div class="panel p2"><h3>√ + clip</h3><p><b>Khai căn</b> nén khoảng cách; <b>clip [0,5;2,0]</b> chặn cực đoan → thiên vị <b>có chừng mực</b>.</p></div>
+    <div class="panel p3"><h3>Khác Focal</h3><p>Sampling chỉnh <b>dữ liệu nhìn thấy</b>; Focal chỉnh <b>loss</b>. Kết hợp được cả hai.</p></div>
+  </div>
+
+  <div class="example">
+    <h3>🔢 Ví dụ trực giác</h3>
+    <p>Batch 256, bốc <b>đều</b>: có thể <span class="bad">0 mẫu Heartbleed</span> (chiếm 0,0004%).<br>
+       Bốc <b>có trọng số</b>: gần như batch nào cũng có vài mẫu → model <span class="good">thực sự được nhìn</span> để học.</p>
+  </div>
+
+  <div class="callout">💡 <b>Ba tầng phối hợp:</b> dữ liệu (sampling/SMOTE) → loss (Focal/CB) → boundary (HNM).
+    Sampling để lớp hiếm <b>có mặt</b>; Focal để trong batch đó <b>mẫu khó được ưu tiên</b>.</div>
+
+  <div class="kicker">Có mặt đã, rồi mới nói tới học tốt!</div>
+</div>
+</body>
+</html>

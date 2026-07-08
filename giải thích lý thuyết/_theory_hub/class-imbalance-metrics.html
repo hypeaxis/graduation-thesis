@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mất cân bằng dữ liệu &amp; chỉ số đánh giá đúng (Macro-F1, MCC)</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-mint">
+      <header class="hero">
+        <div class="eyebrow">A. Nền tảng bài toán &amp; dữ liệu · Bài #3</div>
+        <h1>Mất cân bằng dữ liệu &amp; chỉ số đánh giá đúng (Macro-F1, MCC)</h1>
+        <p>Trong dữ liệu IDS, các lớp lệch nhau khủng khiếp:</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Trong dữ liệu IDS, các lớp <strong>lệch nhau khủng khiếp</strong>:</p>
+<ul><li><strong>Benign chiếm 80–90%</strong> traffic.</li><li><strong>Giữa các lớp tấn công cũng lệch</strong>: DoS/DDoS có hàng triệu flow, còn <strong>Heartbleed chỉ 10 flow</strong>.</li></ul>
+<p>Hệ quả nguy hiểm: một mô hình <strong>lười</strong> — cứ đoán &quot;tất cả là Benign&quot; — vẫn đạt <strong>Accuracy 82,7%</strong> trên CIC, nhưng <strong>hoàn toàn vô dụng</strong> vì bỏ sót 100% tấn công.</p>
+<blockquote><strong>So sánh đời thường:</strong> như chấm điểm một bác sĩ bằng câu <em>&quot;tỷ lệ nói đúng người khoẻ mạnh&quot;</em>. Trong một đám đông toàn người khoẻ, bác sĩ cứ phán &quot;ai cũng khoẻ&quot; là được điểm cao chót vót — nhưng bỏ sót đúng mấy người bệnh cần cứu.</blockquote>
+<p>Vì thế ta cần <strong>chỉ số đánh giá khác Accuracy</strong>.</p>
+<hr>
+<h3 id="n-n-t-ng-precision-recall-f1-cho-t-ng-l-p">Nền tảng: Precision, Recall, F1 cho từng lớp</h3>
+<p>Với một lớp (ví dụ &quot;PortScan&quot;):</p>
+<p>→ đo mức &quot;báo bừa&quot;.</p>
+<p>→ đo mức &quot;bỏ sót&quot;.</p>
+<ul><li><strong>Precision (độ chính xác)</strong> = trong những cái model <em>báo</em> là PortScan, bao nhiêu % <em>đúng</em> là PortScan.</li><li><strong>Recall (độ phủ)</strong> = trong những cái <em>thật sự</em> là PortScan, model <em>bắt được</em> bao nhiêu %.</li><li><strong>F1</strong> = trung bình điều hoà của hai cái trên:</li></ul>
+<pre><code>F1 = 2 · (Precision · Recall) / (Precision + Recall)</code></pre>
+<blockquote><strong>Nói nôm na:</strong> Precision hỏi <em>&quot;báo có chuẩn không?&quot;</em>, Recall hỏi <em>&quot;có bỏ sót không?&quot;</em>, F1 ép cả hai phải cùng tốt (chỉ một cái cao thì F1 vẫn thấp).</blockquote>
+<hr>
+<h3 id="macro-f1-cho-l-p-hi-m-c-m-t-phi-u-b-u-ngang-nhau">Macro-F1: cho lớp hiếm được &quot;một phiếu bầu&quot; ngang nhau</h3>
+<p><strong>Macro-F1</strong> = <strong>trung bình cộng F1 của tất cả các lớp</strong>, mỗi lớp trọng số <strong>bằng nhau</strong>:</p>
+<pre><code>Macro-F1 = (F1_Benign + F1_DoS + … + F1_Heartbleed) / C</code></pre>
+<p>Điểm mấu chốt: Heartbleed (10 mẫu) và Benign (2,3 triệu mẫu) <strong>đóng góp NGANG nhau</strong>. Nên nếu model bỏ bê lớp hiếm, Macro-F1 <strong>tụt ngay</strong> — khác hẳn Accuracy vốn bị lớp đông &quot;nuốt trọn&quot;.</p>
+<blockquote><strong>So sánh:</strong> Accuracy giống bỏ phiếu theo <strong>đầu người</strong> (đông thắng); Macro-F1 giống bỏ phiếu theo <strong>mỗi lớp một phiếu</strong> (nhỏ mấy cũng có tiếng nói).</blockquote>
+<hr>
+<h3 id="mcc-m-t-con-s-th-nh-th-t-cho-d-li-u-l-ch">MCC: một con số &quot;thành thật&quot; cho dữ liệu lệch</h3>
+<p><strong>MCC (Matthews Correlation Coefficient — hệ số tương quan Matthews)</strong> dùng cả 4 ô của ma trận nhầm lẫn (TP, TN, FP, FN):</p>
+<pre><code>MCC = (TP·TN − FP·FN) / √((TP+FP)(TP+FN)(TN+FP)(TN+FN))</code></pre>
+<ul><li>Giá trị nằm trong <strong>[−1, +1]</strong>.</li><li><strong>+1</strong> = hoàn hảo; <strong>0</strong> = đoán như tung đồng xu; <strong>âm</strong> = đoán <em>sai có hệ thống</em> (tệ hơn cả đoán bừa).</li></ul>
+<p>Nó &quot;thành thật&quot; vì chỉ cao khi model làm tốt <strong>đồng thời cả 4 ô</strong> — không thể ăn gian bằng cách chỉ chiều lớp đông.</p>
+<blockquote><strong>Ví dụ trong đồ án:</strong> khi apply model CIC thẳng sang Testbed, <strong>MCC = −0,015</strong> → không chỉ kém mà còn <em>phân loại sai hướng có hệ thống</em>. Con số âm này nói lên điều Accuracy không nói được.</blockquote>
+<hr>
+<h3 id="v-d-s-m-h-nh-l-i-b-l-m-t">Ví dụ SỐ: mô hình &quot;lười&quot; bị lộ mặt</h3>
+<div class="table-wrap"><table><thead><tr><th>Chỉ số</th><th>Model đoán &quot;tất cả Benign&quot;</th><th>Ý nghĩa</th></tr></thead><tbody><tr><td>Accuracy</td><td><strong>82,7%</strong> (đẹp giả)</td><td>bị 82,7% Benign nuốt trọn</td></tr><tr><td>Macro-F1</td><td><strong>rất thấp</strong> (F1 mọi lớp attack = 0)</td><td>lộ ngay sự vô dụng</td></tr><tr><td>MCC</td><td><strong>≈ 0</strong></td><td>đoán như tung đồng xu</td></tr></tbody></table></div>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<p>báo được cả trường hợp &quot;sai có hệ thống&quot;.</p>
+<ul><li>Dữ liệu IDS <strong>lệch hai chiều</strong> → <strong>Accuracy đánh lừa</strong> (model lười vẫn 82,7%).</li><li><strong>Macro-F1</strong>: trung bình F1 mọi lớp, <strong>mỗi lớp một phiếu</strong> → lớp hiếm bị bỏ bê là tụt điểm ngay.</li><li><strong>MCC</strong>: một con số trong <strong>[−1,1]</strong> dùng cả 4 ô ma trận nhầm lẫn → <strong>thành thật</strong> kể cả khi lệch,</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn chọn đúng thước đo để <strong>báo cáo trong luận văn</strong> và để <strong>tuning model</strong> — tránh cái bẫy kinh điển &quot;accuracy 99% mà chẳng bắt được tấn công nào&quot;.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../A-problem-and-data/class-imbalance-metrics/class-imbalance-metrics.md">Mở file Markdown gốc</a><a class="button" href="../A-problem-and-data/class-imbalance-metrics/infographic.html">Mở infographic.html</a><a class="button" href="../A-problem-and-data/class-imbalance-metrics/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Mất cân bằng dữ liệu & chỉ số đánh giá đúng (Macro-F1, MCC)" src="../A-problem-and-data/class-imbalance-metrics/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

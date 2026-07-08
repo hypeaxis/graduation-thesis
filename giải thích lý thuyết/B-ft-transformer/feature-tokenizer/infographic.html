@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feature Tokenizer — Tự học</title>
+<style>
+  :root{--bg:#FBF8F1;--ink:#2B3A55;--panel-1:#E8F5E9;--panel-2:#E3F2FD;--panel-3:#F3E5F5;--panel-4:#FFF0E6;
+    --accent-yellow:#FFF6D6;--border:#D9D2C5;--good:#2E7D32;--bad:#C62828;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:#EFEAE0;padding:28px;font-family:'Quicksand','Segoe UI',system-ui,sans-serif;line-height:1.5;color:var(--ink);}
+  .ig{background:var(--bg);border-radius:16px;padding:32px;max-width:900px;margin:0 auto;box-shadow:0 6px 24px rgba(43,58,85,.08);
+    background-image:linear-gradient(var(--border) 1px,transparent 1px);background-size:100% 30px;background-position:0 96px;}
+  h1{text-align:center;font-size:26px;margin:0 0 4px;} .sub{text-align:center;font-size:15px;opacity:.8;margin-bottom:22px;}
+  .formula{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:16px 18px;text-align:center;margin:0 auto 20px;max-width:640px;font-family:'Cambria Math','Georgia',serif;font-size:20px;}
+  .row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+  .panel{flex:1;min-width:200px;border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .p1{background:var(--panel-1);}.p2{background:var(--panel-2);}.p3{background:var(--panel-3);}.p4{background:var(--panel-4);}
+  .panel h3{margin:0 0 8px;font-size:15px;} .panel p{margin:0;font-size:14px;}
+  .example{background:var(--accent-yellow);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px;font-family:'Cambria Math','Georgia',serif;font-size:15px;}
+  .example h3{margin:0 0 10px;font-size:16px;font-family:'Quicksand',sans-serif;} .good{color:var(--good);font-weight:700;} .bad{color:var(--bad);font-weight:700;}
+  .flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;background:#fff;border:1px dashed var(--border);border-radius:12px;padding:16px;margin-bottom:20px;}
+  .flow .box{background:var(--panel-2);border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;} .flow .arrow{opacity:.55;font-size:18px;}
+  .callout{background:#fff;border-left:5px solid var(--panel-3);border-radius:10px;padding:16px 18px;margin-bottom:14px;font-size:15px;}
+  .kicker{text-align:center;font-weight:700;color:var(--bad);margin-top:8px;font-size:16px;}
+  code{background:rgba(43,58,85,.06);padding:1px 5px;border-radius:5px;font-size:13px;}
+</style>
+</head>
+<body>
+<div class="ig">
+  <h1>✦ Feature Tokenizer: số → token ✦</h1>
+  <div class="sub">Cấp cho mỗi đặc trưng một "phiên dịch viên" riêng để nói được "tiếng vector" của Transformer</div>
+
+  <div class="formula"><b>e</b><sub>j</sub> = x<sub>j</sub> · <b>w</b><sub>j</sub> + <b>b</b><sub>j</sub> &nbsp;&nbsp;<span style="font-size:14px;opacity:.7;">(w<sub>j</sub>, b<sub>j</sub> RIÊNG từng đặc trưng)</span></div>
+
+  <div class="row">
+    <div class="panel p1"><h3>Vấn đề</h3><p>Transformer cần <b>token</b> (như từ). Dữ liệu bảng chỉ là <b>k con số</b> vô hồn.</p></div>
+    <div class="panel p2"><h3>Bộ chiếu RIÊNG</h3><p>Mỗi cột có <code>(w_j,b_j)</code> riêng → <code>duration=5</code> ≠ <code>byte=5</code>. Khác MLP dùng chung trọng số.</p></div>
+    <div class="panel p3"><h3>CLS token</h3><p>Thêm 1 token "thư ký" vào đầu chuỗi → cuối cùng gom thông tin mọi token cho phân loại.</p></div>
+  </div>
+
+  <div class="example">
+    <h3 style="margin-bottom:8px;">🔢 Ví dụ (d=4): Flow_Duration, x = 1,2</h3>
+    e = 1,2·[0,5, −0,3, 0,8, 0,1] + [0, 0,2, −0,1, 0]<br>
+    &nbsp;&nbsp;= <span class="good">[0,60, −0,16, 0,86, 0,12]</span><br>
+    <span style="font-family:'Quicksand',sans-serif;font-size:14px;">Con số <b>1,2</b> vô hồn → vector 4 chiều mang danh tính "duration".</span>
+  </div>
+
+  <div class="flow">
+    <span class="box">x = [x₁…x_k]</span><span class="arrow">→</span>
+    <span class="box">mỗi x_j × (w_j,b_j) riêng</span><span class="arrow">→</span>
+    <span class="box">[CLS, e₁…e_k]</span><span class="arrow">→</span>
+    <span class="box">Attention</span>
+  </div>
+
+  <div class="callout">💡 <b>Ý nghĩa:</b> đây là cửa ngõ cho Transformer dùng được dữ liệu bảng. Vì mỗi đặc trưng
+    là <b>một hàng độc lập</b> trong ma trận embedding, đồ án ghép thêm 3 hàng (<b>Model Surgery: 77→80</b>)
+    mà không phá phần cũ.</div>
+
+  <div class="kicker">Mỗi đặc trưng một hộp thư riêng có tên!</div>
+</div>
+</body>
+</html>

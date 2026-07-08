@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Giới hạn flow tĩnh — Tự học</title>
+<style>
+  :root{--bg:#FBF8F1;--ink:#2B3A55;--panel-1:#E8F5E9;--panel-2:#E3F2FD;--panel-3:#F3E5F5;--panel-4:#FFF0E6;
+    --accent-yellow:#FFF6D6;--border:#D9D2C5;--good:#2E7D32;--bad:#C62828;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:#EFEAE0;padding:28px;font-family:'Quicksand','Segoe UI',system-ui,sans-serif;line-height:1.5;color:var(--ink);}
+  .ig{background:var(--bg);border-radius:16px;padding:32px;max-width:900px;margin:0 auto;box-shadow:0 6px 24px rgba(43,58,85,.08);
+    background-image:linear-gradient(var(--border) 1px,transparent 1px);background-size:100% 30px;background-position:0 96px;}
+  h1{text-align:center;font-size:24px;margin:0 0 4px;} .sub{text-align:center;font-size:15px;opacity:.8;margin-bottom:22px;}
+  .row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+  .panel{flex:1;min-width:240px;border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .p1{background:var(--panel-1);}.p2{background:var(--panel-2);}.p3{background:var(--panel-3);}.p4{background:var(--panel-4);}
+  .panel h3{margin:0 0 8px;font-size:15px;} .panel p{margin:0;font-size:14px;}
+  .example{background:var(--accent-yellow);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px;}
+  .example h3{margin:0 0 8px;font-size:16px;} .good{color:var(--good);font-weight:700;} .bad{color:var(--bad);font-weight:700;}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;} td{padding:6px 10px;border-bottom:1px dashed var(--border);} th{text-align:left;padding:6px 10px;font-size:13px;}
+  .callout{background:#fff;border-left:5px solid var(--panel-2);border-radius:10px;padding:16px 18px;margin-bottom:14px;font-size:15px;}
+  .kicker{text-align:center;font-weight:700;color:var(--bad);margin-top:8px;font-size:16px;}
+</style>
+</head>
+<body>
+<div class="ig">
+  <h1>✦ Giới hạn flow tĩnh: cần phân tích THỜI GIAN ✦</h1>
+  <div class="sub">Có tấn công mà <b>mỗi flow trông như Benign</b> — dấu hiệu chỉ ở chuỗi thời gian</div>
+
+  <div class="row">
+    <div class="panel p1"><h3>Infiltration</h3><p>Mỗi flow là HTTP request bình thường. Dấu hiệu: tần suất kết nối ngoài tăng, <b>DNS domain lạ</b>, upload đêm khuya — chỉ thấy <b>theo thời gian</b>.</p></div>
+    <div class="panel p2"><h3>Botnet C2</h3><p>Mỗi flow C2 trông như DNS/HTTP. Chỉ khi nhìn nhiều flow mới thấy <b>nhịp đập chu kỳ</b> (interval cố định). F1 vẫn thuộc nhóm thấp nhất.</p></div>
+  </div>
+
+  <div class="example">
+    <h3>🎬 Analogy: khung hình lẻ vs cả đoạn video</h3>
+    <p>Một tiếng "tít" thì bình thường; nhưng <b>"tít... tít... tít" đều đặn mỗi 30 giây</b> mới lộ máy bị điều
+      khiển từ xa. Model phân loại <b>một flow đơn lẻ</b> (FTT/RF/KNN) <b>về nguyên lý không bắt được</b> ngữ cảnh này.</p>
+  </div>
+
+  <div class="callout" style="border-left-color:var(--good);">
+    🚀 <b>Hướng giải quyết (ngoài phạm vi đồ án hiện tại):</b>
+    <table style="margin-top:8px;">
+      <tr><td>Flow đơn thiếu ngữ cảnh</td><td class="good">Session aggregation (nhiều flow → 1 vector)</td></tr>
+      <tr><td>Không có payload</td><td class="good">DPI + multi-modal (flow + payload encoder)</td></tr>
+      <tr><td>Không phân tích thời gian</td><td class="good">Graph / LSTM trên chuỗi flow</td></tr>
+    </table>
+  </div>
+
+  <div class="kicker">Chỉ ra ranh giới lý thuyết — không đổ lỗi cho model!</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multi-Head Self-Attention — Tự học</title>
+<style>
+  :root{--bg:#FBF8F1;--ink:#2B3A55;--panel-1:#E8F5E9;--panel-2:#E3F2FD;--panel-3:#F3E5F5;--panel-4:#FFF0E6;
+    --accent-yellow:#FFF6D6;--border:#D9D2C5;--good:#2E7D32;--bad:#C62828;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:#EFEAE0;padding:28px;font-family:'Quicksand','Segoe UI',system-ui,sans-serif;line-height:1.5;color:var(--ink);}
+  .ig{background:var(--bg);border-radius:16px;padding:32px;max-width:900px;margin:0 auto;box-shadow:0 6px 24px rgba(43,58,85,.08);
+    background-image:linear-gradient(var(--border) 1px,transparent 1px);background-size:100% 30px;background-position:0 96px;}
+  h1{text-align:center;font-size:26px;margin:0 0 4px;} .sub{text-align:center;font-size:15px;opacity:.8;margin-bottom:22px;}
+  .formula{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:16px 18px;text-align:center;margin:0 auto 20px;max-width:660px;font-family:'Cambria Math','Georgia',serif;font-size:20px;}
+  .row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+  .panel{flex:1;min-width:170px;border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .p1{background:var(--panel-1);}.p2{background:var(--panel-2);}.p3{background:var(--panel-3);}.p4{background:var(--panel-4);}
+  .panel h3{margin:0 0 8px;font-size:15px;} .panel p{margin:0;font-size:13.5px;}
+  .example{background:var(--accent-yellow);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px;}
+  .example h3{margin:0 0 10px;font-size:16px;} .good{color:var(--good);font-weight:700;} .bad{color:var(--bad);font-weight:700;}
+  .flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;background:#fff;border:1px dashed var(--border);border-radius:12px;padding:16px;margin-bottom:20px;}
+  .flow .box{background:var(--panel-2);border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;} .flow .arrow{opacity:.55;font-size:18px;}
+  .callout{background:#fff;border-left:5px solid var(--panel-4);border-radius:10px;padding:16px 18px;margin-bottom:14px;font-size:15px;}
+  .kicker{text-align:center;font-weight:700;color:var(--bad);margin-top:8px;font-size:16px;}
+  code{background:rgba(43,58,85,.06);padding:1px 5px;border-radius:5px;font-size:13px;}
+</style>
+</head>
+<body>
+<div class="ig">
+  <h1>✦ Self-Attention: đặc trưng "hỏi chuyện" nhau ✦</h1>
+  <div class="sub">Nhiều tấn công lộ ở <b>tổ hợp</b> đặc trưng, không phải một cái lẻ → cần học quan hệ</div>
+
+  <div class="formula">Attention = softmax( Q·Kᵀ / √d<sub>k</sub> ) · V</div>
+
+  <div class="row">
+    <div class="panel p1"><h3>Q — Query</h3><p>"Tôi đang tìm gì?" — câu hỏi mỗi token mang đi.</p></div>
+    <div class="panel p2"><h3>K — Key</h3><p>"Tôi có gì để chào?" — nhãn để so khớp với Query.</p></div>
+    <div class="panel p3"><h3>V — Value</h3><p>"Thông tin thực tôi mang" — cái sẽ được trộn lại.</p></div>
+  </div>
+
+  <div class="row">
+    <div class="panel p4"><h3>Q·Kᵀ</h3><p>Điểm <b>liên quan</b> giữa mọi cặp token: i hợp j cỡ nào.</p></div>
+    <div class="panel p2"><h3>/ √d_k</h3><p>Chia cho căn số chiều → chặn số khổng lồ → tránh <b>vanishing gradient</b>.</p></div>
+    <div class="panel p1"><h3>softmax · V</h3><p>Đổi điểm thành trọng số (cộng =1) rồi <b>trộn Value</b> theo mức liên quan.</p></div>
+  </div>
+
+  <div class="example">
+    <h3>🔍 Ví dụ trực giác: R2L attack</h3>
+    <p>Token <code>src_bytes</code> hỏi mọi token khác:</p>
+    <p style="margin-top:6px;">· với <code>rerror_rate</code>: liên quan <span class="bad">CAO</span> → hút mạnh thông tin →
+      "cả hai cùng cao" → đẩy về <b>R2L</b></p>
+    <p style="margin-top:4px;">· với <code>duration</code>: liên quan <span class="good">thấp</span> → gần như bỏ qua</p>
+  </div>
+
+  <div class="flow">
+    <span class="box">Token</span><span class="arrow">→</span>
+    <span class="box">Q·Kᵀ (liên quan)</span><span class="arrow">→</span>
+    <span class="box">softmax (trọng số)</span><span class="arrow">→</span>
+    <span class="box">trộn V</span><span class="arrow">→</span>
+    <span class="box">Concat h heads</span>
+  </div>
+
+  <div class="callout">💡 <b>Multi-Head:</b> chạy <b>h</b> Attention song song, mỗi head bắt một kiểu quan hệ
+    (như nhiều chuyên gia soi một vụ án). Đây là lý do đồ án chọn <b>FT-Transformer</b>: học tương tác đặc trưng
+    <b>tường minh</b>, không như MLP học ngầm.</div>
+
+  <div class="kicker">Mỗi token = trung bình có trọng số của bạn bè liên quan!</div>
+</div>
+</body>
+</html>

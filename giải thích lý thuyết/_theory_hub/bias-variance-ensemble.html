@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bias–Variance &amp; Ensemble giảm Variance — vì sao &quot;hỏi nhiều người&quot; tốt hơn</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-teal">
+      <header class="hero">
+        <div class="eyebrow">F. Ensemble &amp; hệ thống · Bài #22</div>
+        <h1>Bias–Variance &amp; Ensemble giảm Variance — vì sao &quot;hỏi nhiều người&quot; tốt hơn</h1>
+        <p>Vì sao gộp nhiều mô hình (ensemble) lại tốt hơn một mô hình? Câu trả lời nằm ở phân rã Bias–Variance và một điều kiện cốt lõi: các mô hình phải sai trên những mẫu khác nhau.</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Vì sao gộp nhiều mô hình (ensemble) lại tốt hơn một mô hình? Câu trả lời nằm ở <strong>phân rã Bias–Variance</strong> và một điều kiện cốt lõi: <strong>các mô hình phải sai trên những mẫu khác nhau</strong>.</p>
+<p>Hiểu cái này để biết <em>khi nào ensemble giúp ích</em> và <em>khi nào vô dụng</em>.</p>
+<hr>
+<h3 id="ph-n-r-l-i-bias-variance-nhi-u">Phân rã lỗi: Bias² + Variance + nhiễu</h3>
+<p>Lỗi tổng quát hoá của một mô hình tách thành ba phần:</p>
+<pre><code>E[(y − f(x))²] = Bias² + Variance + σ²_noise</code></pre>
+<p>dữ liệu cong.</p>
+<ul><li><strong>Bias (độ chệch)</strong> → mô hình <strong>sai hệ thống</strong> (quá đơn giản, bỏ sót quy luật). Ví dụ: đường thẳng cố fit</li><li><strong>Variance (phương sai)</strong> → mô hình <strong>quá nhạy với dữ liệu train</strong>, đổi tập train là đổi kết quả (overfit).</li><li><strong><code>σ²_noise</code></strong> → nhiễu vốn có, không sửa được.</li></ul>
+<blockquote><strong>Nói nôm na:</strong> Bias là &quot;bắn lệch tâm đều đều&quot;; Variance là &quot;bắn tản mát tứ tung&quot;. Ensemble chủ yếu <strong>giảm Variance</strong> (gom các phát tản mát về gần tâm).</blockquote>
+<hr>
+<h3 id="c-ng-th-c-ensemble-gi-m-variance-b-c-t-ng-m-nh">Công thức ensemble giảm Variance — bóc từng mảnh</h3>
+<p>Với <code>M</code> mô hình có cùng phương sai <code>σ²</code> và <strong>tương quan trung bình <code>ρ</code></strong> giữa chúng:</p>
+<pre><code>Var(f̄) = σ²/M · [ 1 + (M − 1)·ρ ]</code></pre>
+<ul><li><strong><code>σ²/M</code></strong> → nếu các mô hình <strong>độc lập</strong>, phương sai giảm <code>M</code> lần.</li><li><strong><code>ρ</code> (rho)</strong> → mức các mô hình <strong>cùng sai giống nhau</strong>. Đây là yếu tố quyết định.</li></ul>
+<p>Hai cực đoan:</p>
+<ul><li><strong><code>ρ → 0</code> (độc lập hoàn toàn):</strong> <code>Var(f̄) → σ²/M</code> — ensemble giảm phương sai <strong>M lần</strong>. Tuyệt vời.</li><li><strong><code>ρ = 1</code> (giống hệt nhau):</strong> <code>Var(f̄) = σ²</code> — ensemble <strong>chẳng giúp gì</strong>. Gộp 100 bản sao vẫn như 1.</li></ul>
+<blockquote><strong>Kết luận vàng:</strong> <em>để ensemble hiệu quả, các mô hình thành phần phải sai trên những mẫu KHÁC nhau (<code>ρ</code> thấp).</em></blockquote>
+<hr>
+<h3 id="so-s-nh-i-th-ng">So sánh đời thường</h3>
+<p>Hỏi ý kiến một quyết định:</p>
+<ul><li>Hỏi <strong>10 người độc lập, nền tảng khác nhau</strong> → trung bình ý kiến rất đáng tin (ρ thấp).</li><li>Hỏi <strong>10 người cùng một phe, cùng đọc một nguồn</strong> → họ cùng sai một kiểu → trung bình vẫn sai (ρ cao).</li></ul>
+<hr>
+<h3 id="v-d-s">Ví dụ SỐ</h3>
+<p><code>σ² = 1</code>, <code>M = 3</code>:</p>
+<ul><li><code>ρ = 0</code>: <code>Var = 1/3 ≈ 0,33</code> → giảm 3 lần.</li><li><code>ρ = 0,3</code>: <code>Var = (1/3)(1 + 2·0,3) = 0,53</code> → vẫn giảm đáng kể.</li><li><code>ρ = 1</code>: <code>Var = (1/3)(1 + 2) = 1</code> → không giảm gì.</li></ul>
+<p>→ Muốn ensemble mạnh, phải <strong>ép <code>ρ</code> xuống thấp</strong> bằng cách chọn mô hình <strong>đa dạng</strong>.</p>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<ul><li>Lỗi = <strong>Bias² + Variance + nhiễu</strong>; ensemble chủ yếu <strong>giảm Variance</strong>.</li><li><code>Var(f̄) = (σ²/M)[1 + (M−1)ρ]</code> → chỉ giảm mạnh khi <strong>tương quan <code>ρ</code> thấp</strong> (các mô hình sai khác nhau).</li><li><code>ρ=1</code> (mô hình giống nhau) → ensemble vô dụng.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn hiểu <strong>điều kiện sống còn</strong> của ensemble, và vì sao đồ án cố tình chọn <strong>FTT + RF + KNN</strong> — ba mô hình có <a href="inductive-bias-diversity.html">Đa dạng Inductive Bias (FTT + RF + KNN) — sai khác nhau nên bù được cho nhau</a> để <code>ρ</code> thấp. Đầu ra được ghép bằng <a href="asymmetric-cost-sensitive-voting.html">Asymmetric Voting — bỏ phiếu theo CHI PHÍ sai, không phải theo đa số</a>.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../F-ensemble-and-system/bias-variance-ensemble/bias-variance-ensemble.md">Mở file Markdown gốc</a><a class="button" href="../F-ensemble-and-system/bias-variance-ensemble/infographic.html">Mở infographic.html</a><a class="button" href="../F-ensemble-and-system/bias-variance-ensemble/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Bias–Variance & Ensemble giảm Variance — vì sao "hỏi nhiều người" tốt hơn" src="../F-ensemble-and-system/bias-variance-ensemble/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

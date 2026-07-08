@@ -1,0 +1,34 @@
+.accent-mint {
+  --accent: var(--mint);
+  --accent-soft: #1e7f5c22;
+}
+
+.accent-sky {
+  --accent: var(--sky);
+  --accent-soft: #1d5f9122;
+}
+
+.accent-amber {
+  --accent: var(--amber);
+  --accent-soft: #9a5b0022;
+}
+
+.accent-rose {
+  --accent: var(--rose);
+  --accent-soft: #9f305822;
+}
+
+.accent-violet {
+  --accent: var(--violet);
+  --accent-soft: #6946b622;
+}
+
+.accent-teal {
+  --accent: var(--teal);
+  --accent-soft: #0e7c7b22;
+}
+
+.accent-slate {
+  --accent: var(--slate);
+  --accent-soft: #34415522;
+}

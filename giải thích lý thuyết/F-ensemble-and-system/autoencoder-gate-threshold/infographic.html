@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autoencoder Gate — Tự học</title>
+<style>
+  :root{--bg:#FBF8F1;--ink:#2B3A55;--panel-1:#E8F5E9;--panel-2:#E3F2FD;--panel-3:#F3E5F5;--panel-4:#FFF0E6;
+    --accent-yellow:#FFF6D6;--border:#D9D2C5;--good:#2E7D32;--bad:#C62828;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:#EFEAE0;padding:28px;font-family:'Quicksand','Segoe UI',system-ui,sans-serif;line-height:1.5;color:var(--ink);}
+  .ig{background:var(--bg);border-radius:16px;padding:32px;max-width:900px;margin:0 auto;box-shadow:0 6px 24px rgba(43,58,85,.08);
+    background-image:linear-gradient(var(--border) 1px,transparent 1px);background-size:100% 30px;background-position:0 96px;}
+  h1{text-align:center;font-size:25px;margin:0 0 4px;} .sub{text-align:center;font-size:15px;opacity:.8;margin-bottom:22px;}
+  .flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;background:#fff;border:2px solid var(--ink);border-radius:12px;padding:16px;margin-bottom:20px;}
+  .flow .box{background:var(--panel-2);border-radius:8px;padding:9px 13px;font-size:13.5px;font-weight:600;} .flow .arrow{opacity:.55;font-size:18px;}
+  .row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+  .panel{flex:1;min-width:220px;border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .p1{background:var(--panel-1);}.p2{background:var(--panel-2);}.p3{background:var(--panel-3);}.p4{background:var(--panel-4);}
+  .panel h3{margin:0 0 8px;font-size:15px;} .panel p{margin:0;font-size:14px;}
+  .example{background:var(--accent-yellow);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px;font-family:'Cambria Math','Georgia',serif;font-size:15.5px;}
+  .example h3{margin:0 0 8px;font-size:16px;font-family:'Quicksand',sans-serif;} .good{color:var(--good);font-weight:700;} .bad{color:var(--bad);font-weight:700;}
+  .callout{background:#fff;border-left:5px solid var(--panel-1);border-radius:10px;padding:16px 18px;margin-bottom:14px;font-size:15px;}
+  .kicker{text-align:center;font-weight:700;color:var(--bad);margin-top:8px;font-size:16px;}
+  code{background:rgba(43,58,85,.06);padding:1px 5px;border-radius:5px;font-size:13px;}
+</style>
+</head>
+<body>
+<div class="ig">
+  <h1>✦ Autoencoder Gate: "vẽ lại được = quen" ✦</h1>
+  <div class="sub">Gating cho NSL-KDD bằng anomaly detection: học tái tạo Normal, cái gì méo là lạ</div>
+
+  <div class="flow">
+    <span class="box">x</span><span class="arrow">→</span>
+    <span class="box">Encoder</span><span class="arrow">→</span>
+    <span class="box">z (nút thắt)</span><span class="arrow">→</span>
+    <span class="box">Decoder</span><span class="arrow">→</span>
+    <span class="box">x̂ (tái tạo)</span>
+  </div>
+
+  <div class="row">
+    <div class="panel p1"><h3>Chỉ học Normal</h3><p>AE luyện tái tạo <b>dữ liệu bình thường</b> → giỏi vẽ lại Normal, <b>vụng</b> với dữ liệu lạ.</p></div>
+    <div class="panel p2"><h3>Lỗi tái tạo E(x)</h3><p><code>‖x − x̂‖²</code>. Mẫu lạ → AE vẽ méo → <b>lỗi cao vọt</b>.</p></div>
+    <div class="panel p3"><h3>Analogy</h3><p>Hoạ sĩ quen vẽ mặt người bình thường; gặp mặt quái dị → bản vẽ sai lệch → "lạ!".</p></div>
+  </div>
+
+  <div class="example">
+    <h3>🚪 Cổng theo ngưỡng τ</h3>
+    E(x) &lt; τ → <span class="good">Normal</span> (thoát pipeline)<br>
+    E(x) ≥ τ → <span class="bad">Suspicious</span> (xuống Stage 2)
+  </div>
+
+  <div class="callout">💡 <b>Ưu điểm:</b> chỉ cần dữ liệu Normal để học → gắn cờ được cả <b>bất thường chưa từng thấy</b>
+    (zero-day). Tầng 2 sau đó là <b>Stacking Ensemble</b>.</div>
+
+  <div class="kicker">Vẽ lại sai quá ngưỡng = đáng ngờ!</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snort + FTT Hybrid IDS — Tự học</title>
+<style>
+  :root{--bg:#FBF8F1;--ink:#2B3A55;--panel-1:#E8F5E9;--panel-2:#E3F2FD;--panel-3:#F3E5F5;--panel-4:#FFF0E6;
+    --accent-yellow:#FFF6D6;--border:#D9D2C5;--good:#2E7D32;--bad:#C62828;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:#EFEAE0;padding:28px;font-family:'Quicksand','Segoe UI',system-ui,sans-serif;line-height:1.5;color:var(--ink);}
+  .ig{background:var(--bg);border-radius:16px;padding:32px;max-width:900px;margin:0 auto;box-shadow:0 6px 24px rgba(43,58,85,.08);
+    background-image:linear-gradient(var(--border) 1px,transparent 1px);background-size:100% 30px;background-position:0 96px;}
+  h1{text-align:center;font-size:25px;margin:0 0 4px;} .sub{text-align:center;font-size:15px;opacity:.8;margin-bottom:22px;}
+  .example{background:var(--accent-yellow);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px;}
+  .example h3{margin:0 0 10px;font-size:16px;} .good{color:var(--good);font-weight:700;} .bad{color:var(--bad);font-weight:700;}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;} td{padding:6px 10px;border-bottom:1px dashed var(--border);} th{text-align:left;padding:6px 10px;font-size:13px;}
+  .row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+  .panel{flex:1;min-width:220px;border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .p1{background:var(--panel-1);}.p2{background:var(--panel-2);}.p3{background:var(--panel-3);}.p4{background:var(--panel-4);}
+  .panel h3{margin:0 0 8px;font-size:15px;} .panel p{margin:0;font-size:13.5px;}
+  .callout{background:#fff;border-left:5px solid var(--panel-2);border-radius:10px;padding:16px 18px;margin-bottom:14px;font-size:15px;}
+  .kicker{text-align:center;font-weight:700;color:var(--bad);margin-top:8px;font-size:16px;}
+</style>
+</head>
+<body>
+<div class="ig">
+  <h1>✦ Hệ lai Snort + FT-Transformer ✦</h1>
+  <div class="sub">Không phương pháp nào bắt hết — ghép hai hướng để <b>bù điểm mù</b> cho nhau</div>
+
+  <div class="example">
+    <h3>⚖️ Chỗ Snort mù thì FTT sáng, và ngược lại</h3>
+    <table>
+      <tr><th>Tiêu chí</th><th>Snort (rule-based)</th><th>FT-Transformer (ML)</th></tr>
+      <tr><td>Tầng phân tích</td><td>Packet (payload+header)</td><td>Flow (thống kê 5-tuple)</td></tr>
+      <tr><td>Độ trễ</td><td class="good">Microsecond</td><td>Vài giây</td></tr>
+      <tr><td>Tấn công chưa có luật</td><td class="bad">Không</td><td class="good">Có</td></tr>
+      <tr><td>Traffic mã hoá</td><td class="bad">Không</td><td class="good">Có</td></tr>
+      <tr><td>Nhạy covariate shift</td><td class="good">Không</td><td class="bad">Có</td></tr>
+    </table>
+  </div>
+
+  <div class="row">
+    <div class="panel p1"><h3>Snort bắt</h3><p><b>XSS / SQLi</b> qua payload HTTP body → FTT bỏ sót (flow giống Benign).</p></div>
+    <div class="panel p2"><h3>FTT bắt</h3><p><b>DoS slow-connection</b> (duration & IAT lạ), <b>BruteForce SSH</b> (kết nối thất bại) → Snort bỏ sót.</p></div>
+    <div class="panel p3"><h3>Analogy</h3><p><b>Chó nghiệp vụ</b> (mùi đã biết) + <b>camera AI</b> (bất thường mới lạ).</p></div>
+  </div>
+
+  <div class="callout">💡 <b>Chạy song song, độc lập:</b> traffic → Snort (real-time) ‖ tcpdump→CICFlowMeter→FTT.
+    Kết quả hợp nhất bởi <b>Alert Aggregator</b>. Triết lý: không tôn thờ một phương pháp, ghép để phủ điểm mù.</div>
+
+  <div class="kicker">Đã biết mặt điểm tên + ngửi thấy bất thường lạ = phủ cả hai!</div>
+</div>
+</body>
+</html>

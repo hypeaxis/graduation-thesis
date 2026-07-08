@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phát hiện xâm nhập như một bài toán phân loại có giám sát trên flow</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-mint">
+      <header class="hero">
+        <div class="eyebrow">A. Nền tảng bài toán &amp; dữ liệu · Bài #1</div>
+        <h1>Phát hiện xâm nhập như một bài toán phân loại có giám sát trên flow</h1>
+        <p>Câu hỏi gốc của IDS (Intrusion Detection System — hệ thống phát hiện xâm nhập) rất đơn giản: &quot;Kết nối mạng này là bình thường hay là tấn công?&quot;</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Câu hỏi gốc của IDS (Intrusion Detection System — hệ thống phát hiện xâm nhập) rất đơn giản: <em>&quot;Kết nối mạng này là bình thường hay là tấn công?&quot;</em></p>
+<p>Để máy trả lời được, ta phải <strong>biến câu hỏi đó thành một bài toán máy học</strong>. Cách đề tài chọn là: <strong>phân loại có giám sát (supervised classification)</strong> trên đơn vị <strong>flow</strong>.</p>
+<blockquote><strong>Nói nôm na:</strong> thay vì soi từng gói tin lẻ (quá chi tiết, quá nhiều), ta gom chúng thành từng &quot;cuộc hội thoại&quot; rồi dạy máy nhìn đặc điểm cuộc hội thoại đó mà đoán: lành hay độc.</blockquote>
+<hr>
+<h3 id="flow-l-g-cu-c-h-i-tho-i-gi-a-hai-m-y">Flow là gì? — &quot;cuộc hội thoại&quot; giữa hai máy</h3>
+<p>Một <strong>flow</strong> là chuỗi gói tin giữa hai đầu cuối, xác định bởi <strong>5-tuple</strong>:</p>
+<ul><li><strong>IP nguồn</strong> (ai gửi)</li><li><strong>IP đích</strong> (gửi cho ai)</li><li><strong>Cổng nguồn</strong> (cửa ra)</li><li><strong>Cổng đích</strong> (cửa vào — cổng 80 = web, 22 = SSH…)</li><li><strong>Giao thức</strong> (TCP/UDP…)</li></ul>
+<p>…trong một khoảng thời gian nhất định.</p>
+<blockquote><strong>So sánh đời thường:</strong> flow giống <strong>một cuộc gọi điện thoại</strong>: cùng số gọi – số nhận – trong cùng một phiên thì tính là <em>một</em> cuộc, dù nói qua nói lại hàng trăm câu (gói tin).</blockquote>
+<hr>
+<h3 id="c-ng-th-c-ho-b-i-to-n">Công thức hoá bài toán</h3>
+<p>Gọi một flow được mô tả bằng <strong>vector đặc trưng</strong> <code>x</code> gồm <code>k</code> con số thống kê (duration, số packet, flag…):</p>
+<pre><code>x = [x₁, x₂, …, x_k] ∈ ℝ^k</code></pre>
+<p>Ta cần một <strong>bộ phân loại (classifier)</strong> <code>f</code> học từ dữ liệu có nhãn, ánh xạ:</p>
+<pre><code>f : ℝ^k → {Benign, DoS, PortScan, BruteForce, …}
+nhãn dự đoán = argmax_c  P(lớp = c | x)</code></pre>
+<p>Bóc từng mảnh:</p>
+<ul><li><strong><code>x</code> (input)</strong> → bản tóm tắt bằng số của một flow.</li><li><strong><code>f</code> (model)</strong> → cái &quot;bộ não&quot; học được từ hàng triệu ví dụ đã dán nhãn.</li><li><strong>&quot;có giám sát&quot; (supervised)</strong> → mỗi ví dụ huấn luyện đã kèm đáp án đúng (nhãn), máy học bằng cách so đoán với đáp án.</li><li><strong><code>argmax</code></strong> → chọn lớp có xác suất cao nhất làm câu trả lời cuối.</li></ul>
+<hr>
+<h3 id="v-d-c-th">Ví dụ cụ thể</h3>
+<p>Một flow có: <code>Flow_Duration = 0,3ms</code>, <code>Fwd_Packets = 1</code>, <code>SYN_flag = 1</code>, <code>FIN_flag = 0</code>, gửi tới cổng lạ.</p>
+<p>→ Máy nhìn tổ hợp &quot;cực ngắn + 1 gói SYN + không bắt tay xong&quot; và đoán <strong>PortScan</strong> với xác suất 0,97.</p>
+<p>Một flow khác: <code>Flow_Duration = 2,5s</code>, <code>Fwd_Packets = 40</code>, gói dài 800 byte tới cổng 80.</p>
+<p>→ Máy đoán <strong>Benign</strong> (duyệt web bình thường) với xác suất 0,93.</p>
+<hr>
+<h3 id="v-sao-ch-n-t-ng-flow-ch-kh-ng-ph-i-g-i-tin-l">Vì sao chọn tầng &quot;flow&quot; chứ không phải gói tin lẻ?</h3>
+<p>và <strong>vẫn hoạt động dù traffic mã hoá</strong> vì chỉ dùng thống kê metadata.</p>
+<ul><li><strong>Gói tin lẻ</strong>: quá nhiều, quá chi tiết, và <strong>payload thường mã hoá</strong> (TLS/HTTPS) → không đọc được nội dung.</li><li><strong>Flow</strong>: gom lại thành <strong>một vector cố định độ dài</strong> → gọn, dạng bảng (tabular), hợp với mô hình máy học,</li></ul>
+<blockquote><strong>Nói đơn giản:</strong> ta không cần đọc trộm nội dung thư, chỉ cần nhìn <em>ai gửi cho ai, dày mỏng ra sao, nhanh chậm thế nào</em> là đã đoán được ý đồ.</blockquote>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<p>output là <strong>nhãn Benign / loại tấn công</strong>.</p>
+<ul><li>IDS được đóng khung thành <strong>phân loại có giám sát</strong>: input là <strong>vector đặc trưng của một flow</strong>,</li><li><strong>Flow</strong> = một &quot;cuộc hội thoại&quot; định danh bởi <strong>5-tuple</strong>.</li><li>Model <code>f</code> học từ ví dụ có nhãn rồi chọn lớp xác suất cao nhất bằng <code>argmax</code>.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Đây là <em>cái khung</em> mà toàn bộ đồ án đứng lên: mọi kỹ thuật sau này (FT-Transformer, Focal Loss, ensemble…) đều chỉ là những cách <strong>làm cho hàm <code>f</code> này giỏi hơn</strong> — nhất là ở những lớp tấn công hiếm và khó.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../A-problem-and-data/ids-supervised-flow-classification/ids-supervised-flow-classification.md">Mở file Markdown gốc</a><a class="button" href="../A-problem-and-data/ids-supervised-flow-classification/infographic.html">Mở infographic.html</a><a class="button" href="../A-problem-and-data/ids-supervised-flow-classification/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Phát hiện xâm nhập như một bài toán phân loại có giám sát trên flow" src="../A-problem-and-data/ids-supervised-flow-classification/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

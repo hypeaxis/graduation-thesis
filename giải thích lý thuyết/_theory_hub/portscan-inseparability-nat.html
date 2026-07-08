@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PortScan không phân tách dưới NAT — giới hạn của DỮ LIỆU, không phải model</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-slate">
+      <header class="hero">
+        <div class="eyebrow">G. Hệ lai &amp; giới hạn · Bài #28</div>
+        <h1>PortScan không phân tách dưới NAT — giới hạn của DỮ LIỆU, không phải model</h1>
+        <p>Đây là một trong những bài học sâu sắc nhất của đồ án: có những thất bại không thể sửa bằng thuật toán, vì gốc rễ nằm ở cách dữ liệu được thu thập.</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Đây là một trong những <strong>bài học sâu sắc nhất</strong> của đồ án: có những thất bại <strong>không thể sửa bằng thuật toán</strong>, vì gốc rễ nằm ở <strong>cách dữ liệu được thu thập</strong>.</p>
+<p>PortScan trên phần cứng thật (CIC) thì <strong>tách được</strong> khỏi Benign. Nhưng khi thu qua <strong>WSL2 + NAT</strong>, nó <strong>trộn lẫn</strong> vào Benign đến mức <strong>mọi mô hình đều bó tay</strong>.</p>
+<blockquote><strong>So sánh đời thường:</strong> một <strong>dấu vân tay</strong> vốn nhận diện được. Nhưng nếu bạn photocopy nó qua một máy in <strong>nhoè nát</strong>, thì dù thuật toán nhận diện có xịn đến đâu cũng chịu — vì <strong>thông tin đã mất ngay từ khâu thu</strong>.</blockquote>
+<hr>
+<h3 id="tr-n-ph-n-c-ng-th-t-cic-portscan-t-ch-c">Trên phần cứng thật (CIC): PortScan TÁCH được</h3>
+<p>nmap quét qua switch Gigabit → CICFlowMeter thấy <strong>hàng trăm flow TCP SYN ngắn</strong> tới nhiều cổng:</p>
+<div class="table-wrap"><table><thead><tr><th>Đặc trưng</th><th>PortScan (CIC)</th><th>Benign HTTP</th></tr></thead><tbody><tr><td><code>Flow_Duration</code></td><td>&lt; 1ms</td><td>100ms – vài giây</td></tr><tr><td><code>Fwd_Pkt_Len_Max</code></td><td>~60 B (SYN)</td><td>100–1500 B</td></tr><tr><td><code>SYN_flag_count</code></td><td>cao</td><td>thấp</td></tr><tr><td>Số flow/session</td><td>hàng trăm</td><td>1–5</td></tr></tbody></table></div>
+<p>→ <strong>Nhiều đặc trưng cùng chỉ tay</strong> về PortScan → phân tách rõ ràng.</p>
+<hr>
+<h3 id="d-i-wsl2-nat-c-tr-ng-b-ph-v">Dưới WSL2 + NAT: đặc trưng bị PHÁ VỠ</h3>
+<p>Đường đi của gói tin: <code>Kali → Router → Windows host → Hyper-V vSwitch → WSL2 eth0</code>. <strong>NAT xử lý gói trước khi tới WSL</strong>, gây ra:</p>
+<p>1. <strong>Consolidation:</strong> nmap gửi 65.536 SYN → NAT gộp thành <strong>~7 flow</strong> theo session riêng của Hyper-V. 2. <strong>Timing đổi:</strong> overhead ảo hoá thêm độ trễ → <code>Flow_IAT_Mean</code> không còn thấp đặc trưng. 3. <strong>Duration tăng:</strong> mỗi &quot;flow&quot; PortScan WSL thành kết nối dài, thay vì hàng trăm kết nối ngắn. 4. <strong>Byte count tăng:</strong> do gộp, mỗi flow mang nhiều gói hơn.</p>
+<div class="table-wrap"><table><thead><tr><th>Đặc trưng</th><th>PortScan CIC</th><th><strong>PortScan WSL</strong></th><th>Benign HTTP</th></tr></thead><tbody><tr><td><code>Flow_Duration</code></td><td>&lt; 1ms</td><td><strong>50–500ms</strong></td><td>100ms – vài giây</td></tr><tr><td>Số flow/session</td><td>hàng trăm</td><td><strong>~7</strong></td><td>1–5</td></tr><tr><td>Phân biệt với Benign?</td><td><strong>Có</strong></td><td><strong>KHÔNG</strong></td><td>—</td></tr></tbody></table></div>
+<p>→ PortScan WSL giờ <strong>trông y như Benign</strong> → không còn ranh giới để học.</p>
+<hr>
+<h3 id="b-ng-ch-ng-nhi-u-thu-t-to-n-c-ng-th-t-b-i-l-i-d-li-u">Bằng chứng: NHIỀU thuật toán cùng thất bại → lỗi ở dữ liệu</h3>
+<div class="table-wrap"><table><thead><tr><th>Cấu hình</th><th>PortScan F1</th><th>Kết luận</th></tr></thead><tbody><tr><td>FTT, CE Loss</td><td>7,5%</td><td>không học được</td></tr><tr><td>FTT, Focal Loss γ=2</td><td>6,8%</td><td>không phải vấn đề gradient</td></tr><tr><td>FTT, class_weight ×5</td><td>8,1%</td><td>không cải thiện</td></tr><tr><td>Random Forest</td><td>5,2%</td><td>cùng thất bại</td></tr><tr><td>KNN</td><td>4,9%</td><td>cùng thất bại</td></tr><tr><td><strong>FTT + inject CIC PortScan</strong></td><td><strong>100%</strong></td><td><strong>giải pháp dữ liệu</strong></td></tr></tbody></table></div>
+<p>Khi <strong>nhiều thuật toán với inductive bias khác nhau đều thất bại như nhau</strong>, gần như chắc chắn vấn đề nằm ở <strong>chất lượng/tính đại diện của dữ liệu</strong>, không phải model. Sửa bằng <strong>dữ liệu surrogate</strong> (tiêm PortScan CIC) → 100%.</p>
+<blockquote><strong>Nói đơn giản:</strong> không phải model dốt — mà <strong>manh mối đã bị NAT xoá sạch</strong> trước khi model kịp nhìn.</blockquote>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<p>→ giống hệt Benign.</p>
+<p>dữ liệu surrogate (CIC PortScan) → F1 100%.</p>
+<ul><li>PortScan <strong>tách được</strong> trên CIC nhưng <strong>không phân tách</strong> dưới WSL2 vì <strong>NAT gộp flow, đổi timing/duration</strong></li><li><strong>Nhiều thuật toán cùng thất bại</strong> = bằng chứng vấn đề ở <strong>dữ liệu thu thập</strong>, không phải model. Giải pháp:</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn nắm một nguyên tắc chẩn đoán vàng: <strong>khi mọi model đều tịt như nhau, hãy nghi ngờ dữ liệu, không phải thuật toán</strong>. Liên hệ <a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a> (vô ích ở đây) và <a href="hard-negative-mining.html">Hard Negative Mining — chỉ ôn lại những câu làm SAI</a> (cũng bó tay khi không phân tách).</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../G-hybrid-and-limits/portscan-inseparability-nat/portscan-inseparability-nat.md">Mở file Markdown gốc</a><a class="button" href="../G-hybrid-and-limits/portscan-inseparability-nat/infographic.html">Mở infographic.html</a><a class="button" href="../G-hybrid-and-limits/portscan-inseparability-nat/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="PortScan không phân tách dưới NAT — giới hạn của DỮ LIỆU, không phải model" src="../G-hybrid-and-limits/portscan-inseparability-nat/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

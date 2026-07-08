@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trích xuất đặc trưng flow bằng CICFlowMeter</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-mint">
+      <header class="hero">
+        <div class="eyebrow">A. Nền tảng bài toán &amp; dữ liệu · Bài #2</div>
+        <h1>Trích xuất đặc trưng flow bằng CICFlowMeter</h1>
+        <p>Mô hình máy học không &quot;ăn&quot; được gói tin thô — nó cần một dãy số có độ dài cố định. Nhưng một flow có thể gồm 2 gói hoặc 2000 gói, dài ngắn khác nhau. Làm sao biến một flow bất kỳ</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Mô hình máy học không &quot;ăn&quot; được gói tin thô — nó cần <strong>một dãy số có độ dài cố định</strong>. Nhưng một flow có thể gồm 2 gói hoặc 2000 gói, dài ngắn khác nhau. Làm sao biến một flow bất kỳ thành <strong>cùng một khuôn vector</strong>?</p>
+<p><strong>CICFlowMeter</strong> giải quyết chuyện đó: nó <strong>gom mọi gói của một flow lại và tính ra 77–80 con số thống kê</strong> mô tả flow đó.</p>
+<blockquote><strong>So sánh đời thường:</strong> giống <strong>hoá đơn điện thoại cuối tháng</strong> — bạn không thấy nội dung từng cuộc gọi, nhưng thấy <em>gọi bao nhiêu cuộc, tổng bao lâu, giờ nào, cho những số nào</em>. Từ hoá đơn đó vẫn đoán được nhiều điều về hành vi.</blockquote>
+<hr>
+<h3 id="n-t-nh-ra-nh-ng-con-s-g">Nó tính ra những con số gì?</h3>
+<p>Từ mỗi flow, CICFlowMeter trích các nhóm đặc trưng:</p>
+<ul><li><strong>Thời lượng</strong>: <code>Flow_Duration</code> (flow kéo dài bao lâu).</li><li><strong>Số gói theo hướng</strong>: <code>Fwd_Packets</code> (đi), <code>Bwd_Packets</code> (về).</li><li><strong>Thống kê độ dài gói</strong>: trung bình, độ lệch chuẩn, min, max — theo mỗi hướng.</li><li><strong>IAT (Inter-Arrival Time — thời gian giữa hai gói liên tiếp)</strong>: <code>Flow_IAT_Mean</code>, <code>Fwd_IAT_Std</code>…</li><li><strong>Đếm cờ TCP</strong>: SYN, FIN, RST, PSH, ACK, URG — bao nhiêu gói mang mỗi cờ.</li><li><strong>Tốc độ</strong>: <code>Flow_Bytes/s</code>, <code>Flow_Packets/s</code>.</li><li><strong>Active/Idle time</strong> và <strong>cửa sổ TCP (window)</strong>.</li></ul>
+<p>Bóc ý nghĩa vài cái:</p>
+<ul><li><strong><code>SYN_flag_count</code> cao, <code>FIN</code> ~0</strong> → nhiều lần &quot;gõ cửa&quot; mà không &quot;chào tạm biệt&quot; đúng cách → mùi <strong>quét cổng</strong>.</li><li><strong><code>Flow_IAT_Mean</code> rất đều</strong> → gói đến theo nhịp máy móc → mùi <strong>bot/tự động</strong>.</li><li><strong><code>Fwd_Pkt_Len_Max</code> ~60 byte</strong> → toàn gói bé xíu (chỉ header SYN) → không phải truyền dữ liệu thật.</li></ul>
+<hr>
+<h3 id="u-i-m-l-n-nh-t-c-c-c-traffic-m-ho">Ưu điểm lớn nhất: đọc được cả traffic mã hoá</h3>
+<p>CICFlowMeter <strong>chỉ nhìn metadata (thống kê), không cần mở payload</strong>. Vì thế:</p>
+<ul><li>Với traffic <strong>TLS/HTTPS mã hoá</strong> — nơi nội dung là một mớ bí ẩn — nó <strong>vẫn tính được</strong> duration, kích thước gói, nhịp độ…</li><li>Không cần giải mã, không đụng tới quyền riêng tư nội dung.</li></ul>
+<blockquote><strong>Nói đơn giản:</strong> không cần biết <em>người ta nói gì</em>, chỉ cần biết <em>họ nói nhanh hay chậm, dài hay ngắn, với ai</em> — thế là đủ để nghi ngờ.</blockquote>
+<hr>
+<h3 id="v-d-s-portscan-vs-benign-web">Ví dụ SỐ: PortScan vs Benign web</h3>
+<div class="table-wrap"><table><thead><tr><th>Đặc trưng</th><th>PortScan</th><th>Benign HTTP</th></tr></thead><tbody><tr><td><code>Flow_Duration</code></td><td>&lt; 1ms</td><td>100ms – vài giây</td></tr><tr><td><code>Fwd_Pkt_Len_Max</code></td><td>~60 byte (chỉ SYN)</td><td>100–1500 byte</td></tr><tr><td><code>SYN_flag_count</code></td><td>cao</td><td>thấp (1/kết nối)</td></tr><tr><td>Số flow/session</td><td>hàng trăm cổng</td><td>1–5</td></tr></tbody></table></div>
+<p>Nhìn bảng là thấy: <strong>nhiều đặc trưng cùng &quot;chỉ tay&quot;</strong> về phía PortScan → tách được khỏi Benign.</p>
+<hr>
+<h3 id="gi-i-h-n-c-n-b-n-c-i-n-kh-ng-th-y">Giới hạn căn bản — cái nó KHÔNG thấy</h3>
+<p>Vì chỉ nhìn thống kê 5-tuple, CICFlowMeter <strong>mù với nội dung payload</strong>:</p>
+<ul><li><strong>Infiltration</strong> (tấn công ẩn trong HTTP GET bình thường) → flow trông y như duyệt web.</li><li><strong>Heartbleed</strong> (khai thác phần mở rộng TLS handshake) → dấu vết nằm trong payload, không lộ ra thống kê.</li></ul>
+<blockquote>Đây chính là lý do đồ án cần <strong>kết hợp thêm Snort (đọc payload)</strong> và bàn về giới hạn ở Chương 4.</blockquote>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<p>→ bỏ sót tấn công ẩn trong nội dung.</p>
+<ul><li>CICFlowMeter <strong>biến một flow độ dài bất kỳ thành vector 77–80 con số thống kê</strong> cố định.</li><li>Các nhóm chính: thời lượng, số/độ dài gói, IAT, cờ TCP, tốc độ, active/idle.</li><li><strong>Mạnh:</strong> chạy được với <strong>traffic mã hoá</strong> (chỉ dùng metadata). <strong>Yếu:</strong> <strong>không thấy payload</strong></li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn biết <strong>model đang nhìn cái gì</strong> để đoán — và quan trọng hơn, biết <strong>nó mù ở đâu</strong>, từ đó giải thích được vì sao một số tấn công (Infiltration, Heartbleed) cần phương pháp khác.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../A-problem-and-data/flow-features-cicflowmeter/flow-features-cicflowmeter.md">Mở file Markdown gốc</a><a class="button" href="../A-problem-and-data/flow-features-cicflowmeter/infographic.html">Mở infographic.html</a><a class="button" href="../A-problem-and-data/flow-features-cicflowmeter/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Trích xuất đặc trưng flow bằng CICFlowMeter" src="../A-problem-and-data/flow-features-cicflowmeter/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

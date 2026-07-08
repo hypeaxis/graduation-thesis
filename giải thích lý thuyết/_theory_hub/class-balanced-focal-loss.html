@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class-Balanced Focal Loss — cân trọng số theo &quot;số mẫu hữu hiệu&quot;</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-rose">
+      <header class="hero">
+        <div class="eyebrow">D. Xử lý mất cân bằng · Bài #11</div>
+        <h1>Class-Balanced Focal Loss — cân trọng số theo &quot;số mẫu hữu hiệu&quot;</h1>
+        <p>focal-loss có phần α_t để cân giữa các lớp. Câu hỏi: đặt α cho mỗi lớp bằng bao nhiêu?</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p><a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a> có phần <code>α_t</code> để cân giữa các lớp. Câu hỏi: <strong>đặt <code>α</code> cho mỗi lớp bằng bao nhiêu?</strong></p>
+<p>Cách ngây thơ là <strong>nghịch đảo tần suất</strong> <code>α_c = 1/n_c</code> (lớp ít mẫu → trọng số lớn). Nhưng khi một lớp cực hiếm (Heartbleed chỉ <strong>10 mẫu</strong>), <code>1/n_c</code> <strong>bùng nổ</strong>, tạo trọng số cực đoan làm mất ổn định huấn luyện.</p>
+<p><strong>Class-Balanced Focal Loss</strong> (Cui et al., 2019) sửa chỗ này bằng ý tưởng <strong>&quot;số mẫu hữu hiệu (effective number)&quot;</strong>: thêm một mẫu vào lớp đã đông thì <em>gần như vô ích</em> (nó trùng lặp thông tin), nên đừng tính đủ 1.</p>
+<blockquote><strong>Nói nôm na:</strong> mẫu thứ 1.000.000 của Benign chẳng dạy model điều gì mới; còn mẫu thứ 5 của Heartbleed thì quý như vàng. Công thức này phản ánh đúng cái &quot;độ quý&quot; giảm dần đó.</blockquote>
+<hr>
+<h3 id="c-ng-th-c-b-c-t-ng-m-nh">Công thức — bóc từng mảnh</h3>
+<pre><code>α_c = (1 − β) / (1 − β^{n_c}) ,   β = 0,9999</code></pre>
+<ul><li><strong><code>n_c</code></strong> → số mẫu của lớp c.</li><li><strong><code>β</code> (beta)</strong> → hằng số gần 1, điều khiển mức &quot;bão hoà&quot; (mẫu mới đóng góp giảm dần nhanh cỡ nào).</li><li><strong><code>β^{n_c}</code></strong> → khi <code>n_c</code> lớn thì số này → 0; khi <code>n_c</code> nhỏ thì → gần 1.</li></ul>
+<p>Xét hai cực:</p>
+<ul><li><strong>Lớp đông</strong> (Benign, hàng triệu mẫu): <code>β^{n_c} → 0</code> ⇒ <code>α_c → 1−β = 0,0001</code> — <strong>rất nhỏ</strong>.</li><li><strong>Lớp hiếm</strong> (Heartbleed, 10 mẫu): <code>β^{10} ≈ 0,999</code> ⇒ <code>α_c → (1−β)/(1−β) = 1</code> — <strong>chạm trần</strong>.</li></ul>
+<blockquote><strong>Điểm hay:</strong> <code>α_c</code> có <strong>trần tự nhiên tại 1</strong> — không bao giờ nổ lên vô cực như <code>1/n_c</code>. Ổn định hơn hẳn khi tỷ lệ lớp chênh <strong>&gt;1000:1</strong>.</blockquote>
+<hr>
+<h3 id="v-d-s-so-v-i-ngh-ch-o-t-n-su-t">Ví dụ SỐ: so với nghịch đảo tần suất</h3>
+<div class="table-wrap"><table><thead><tr><th>Lớp</th><th>$n_c$</th><th>$1/n_c$ (ngây thơ)</th><th>CB-alpha (β=0,9999)</th></tr></thead><tbody><tr><td>Benign</td><td>2.300.000</td><td>0,00000043</td><td>0,0001</td></tr><tr><td>DoS</td><td>250.000</td><td>0,000004</td><td>0,0001</td></tr><tr><td>Heartbleed</td><td>10</td><td><strong>0,1</strong></td><td><strong>≈ 1,0</strong></td></tr></tbody></table></div>
+<p>Với <code>1/n_c</code>, khoảng cách trọng số Benign↔Heartbleed lên tới <strong>~230.000 lần</strong> → dễ gây &quot;sốc&quot; gradient. CB-alpha nén khoảng cách đó về mức lành mạnh, có <strong>trần</strong> rõ ràng.</p>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<ul><li>CB-Focal đặt <code>α_c = (1−β)/(1−β^{n_c})</code> dựa trên <strong>số mẫu hữu hiệu</strong> — mẫu thêm vào lớp đông có giá trị giảm dần.</li><li>Kết quả: trọng số lớp hiếm <strong>chạm trần 1</strong>, không bùng nổ như <code>1/n_c</code> → <strong>ổn định</strong> khi lệch &gt;1000:1.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn giải thích được vì sao đồ án chọn CB-alpha thay vì nghịch đảo tần suất — một chi tiết nhỏ nhưng quyết định độ ổn định khi train với Heartbleed chỉ 10 mẫu. Gắn với <a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a>.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../D-imbalance-handling/class-balanced-focal-loss/class-balanced-focal-loss.md">Mở file Markdown gốc</a><a class="button" href="../D-imbalance-handling/class-balanced-focal-loss/infographic.html">Mở infographic.html</a><a class="button" href="../D-imbalance-handling/class-balanced-focal-loss/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Class-Balanced Focal Loss — cân trọng số theo "số mẫu hữu hiệu"" src="../D-imbalance-handling/class-balanced-focal-loss/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

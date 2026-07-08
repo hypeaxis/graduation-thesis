@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SMOTE &amp; SMOTE-ENN — &quot;vẽ thêm&quot; mẫu thiểu số</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-rose">
+      <header class="hero">
+        <div class="eyebrow">D. Xử lý mất cân bằng · Bài #12</div>
+        <h1>SMOTE &amp; SMOTE-ENN — &quot;vẽ thêm&quot; mẫu thiểu số</h1>
+        <p>Một cách khác để chống mất cân bằng: thay vì chỉnh loss (focal-loss), ta chỉnh dữ liệu — tạo thêm mẫu cho lớp hiếm cho bớt lệch.</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Một cách khác để chống mất cân bằng: thay vì chỉnh loss (<a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a>), ta <strong>chỉnh dữ liệu</strong> — tạo thêm mẫu cho lớp hiếm cho bớt lệch.</p>
+<p>Cách thô sơ là <strong>sao chép</strong> mẫu hiếm (oversampling), nhưng bản sao y hệt khiến model <strong>học vẹt</strong> (overfit). <strong>SMOTE (Synthetic Minority Over-sampling Technique)</strong> thông minh hơn: nó <strong>tạo mẫu MỚI bằng cách nội suy</strong> giữa các mẫu hiếm có sẵn.</p>
+<blockquote><strong>So sánh đời thường:</strong> trên bản đồ, giữa hai ngôi nhà cùng một khu phố, ta &quot;vẽ thêm&quot; một ngôi nhà mới nằm đâu đó trên đoạn nối hai nhà — vẫn thuộc khu phố đó, nhưng là một địa chỉ mới, không phải bản sao.</blockquote>
+<hr>
+<h3 id="c-ng-th-c-b-c-t-ng-m-nh">Công thức — bóc từng mảnh</h3>
+<pre><code>x_new = x_i + λ · (x_kr − x_i) ,   λ ~ Uniform(0, 1)</code></pre>
+<ul><li><strong><code>x_i</code></strong> → một mẫu thiểu số bất kỳ.</li><li><strong><code>x_kr</code></strong> → một <strong>láng giềng ngẫu nhiên</strong> trong K-NN (K láng giềng gần nhất) của <code>x_i</code>, <strong>cùng lớp</strong>.</li><li><strong><code>x_kr − x_i</code></strong> → vector nối từ <code>x_i</code> tới láng giềng.</li><li><strong><code>λ ~ Uniform(0,1)</code></strong> → chọn ngẫu nhiên một điểm <strong>trên đoạn thẳng</strong> giữa hai mẫu.</li></ul>
+<p>→ <code>x_new</code> là một điểm mới nằm giữa hai mẫu hiếm cùng lớp → &quot;lấp đầy&quot; vùng thưa thớt của lớp thiểu số.</p>
+<blockquote><strong>Nói đơn giản:</strong> đứng giữa hai bạn cùng đội rồi tạo ra một &quot;bạn ảo&quot; ngay giữa họ.</blockquote>
+<hr>
+<h3 id="smote-enn-d-n-nhi-u-sau-khi-v">SMOTE-ENN: dọn nhiễu sau khi vẽ</h3>
+<p>SMOTE có thể vẽ mẫu mới <strong>lấn sang vùng của lớp khác</strong> (gần biên giới) → tạo nhiễu. <strong>ENN (Edited Nearest Neighbors)</strong> là bước dọn dẹp đi kèm: <strong>xoá những mẫu mà đa số láng giềng của nó thuộc lớp khác</strong> (mẫu &quot;lạc chỗ&quot;, nằm sai phía biên).</p>
+<blockquote><strong>So sánh:</strong> SMOTE là vẽ thêm người vào đội; ENN là mời ra ngoài những ai đứng lẫn sang sân đội bạn cho ranh giới rõ ràng.</blockquote>
+<hr>
+<h3 id="gi-i-h-n-n-i-suy-kh-ng-t-o-ra-s-a-d-ng-th-t">Giới hạn: nội suy không tạo ra &quot;sự đa dạng&quot; thật</h3>
+<p>SMOTE chỉ nội suy <strong>giữa các mẫu đã có</strong>. Khi lớp cực hiếm nằm trong không gian <strong>rất nhiều chiều</strong>, các mẫu tổng hợp chủ yếu là <strong>bản sao gần</strong> — không thêm được thông tin mới thật sự.</p>
+<p>Ví dụ trong đồ án: <strong>U2R chỉ 52 mẫu trong không gian 122 chiều</strong> → SMOTE tạo ra toàn điểm sát nhau, diversity không tăng bao nhiêu.</p>
+<blockquote><strong>Nói nôm na:</strong> vẽ thêm 1000 người &quot;y chang&quot; thì đội vẫn nghèo nàn ý tưởng — số lượng tăng nhưng <em>chất</em> không tăng.</blockquote>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<p>(<code>x_new = x_i + λ(x_kr − x_i)</code>).</p>
+<ul><li>SMOTE <strong>tạo mẫu thiểu số mới</strong> bằng nội suy tuyến tính giữa một mẫu và láng giềng cùng lớp</li><li><strong>SMOTE-ENN</strong> thêm bước ENN <strong>xoá mẫu nhiễu gần biên</strong> cho ranh giới sạch.</li><li><strong>Giới hạn:</strong> với lớp cực hiếm trong không gian nhiều chiều, mẫu tổng hợp chỉ là bản sao gần → ít giá trị thật.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn biết SMOTE là <em>lựa chọn phía dữ liệu</em>, và hiểu vì sao với các lớp siêu hiếm nó không phải &quot;viên đạn bạc&quot; — một lý do đồ án nghiêng về giải pháp phía loss (<a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a>) và <a href="hard-negative-mining.html">Hard Negative Mining — chỉ ôn lại những câu làm SAI</a>.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../D-imbalance-handling/smote-smote-enn/smote-smote-enn.md">Mở file Markdown gốc</a><a class="button" href="../D-imbalance-handling/smote-smote-enn/infographic.html">Mở infographic.html</a><a class="button" href="../D-imbalance-handling/smote-smote-enn/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="SMOTE & SMOTE-ENN — "vẽ thêm" mẫu thiểu số" src="../D-imbalance-handling/smote-smote-enn/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

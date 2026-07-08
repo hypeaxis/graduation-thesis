@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Covariate Shift — khi &quot;cảm giác đầu vào&quot; đổi, model lạc lối</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-violet">
+      <header class="hero">
+        <div class="eyebrow">E. Thích nghi miền · Bài #15</div>
+        <h1>Covariate Shift — khi &quot;cảm giác đầu vào&quot; đổi, model lạc lối</h1>
+        <p>Model của đồ án học rất tốt trên CIC-IDS-2017. Nhưng khi đem áp thẳng sang Testbed (WSL2) tự dựng, nó sụp đổ: MCC = −0,015 (còn tệ hơn đoán bừa). Vì sao?</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Model của đồ án học rất tốt trên <strong>CIC-IDS-2017</strong>. Nhưng khi đem áp thẳng sang <strong>Testbed (WSL2)</strong> tự dựng, nó <strong>sụp đổ</strong>: MCC = <strong>−0,015</strong> (còn tệ hơn đoán bừa). Vì sao?</p>
+<p>Câu trả lời là <strong>Covariate Shift (dịch chuyển hiệp biến)</strong> — một dạng <em>domain shift</em> nơi <strong>phân phối đầu vào thay đổi</strong>, dù bản chất &quot;cái gì là tấn công&quot; không đổi.</p>
+<blockquote><strong>So sánh đời thường:</strong> bạn học lái xe trên <strong>sân tập bằng phẳng</strong>, ra <strong>đường thật gồ ghề</strong> thì lúng túng. <em>Luật lái xe</em> (quan hệ đầu vào → hành động) không đổi, nhưng <em>cảm giác mặt đường</em> (đầu vào) đổi hoàn toàn → phản xạ cũ không còn khớp.</blockquote>
+<hr>
+<h3 id="c-ng-th-c-b-c-t-ng-m-nh">Công thức — bóc từng mảnh</h3>
+<pre><code>P_source(x) ≠ P_target(x)     nhưng    P(y | x) ≈ không đổi (về lý thuyết)</code></pre>
+<ul><li><strong><code>P_source(x)</code></strong> → phân phối đặc trưng ở miền nguồn (CIC, thu trên switch Gigabit).</li><li><strong><code>P_target(x)</code></strong> → phân phối ở miền đích (Testbed WSL2, qua Hyper-V NAT).</li><li><strong><code>P(y | x)</code></strong> → quy luật &quot;đặc trưng này ứng với nhãn kia&quot; — <strong>về lý thuyết vẫn giữ nguyên</strong>.</li></ul>
+<p>Vấn đề: model học <code>P(y|x)</code> <strong>trên vùng đầu vào của CIC</strong>. Khi đầu vào dịch sang vùng khác (Testbed), model bị hỏi về những vùng nó <strong>chưa từng thấy khi học</strong> → đoán sai.</p>
+<hr>
+<h3 id="v-sao-ph-n-ph-i-i-nguy-n-nh-n-c-th">Vì sao phân phối đổi? — nguyên nhân cụ thể</h3>
+<div class="table-wrap"><table><thead><tr><th>Nguồn gây shift</th><th>Ảnh hưởng lên đặc trưng</th></tr></thead><tbody><tr><td>Switch Gigabit (CIC) xử lý frame đầy đủ</td><td>baseline &quot;sạch&quot;</td></tr><tr><td>Card mạng ảo Hyper-V có overhead ảo hoá</td><td>thay đổi <strong>packet size</strong> và <strong>timing</strong></td></tr><tr><td>NAT của Windows thêm độ trễ, đổi ACK timing</td><td>lệch <strong>IAT</strong> và <strong>flag counts</strong></td></tr><tr><td>PowerTransformer fit trên phân phối CIC</td><td>ánh xạ <strong>sai</strong> khi gặp phân phối Testbed</td></tr></tbody></table></div>
+<blockquote><strong>Nói nôm na:</strong> cùng một cú quét cổng, nhưng đi qua &quot;đường ống&quot; khác (ảo hoá + NAT) thì các con số thống kê đo được lệch đi — model nhìn vào thấy &quot;lạ&quot;, không nhận ra.</blockquote>
+<hr>
+<h3 id="v-d-s">Ví dụ SỐ</h3>
+<p>Áp model CIC thẳng sang Testbed: <strong>MCC = −0,015</strong>. Con số <strong>âm</strong> không chỉ nói &quot;kém&quot; mà nói <strong>&quot;sai có hệ thống&quot;</strong> — model phân loại lệch hướng đều đặn, đúng dấu hiệu của covariate shift nghiêm trọng.</p>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<p>khi transfer trực tiếp.</p>
+<ul><li><strong>Covariate Shift:</strong> <code>P_source(x) ≠ P_target(x)</code> trong khi <code>P(y|x)</code> về lý thuyết không đổi.</li><li>Trong đồ án: CIC (switch Gigabit) vs Testbed (Hyper-V NAT) tạo phân phối đặc trưng khác nhau → <strong>MCC = −0,015</strong></li><li>Nguyên nhân: ảo hoá + NAT làm đổi packet size, timing, IAT, flag; scaler cũ ánh xạ sai.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Đây là <em>chẩn đoán bệnh</em> cho Giai đoạn 3 của đồ án. Hiểu đúng bệnh (đầu vào dịch, không phải model dốt) mới kê đúng thuốc: <a href="layer-freezing-catastrophic-forgetting.html">Layer Freezing &amp; Catastrophic Forgetting — giữ nền, học lại phần ngọn</a> và <a href="model-surgery.html">Model Surgery — &quot;ghép thêm ngăn kéo&quot; cho model không phá đồ cũ</a> — và hiểu vì sao <a href="scaler-embedding-coupling.html">Scaler–Embedding Coupling — vì sao &quot;đổi mỗi scaler&quot; lại thất bại</a> khiến &quot;đổi mỗi scaler&quot; lại thất bại.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../E-transfer-domain-adaptation/covariate-shift/covariate-shift.md">Mở file Markdown gốc</a><a class="button" href="../E-transfer-domain-adaptation/covariate-shift/infographic.html">Mở infographic.html</a><a class="button" href="../E-transfer-domain-adaptation/covariate-shift/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Covariate Shift — khi "cảm giác đầu vào" đổi, model lạc lối" src="../E-transfer-domain-adaptation/covariate-shift/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

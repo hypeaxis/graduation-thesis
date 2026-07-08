@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Power Transformer — Yeo-Johnson: &quot;bẻ cong thước đo&quot; cho dữ liệu lệch</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-amber">
+      <header class="hero">
+        <div class="eyebrow">C. Tiền xử lý · Bài #7</div>
+        <h1>Power Transformer — Yeo-Johnson: &quot;bẻ cong thước đo&quot; cho dữ liệu lệch</h1>
+        <p>Dữ liệu thật đời hay bị lệch (skewed) — đặc biệt là dữ liệu mạng: số byte, số packet, thời lượng flow… đa số nhỏ, nhưng thỉnh thoảng có vài giá trị cực to (một cuộc tấn công</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Dữ liệu thật đời hay bị <strong>lệch (skewed)</strong> — đặc biệt là dữ liệu mạng: số byte, số packet, thời lượng flow… đa số nhỏ, nhưng thỉnh thoảng có vài giá trị <strong>cực to</strong> (một cuộc tấn công gửi 10 triệu packet chẳng hạn).</p>
+<p>Vấn đề: rất nhiều mô hình và phép tính thống kê ngầm giả định dữ liệu <strong>cân đối, hình chuông (Gaussian — phân phối chuẩn)</strong>. Khi dữ liệu lệch một đống về một phía, chúng học kém đi.</p>
+<blockquote><strong>Nói nôm na:</strong> giống một lớp học mà 3 bạn cao 1m6 nhưng 1 bạn cao 3m — cái &quot;trung bình chiều cao&quot; trở nên vô nghĩa, mọi phép tính bị anh khổng lồ kéo méo hết.</blockquote>
+<p><strong>Power Transformer</strong> là cái &quot;nắn&quot; lại đống dữ liệu lệch đó cho về gần hình chuông. <strong>Yeo-Johnson</strong> là một công thức cụ thể để nắn.</p>
+<hr>
+<h3 id="t-ng-c-t-l-i-d-ng-l-y-th-a-k-o-c-i-u-i-l-i">Ý tưởng cốt lõi: dùng lũy thừa để kéo cái đuôi lại</h3>
+<p>Chữ <strong>&quot;power&quot; nghĩa là lũy thừa</strong> — vì phép biến đổi này nâng dữ liệu lên số mũ <strong>λ (lambda)</strong>. Tùy λ mà nó bóp hay giãn thang đo:</p>
+<ul><li><strong>λ nhỏ (gần 0)</strong> → hành xử như <strong>log</strong>, <em>bóp</em> mấy giá trị khổng lồ lại gần → chữa lệch phải (right-skew).</li><li><strong>λ = 1</strong> → <em>không đổi gì cả</em> (giữ nguyên, chỉ dịch).</li><li><strong>λ lớn (&gt;1)</strong> → <em>giãn</em> ra → chữa lệch trái (left-skew).</li></ul>
+<blockquote><strong>So sánh đời thường:</strong> như cái <strong>thang đo log của động đất (Richter)</strong> hay <strong>âm lượng (decibel)</strong> — độ 8 với độ 4 thật ra khác nhau cả chục nghìn lần, nhưng log ép chúng về một khoảng nhìn được. Yeo-Johnson làm y hệt, nhưng <strong>tự dò xem bóp mạnh cỡ nào là vừa</strong>.</blockquote>
+<hr>
+<h3 id="v-sao-l-yeo-johnson-m-kh-ng-ph-i-box-cox">Vì sao là &quot;Yeo-Johnson&quot; mà không phải &quot;Box-Cox&quot;?</h3>
+<p>Có một anh tiền bối là <strong>Box-Cox</strong> cũng làm y chang, nhưng <strong>chỉ chạy được với số dương (&gt; 0)</strong>. Dữ liệu có số 0 hoặc số âm là nó chịu.</p>
+<p><strong>Yeo-Johnson chính là bản vá:</strong> xử lý được cả <strong>số âm và số 0</strong>. Nó khéo ở chỗ dùng <strong>hai công thức khác nhau</strong> cho phần dương và phần âm, ghép lại cho mượt tại điểm 0.</p>
+<blockquote><strong>Nói đơn giản:</strong> Box-Cox = phiên bản chỉ cho số dương. Yeo-Johnson = bản nâng cấp, nhét số nào vào cũng nuốt được.</blockquote>
+<hr>
+<h3 id="c-ng-th-c-b-c-t-ng-m-nh">Công thức — bóc từng mảnh</h3>
+<p>Gọi <code>y</code> là giá trị gốc, <code>λ</code> là tham số, <code>ψ</code> (psi) là giá trị sau biến đổi:</p>
+<p><strong>Khi y ≥ 0:</strong></p>
+<pre><code>ψ = ((y + 1)^λ − 1) / λ          nếu λ ≠ 0
+ψ = ln(y + 1)                    nếu λ = 0</code></pre>
+<p><strong>Khi y &lt; 0:</strong></p>
+<pre><code>ψ = −((−y + 1)^(2−λ) − 1) / (2−λ)   nếu λ ≠ 2
+ψ = −ln(−y + 1)                     nếu λ = 2</code></pre>
+<p>Nhìn rối, nhưng bóc ra thì đơn giản:</p>
+<p>không phải trùng hợp).</p>
+<p>sang phía âm, để hai bên đối xứng và nối liền tại 0.</p>
+<ul><li><strong><code>(y + 1)^λ</code></strong> → phần &quot;lũy thừa&quot;, chính là chỗ <em>bẻ cong thước đo</em>. λ quyết định cong bao nhiêu.</li><li><strong><code>+1</code> bên trong</strong> → cái mẹo để <code>y = 0</code> không làm vỡ log (<code>ln(0)</code> là âm vô cực).</li><li><strong><code>− 1) / λ</code></strong> → chuẩn hóa lại để khi λ→0 công thức trơn tru biến thành <strong>log</strong> (đây là lý do λ=0 lại ra <code>ln</code>,</li><li><strong>Nhánh <code>y &lt; 0</code></strong> dùng số mũ <strong><code>2−λ</code></strong> và dấu trừ ở ngoài → <em>phản chiếu gương</em> logic của nhánh dương</li></ul>
+<blockquote><strong>Chỉ cần nhớ 1 câu:</strong> cả đống ký hiệu đó chỉ để nói <em>&quot;nâng y lên mũ λ một cách an toàn cho cả số âm, 0 và dương, và mượt tại λ=0&quot;</em>.</blockquote>
+<hr>
+<h3 id="v-d-s-cho-th-y-t-n-m-t">Ví dụ SỐ cho thấy tận mắt</h3>
+<p>Giả sử feature &quot;số byte của flow&quot; có 4 giá trị lệch phải nặng:</p>
+<pre><code>gốc:      1        2        10        1000</code></pre>
+<p>Khoảng cách giữa 10 và 1000 to khủng khiếp — model sẽ bị giá trị 1000 &quot;chiếm sóng&quot;.</p>
+<p>Cho λ = 0 (tức dùng <code>ln(y+1)</code>):</p>
+<pre><code>ln(1+1)    = 0.69
+ln(2+1)    = 1.10
+ln(10+1)   = 2.40
+ln(1000+1) = 6.91</code></pre>
+<p>Nhìn thấy chưa? Khoảng cách <strong>10 → 1000</strong> (cách nhau 990 đơn vị) giờ chỉ còn <strong>2.40 → 6.91</strong> (cách 4.5). Cái đuôi khổng lồ <strong>bị kéo về gần</strong>, dữ liệu bớt lệch, cân đối hơn hẳn.</p>
+<hr>
+<h3 id="ai-ch-n-m-y-t-d-b-n-kh-ng-ph-i-ch-nh-tay">Ai chọn λ? — Máy tự dò, bạn không phải chỉnh tay</h3>
+<p>Đây là chỗ hay nhất. Bạn <strong>không cần đoán λ</strong>. Thuật toán dùng <strong>Maximum Likelihood Estimation (MLE — ước lượng hợp lý cực đại)</strong>: nó thử rất nhiều giá trị λ, mỗi lần đo xem &quot;dữ liệu sau biến đổi giống hình chuông cỡ nào&quot;, rồi <strong>chọn λ làm nó giống chuông nhất</strong>.</p>
+<blockquote><strong>So sánh:</strong> như bạn vặn nút lấy nét (focus) máy ảnh — vặn qua vặn lại tới khi ảnh nét nhất thì dừng. Ở đây &quot;nét&quot; = &quot;giống phân phối chuẩn nhất&quot;, và máy tự vặn giùm bạn.</blockquote>
+<hr>
+<h3 id="trong-sklearn-v-g-n-v-i-n">Trong <code>sklearn</code> và gắn với đồ án</h3>
+<pre><code>from sklearn.preprocessing import PowerTransformer
+pt = PowerTransformer(method=&#x27;yeo-johnson&#x27;)  # mặc định luôn là yeo-johnson
+X_new = pt.fit_transform(X)</code></pre>
+<p>Một điểm hay lưu ý: mặc định nó còn <strong>standardize</strong> sau khi biến đổi (đưa về trung bình 0, phương sai 1) — tức bạn được combo <em>&quot;nắn về chuông + đưa về cùng thang đo&quot;</em> trong một bước.</p>
+<p><strong>Với live-detection:</strong> các feature như <code>flow_duration</code>, <code>total_bytes</code>, <code>packets_per_sec</code> thường lệch phải khủng khiếp. Yeo-Johnson kéo đuôi về giúp:</p>
+<p>là <strong>rò rỉ dữ liệu (data leakage)</strong>, kết quả đẹp giả.</p>
+<ul><li>Model (nhất là mấy loại nhạy với thang đo/phân phối) học ổn định hơn.</li><li>Giảm chuyện một flow tấn công cực lớn làm lệch scaler.</li><li>⚠️ <strong>Nhớ:</strong> <code>fit</code> transformer <strong>chỉ trên tập train</strong>, rồi <code>transform</code> lên test — nếu fit cả trên test</li></ul>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<p>bằng cách nâng lên mũ <strong>λ</strong>.</p>
+<ul><li><strong>Yeo-Johnson</strong> = phép biến đổi lũy thừa <strong>nắn dữ liệu lệch về gần hình chuông (Gaussian)</strong>,</li><li>Nó là <strong>bản nâng cấp của Box-Cox</strong>: chạy được cả <strong>số âm và 0</strong>.</li><li><strong>λ do máy tự dò</strong> bằng MLE để dữ liệu giống chuông nhất — bạn không phải chọn.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn biết <em>khi nào nên dùng</em> (feature lệch nặng, có số 0/âm), <em>tránh được data leakage</em> khi fit, và giải thích được trong luận văn <strong>vì sao</strong> bước tiền xử lý này giúp mô hình detection ổn định hơn — thay vì chỉ &quot;em thấy trong sklearn nên em dùng&quot;.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../C-preprocessing/yeo-johnson-power-transform/yeo-johnson.md">Mở file Markdown gốc</a><a class="button" href="../C-preprocessing/yeo-johnson-power-transform/infographic.html">Mở infographic.html</a><a class="button" href="../C-preprocessing/yeo-johnson-power-transform/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Power Transformer — Yeo-Johnson: "bẻ cong thước đo" cho dữ liệu lệch" src="../C-preprocessing/yeo-johnson-power-transform/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

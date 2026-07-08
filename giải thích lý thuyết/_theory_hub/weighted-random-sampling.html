@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Weighted Random Sampling — &quot;bốc thăm thiên vị&quot; lớp hiếm</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-rose">
+      <header class="hero">
+        <div class="eyebrow">D. Xử lý mất cân bằng · Bài #13</div>
+        <h1>Weighted Random Sampling — &quot;bốc thăm thiên vị&quot; lớp hiếm</h1>
+        <p>Còn một cách nữa để chống mất cân bằng, khác cả loss (focal-loss) lẫn tạo mẫu (smote-smote-enn): thay đổi tần suất mỗi mẫu được đưa vào batch huấn luyện.</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Còn một cách nữa để chống mất cân bằng, khác cả loss (<a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a>) lẫn tạo mẫu (<a href="smote-smote-enn.html">SMOTE &amp; SMOTE-ENN — &quot;vẽ thêm&quot; mẫu thiểu số</a>): <strong>thay đổi tần suất mỗi mẫu được đưa vào batch huấn luyện</strong>.</p>
+<p>Thay vì bốc mẫu đều nhau (lớp đông xuất hiện nhiều, lớp hiếm hầu như vắng mặt), <strong>Weighted Random Sampling</strong> cho <strong>mỗi mẫu một trọng số</strong> để lớp hiếm được <strong>bốc ra thường xuyên hơn</strong>, cân bằng lại mỗi epoch.</p>
+<blockquote><strong>So sánh đời thường:</strong> như hòm phiếu bốc thăm có thiên vị — lớp hiếm được bỏ vào <strong>nhiều vé hơn</strong>, nên khi rút, nó xuất hiện đều đặn thay vì bị lớp đông lấn át.</blockquote>
+<hr>
+<h3 id="c-ng-th-c-b-c-t-ng-m-nh">Công thức — bóc từng mảnh</h3>
+<p>Trọng số cơ bản theo tần suất nghịch:</p>
+<pre><code>w_i = N / (K · n_c)</code></pre>
+<ul><li><strong><code>N</code></strong> → tổng số mẫu.</li><li><strong><code>K</code></strong> → số lớp.</li><li><strong><code>n_c</code></strong> → số mẫu của lớp chứa mẫu i.</li></ul>
+<p>→ Lớp càng ít mẫu (<code>n_c</code> nhỏ) → trọng số <code>w_i</code> càng lớn → càng hay được bốc.</p>
+<p><strong>Biến thể &quot;làm mượt&quot; dùng trong V8.5</strong> (tránh trọng số cực đoan):</p>
+<pre><code>w_i = √( N / (K · n_c) ) ,   rồi clip về [0,5 ; 2,0]</code></pre>
+<ul><li><strong><code>√(…)</code></strong> → khai căn để <strong>nén</strong> khoảng cách trọng số (lớp siêu hiếm không nhảy vọt quá đà).</li><li><strong><code>clip [0,5; 2,0]</code></strong> → chặn trên/dưới, không cho mẫu nào bị bốc quá nhiều hay quá ít.</li></ul>
+<blockquote><strong>Nói đơn giản:</strong> vẫn thiên vị lớp hiếm, nhưng <strong>có chừng mực</strong> — không để nó xuất hiện áp đảo đến mức model quên mất lớp đông trông thế nào.</blockquote>
+<hr>
+<h3 id="kh-c-g-focal-loss">Khác gì Focal Loss?</h3>
+<div class="table-wrap"><table><thead><tr><th></th><th>Weighted Sampling</th><th>Focal Loss</th></tr></thead><tbody><tr><td>Can thiệp vào</td><td><strong>Dữ liệu</strong> model <em>nhìn thấy</em> (tần suất)</td><td><strong>Loss</strong> (trọng số gradient mỗi mẫu)</td></tr><tr><td>Cơ chế</td><td>Bốc lớp hiếm ra nhiều hơn</td><td>Hạ trọng số mẫu dễ</td></tr><tr><td>Có thể <strong>kết hợp</strong></td><td>✔</td><td>✔</td></tr></tbody></table></div>
+<blockquote>Hai cái <strong>không loại trừ nhau</strong> — đồ án dùng phối hợp: sampling để lớp hiếm có mặt, Focal để trong batch đó mẫu khó được ưu tiên.</blockquote>
+<hr>
+<h3 id="v-d-tr-c-gi-c">Ví dụ trực giác</h3>
+<p>Batch 256 mẫu, bốc đều: có thể <strong>0 mẫu Heartbleed</strong> (vì nó chỉ chiếm 0,0004%). Với weighted sampling, Heartbleed được nhân trọng số lớn → gần như batch nào cũng có vài mẫu → model <strong>thực sự được nhìn</strong> nó để học.</p>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<ul><li>Weighted Random Sampling cho <strong>mỗi mẫu một trọng số</strong> (<code>w_i = N/(K·n_c)</code>) để <strong>lớp hiếm được bốc ra nhiều hơn</strong>.</li><li>Biến thể V8.5 <strong>khai căn + clip [0,5; 2,0]</strong> để thiên vị <em>có chừng mực</em>, tránh cực đoan.</li><li>Can thiệp ở <strong>tầng dữ liệu</strong>, bổ sung (không thay thế) <a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a> ở tầng loss.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn phân biệt được <strong>ba tầng chống mất cân bằng</strong> — dữ liệu (sampling/SMOTE), loss (Focal/CB), và boundary (<a href="hard-negative-mining.html">Hard Negative Mining — chỉ ôn lại những câu làm SAI</a>) — và biết chúng phối hợp thế nào trong đồ án.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../D-imbalance-handling/weighted-random-sampling/weighted-random-sampling.md">Mở file Markdown gốc</a><a class="button" href="../D-imbalance-handling/weighted-random-sampling/infographic.html">Mở infographic.html</a><a class="button" href="../D-imbalance-handling/weighted-random-sampling/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Weighted Random Sampling — "bốc thăm thiên vị" lớp hiếm" src="../D-imbalance-handling/weighted-random-sampling/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

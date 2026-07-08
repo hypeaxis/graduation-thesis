@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stacking Ensemble — hội đồng có &quot;chủ tọa&quot; biết tổng hợp</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-teal">
+      <header class="hero">
+        <div class="eyebrow">F. Ensemble &amp; hệ thống · Bài #21</div>
+        <h1>Stacking Ensemble — hội đồng có &quot;chủ tọa&quot; biết tổng hợp</h1>
+        <p>Khi có nhiều mô hình cùng dự đoán, cách đơn giản là bỏ phiếu (voting) — nhưng voting đối xử mọi mô hình ngang nhau và không học được mô hình nào giỏi ở tình huống nào.</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Khi có nhiều mô hình cùng dự đoán, cách đơn giản là <strong>bỏ phiếu (voting)</strong> — nhưng voting đối xử mọi mô hình <strong>ngang nhau</strong> và không học được <em>mô hình nào giỏi ở tình huống nào</em>.</p>
+<p><strong>Stacking (xếp chồng)</strong> thông minh hơn: nó thêm một <strong>mô hình cấp trên (meta-learner — bộ học tổng hợp)</strong> để <strong>học cách kết hợp</strong> đầu ra của các mô hình cấp dưới. Đây là tầng 2 trong nhánh NSL-KDD của đồ án.</p>
+<blockquote><strong>So sánh đời thường:</strong> một <strong>hội đồng chuyên gia</strong> cùng cho ý kiến, nhưng có thêm một <strong>chủ tọa</strong> đã học từ kinh nghiệm rằng <em>&quot;vụ tài chính thì nghe ông A, vụ kỹ thuật thì nghe bà B&quot;</em> — biết trọng ai lúc nào, thay vì đếm phiếu ngang nhau.</blockquote>
+<hr>
+<h3 id="ki-n-tr-c-hai-t-ng-b-c-t-ng-m-nh">Kiến trúc hai tầng — bóc từng mảnh</h3>
+<pre><code>        ┌─ Base model 1 ─┐
+  x ────┼─ Base model 2 ─┼──▶ [dự đoán 1, 2, 3] ──▶ Meta-learner ──▶ nhãn cuối
+        └─ Base model 3 ─┘</code></pre>
+<ul><li><strong>Base models (mô hình cơ sở)</strong> → nhiều bộ phân loại khác nhau, mỗi cái đưa ra dự đoán (xác suất/nhãn).</li><li><strong>Đầu ra của chúng</strong> trở thành <strong>đầu vào mới</strong> cho tầng trên.</li><li><strong>Meta-learner</strong> → học từ các dự đoán đó <em>cách tổng hợp tối ưu</em> để ra nhãn cuối.</li></ul>
+<blockquote><strong>Khác voting:</strong> voting cố định luật (đa số thắng). Stacking <strong>học luật kết hợp</strong> từ dữ liệu → linh hoạt hơn.</blockquote>
+<hr>
+<h3 id="v-sao-stacking-m-nh">Vì sao Stacking mạnh?</h3>
+<p>từng cái.</p>
+<p>Xem <a href="inductive-bias-diversity.html">Đa dạng Inductive Bias (FTT + RF + KNN) — sai khác nhau nên bù được cho nhau</a> và <a href="bias-variance-ensemble.html">Bias–Variance &amp; Ensemble giảm Variance — vì sao &quot;hỏi nhiều người&quot; tốt hơn</a>.</p>
+<ul><li>Các base model <strong>giỏi ở những vùng khác nhau</strong>; meta-learner học <strong>khi nào tin ai</strong> → khai thác điểm mạnh</li><li>Điều kiện để hiệu quả (giống mọi ensemble): các base model phải <strong>đủ đa dạng</strong> — sai trên những mẫu khác nhau.</li></ul>
+<blockquote><strong>Nói đơn giản:</strong> ba cái đầu cùng nghĩ một kiểu thì thêm chủ tọa cũng vô ích; ba cái nghĩ khác nhau thì chủ tọa mới có cái để tổng hợp.</blockquote>
+<hr>
+<h3 id="v-d-tr-c-gi-c">Ví dụ trực giác</h3>
+<p>(Transformer) mạnh ở tương tác đặc trưng.</p>
+<p>cái đơn lẻ <strong>và</strong> hơn voting cứng.</p>
+<ul><li>Base model 1 (cây) mạnh ở mẫu gần biên cục bộ; Base model 2 (lân cận) mạnh ở vùng đông; Base model 3</li><li>Meta-learner học: với flow kiểu này → nghiêng theo model 3; kiểu kia → theo model 1. Kết quả tốt hơn từng</li></ul>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<ul><li><strong>Stacking</strong> = nhiều <strong>base model</strong> → đầu ra của chúng làm đầu vào cho một <strong>meta-learner</strong> học <strong>cách kết hợp</strong>.</li><li>Mạnh hơn voting vì <strong>học luật tổng hợp</strong> thay vì đếm phiếu ngang nhau.</li><li>Vẫn cần các base model <strong>đa dạng</strong> mới hiệu quả.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn phân biệt được <strong>Stacking</strong> (có meta-learner, dùng ở NSL-KDD Stage 2) với <strong>Voting</strong> (<a href="asymmetric-cost-sensitive-voting.html">Asymmetric Voting — bỏ phiếu theo CHI PHÍ sai, không phải theo đa số</a>, dùng ở CIC) — hai cách ghép mô hình khác nhau trong cùng đồ án.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../F-ensemble-and-system/stacking-ensemble/stacking-ensemble.md">Mở file Markdown gốc</a><a class="button" href="../F-ensemble-and-system/stacking-ensemble/infographic.html">Mở infographic.html</a><a class="button" href="../F-ensemble-and-system/stacking-ensemble/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Stacking Ensemble — hội đồng có "chủ tọa" biết tổng hợp" src="../F-ensemble-and-system/stacking-ensemble/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

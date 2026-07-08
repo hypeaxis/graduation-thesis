@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Đa dạng Inductive Bias (FTT + RF + KNN) — sai khác nhau nên bù được cho nhau</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-teal">
+      <header class="hero">
+        <div class="eyebrow">F. Ensemble &amp; hệ thống · Bài #23</div>
+        <h1>Đa dạng Inductive Bias (FTT + RF + KNN) — sai khác nhau nên bù được cho nhau</h1>
+        <p>bias-variance-ensemble cho ta điều kiện vàng: ensemble chỉ mạnh khi các mô hình sai trên những mẫu khác nhau (tương quan ρ thấp). Câu hỏi thực tế: làm sao đảm bảo chúng sai khác nh...</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p><a href="bias-variance-ensemble.html">Bias–Variance &amp; Ensemble giảm Variance — vì sao &quot;hỏi nhiều người&quot; tốt hơn</a> cho ta <strong>điều kiện vàng</strong>: ensemble chỉ mạnh khi các mô hình <strong>sai trên những mẫu khác nhau</strong> (tương quan <code>ρ</code> thấp). Câu hỏi thực tế: <strong>làm sao đảm bảo chúng sai khác nhau?</strong></p>
+<p>Câu trả lời của đồ án: chọn ba mô hình có <strong>inductive bias (thiên kiến quy nạp)</strong> hoàn toàn khác nhau — <strong>FT-Transformer + Random Forest + KNN</strong>. &quot;Inductive bias&quot; là <em>giả định ngầm về cách dữ liệu vận hành</em> mà mỗi thuật toán mang theo; giả định khác nhau → cách nhìn khác nhau → <strong>sai ở những chỗ khác nhau</strong>.</p>
+<blockquote><strong>So sánh đời thường:</strong> giao một vụ án cho <strong>ba chuyên gia soi ba kiểu</strong>: người soi tài chính, người soi thời gian, người soi hành vi. Họ <strong>sai ở những chỗ khác nhau</strong>, nên gộp lại thì che được điểm mù của nhau.</blockquote>
+<hr>
+<h3 id="ba-inductive-bias-ba-ki-u-sai">Ba inductive bias, ba kiểu sai</h3>
+<div class="table-wrap"><table><thead><tr><th>Mô hình</th><th>Inductive bias</th><th>Sai trên mẫu nào</th></tr></thead><tbody><tr><td><strong>FT-Transformer</strong></td><td>Học <strong>tương tác đặc trưng</strong> qua Attention — góc nhìn <strong>toàn cục</strong></td><td>Mẫu có tương tác phức tạp, không nhất quán trong train</td></tr><tr><td><strong>Random Forest</strong> (150 cây, depth 25)</td><td><strong>Phân vùng</strong> không gian đặc trưng — góc nhìn <strong>cục bộ</strong></td><td>Mẫu gần biên quyết định phức tạp ở chiều cao</td></tr><tr><td><strong>KNN</strong> (K=16, distance-weighted)</td><td><strong>Lân cận</strong> — học lười (lazy), dựa vào hàng xóm gần</td><td>Mẫu ở vùng thưa, xa các điểm train</td></tr></tbody></table></div>
+<p>Ba cách nhìn khác nhau về căn bản → ba tập mẫu-sai khác nhau → <strong><code>ρ</code> thấp</strong> → <a href="bias-variance-ensemble.html">Bias–Variance &amp; Ensemble giảm Variance — vì sao &quot;hỏi nhiều người&quot; tốt hơn</a> phát huy.</p>
+<hr>
+<h3 id="v-sao-kh-ng-ch-n-ba-model-gi-ng-nhau">Vì sao KHÔNG chọn ba model giống nhau?</h3>
+<p>Nếu ghép FTT + FTT + FTT (chỉ khác seed), cả ba có <strong>cùng inductive bias</strong> → cùng sai một kiểu → <code>ρ</code> cao → ensemble gần như vô ích (theo đúng công thức <code>Var(f̄) = σ²</code> khi <code>ρ=1</code>).</p>
+<blockquote><strong>Nói đơn giản:</strong> muốn hội đồng khôn ngoan, đừng mời ba người <strong>suy nghĩ y hệt nhau</strong>.</blockquote>
+<hr>
+<h3 id="v-d-tr-c-gi-c">Ví dụ trực giác</h3>
+<p>Một flow Botnet nằm ở <strong>vùng thưa</strong> (ít mẫu tương tự trong train):</p>
+<ul><li><strong>KNN</strong> dễ sai (không có hàng xóm gần đáng tin).</li><li>Nhưng <strong>FTT</strong> có thể vẫn đúng nhờ bắt được <strong>tương tác đặc trưng</strong> đặc thù Botnet.</li><li>→ Ensemble lấy được cái đúng của FTT, bù cho cái sai của KNN.</li></ul>
+<p>Ngược lại, ở một mẫu có tương tác rối mà FTT bối rối, <strong>RF phân vùng cục bộ</strong> lại có thể bắt đúng.</p>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<ul><li><strong>Inductive bias</strong> = giả định ngầm của mỗi thuật toán về dữ liệu. Khác nhau → sai khác nhau.</li><li>Đồ án chọn <strong>FTT (toàn cục) + RF (cục bộ) + KNN (lân cận)</strong> để đảm bảo <strong><code>ρ</code> thấp</strong> → ensemble giảm variance thật.</li><li>Ghép các model giống nhau (<code>ρ</code> cao) thì vô ích.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn biết <strong>cách thiết kế ensemble đúng</strong> — không phải cứ gộp nhiều model, mà phải gộp model <strong>đa dạng</strong>. Đây là cầu nối giữa lý thuyết <a href="bias-variance-ensemble.html">Bias–Variance &amp; Ensemble giảm Variance — vì sao &quot;hỏi nhiều người&quot; tốt hơn</a> và luật gộp <a href="asymmetric-cost-sensitive-voting.html">Asymmetric Voting — bỏ phiếu theo CHI PHÍ sai, không phải theo đa số</a>.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../F-ensemble-and-system/inductive-bias-diversity/inductive-bias-diversity.md">Mở file Markdown gốc</a><a class="button" href="../F-ensemble-and-system/inductive-bias-diversity/infographic.html">Mở infographic.html</a><a class="button" href="../F-ensemble-and-system/inductive-bias-diversity/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Đa dạng Inductive Bias (FTT + RF + KNN) — sai khác nhau nên bù được cho nhau" src="../F-ensemble-and-system/inductive-bias-diversity/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Autoencoder Gate + ngưỡng tái tạo — &quot;vẽ lại được thì là quen&quot;</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-teal">
+      <header class="hero">
+        <div class="eyebrow">F. Ensemble &amp; hệ thống · Bài #20</div>
+        <h1>Autoencoder Gate + ngưỡng tái tạo — &quot;vẽ lại được thì là quen&quot;</h1>
+        <p>Ở nhánh NSL-KDD, tầng 1 (Gating) cần quyết định &quot;flow này có bất thường không?&quot;. Thay vì huấn luyện một bộ phân loại nhị phân thông thường, đồ án dùng một ý tưởng đẹp: Autoencoder...</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Ở nhánh <strong>NSL-KDD</strong>, tầng 1 (Gating) cần quyết định <em>&quot;flow này có bất thường không?&quot;</em>. Thay vì huấn luyện một bộ phân loại nhị phân thông thường, đồ án dùng một ý tưởng đẹp: <strong>Autoencoder (AE — bộ tự mã hoá)</strong> kết hợp <strong>ngưỡng lỗi tái tạo (reconstruction threshold)</strong>.</p>
+<p>Ý tưởng: dạy model <strong>vẽ lại (tái tạo)</strong> những flow <strong>bình thường (Normal)</strong>. Về sau, cái gì nó <strong>vẽ lại được gọn gàng</strong> thì là quen (Normal); cái gì nó <strong>vẽ lại méo mó</strong> thì là lạ (bất thường) → đẩy sang tầng 2.</p>
+<blockquote><strong>So sánh đời thường:</strong> một hoạ sĩ luyện vẽ lại <strong>khuôn mặt người bình thường</strong> đến mức thành thạo. Đưa một khuôn mặt quen → vẽ lại giống y. Đưa một khuôn mặt <strong>quái dị chưa từng thấy</strong> → bản vẽ méo mó, sai lệch nhiều → &quot;à, cái này lạ!&quot;.</blockquote>
+<hr>
+<h3 id="autoencoder-ho-t-ng-th-n-o">Autoencoder hoạt động thế nào?</h3>
+<pre><code>x ──[ Encoder ]──▶ z (nén nhỏ) ──[ Decoder ]──▶ x̂ (tái tạo)</code></pre>
+<ul><li><strong>Encoder</strong> nén <code>x</code> xuống một biểu diễn nhỏ <code>z</code> (bottleneck — nút thắt cổ chai).</li><li><strong>Decoder</strong> cố dựng lại <code>x̂</code> từ <code>z</code>.</li><li>Huấn luyện <strong>chỉ trên dữ liệu Normal</strong>, tối thiểu hoá <strong>lỗi tái tạo</strong> <code>‖x − x̂‖²</code>.</li></ul>
+<p>Vì chỉ học Normal, AE <strong>giỏi tái tạo Normal</strong> nhưng <strong>vụng về với dữ liệu lạ</strong> → lỗi tái tạo của mẫu bất thường sẽ <strong>cao vọt</strong>.</p>
+<hr>
+<h3 id="c-ng-theo-ng-ng-b-c-t-ng-m-nh">Cổng theo ngưỡng τ — bóc từng mảnh</h3>
+<pre><code>lỗi tái tạo  E(x) = ‖x − x̂‖²
+
+E(x) &lt; τ  →  Normal    (thoát khỏi pipeline)
+E(x) ≥ τ  →  Suspicious (chuyển xuống Stage 2)</code></pre>
+<p>lọc gắt (ít báo nhầm, nhưng dễ sót).</p>
+<ul><li><strong><code>E(x)</code></strong> → sai số giữa flow gốc và bản tái tạo.</li><li><strong><code>τ</code> (tau)</strong> → ngưỡng quyết định. Đặt thấp → nhạy (bắt nhiều nghi ngờ, nhưng nhiều báo nhầm); đặt cao →</li></ul>
+<blockquote><strong>Nói đơn giản:</strong> &quot;vẽ lại sai quá ngưỡng cho phép&quot; = đáng ngờ.</blockquote>
+<hr>
+<h3 id="u-i-m-h-c-c-c-t-n-c-ng-ch-a-t-ng-th-y">Ưu điểm: học được cả tấn công CHƯA TỪNG THẤY</h3>
+<p>Vì AE <strong>chỉ cần dữ liệu Normal</strong> để học, nó có thể <strong>gắn cờ những bất thường chưa từng xuất hiện trong tập train</strong> (zero-day) — chỉ cần chúng &quot;khác Normal đủ nhiều&quot;. Đây là lợi thế của hướng <strong>anomaly detection</strong> so với bộ phân loại thuần dựa trên nhãn tấn công đã biết.</p>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<ul><li><strong>Autoencoder Gate</strong> học <strong>tái tạo dữ liệu Normal</strong>; mẫu lạ → <strong>lỗi tái tạo cao</strong>.</li><li>Cổng theo <strong>ngưỡng τ</strong>: <code>E(x) &lt; τ</code> → Normal thoát; <code>E(x) ≥ τ</code> → Suspicious xuống tầng 2.</li><li>Ưu điểm: chỉ cần dữ liệu Normal, gắn cờ được cả bất thường chưa từng thấy.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn thấy một cách tiếp cận <strong>Gating khác</strong> với bên CIC (<a href="two-stage-cascade-gating-expert.html">Two-Stage Cascade (Gating + Expert) — chia để trị</a>): NSL-KDD dùng AE + ngưỡng, minh hoạ tư duy &quot;sàng lọc trước, chuyên sâu sau&quot; bằng <strong>anomaly detection</strong>. Tầng 2 sau đó là <a href="stacking-ensemble.html">Stacking Ensemble — hội đồng có &quot;chủ tọa&quot; biết tổng hợp</a>.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../F-ensemble-and-system/autoencoder-gate-threshold/autoencoder-gate-threshold.md">Mở file Markdown gốc</a><a class="button" href="../F-ensemble-and-system/autoencoder-gate-threshold/infographic.html">Mở infographic.html</a><a class="button" href="../F-ensemble-and-system/autoencoder-gate-threshold/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Autoencoder Gate + ngưỡng tái tạo — "vẽ lại được thì là quen"" src="../F-ensemble-and-system/autoencoder-gate-threshold/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

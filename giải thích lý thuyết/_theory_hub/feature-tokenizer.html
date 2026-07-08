@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Feature Tokenizer — biến mỗi con số thành một &quot;token&quot;</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-sky">
+      <header class="hero">
+        <div class="eyebrow">B. FT-Transformer · Bài #4</div>
+        <h1>Feature Tokenizer — biến mỗi con số thành một &quot;token&quot;</h1>
+        <p>Transformer vốn sinh ra cho câu chữ: đầu vào là một chuỗi token (từ), mỗi từ đã là một vector nhúng. Nhưng dữ liệu của ta là dạng bảng (tabular) — chỉ là k con số rời rạc (duration...</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Transformer vốn sinh ra cho <strong>câu chữ</strong>: đầu vào là một chuỗi <strong>token</strong> (từ), mỗi từ đã là một vector nhúng. Nhưng dữ liệu của ta là <strong>dạng bảng (tabular)</strong> — chỉ là <code>k</code> con số rời rạc (duration, số packet, cờ SYN…).</p>
+<p>Câu hỏi: <em>làm sao biến một con số vô hồn thành một &quot;token&quot; giàu thông tin để Transformer xử lý?</em></p>
+<p><strong>Feature Tokenizer</strong> chính là lời giải: nó <strong>cấp cho mỗi đặc trưng một &quot;phiên dịch viên&quot; riêng</strong>, dịch con số đó thành một vector <code>d</code> chiều.</p>
+<blockquote><strong>Nói nôm na:</strong> Transformer chỉ nói được &quot;tiếng vector&quot;. Mỗi đặc trưng của ta là một ngôn ngữ khác nhau (duration nói tiếng thời gian, byte nói tiếng dung lượng). Feature Tokenizer gắn cho mỗi đặc trưng một phiên dịch để tất cả cùng nói &quot;tiếng vector&quot;.</blockquote>
+<hr>
+<h3 id="c-ng-th-c-b-c-t-ng-m-nh">Công thức — bóc từng mảnh</h3>
+<p>Cho mẫu đầu vào <code>x = [x₁, x₂, …, x_k]</code>. Mỗi đặc trưng scalar <code>x_j</code> được ánh xạ thành vector nhúng <code>e_j</code>:</p>
+<pre><code>e_j = x_j · w_j + b_j        (w_j, b_j ∈ ℝ^d, RIÊNG cho từng đặc trưng)</code></pre>
+<ul><li><strong><code>x_j</code></strong> → giá trị con số của đặc trưng thứ j (đã chuẩn hoá).</li><li><strong><code>w_j</code></strong> → vector &quot;hướng&quot; riêng của đặc trưng j; nhân với <code>x_j</code> để phóng to/thu nhỏ theo giá trị.</li><li><strong><code>b_j</code></strong> → vector &quot;gốc&quot; riêng, đảm bảo ngay cả khi <code>x_j = 0</code> token vẫn có thông tin về <em>danh tính</em> đặc trưng.</li><li><strong>RIÊNG cho từng đặc trưng</strong> → đây là điểm mấu chốt (xem dưới).</li></ul>
+<p>Số tham số của tầng này: <code>k × 2d</code> (mỗi đặc trưng có một cặp <code>w_j, b_j</code>).</p>
+<hr>
+<h3 id="i-m-m-u-ch-t-m-i-c-tr-ng-c-b-chi-u-ri-ng-kh-c-mlp">Điểm mấu chốt: mỗi đặc trưng có bộ chiếu RIÊNG (khác MLP)</h3>
+<p>Trong <strong>MLP</strong>, tất cả đặc trưng đi qua <strong>cùng một ma trận trọng số</strong> — nên con số <code>5</code> ở cột &quot;duration&quot; và con số <code>5</code> ở cột &quot;byte&quot; bị đối xử <strong>giống hệt nhau</strong> ở lớp đầu.</p>
+<p>Trong <strong>Feature Tokenizer</strong>, mỗi cột có <code>(w_j, b_j)</code> riêng → <code>duration=5</code> và <code>byte=5</code> biến thành <strong>hai vector hoàn toàn khác nhau</strong>, mang theo <em>danh tính cột</em>.</p>
+<blockquote><strong>So sánh đời thường:</strong> MLP như một hòm thư chung — mọi lá thư nhét chung một khe. Feature Tokenizer như mỗi người có một hộp thư riêng có tên — nhìn là biết thư của ai.</blockquote>
+<hr>
+<h3 id="th-m-cls-token-ng-i-t-ng-h-p">Thêm CLS token — &quot;người tổng hợp&quot;</h3>
+<p>Ta chèn thêm một token đặc biệt <strong>CLS</strong> vào đầu chuỗi:</p>
+<pre><code>T = [ e_CLS , e₁ , e₂ , … , e_k ]   ∈ ℝ^{(k+1) × d}</code></pre>
+<p>CLS không gắn với đặc trưng nào cả. Nhiệm vụ của nó: sau khi qua các tầng Attention, nó <strong>gom góp thông tin từ toàn bộ các token</strong> để cuối cùng đại diện cho cả mẫu → đưa vào head phân loại.</p>
+<blockquote><strong>Nói đơn giản:</strong> CLS như <strong>thư ký cuộc họp</strong> — ngồi nghe tất cả phát biểu (các token đặc trưng), rồi cuối buổi tóm lại thành một kết luận.</blockquote>
+<hr>
+<h3 id="v-d-s">Ví dụ SỐ</h3>
+<p>Giả sử <code>d = 4</code>. Đặc trưng <code>Flow_Duration</code> sau chuẩn hoá có <code>x = 1,2</code>, với <code>w = [0,5, −0,3, 0,8, 0,1]</code>, <code>b = [0, 0,2, −0,1, 0]</code>:</p>
+<pre><code>e = 1,2 · [0,5, −0,3, 0,8, 0,1] + [0, 0,2, −0,1, 0]
+  = [0,60, −0,36, 0,96, 0,12] + [0, 0,2, −0,1, 0]
+  = [0,60, −0,16, 0,86, 0,12]</code></pre>
+<p>Con số vô hồn <code>1,2</code> giờ đã thành một <strong>vector 4 chiều</strong> mang danh tính &quot;duration&quot; — sẵn sàng cho Attention.</p>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<ul><li>Feature Tokenizer <strong>biến mỗi đặc trưng scalar <code>x_j</code> thành một token vector</strong> <code>e_j = x_j w_j + b_j</code>.</li><li>Mỗi đặc trưng có <strong>bộ chiếu riêng</strong> → giữ được <em>danh tính cột</em> (khác MLP dùng chung trọng số).</li><li><strong>CLS token</strong> được thêm vào để cuối cùng <strong>tổng hợp toàn bộ input</strong> cho phân loại.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Đây là cửa ngõ khiến Transformer dùng được cho dữ liệu bảng. Nó cũng là chỗ mà đồ án thực hiện <strong>Model Surgery</strong> (thêm 3 hàng đặc trưng mới <code>77 → 80</code>) — vì mỗi đặc trưng là một hàng độc lập trong ma trận embedding, ta ghép thêm hàng mà không phá phần cũ. Xem <a href="model-surgery.html">Model Surgery — &quot;ghép thêm ngăn kéo&quot; cho model không phá đồ cũ</a>.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../B-ft-transformer/feature-tokenizer/feature-tokenizer.md">Mở file Markdown gốc</a><a class="button" href="../B-ft-transformer/feature-tokenizer/infographic.html">Mở infographic.html</a><a class="button" href="../B-ft-transformer/feature-tokenizer/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Feature Tokenizer — biến mỗi con số thành một "token"" src="../B-ft-transformer/feature-tokenizer/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

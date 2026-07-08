@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alert Aggregator — hợp nhất cảnh báo, xác nhận chéo</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-slate">
+      <header class="hero">
+        <div class="eyebrow">G. Hệ lai &amp; giới hạn · Bài #27</div>
+        <h1>Alert Aggregator — hợp nhất cảnh báo, xác nhận chéo</h1>
+        <p>Hệ lai của đồ án có hai nguồn cảnh báo chạy song song (snort-hybrid-ids): Snort (packet-level) và FTT (flow-level). Nếu cứ để hai luồng cảnh báo đổ thẳng ra màn hình, đội vận hành...</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Hệ lai của đồ án có <strong>hai nguồn cảnh báo chạy song song</strong> (<a href="snort-hybrid-ids.html">Snort + FT-Transformer — hệ lai bù điểm mù cho nhau</a>): Snort (packet-level) và FTT (flow-level). Nếu cứ để hai luồng cảnh báo đổ thẳng ra màn hình, đội vận hành sẽ <strong>ngập trong thông báo rời rạc</strong>, khó biết cái nào thật sự quan trọng.</p>
+<p><strong>Alert Aggregator (bộ hợp nhất cảnh báo)</strong> đứng ở cuối, gom hai nguồn lại, <strong>khử trùng lặp</strong> và <strong>nâng độ tin cậy</strong> khi hai bên cùng chỉ vào một sự việc.</p>
+<blockquote><strong>So sánh đời thường:</strong> hai bảo vệ tuần tra <strong>độc lập</strong> cùng bấm chuông báo về <strong>một căn phòng</strong> → gần như chắc chắn có chuyện thật → trực ban <strong>nâng mức ưu tiên</strong>, cử người tới ngay. Chỉ một người báo thì vẫn ghi nhận, nhưng độ chắc thấp hơn.</blockquote>
+<hr>
+<h3 id="c-ch-h-p-nh-t-b-c-t-ng-m-nh">Cơ chế hợp nhất — bóc từng mảnh</h3>
+<p>(cùng 5-tuple / khoảng thời gian).</p>
+<p>thành <strong>một</strong> cảnh báo, <strong>mức ưu tiên tăng</strong> (độ tin cậy cao vì hai phương pháp độc lập cùng đồng ý).</p>
+<ul><li><strong>Đối chiếu theo session:</strong> hai cảnh báo được coi là &quot;cùng một sự việc&quot; nếu trỏ về <strong>cùng một session</strong></li><li><strong>Confirmed alert (cảnh báo được xác nhận):</strong> nếu <strong>cả Snort và FTT</strong> cùng báo trên một session → hợp nhất</li><li><strong>Single-source alert:</strong> nếu chỉ một nguồn báo → vẫn ghi nhận nhưng ưu tiên thấp hơn.</li></ul>
+<blockquote><strong>Nói đơn giản:</strong> hai chứng cứ độc lập trùng khớp thì đáng tin hơn nhiều so với một chứng cứ đơn lẻ.</blockquote>
+<hr>
+<h3 id="v-sao-c-l-p-l-quan-tr-ng">Vì sao &quot;độc lập&quot; là quan trọng?</h3>
+<p>Snort và FTT nhìn ở <strong>hai tầng khác nhau</strong> (payload vs flow) và <strong>sai theo những kiểu khác nhau</strong>. Khi hai phương pháp <em>độc lập về bản chất</em> cùng chỉ vào một mục tiêu, xác suất <strong>cả hai cùng báo nhầm y hệt</strong> là rất thấp → tín hiệu đồng thuận <strong>đáng tin cậy</strong>.</p>
+<p>Đây là cùng một tinh thần với <a href="bias-variance-ensemble.html">Bias–Variance &amp; Ensemble giảm Variance — vì sao &quot;hỏi nhiều người&quot; tốt hơn</a>: <strong>nguồn độc lập → đồng thuận có giá trị cao</strong>.</p>
+<hr>
+<h3 id="v-d-tr-c-gi-c">Ví dụ trực giác</h3>
+<p>ưu tiên cao** → đội SOC xử lý trước.</p>
+<ul><li>Một tấn công <strong>SQLi</strong>: Snort bắt qua payload; FTT có thể cũng thấy flow bất thường. → Trùng session → **confirmed,</li><li>Một <strong>DoS slow-connection</strong>: chỉ FTT bắt (Snort chưa có rule). → Single-source, vẫn báo nhưng ưu tiên vừa.</li></ul>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<ul><li><strong>Alert Aggregator</strong> gom cảnh báo từ Snort + FTT, đối chiếu theo <strong>session</strong>.</li><li>Cùng session ở <strong>cả hai nguồn</strong> → <strong>confirmed alert</strong>, ưu tiên tăng; một nguồn → vẫn ghi nhận, ưu tiên thấp hơn.</li><li>Giá trị đến từ việc hai nguồn <strong>độc lập</strong> cùng đồng thuận.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn thấy mảnh ghép cuối biến hai model rời rạc thành <strong>một hệ thống vận hành được</strong> — giảm alert fatigue và làm nổi bật cảnh báo đáng tin. Nối tiếp <a href="snort-hybrid-ids.html">Snort + FT-Transformer — hệ lai bù điểm mù cho nhau</a>.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../G-hybrid-and-limits/alert-aggregator/alert-aggregator.md">Mở file Markdown gốc</a><a class="button" href="../G-hybrid-and-limits/alert-aggregator/infographic.html">Mở infographic.html</a><a class="button" href="../G-hybrid-and-limits/alert-aggregator/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Alert Aggregator — hợp nhất cảnh báo, xác nhận chéo" src="../G-hybrid-and-limits/alert-aggregator/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

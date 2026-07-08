@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Model Surgery — &quot;ghép thêm ngăn kéo&quot; cho model không phá đồ cũ</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-violet">
+      <header class="hero">
+        <div class="eyebrow">E. Thích nghi miền · Bài #17</div>
+        <h1>Model Surgery — &quot;ghép thêm ngăn kéo&quot; cho model không phá đồ cũ</h1>
+        <p>Sang Testbed, ta phát hiện cần 3 đặc trưng mới đặc thù cho môi trường NAT (IAT_CV, Bwd_Pkt_Ratio, Pkt_Size_Ratio) để phân biệt tốt hơn. Nhưng model cũ được huấn luyện với đúng 77 đ...</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Sang Testbed, ta phát hiện cần <strong>3 đặc trưng mới</strong> đặc thù cho môi trường NAT (IAT_CV, Bwd_Pkt_Ratio, Pkt_Size_Ratio) để phân biệt tốt hơn. Nhưng model cũ được huấn luyện với đúng <strong>77 đặc trưng</strong>.</p>
+<p>Câu hỏi: làm sao <strong>mở rộng 77 → 80 đặc trưng</strong> mà <strong>không vứt bỏ toàn bộ kiến thức đã học</strong>?</p>
+<p><strong>Model Surgery (phẫu thuật mô hình)</strong> là câu trả lời: nhờ <a href="feature-tokenizer.html">Feature Tokenizer — biến mỗi con số thành một &quot;token&quot;</a> coi <strong>mỗi đặc trưng là một hàng độc lập</strong> trong ma trận embedding, ta chỉ cần <strong>ghép thêm hàng mới</strong>, giữ nguyên các hàng cũ.</p>
+<blockquote><strong>So sánh đời thường:</strong> như <strong>ghép thêm 3 ngăn kéo mới</strong> vào một cái tủ — đồ đạc trong các ngăn cũ vẫn y nguyên, chỉ có 3 ngăn mới còn trống chờ sắp đồ.</blockquote>
+<hr>
+<h3 id="c-ng-th-c-b-c-t-ng-m-nh">Công thức — bóc từng mảnh</h3>
+<pre><code>W_new^emb = [ W_old^emb  ∈ ℝ^{k×d}      ]   ∈ ℝ^{(k+Δ)×d}
+           [ W_newrows^emb ∈ ℝ^{Δ×d}    ]</code></pre>
+<p><strong>học trong fine-tuning</strong>.</p>
+<ul><li><strong><code>W_old^emb</code> (k×d)</strong> → ma trận embedding cũ của 77 đặc trưng → <strong>giữ nguyên (transplant — cấy ghép)</strong>.</li><li><strong><code>W_newrows^emb</code> (Δ×d)</strong> → <code>Δ = 3</code> hàng mới cho 3 đặc trưng NAT → <strong>khởi tạo nhỏ</strong> <code>N(0, 0,01)</code>, rồi</li><li>Tất cả tham số còn lại của model → <strong>không đổi</strong>.</li></ul>
+<blockquote><strong>Nói đơn giản:</strong> ghép 3 hàng mới (gần như bằng 0 lúc đầu để không gây sốc), rồi để chúng học dần trong lúc fine-tune. Phần cũ được bảo toàn.</blockquote>
+<hr>
+<h3 id="v-sao-kh-i-t-o-n-0-0-01-m-kh-ng-random-l-n">Vì sao khởi tạo N(0, 0.01) mà không random lớn?</h3>
+<p>Nếu 3 hàng mới khởi tạo giá trị lớn, chúng sẽ <strong>bơm nhiễu mạnh</strong> vào model đã ổn định → phá kiến thức cũ. Khởi tạo <strong>gần 0</strong> (độ lệch chuẩn 0,01) khiến 3 đặc trưng mới ban đầu <strong>gần như vô hình</strong>, rồi <em>lớn dần</em> khi model thấy chúng hữu ích.</p>
+<blockquote><strong>So sánh:</strong> người mới vào đội thì <strong>quan sát trước, phát biểu sau</strong> — không xông vào làm loạn ngay.</blockquote>
+<hr>
+<h3 id="v-d-s-k-t-qu-trong-n">Ví dụ SỐ — kết quả trong đồ án</h3>
+<p>Áp dụng Model Surgery <strong>sau</strong> <a href="layer-freezing-catastrophic-forgetting.html">Layer Freezing &amp; Catastrophic Forgetting — giữ nền, học lại phần ngọn</a>:</p>
+<div class="table-wrap"><table><thead><tr><th>Bước</th><th>MCC</th></tr></thead><tbody><tr><td>Sau Layer Freezing</td><td>0,6825</td></tr><tr><td><strong>+ Model Surgery (77→80)</strong></td><td><strong>0,7333</strong></td></tr></tbody></table></div>
+<p>→ Thêm 3 đặc trưng NAT đúng chỗ giúp MCC tăng <strong>+0,05</strong> — bằng chứng các đặc trưng mới thực sự mang thông tin phân biệt mà 77 đặc trưng gốc thiếu.</p>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<p><strong>giữ nguyên</strong> các hàng cũ (transplant).</p>
+<ul><li><strong>Model Surgery</strong> mở rộng Feature Tokenizer <code>k → k+Δ</code> bằng cách <strong>ghép thêm Δ hàng mới</strong> (init <code>N(0,0.01)</code>),</li><li>Nhờ mỗi đặc trưng là một hàng độc lập, việc này <strong>không phá kiến thức đã học</strong>.</li><li>Trong đồ án: <code>77 → 80</code> với 3 đặc trưng NAT → MCC <strong>0,6825 → 0,7333</strong>.</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Đây lại là kỹ thuật <strong>chỉ FT-Transformer làm được</strong> (RF/XGBoost không). Cùng với <a href="layer-freezing-catastrophic-forgetting.html">Layer Freezing &amp; Catastrophic Forgetting — giữ nền, học lại phần ngọn</a>, nó tạo nên bộ đôi thích nghi miền của đồ án.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../E-transfer-domain-adaptation/model-surgery/model-surgery.md">Mở file Markdown gốc</a><a class="button" href="../E-transfer-domain-adaptation/model-surgery/infographic.html">Mở infographic.html</a><a class="button" href="../E-transfer-domain-adaptation/model-surgery/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Model Surgery — "ghép thêm ngăn kéo" cho model không phá đồ cũ" src="../E-transfer-domain-adaptation/model-surgery/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

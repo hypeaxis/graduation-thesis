@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Snort + FT-Transformer — hệ lai bù điểm mù cho nhau</title>
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/layout.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/cards.css">
+  <link rel="stylesheet" href="assets/detail.css">
+  <link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+  
+    <div class="shell accent-slate">
+      <header class="hero">
+        <div class="eyebrow">G. Hệ lai &amp; giới hạn · Bài #26</div>
+        <h1>Snort + FT-Transformer — hệ lai bù điểm mù cho nhau</h1>
+        <p>Không một phương pháp nào bắt được mọi kiểu tấn công. Đồ án ghép hai hướng đối lập để chúng che điểm mù cho nhau:</p>
+        <div class="stats">
+          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
+          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
+          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
+        </div>
+      </header>
+      <main class="grid detail-layout">
+        <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
+<p>Không một phương pháp nào bắt được <strong>mọi</strong> kiểu tấn công. Đồ án ghép <strong>hai hướng đối lập</strong> để chúng che điểm mù cho nhau:</p>
+<ul><li><strong>Snort</strong> — hệ <strong>dựa luật (rule-based)</strong>, soi ở tầng <strong>gói tin (packet: payload + header)</strong>.</li><li><strong>FT-Transformer</strong> — hệ <strong>học máy (ML-based)</strong>, soi ở tầng <strong>flow (thống kê 5-tuple)</strong>.</li></ul>
+<blockquote><strong>So sánh đời thường:</strong> như phối hợp <strong>chó nghiệp vụ đánh hơi</strong> (Snort — nhận ra <em>mùi đã biết</em> cực nhanh, cực chính xác) với <strong>camera AI phân tích hành vi</strong> (FTT — phát hiện <em>bất thường mới lạ</em> chưa có trong danh sách). Mỗi bên giỏi một kiểu.</blockquote>
+<hr>
+<h3 id="so-s-nh-hai-h-ng-b-c-t-ng-m-nh">So sánh hai hướng — bóc từng mảnh</h3>
+<div class="table-wrap"><table><thead><tr><th>Tiêu chí</th><th>Snort (rule-based)</th><th>FT-Transformer (ML-based)</th></tr></thead><tbody><tr><td>Tầng phân tích</td><td>Packet (payload + header)</td><td>Flow (thống kê 5-tuple)</td></tr><tr><td>Độ trễ</td><td>Microsecond (real-time)</td><td>Vài giây (near-realtime)</td></tr><tr><td>Tấn công <strong>đã biết</strong></td><td>Rất tốt</td><td>Tốt</td></tr><tr><td>Tấn công <strong>chưa có luật</strong></td><td><strong>Không</strong></td><td><strong>Có</strong></td></tr><tr><td>Traffic <strong>mã hoá</strong></td><td><strong>Không</strong> (cần đọc payload)</td><td><strong>Có</strong> (chỉ dùng metadata)</td></tr><tr><td>Nhạy <strong>covariate shift</strong></td><td>Không</td><td>Có</td></tr></tbody></table></div>
+<p>→ Nhìn bảng thấy rõ: <strong>chỗ Snort mù thì FTT sáng, và ngược lại</strong>.</p>
+<hr>
+<h3 id="v-sao-k-t-h-p-thay-v-ch-n-m-t">Vì sao KẾT HỢP thay vì chọn một?</h3>
+<p>Ba ví dụ bổ sung điển hình:</p>
+<p>slow-rate DoS đó.</p>
+<ul><li><strong>Snort bắt XSS/SQLi</strong> qua payload HTTP body → FTT bỏ sót (vì flow statistics giống Benign HTTP bình thường).</li><li><strong>FTT bắt DoS slow-connection</strong> qua flow duration và IAT bất thường → Snort bỏ sót nếu chưa có rule cho</li><li><strong>FTT bắt BruteForce SSH</strong> qua số kết nối TCP thất bại → Snort bỏ sót nếu công cụ tấn công không khớp signature.</li></ul>
+<blockquote><strong>Nói đơn giản:</strong> Snort mạnh ở &quot;đã biết mặt điểm tên&quot;, FTT mạnh ở &quot;ngửi thấy điều bất thường lạ&quot;. Gộp lại mới phủ được cả hai loại.</blockquote>
+<hr>
+<h3 id="ki-n-tr-c-ch-y-song-song">Kiến trúc chạy song song</h3>
+<p>Hai thành phần chạy <strong>độc lập, song song</strong> trên cùng một luồng traffic:</p>
+<pre><code>Traffic → interface ┬─▶ Snort (packet-level, real-time)         ─┐
+                    └─▶ tcpdump → CICFlowMeter → PowerTransformer → FTT ─┴─▶ Alert Aggregator → Dashboard</code></pre>
+<p>Kết quả từ hai nguồn được <a href="alert-aggregator.html">Alert Aggregator — hợp nhất cảnh báo, xác nhận chéo</a> hợp nhất.</p>
+<hr>
+<h3 id="t-m-l-i">Tóm lại</h3>
+<p><strong>song song, độc lập</strong>.</p>
+<p>công chưa có luật.</p>
+<ul><li><strong>Hệ lai</strong> = <strong>Snort</strong> (rule-based, packet, đã biết, real-time) + <strong>FTT</strong> (ML, flow, chưa biết, mã hoá) chạy</li><li>Kết hợp vì <strong>điểm mù bù nhau</strong>: Snort bắt XSS/SQLi (payload); FTT bắt DoS chậm &amp; BruteForce (flow) và tấn</li></ul>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn giải thích được <strong>triết lý thiết kế tổng thể</strong> của đồ án — không tôn thờ một phương pháp, mà ghép để phủ điểm mù. Đầu ra hợp nhất bởi <a href="alert-aggregator.html">Alert Aggregator — hợp nhất cảnh báo, xác nhận chéo</a>; giới hạn còn lại nằm ở <a href="static-flow-limits-temporal.html">Giới hạn của flow tĩnh — Infiltration &amp; Botnet cần phân tích THỜI GIAN</a>.</p></article>
+        <aside class="panel detail-visual">
+          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../G-hybrid-and-limits/snort-hybrid-ids/snort-hybrid-ids.md">Mở file Markdown gốc</a><a class="button" href="../G-hybrid-and-limits/snort-hybrid-ids/infographic.html">Mở infographic.html</a><a class="button" href="../G-hybrid-and-limits/snort-hybrid-ids/infographic.png">Mở infographic.png</a></div>
+          <div class="visual-frame"><img class="visual-image" alt="Snort + FT-Transformer — hệ lai bù điểm mù cho nhau" src="../G-hybrid-and-limits/snort-hybrid-ids/infographic.png"></div>
+          <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
+        </aside>
+      </main>
+    </div>
+    
+</body>
+</html>

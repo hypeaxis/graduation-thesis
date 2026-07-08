@@ -1,0 +1,144 @@
+.shell {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.hero {
+  background: var(--hero);
+  border: 1px solid rgba(255,255,255,.45);
+  box-shadow: var(--shadow);
+  border-radius: 28px;
+  padding: 28px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.65);
+  border: 1px solid rgba(34,48,64,.08);
+  font: 600 12px/1.1 "Segoe UI", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  color: var(--muted);
+}
+
+.grid {
+  display: grid;
+  gap: 22px;
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,.55);
+  box-shadow: var(--shadow);
+  border-radius: 24px;
+}
+
+.index-layout {
+  grid-template-columns: 320px minmax(0, 1fr);
+  margin-top: 24px;
+  align-items: start;
+}
+
+.sidebar {
+  position: sticky;
+  top: 18px;
+  padding: 22px;
+}
+
+.content {
+  padding: 24px;
+}
+
+.section {
+  margin-top: 10px;
+}
+
+.section + .section {
+  margin-top: 28px;
+}
+
+.section-header {
+  display: flex;
+  gap: 16px;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.detail-layout {
+  grid-template-columns: minmax(0, 1.06fr) minmax(380px, .94fr);
+  margin-top: 24px;
+  align-items: start;
+}
+
+.detail-copy,
+.detail-visual {
+  padding: 24px;
+}
+
+.visual-frame {
+  border-radius: 22px;
+  overflow: hidden;
+  background: #faf7f0;
+  border: 1px solid rgba(34,48,64,.12);
+  min-height: 760px;
+}
+
+.visual-image {
+  width: 100%;
+  display: block;
+  height: auto;
+}
+
+iframe {
+  width: 100%;
+  min-height: 760px;
+  border: 0;
+  background: #fff;
+}
+
+@media (max-width: 1080px) {
+  .index-layout,
+  .detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 720px) {
+  .shell {
+    padding: 16px;
+  }
+
+  .hero,
+  .content,
+  .sidebar,
+  .detail-copy,
+  .detail-visual {
+    padding: 18px;
+  }
+
+  .hero h1 {
+    max-width: none;
+  }
+
+  .visual-frame,
+  iframe {
+    min-height: 560px;
+  }
+}

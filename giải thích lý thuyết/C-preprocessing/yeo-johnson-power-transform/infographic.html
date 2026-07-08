@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yeo-Johnson Power Transform — Tự học</title>
+<style>
+  :root{
+    --bg:#FBF8F1; --ink:#2B3A55;
+    --panel-1:#E8F5E9; --panel-2:#E3F2FD; --panel-3:#F3E5F5; --panel-4:#FFF0E6;
+    --accent-yellow:#FFF6D6; --border:#D9D2C5; --good:#2E7D32; --bad:#C62828;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#EFEAE0;padding:28px;
+    font-family:'Quicksand','Segoe UI',system-ui,sans-serif;line-height:1.5;color:var(--ink);}
+  .ig{background:var(--bg);border-radius:16px;padding:32px;max-width:900px;margin:0 auto;
+    box-shadow:0 6px 24px rgba(43,58,85,.08);
+    background-image:linear-gradient(var(--border) 1px,transparent 1px);
+    background-size:100% 30px;background-position:0 90px;}
+  h1{text-align:center;font-size:28px;margin:0 0 4px;}
+  .sub{text-align:center;font-size:15px;opacity:.8;margin-bottom:22px;}
+  .formula{background:#fff;border:2px solid var(--ink);border-radius:12px;
+    padding:16px 18px;text-align:center;margin:0 auto 12px;max-width:680px;
+    font-family:'Cambria Math','Georgia',serif;}
+  .formula .lbl{font-size:13px;font-weight:700;opacity:.7;letter-spacing:.5px;
+    font-family:'Quicksand',sans-serif;margin-bottom:6px;}
+  .formula .eq{font-size:19px;margin:4px 0;}
+  .formula .cond{opacity:.6;font-size:14px;}
+  .split{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px;}
+  .split .formula{flex:1;min-width:280px;margin:0;}
+  .row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+  .panel{flex:1;min-width:180px;border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .p1{background:var(--panel-1);} .p2{background:var(--panel-2);}
+  .p3{background:var(--panel-3);} .p4{background:var(--panel-4);}
+  .panel h3{margin:0 0 8px;font-size:16px;}
+  .panel p{margin:0;font-size:14px;}
+  .big{font-size:22px;font-weight:700;display:block;margin-bottom:2px;}
+  .example{background:var(--accent-yellow);border:1px solid var(--border);
+    border-radius:12px;padding:18px;margin-bottom:20px;}
+  .example h3{margin:0 0 10px;font-size:16px;}
+  .example table{border-collapse:collapse;width:100%;font-size:14px;}
+  .example td{padding:6px 10px;border-bottom:1px dashed var(--border);}
+  .example td:first-child{font-family:'Cambria Math',serif;}
+  .good{color:var(--good);font-weight:700;} .bad{color:var(--bad);font-weight:700;}
+  .flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;
+    background:#fff;border:1px dashed var(--border);border-radius:12px;padding:16px;margin-bottom:20px;}
+  .flow .box{background:var(--panel-2);border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;}
+  .flow .arrow{opacity:.55;font-size:18px;}
+  .callout{background:#fff;border-left:5px solid var(--panel-3);border-radius:10px;
+    padding:16px 18px;margin-bottom:14px;font-size:15px;}
+  .kicker{text-align:center;font-weight:700;color:var(--bad);margin-top:8px;font-size:16px;}
+  code{background:rgba(43,58,85,.06);padding:1px 5px;border-radius:5px;font-size:13px;}
+</style>
+</head>
+<body>
+<div class="ig">
+  <h1>✦ Yeo-Johnson Power Transform ✦</h1>
+  <div class="sub">Nắn dữ liệu <b>lệch (skewed)</b> về gần <b>hình chuông (Gaussian)</b> bằng cách nâng lên mũ&nbsp;λ</div>
+
+  <div class="split">
+    <div class="formula">
+      <div class="lbl">KHI y ≥ 0</div>
+      <div class="eq">ψ = ((y+1)<sup>λ</sup> − 1) / λ</div>
+      <div class="cond">và ψ = ln(y+1) nếu λ = 0</div>
+    </div>
+    <div class="formula">
+      <div class="lbl">KHI y &lt; 0</div>
+      <div class="eq">ψ = −((−y+1)<sup>2−λ</sup> − 1) / (2−λ)</div>
+      <div class="cond">và ψ = −ln(−y+1) nếu λ = 2</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="panel p1">
+      <h3>1. Vấn đề</h3>
+      <p>Dữ liệu mạng (byte, packet, duration) <b>lệch phải</b>: đa số nhỏ, vài giá trị cực to kéo méo mọi thứ.</p>
+    </div>
+    <div class="panel p2">
+      <h3>2. Ý tưởng</h3>
+      <p><b>Power = lũy thừa.</b> Nâng lên mũ <b>λ</b> để bẻ cong thước đo — như thang <b>log Richter / decibel</b>.</p>
+    </div>
+    <div class="panel p3">
+      <h3>3. Hơn Box-Cox</h3>
+      <p>Box-Cox chỉ ăn số dương. Yeo-Johnson nuốt được cả <b>số 0 và số âm</b> — 2 nhánh nối mượt tại 0.</p>
+    </div>
+    <div class="panel p4">
+      <h3>4. Chọn λ</h3>
+      <p>Máy tự dò bằng <b>MLE</b>: thử nhiều λ, giữ cái làm dữ liệu <b>giống chuông nhất</b>. Bạn không chỉnh tay.</p>
+    </div>
+  </div>
+
+  <div class="example">
+    <h3>🔢 Ví dụ: feature "số byte" lệch nặng — cho λ = 0 (dùng ln(y+1))</h3>
+    <table>
+      <tr><td>gốc: 1</td><td>→ ln(2) = <span class="good">0.69</span></td></tr>
+      <tr><td>gốc: 2</td><td>→ ln(3) = <span class="good">1.10</span></td></tr>
+      <tr><td>gốc: 10</td><td>→ ln(11) = <span class="good">2.40</span></td></tr>
+      <tr><td>gốc: 1000</td><td>→ ln(1001) = <span class="good">6.91</span></td></tr>
+    </table>
+    <p style="margin:10px 0 0;font-size:14px;">Khoảng cách <span class="bad">10 → 1000</span> (cách 990)
+      bị kéo còn <span class="good">2.40 → 6.91</span> (cách 4.5). Cái đuôi khổng lồ được kéo về gần → bớt lệch.</p>
+  </div>
+
+  <div class="flow">
+    <span class="box">Dữ liệu lệch</span><span class="arrow">→</span>
+    <span class="box">Nâng mũ λ</span><span class="arrow">→</span>
+    <span class="box">MLE dò λ tốt nhất</span><span class="arrow">→</span>
+    <span class="box">Standardize (μ=0, σ=1)</span><span class="arrow">→</span>
+    <span class="box">Gần hình chuông ✓</span>
+  </div>
+
+  <div class="callout">💡 <b>Ý nghĩa:</b> đừng học thuộc đống ký hiệu — nhớ đúng một câu:
+    <i>"nâng y lên mũ λ một cách an toàn cho cả số âm/0/dương, và tự dò λ để dữ liệu cân đối nhất"</i>.
+    Trong <code>sklearn</code>: <code>PowerTransformer(method='yeo-johnson')</code> — nhớ <b>fit chỉ trên train</b> để tránh data leakage.</div>
+
+  <div class="kicker">Đơn giản nhưng cực kỳ mạnh cho tiền xử lý!</div>
+</div>
+</body>
+</html>

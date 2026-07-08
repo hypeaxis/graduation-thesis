@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bias-Variance & Ensemble — Tự học</title>
+<style>
+  :root{--bg:#FBF8F1;--ink:#2B3A55;--panel-1:#E8F5E9;--panel-2:#E3F2FD;--panel-3:#F3E5F5;--panel-4:#FFF0E6;
+    --accent-yellow:#FFF6D6;--border:#D9D2C5;--good:#2E7D32;--bad:#C62828;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:#EFEAE0;padding:28px;font-family:'Quicksand','Segoe UI',system-ui,sans-serif;line-height:1.5;color:var(--ink);}
+  .ig{background:var(--bg);border-radius:16px;padding:32px;max-width:900px;margin:0 auto;box-shadow:0 6px 24px rgba(43,58,85,.08);
+    background-image:linear-gradient(var(--border) 1px,transparent 1px);background-size:100% 30px;background-position:0 96px;}
+  h1{text-align:center;font-size:25px;margin:0 0 4px;} .sub{text-align:center;font-size:15px;opacity:.8;margin-bottom:22px;}
+  .formula{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:16px 18px;text-align:center;margin:0 auto 20px;max-width:640px;font-family:'Cambria Math','Georgia',serif;font-size:19px;}
+  .row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+  .panel{flex:1;min-width:200px;border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .p1{background:var(--panel-1);}.p2{background:var(--panel-2);}.p3{background:var(--panel-3);}.p4{background:var(--panel-4);}
+  .panel h3{margin:0 0 8px;font-size:15px;} .panel p{margin:0;font-size:14px;}
+  .example{background:var(--accent-yellow);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px;}
+  .example h3{margin:0 0 8px;font-size:16px;} .good{color:var(--good);font-weight:700;} .bad{color:var(--bad);font-weight:700;}
+  table{border-collapse:collapse;width:100%;font-size:14px;} td{padding:6px 10px;border-bottom:1px dashed var(--border);}
+  .callout{background:#fff;border-left:5px solid var(--panel-1);border-radius:10px;padding:16px 18px;margin-bottom:14px;font-size:15px;}
+  .kicker{text-align:center;font-weight:700;color:var(--bad);margin-top:8px;font-size:16px;}
+  code{background:rgba(43,58,85,.06);padding:1px 5px;border-radius:5px;font-size:13px;}
+</style>
+</head>
+<body>
+<div class="ig">
+  <h1>✦ Bias-Variance: vì sao "hỏi nhiều người" tốt hơn ✦</h1>
+  <div class="sub">Ensemble giảm <b>Variance</b> — nhưng chỉ khi các model sai trên mẫu <b>khác nhau</b></div>
+
+  <div class="formula">Var(f̄) = (σ² / M) · [ 1 + (M − 1)·ρ ]</div>
+
+  <div class="row">
+    <div class="panel p1"><h3>Bias (chệch)</h3><p>Sai <b>hệ thống</b> — model quá đơn giản. "Bắn lệch tâm đều đều".</p></div>
+    <div class="panel p2"><h3>Variance (tản)</h3><p>Quá nhạy với tập train (overfit). "Bắn tản mát". Ensemble <b>gom về tâm</b>.</p></div>
+    <div class="panel p3"><h3>ρ = yếu tố quyết định</h3><p>Mức các model <b>cùng sai giống nhau</b>. ρ thấp → gộp mới có lợi.</p></div>
+  </div>
+
+  <div class="example">
+    <h3>🔢 σ²=1, M=3 mô hình</h3>
+    <table>
+      <tr><td>ρ = 0 (độc lập)</td><td class="good">Var = 0,33 → giảm 3 lần ✓</td></tr>
+      <tr><td>ρ = 0,3</td><td>Var = 0,53 → vẫn giảm tốt</td></tr>
+      <tr><td>ρ = 1 (giống hệt)</td><td class="bad">Var = 1 → KHÔNG giảm gì</td></tr>
+    </table>
+  </div>
+
+  <div class="callout">💡 <b>Kết luận vàng:</b> để ensemble hiệu quả, các model phải <b>sai trên mẫu KHÁC nhau</b> (ρ thấp).
+    Hỏi 10 người <b>độc lập</b> → tin được; hỏi 10 người <b>cùng phe</b> → cùng sai một kiểu → vô ích.
+    Đồ án chọn <b>FTT + RF + KNN</b> để ép ρ thấp.</div>
+
+  <div class="kicker">Gộp 100 bản sao vẫn chỉ như 1!</div>
+</div>
+</body>
+</html>
