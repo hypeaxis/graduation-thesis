@@ -46,7 +46,6 @@ class HtmlTemplates:
                   <span class=\"badge\">#{theory.order} · {html.escape(theory.section.label)}</span>
                   <h3>{html.escape(theory.title)}</h3>
                   <p>{html.escape(theory.summary)}</p>
-                  <div class=\"meta\">Mở trang đọc 2 cột: văn bản + infographic</div>
                 </a>
                 """
                 )
@@ -101,29 +100,16 @@ class HtmlTemplates:
         infographic_html_href: str | None,
         infographic_png_href: str | None,
     ) -> str:
-        action_links = [f'<a class="button primary" href="index.html">Quay lại trang tổng hợp</a>']
-        action_links.append(f'<a class="button" href="{html.escape(source_md)}">Mở file Markdown gốc</a>')
-        if infographic_html_href:
-            action_links.append(f'<a class="button" href="{html.escape(infographic_html_href)}">Mở infographic.html</a>')
-        if infographic_png_href:
-            action_links.append(f'<a class="button" href="{html.escape(infographic_png_href)}">Mở infographic.png</a>')
-
         body = f"""
     <div class=\"shell accent-{theory.section.theme}\">
       <header class=\"hero\">
         <div class=\"eyebrow\">{html.escape(theory.section.label)} · Bài #{theory.order}</div>
         <h1>{html.escape(theory.title)}</h1>
         <p>{html.escape(theory.summary)}</p>
-        <div class=\"stats\">
-          <div class=\"stat\"><strong>Văn bản</strong><span class=\"muted\">Render từ Markdown gốc</span></div>
-          <div class=\"stat\"><strong>Infographic</strong><span class=\"muted\">Mở song song ở cột phải</span></div>
-          <div class=\"stat\"><strong>Nguồn gốc</strong><span class=\"muted\">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class=\"grid detail-layout\">
         <article class=\"panel detail-copy\">{rendered_markdown}</article>
         <aside class=\"panel detail-visual\">
-          <div class=\"visual-actions\">{''.join(action_links)}</div>
           <div class=\"visual-frame\">{visual_html}</div>
           <p class=\"footer-note\">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

@@ -18,11 +18,6 @@
         <div class="eyebrow">E. Thích nghi miền · Bài #18</div>
         <h1>Scaler–Embedding Coupling — vì sao &quot;đổi mỗi scaler&quot; lại thất bại</h1>
         <p>Khi gặp covariate-shift, ý tưởng đầu tiên rất tự nhiên: &quot;Phân phối đổi thì mình fit lại scaler (PowerTransformer) trên Testbed là xong!&quot;. Nghe hợp lý — nhưng thực nghiệm cho kết qu...</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -50,9 +45,13 @@
 <hr>
 <h3 id="t-m-l-i">Tóm lại</h3>
 <ul><li>FTT = <strong>scaler <code>f_CIC</code> + embedding <code>g_CIC</code></strong> học cùng nhau; <code>g</code> kỳ vọng đúng phân phối mà <code>f</code> tạo ra.</li><li><strong>Re-fit Scaler đơn lẻ</strong> tạo <strong>mâu thuẫn nội bộ</strong> (embedding đọc sai khoảng giá trị) → Accuracy 21,93% → 6,87%.</li><li><strong>Nguyên tắc:</strong> đổi scaler phải <strong>đồng thời</strong> với việc cập nhật (một phần) tham số model.</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn giải thích được một kết quả <em>phản trực giác</em> trong luận văn — vì sao một bước tưởng &quot;hiển nhiên đúng&quot; lại làm hỏng, và vì sao <a href="layer-freezing-catastrophic-forgetting.html">Layer Freezing &amp; Catastrophic Forgetting — giữ nền, học lại phần ngọn</a> mới là lời giải.</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn giải thích được một kết quả <em>phản trực giác</em> trong luận văn — vì sao một bước tưởng &quot;hiển nhiên đúng&quot; lại làm hỏng, và vì sao <a href="layer-freezing-catastrophic-forgetting.html">Layer Freezing &amp; Catastrophic Forgetting — giữ nền, học lại phần ngọn</a> mới là lời giải.</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>Thử refit scaler đơn lẻ (thất bại)</td><td><code>Final/03_Testbed_Retrain/retrain/domain_adaptation/1_refit_scaler_test.py</code></td></tr><tr><td>So với đổi đồng thời (freeze + fine-tune)</td><td><code>Final/03_Testbed_Retrain/retrain/domain_adaptation/2_finetune_freeze.py</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> refit scaler mà giữ nguyên embedding → Accuracy rơi (21,93% → 6,87%) là <strong>bằng chứng coupling</strong>; giải pháp là đổi scaler + fine-tune tầng cao đồng thời.</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../E-transfer-domain-adaptation/scaler-embedding-coupling/scaler-embedding-coupling.md">Mở file Markdown gốc</a><a class="button" href="../E-transfer-domain-adaptation/scaler-embedding-coupling/infographic.html">Mở infographic.html</a><a class="button" href="../E-transfer-domain-adaptation/scaler-embedding-coupling/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="Scaler–Embedding Coupling — vì sao "đổi mỗi scaler" lại thất bại" src="../E-transfer-domain-adaptation/scaler-embedding-coupling/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

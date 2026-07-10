@@ -59,3 +59,16 @@ Khi có nhiều mô hình cùng dự đoán, cách đơn giản là **bỏ phi�
 
 **Hiểu cái này thì làm được gì?** Bạn phân biệt được **Stacking** (có meta-learner, dùng ở NSL-KDD Stage 2) với
 **Voting** ([[asymmetric-cost-sensitive-voting]], dùng ở CIC) — hai cách ghép mô hình khác nhau trong cùng đồ án.
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Meta-learner LR trên [p_lgbm ‖ p_ftt] | `Final/01_NSL_KDD/src/training/stacking_ensemble.py:127` |
+| LogisticRegression làm meta | `Final/01_NSL_KDD/src/training/stacking_ensemble.py:133` |
+
+**Khi phản biện:** meta-learner là `LogisticRegression(class_weight='balanced')`, học trên tập **val** từ vector xác suất của các base model.

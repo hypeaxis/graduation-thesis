@@ -18,11 +18,6 @@
         <div class="eyebrow">D. Xử lý mất cân bằng · Bài #9</div>
         <h1>Cross-Entropy Loss — và vì sao nó &quot;đuối&quot; khi dữ liệu lệch</h1>
         <p>Khi model phân loại, ta cần một cách đo model sai bao nhiêu để mà sửa. Cross-Entropy (CE — entropy chéo) là hàm mất mát (loss) tiêu chuẩn cho bài toán phân loại: nó phạt nặng khi m...</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -51,9 +46,13 @@ Tổng gradient BruteForce ∝ 10   × (−log 0,40) ≈ 10   × 0,916 = 9,16</c
 <h3 id="t-m-l-i">Tóm lại</h3>
 <p>(Benign áp đảo BruteForce 5,6:1 dù mỗi mẫu hiếm quan trọng hơn).</p>
 <ul><li>Cross-Entropy = <code>−log(p_t)</code>, phạt theo &quot;mức ngạc nhiên&quot; khi đoán sai nhãn đúng.</li><li><strong>Điểm yếu:</strong> khi dữ liệu lệch, <strong>rất nhiều mẫu dễ của lớp đông</strong> cộng dồn gradient, <strong>át</strong> lớp hiếm</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn thấy rõ <em>gốc rễ</em> của vấn đề mất cân bằng nằm ở <strong>gradient</strong>, từ đó hiểu vì sao <a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a> (thêm hệ số hạ trọng số mẫu dễ) lại là liều thuốc đúng bệnh — chứ không phải cứ đổi kiến trúc model.</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn thấy rõ <em>gốc rễ</em> của vấn đề mất cân bằng nằm ở <strong>gradient</strong>, từ đó hiểu vì sao <a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a> (thêm hệ số hạ trọng số mẫu dễ) lại là liều thuốc đúng bệnh — chứ không phải cứ đổi kiến trúc model.</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>CE = trường hợp γ=0 của FocalLoss</td><td><code>Final/01_NSL_KDD/src/models/phase2_ft_transformer.py:10</code></td></tr><tr><td>log_softmax + gather(log_pt)</td><td><code>Final/01_NSL_KDD/src/models/phase2_ft_transformer.py:31</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> code dùng <code>log_softmax</code> nội bộ (ổn định số học); <code>p_t</code> lấy bằng <code>gather</code> tại nhãn đúng — đúng như phân tích gradient.</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../D-imbalance-handling/cross-entropy/cross-entropy.md">Mở file Markdown gốc</a><a class="button" href="../D-imbalance-handling/cross-entropy/infographic.html">Mở infographic.html</a><a class="button" href="../D-imbalance-handling/cross-entropy/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="Cross-Entropy Loss — và vì sao nó "đuối" khi dữ liệu lệch" src="../D-imbalance-handling/cross-entropy/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

@@ -18,11 +18,6 @@
         <div class="eyebrow">D. Xử lý mất cân bằng · Bài #13</div>
         <h1>Weighted Random Sampling — &quot;bốc thăm thiên vị&quot; lớp hiếm</h1>
         <p>Còn một cách nữa để chống mất cân bằng, khác cả loss (focal-loss) lẫn tạo mẫu (smote-smote-enn): thay đổi tần suất mỗi mẫu được đưa vào batch huấn luyện.</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -49,9 +44,13 @@
 <hr>
 <h3 id="t-m-l-i">Tóm lại</h3>
 <ul><li>Weighted Random Sampling cho <strong>mỗi mẫu một trọng số</strong> (<code>w_i = N/(K·n_c)</code>) để <strong>lớp hiếm được bốc ra nhiều hơn</strong>.</li><li>Biến thể V8.5 <strong>khai căn + clip [0,5; 2,0]</strong> để thiên vị <em>có chừng mực</em>, tránh cực đoan.</li><li>Can thiệp ở <strong>tầng dữ liệu</strong>, bổ sung (không thay thế) <a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a> ở tầng loss.</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn phân biệt được <strong>ba tầng chống mất cân bằng</strong> — dữ liệu (sampling/SMOTE), loss (Focal/CB), và boundary (<a href="hard-negative-mining.html">Hard Negative Mining — chỉ ôn lại những câu làm SAI</a>) — và biết chúng phối hợp thế nào trong đồ án.</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn phân biệt được <strong>ba tầng chống mất cân bằng</strong> — dữ liệu (sampling/SMOTE), loss (Focal/CB), và boundary (<a href="hard-negative-mining.html">Hard Negative Mining — chỉ ôn lại những câu làm SAI</a>) — và biết chúng phối hợp thế nào trong đồ án.</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>WeightedRandomSampler (w = 1/class_counts)</td><td><code>Final/01_NSL_KDD/src/training/train_ft_transformer_nslkdd.py:289</code></td></tr><tr><td>Biến thể V8.5 (√ + clip)</td><td><code>Final/03_Testbed_Retrain/retrain/v8/v8.5_Combined/v8_5_train.py</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> NSL-KDD dùng inverse-frequency đơn giản (<code>1/class_counts</code>); V8.5 dùng biến thể <strong>làm mượt (√) + clip [0,5; 2,0]</strong>.</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../D-imbalance-handling/weighted-random-sampling/weighted-random-sampling.md">Mở file Markdown gốc</a><a class="button" href="../D-imbalance-handling/weighted-random-sampling/infographic.html">Mở infographic.html</a><a class="button" href="../D-imbalance-handling/weighted-random-sampling/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="Weighted Random Sampling — "bốc thăm thiên vị" lớp hiếm" src="../D-imbalance-handling/weighted-random-sampling/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

@@ -64,3 +64,16 @@ không tăng bao nhiêu.
 **Hiểu cái này thì làm được gì?** Bạn biết SMOTE là *lựa chọn phía dữ liệu*, và hiểu vì sao với các lớp siêu
 hiếm nó không phải "viên đạn bạc" — một lý do đồ án nghiêng về giải pháp phía loss ([[focal-loss]]) và
 [[hard-negative-mining]].
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| SMOTE / ADASYN oversampling | `Final/01_NSL_KDD/src/data_processing/improved_data_pipeline.py:220` |
+| LightGBM + SMOTE | `Final/01_NSL_KDD/src/training/train_lgbm_v15_smote_gp.py` |
+
+**Khi phản biện:** `k_neighbors` tự co lại theo lớp nhỏ nhất (`effective_k`) để không lỗi khi lớp quá hiếm — đúng cảnh báo 'U2R 52 mẫu' trong lý thuyết.

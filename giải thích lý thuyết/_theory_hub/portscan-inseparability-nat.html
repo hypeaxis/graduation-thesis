@@ -18,11 +18,6 @@
         <div class="eyebrow">G. Hệ lai &amp; giới hạn · Bài #28</div>
         <h1>PortScan không phân tách dưới NAT — giới hạn của DỮ LIỆU, không phải model</h1>
         <p>Đây là một trong những bài học sâu sắc nhất của đồ án: có những thất bại không thể sửa bằng thuật toán, vì gốc rễ nằm ở cách dữ liệu được thu thập.</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -50,9 +45,13 @@
 <p>→ giống hệt Benign.</p>
 <p>dữ liệu surrogate (CIC PortScan) → F1 100%.</p>
 <ul><li>PortScan <strong>tách được</strong> trên CIC nhưng <strong>không phân tách</strong> dưới WSL2 vì <strong>NAT gộp flow, đổi timing/duration</strong></li><li><strong>Nhiều thuật toán cùng thất bại</strong> = bằng chứng vấn đề ở <strong>dữ liệu thu thập</strong>, không phải model. Giải pháp:</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn nắm một nguyên tắc chẩn đoán vàng: <strong>khi mọi model đều tịt như nhau, hãy nghi ngờ dữ liệu, không phải thuật toán</strong>. Liên hệ <a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a> (vô ích ở đây) và <a href="hard-negative-mining.html">Hard Negative Mining — chỉ ôn lại những câu làm SAI</a> (cũng bó tay khi không phân tách).</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn nắm một nguyên tắc chẩn đoán vàng: <strong>khi mọi model đều tịt như nhau, hãy nghi ngờ dữ liệu, không phải thuật toán</strong>. Liên hệ <a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a> (vô ích ở đây) và <a href="hard-negative-mining.html">Hard Negative Mining — chỉ ôn lại những câu làm SAI</a> (cũng bó tay khi không phân tách).</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>Tiêm CIC PortScan – gộp dataset</td><td><code>Final/03_Testbed_Retrain/retrain/v8/v8.3_Feature_Engineering/huong2_inject_cic_portscan/combine_datasets.py</code></td></tr><tr><td>Khớp đặc trưng CIC→Testbed</td><td><code>Final/03_Testbed_Retrain/retrain/v8/v8.3_Feature_Engineering/huong2_inject_cic_portscan/feature_mapper.py</code></td></tr><tr><td>Train với surrogate data</td><td><code>Final/03_Testbed_Retrain/retrain/v8/v8.3_Feature_Engineering/huong2_inject_cic_portscan/v8_3_train_huong2.py</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> giải pháp là <strong>dữ liệu surrogate</strong> (tiêm PortScan từ CIC), đưa F1 lên ~100% — không phải chỉnh thuật toán. Bằng chứng lỗi nằm ở dữ liệu, không phải model.</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../G-hybrid-and-limits/portscan-inseparability-nat/portscan-inseparability-nat.md">Mở file Markdown gốc</a><a class="button" href="../G-hybrid-and-limits/portscan-inseparability-nat/infographic.html">Mở infographic.html</a><a class="button" href="../G-hybrid-and-limits/portscan-inseparability-nat/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="PortScan không phân tách dưới NAT — giới hạn của DỮ LIỆU, không phải model" src="../G-hybrid-and-limits/portscan-inseparability-nat/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

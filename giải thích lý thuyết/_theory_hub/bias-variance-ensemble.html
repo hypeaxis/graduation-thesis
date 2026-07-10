@@ -18,11 +18,6 @@
         <div class="eyebrow">F. Ensemble &amp; hệ thống · Bài #22</div>
         <h1>Bias–Variance &amp; Ensemble giảm Variance — vì sao &quot;hỏi nhiều người&quot; tốt hơn</h1>
         <p>Vì sao gộp nhiều mô hình (ensemble) lại tốt hơn một mô hình? Câu trả lời nằm ở phân rã Bias–Variance và một điều kiện cốt lõi: các mô hình phải sai trên những mẫu khác nhau.</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -55,9 +50,13 @@
 <hr>
 <h3 id="t-m-l-i">Tóm lại</h3>
 <ul><li>Lỗi = <strong>Bias² + Variance + nhiễu</strong>; ensemble chủ yếu <strong>giảm Variance</strong>.</li><li><code>Var(f̄) = (σ²/M)[1 + (M−1)ρ]</code> → chỉ giảm mạnh khi <strong>tương quan <code>ρ</code> thấp</strong> (các mô hình sai khác nhau).</li><li><code>ρ=1</code> (mô hình giống nhau) → ensemble vô dụng.</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn hiểu <strong>điều kiện sống còn</strong> của ensemble, và vì sao đồ án cố tình chọn <strong>FTT + RF + KNN</strong> — ba mô hình có <a href="inductive-bias-diversity.html">Đa dạng Inductive Bias (FTT + RF + KNN) — sai khác nhau nên bù được cho nhau</a> để <code>ρ</code> thấp. Đầu ra được ghép bằng <a href="asymmetric-cost-sensitive-voting.html">Asymmetric Voting — bỏ phiếu theo CHI PHÍ sai, không phải theo đa số</a>.</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn hiểu <strong>điều kiện sống còn</strong> của ensemble, và vì sao đồ án cố tình chọn <strong>FTT + RF + KNN</strong> — ba mô hình có <a href="inductive-bias-diversity.html">Đa dạng Inductive Bias (FTT + RF + KNN) — sai khác nhau nên bù được cho nhau</a> để <code>ρ</code> thấp. Đầu ra được ghép bằng <a href="asymmetric-cost-sensitive-voting.html">Asymmetric Voting — bỏ phiếu theo CHI PHÍ sai, không phải theo đa số</a>.</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>Huấn luyện ensemble FTT+RF+KNN</td><td><code>Final/02_CIC_IDS_2017/src/training/scripts_v7/phase2_train_v7_stage2_ensemble.py</code></td></tr><tr><td>Kết hợp đầu ra 3 model</td><td><code>Final/02_CIC_IDS_2017/src/training/scripts_v7/evaluate_cascade_system_v7.py</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> ba model có inductive bias khác nhau → ρ thấp → ensemble giảm variance; đây là hiện thực của công thức <code>Var(f̄)=(σ²/M)[1+(M−1)ρ]</code>.</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../F-ensemble-and-system/bias-variance-ensemble/bias-variance-ensemble.md">Mở file Markdown gốc</a><a class="button" href="../F-ensemble-and-system/bias-variance-ensemble/infographic.html">Mở infographic.html</a><a class="button" href="../F-ensemble-and-system/bias-variance-ensemble/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="Bias–Variance & Ensemble giảm Variance — vì sao "hỏi nhiều người" tốt hơn" src="../F-ensemble-and-system/bias-variance-ensemble/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

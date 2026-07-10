@@ -80,3 +80,17 @@ Vì chỉ nhìn thống kê 5-tuple, CICFlowMeter **mù với nội dung payload
 
 **Hiểu cái này thì làm được gì?** Bạn biết **model đang nhìn cái gì** để đoán — và quan trọng hơn, biết
 **nó mù ở đâu**, từ đó giải thích được vì sao một số tấn công (Infiltration, Heartbleed) cần phương pháp khác.
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Trích/khớp đặc trưng flow | `Final/05_Replay_Detection/ids_replay/features.py` |
+| Gom flow từ CICFlowMeter → dataset | `Final/03_Testbed_Retrain/data_collection/dataset_builder.py` |
+| Danh sách cột đặc trưng | `Final/01_NSL_KDD/src/.../models/feature_columns.json` |
+
+**Khi phản biện:** chỉ dùng **metadata thống kê** nên chạy được traffic mã hoá; điểm mù payload (Infiltration/Heartbleed) là lý do cần thêm Snort.

@@ -71,3 +71,16 @@ còn lại đã "kể" gần hết), nhưng **giảm được một chiều** �
 **Hiểu cái này thì làm được gì?** Bạn giải thích được một **quyết định thiết kế tinh tế** (lọc cho Expert nhưng
 không cho Gating) và hiểu vì sao Expert dùng cấu hình nhỏ (`d=64`). Gắn với [[yeo-johnson-power-transform]]
 (cùng nằm ở bước tiền xử lý).
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Chọn đặc trưng (RandomForest importance) | `Final/01_NSL_KDD/src/data_processing/feature_selection.py` |
+| Tập 34 đặc trưng của Expert (CIC) | `Final/02_CIC_IDS_2017/src/training/scripts_v7/phase2_train_v7_stage2_ensemble.py:74` |
+
+**Khi phản biện:** quyển đồ án mô tả **lọc Pearson r > 0,95 (77→34)**; trong code, tập **34 đặc trưng Expert** được định nghĩa tường minh, còn `feature_selection.py` (NSL-KDD) chọn theo **importance**. Nên làm rõ đúng cơ chế lọc khi bị hỏi.

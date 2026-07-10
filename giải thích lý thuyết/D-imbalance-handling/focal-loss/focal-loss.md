@@ -62,3 +62,17 @@ Bằng chứng trong đồ án: PortScan F1 **7,5% → 6,8%** khi thêm Focal Lo
 
 **Hiểu cái này thì làm được gì?** Bạn biết *khi nào Focal Loss cứu được* (lớp hiếm phân tách được nhưng bị át)
 và *khi nào vô ích* (hai lớp trộn lẫn) — đúng bài học lớn của đồ án: chọn đúng thuốc cho đúng bệnh.
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| FocalLoss: −α(1−pt)^γ·log(pt) | `Final/01_NSL_KDD/src/models/phase2_ft_transformer.py:39` |
+| Dùng khi train (NSL-KDD) | `Final/01_NSL_KDD/src/training/train_ft_transformer_nslkdd.py:635` |
+| Retrain Focal trên Testbed | `Final/03_Testbed_Retrain/retrain/src/4c_retrain_focal_v5.py` |
+
+**Khi phản biện:** dòng loss trong code **khớp chính xác** công thức: `-alpha_t * torch.pow(1-pt, gamma) * log_pt`; `gamma` mặc định 2.0.

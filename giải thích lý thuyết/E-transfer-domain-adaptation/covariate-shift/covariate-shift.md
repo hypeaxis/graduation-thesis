@@ -60,3 +60,16 @@ bị hỏi về những vùng nó **chưa từng thấy khi học** → đoán s
 **Hiểu cái này thì làm được gì?** Đây là *chẩn đoán bệnh* cho Giai đoạn 3 của đồ án. Hiểu đúng bệnh (đầu vào
 dịch, không phải model dốt) mới kê đúng thuốc: [[layer-freezing-catastrophic-forgetting]] và [[model-surgery]] —
 và hiểu vì sao [[scaler-embedding-coupling]] khiến "đổi mỗi scaler" lại thất bại.
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Chẩn đoán drift phân phối CIC↔Testbed | `Final/03_Testbed_Retrain/retrain/src/check_distribution_drift.py` |
+| Thử transfer thẳng / refit scaler | `Final/03_Testbed_Retrain/retrain/domain_adaptation/1_refit_scaler_test.py` |
+
+**Khi phản biện:** MCC âm khi transfer thẳng là **bằng chứng định lượng** của covariate shift; nguyên nhân là ảo hoá + NAT (xem chương phân tích).

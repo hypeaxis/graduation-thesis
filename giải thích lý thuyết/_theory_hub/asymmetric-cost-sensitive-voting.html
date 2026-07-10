@@ -18,11 +18,6 @@
         <div class="eyebrow">F. Ensemble &amp; hệ thống · Bài #24</div>
         <h1>Asymmetric Voting — bỏ phiếu theo CHI PHÍ sai, không phải theo đa số</h1>
         <p>Cách gộp ensemble quen thuộc là Majority Voting (đa số 2/3). Nó tối ưu khi chi phí của mọi loại sai là NHƯ NHAU. Nhưng trong IDS, cái giá của các kiểu sai rất khác nhau tùy lớp:</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -50,9 +45,13 @@
 <h3 id="t-m-l-i">Tóm lại</h3>
 <p>fatigue); còn lại <strong>Majority</strong>.</p>
 <ul><li><strong>Majority Voting</strong> chỉ tối ưu khi chi phí FP = FN. IDS thì <strong>không</strong> — mỗi lớp một kiểu chi phí.</li><li><strong>Asymmetric Voting:</strong> Infiltration dùng <strong>OR</strong> (tăng Recall, sợ FN); Botnet dùng <strong>AND</strong> (giảm FP, sợ alert</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn thấy ensemble không chỉ là &quot;gộp cho chính xác hơn&quot; mà còn là <strong>công cụ quản trị rủi ro</strong> theo chi phí thực tế — một điểm sáng thực tiễn của đồ án. Nền lý thuyết: <a href="bias-variance-ensemble.html">Bias–Variance &amp; Ensemble giảm Variance — vì sao &quot;hỏi nhiều người&quot; tốt hơn</a>, <a href="inductive-bias-diversity.html">Đa dạng Inductive Bias (FTT + RF + KNN) — sai khác nhau nên bù được cho nhau</a>.</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn thấy ensemble không chỉ là &quot;gộp cho chính xác hơn&quot; mà còn là <strong>công cụ quản trị rủi ro</strong> theo chi phí thực tế — một điểm sáng thực tiễn của đồ án. Nền lý thuyết: <a href="bias-variance-ensemble.html">Bias–Variance &amp; Ensemble giảm Variance — vì sao &quot;hỏi nhiều người&quot; tốt hơn</a>, <a href="inductive-bias-diversity.html">Đa dạng Inductive Bias (FTT + RF + KNN) — sai khác nhau nên bù được cho nhau</a>.</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>Infiltration Priority OR-rule</td><td><code>Final/02_CIC_IDS_2017/src/training/scripts_v7/evaluate_cascade_system_v7.py:191</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> luật trong code: <code>if rf==&#x27;Infiltration&#x27; or knn==&#x27;Infiltration&#x27; or (ft==&#x27;Infiltration&#x27; and ft_prob&gt;=thr)</code> → gán Infiltration (tăng recall); các lớp khác dùng majority.</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../F-ensemble-and-system/asymmetric-cost-sensitive-voting/asymmetric-cost-sensitive-voting.md">Mở file Markdown gốc</a><a class="button" href="../F-ensemble-and-system/asymmetric-cost-sensitive-voting/infographic.html">Mở infographic.html</a><a class="button" href="../F-ensemble-and-system/asymmetric-cost-sensitive-voting/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="Asymmetric Voting — bỏ phiếu theo CHI PHÍ sai, không phải theo đa số" src="../F-ensemble-and-system/asymmetric-cost-sensitive-voting/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

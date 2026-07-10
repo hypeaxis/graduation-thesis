@@ -55,3 +55,16 @@ CB-alpha nén khoảng cách đó về mức lành mạnh, có **trần** rõ r�
 
 **Hiểu cái này thì làm được gì?** Bạn giải thích được vì sao đồ án chọn CB-alpha thay vì nghịch đảo tần suất —
 một chi tiết nhỏ nhưng quyết định độ ổn định khi train với Heartbleed chỉ 10 mẫu. Gắn với [[focal-loss]].
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Tham số β = 0,9999 (effective number) | `Final/01_NSL_KDD/src/training/train_ft_transformer_nslkdd.py:57` |
+| α theo effective number → nạp vào FocalLoss | `Final/01_NSL_KDD/src/training/train_ft_transformer_nslkdd.py` |
+
+**Khi phản biện:** `--class-balanced-beta` mặc định **0.9999** đúng như lý thuyết; α có trần tại 1 nên không nổ khi lớp cực hiếm.

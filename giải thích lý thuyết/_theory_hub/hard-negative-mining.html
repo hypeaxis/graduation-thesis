@@ -18,11 +18,6 @@
         <div class="eyebrow">F. Ensemble &amp; hệ thống · Bài #25</div>
         <h1>Hard Negative Mining — chỉ ôn lại những câu làm SAI</h1>
         <p>Với các lớp khó (Botnet, Infiltration), cách quen thuộc là tăng class weight — nhân trọng số cho toàn bộ mẫu của lớp đó. Nhưng cách này lãng phí: nó tăng gradient cho cả những mẫu...</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -48,9 +43,13 @@
 <hr>
 <h3 id="t-m-l-i">Tóm lại</h3>
 <ul><li><strong>HNM</strong> chỉ tăng trọng số <strong>mẫu đang bị sai</strong> → tinh chỉnh <strong>ranh giới</strong>, không phí sức lên mẫu đã đúng.</li><li>Là hiện thân của <strong>Boosting</strong> + <strong>Curriculum Learning</strong>; đồ án đạt <strong>+13% Botnet F1</strong> so với class weight ×10.</li><li>Chỉ hiệu quả khi hai lớp <strong>phân tách được</strong> — trùng lẫn thì bó tay.</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn nắm <strong>tầng thứ ba</strong> của chống mất cân bằng (sau dữ liệu và loss): tinh chỉnh <strong>boundary</strong>. Dùng trong Expert Network của <a href="two-stage-cascade-gating-expert.html">Two-Stage Cascade (Gating + Expert) — chia để trị</a>.</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn nắm <strong>tầng thứ ba</strong> của chống mất cân bằng (sau dữ liệu và loss): tinh chỉnh <strong>boundary</strong>. Dùng trong Expert Network của <a href="two-stage-cascade-gating-expert.html">Two-Stage Cascade (Gating + Expert) — chia để trị</a>.</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>Trích hard negatives (double HNM Botnet)</td><td><code>Final/02_CIC_IDS_2017/src/training/scripts_v7/extract_hard_negatives_v7.py:87</code></td></tr><tr><td>Bản v5</td><td><code>Final/02_CIC_IDS_2017/src/archive/scripts_v5/extract_hard_negatives_v5.py</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> code thu các mẫu Stage-1 coi là <strong>Suspicious</strong> (gồm cả True Positive lẫn hard negative) rồi tăng trọng số ở vòng huấn luyện Stage-2 tiếp theo — đúng tinh thần Boosting.</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../F-ensemble-and-system/hard-negative-mining/hard-negative-mining.md">Mở file Markdown gốc</a><a class="button" href="../F-ensemble-and-system/hard-negative-mining/infographic.html">Mở infographic.html</a><a class="button" href="../F-ensemble-and-system/hard-negative-mining/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="Hard Negative Mining — chỉ ôn lại những câu làm SAI" src="../F-ensemble-and-system/hard-negative-mining/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

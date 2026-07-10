@@ -66,3 +66,16 @@ Tỷ lệ đóng góp **BruteForce : Benign = 1 : 5,6** → sai hướng ta mong
 **Hiểu cái này thì làm được gì?** Bạn thấy rõ *gốc rễ* của vấn đề mất cân bằng nằm ở **gradient**, từ đó hiểu
 vì sao [[focal-loss]] (thêm hệ số hạ trọng số mẫu dễ) lại là liều thuốc đúng bệnh — chứ không phải cứ đổi
 kiến trúc model.
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| CE = trường hợp γ=0 của FocalLoss | `Final/01_NSL_KDD/src/models/phase2_ft_transformer.py:10` |
+| log_softmax + gather(log_pt) | `Final/01_NSL_KDD/src/models/phase2_ft_transformer.py:31` |
+
+**Khi phản biện:** code dùng `log_softmax` nội bộ (ổn định số học); `p_t` lấy bằng `gather` tại nhãn đúng — đúng như phân tích gradient.

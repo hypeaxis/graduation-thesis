@@ -85,3 +85,16 @@ Token "src_bytes" mang Query "tôi có bất thường không?". Nó so với Ke
 **Hiểu cái này thì làm được gì?** Đây chính là lý do đồ án **chọn FT-Transformer thay vì MLP/RF/XGBoost**:
 Attention học **tường minh** tương tác đặc trưng, thay vì học ngầm. Nó cũng là nền để hiểu vì sao
 [[layer-freezing-catastrophic-forgetting]] hiệu quả — tầng Attention thấp học quan hệ tổng quát.
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Lớp MHSA (Q,K,V,O) | `Final/01_NSL_KDD/src/models/phase2_ft_transformer.py:199` |
+| scores = QKᵀ / √d_k → softmax | `Final/01_NSL_KDD/src/models/phase2_ft_transformer.py:222` |
+
+**Khi phản biện:** code khớp 1:1: `torch.matmul(q, k.transpose(-2,-1)) / (d_k ** 0.5)` rồi `softmax`. `d_model` chia hết cho `num_heads`.

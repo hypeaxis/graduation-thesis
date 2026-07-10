@@ -77,3 +77,16 @@ Hỏi ý kiến một quyết định:
 **Hiểu cái này thì làm được gì?** Bạn hiểu **điều kiện sống còn** của ensemble, và vì sao đồ án cố tình chọn
 **FTT + RF + KNN** — ba mô hình có [[inductive-bias-diversity]] để `ρ` thấp. Đầu ra được ghép bằng
 [[asymmetric-cost-sensitive-voting]].
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Huấn luyện ensemble FTT+RF+KNN | `Final/02_CIC_IDS_2017/src/training/scripts_v7/phase2_train_v7_stage2_ensemble.py` |
+| Kết hợp đầu ra 3 model | `Final/02_CIC_IDS_2017/src/training/scripts_v7/evaluate_cascade_system_v7.py` |
+
+**Khi phản biện:** ba model có inductive bias khác nhau → ρ thấp → ensemble giảm variance; đây là hiện thực của công thức `Var(f̄)=(σ²/M)[1+(M−1)ρ]`.

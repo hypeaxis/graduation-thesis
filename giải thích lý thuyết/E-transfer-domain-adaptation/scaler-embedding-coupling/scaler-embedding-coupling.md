@@ -70,3 +70,16 @@ tầng cao cùng nhau), chứ không phải chỉ thay scaler.
 
 **Hiểu cái này thì làm được gì?** Bạn giải thích được một kết quả *phản trực giác* trong luận văn — vì sao một
 bước tưởng "hiển nhiên đúng" lại làm hỏng, và vì sao [[layer-freezing-catastrophic-forgetting]] mới là lời giải.
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Thử refit scaler đơn lẻ (thất bại) | `Final/03_Testbed_Retrain/retrain/domain_adaptation/1_refit_scaler_test.py` |
+| So với đổi đồng thời (freeze + fine-tune) | `Final/03_Testbed_Retrain/retrain/domain_adaptation/2_finetune_freeze.py` |
+
+**Khi phản biện:** refit scaler mà giữ nguyên embedding → Accuracy rơi (21,93% → 6,87%) là **bằng chứng coupling**; giải pháp là đổi scaler + fine-tune tầng cao đồng thời.

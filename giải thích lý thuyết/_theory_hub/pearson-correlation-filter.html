@@ -18,11 +18,6 @@
         <div class="eyebrow">C. Tiền xử lý · Bài #8</div>
         <h1>Lọc tương quan Pearson — bỏ bớt đặc trưng &quot;kể chuyện trùng nhau&quot;</h1>
         <p>CICFlowMeter cho 77 đặc trưng, nhưng nhiều cái nói gần như cùng một điều. Ví dụ Flow_Bytes/s và Flow_Packets/s thường lên xuống cùng nhau; giữ cả hai chẳng thêm thông tin mà chỉ tă...</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -51,9 +46,13 @@
 <hr>
 <h3 id="t-m-l-i">Tóm lại</h3>
 <ul><li><strong>Pearson <code>r</code></strong> đo mức hai đặc trưng &quot;đi cùng nhau&quot; (<code>[−1,1]</code>); <code>|r|</code> gần 1 = trùng lặp.</li><li>Đồ án bỏ đặc trưng có <strong><code>|r| &gt; 0,95</code></strong> → <strong>77 → 34</strong> cho <strong>Expert</strong>; <strong>giữ đủ 77 cho Gating</strong>.</li><li>Giảm chiều → bớt nhiễu, bớt overfit, train nhanh, gradient tập trung.</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn giải thích được một <strong>quyết định thiết kế tinh tế</strong> (lọc cho Expert nhưng không cho Gating) và hiểu vì sao Expert dùng cấu hình nhỏ (<code>d=64</code>). Gắn với <a href="yeo-johnson-power-transform.html">Power Transformer — Yeo-Johnson: &quot;bẻ cong thước đo&quot; cho dữ liệu lệch</a> (cùng nằm ở bước tiền xử lý).</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn giải thích được một <strong>quyết định thiết kế tinh tế</strong> (lọc cho Expert nhưng không cho Gating) và hiểu vì sao Expert dùng cấu hình nhỏ (<code>d=64</code>). Gắn với <a href="yeo-johnson-power-transform.html">Power Transformer — Yeo-Johnson: &quot;bẻ cong thước đo&quot; cho dữ liệu lệch</a> (cùng nằm ở bước tiền xử lý).</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>Chọn đặc trưng (RandomForest importance)</td><td><code>Final/01_NSL_KDD/src/data_processing/feature_selection.py</code></td></tr><tr><td>Tập 34 đặc trưng của Expert (CIC)</td><td><code>Final/02_CIC_IDS_2017/src/training/scripts_v7/phase2_train_v7_stage2_ensemble.py:74</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> quyển đồ án mô tả <strong>lọc Pearson r &gt; 0,95 (77→34)</strong>; trong code, tập <strong>34 đặc trưng Expert</strong> được định nghĩa tường minh, còn <code>feature_selection.py</code> (NSL-KDD) chọn theo <strong>importance</strong>. Nên làm rõ đúng cơ chế lọc khi bị hỏi.</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../C-preprocessing/pearson-correlation-filter/pearson-correlation-filter.md">Mở file Markdown gốc</a><a class="button" href="../C-preprocessing/pearson-correlation-filter/infographic.html">Mở infographic.html</a><a class="button" href="../C-preprocessing/pearson-correlation-filter/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="Lọc tương quan Pearson — bỏ bớt đặc trưng "kể chuyện trùng nhau"" src="../C-preprocessing/pearson-correlation-filter/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

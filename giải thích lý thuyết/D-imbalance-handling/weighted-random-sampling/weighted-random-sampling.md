@@ -69,3 +69,16 @@ Batch 256 mẫu, bốc đều: có thể **0 mẫu Heartbleed** (vì nó chỉ c
 
 **Hiểu cái này thì làm được gì?** Bạn phân biệt được **ba tầng chống mất cân bằng** — dữ liệu (sampling/SMOTE),
 loss (Focal/CB), và boundary ([[hard-negative-mining]]) — và biết chúng phối hợp thế nào trong đồ án.
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| WeightedRandomSampler (w = 1/class_counts) | `Final/01_NSL_KDD/src/training/train_ft_transformer_nslkdd.py:289` |
+| Biến thể V8.5 (√ + clip) | `Final/03_Testbed_Retrain/retrain/v8/v8.5_Combined/v8_5_train.py` |
+
+**Khi phản biện:** NSL-KDD dùng inverse-frequency đơn giản (`1/class_counts`); V8.5 dùng biến thể **làm mượt (√) + clip [0,5; 2,0]**.

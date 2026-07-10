@@ -18,11 +18,6 @@
         <div class="eyebrow">E. Thích nghi miền · Bài #15</div>
         <h1>Covariate Shift — khi &quot;cảm giác đầu vào&quot; đổi, model lạc lối</h1>
         <p>Model của đồ án học rất tốt trên CIC-IDS-2017. Nhưng khi đem áp thẳng sang Testbed (WSL2) tự dựng, nó sụp đổ: MCC = −0,015 (còn tệ hơn đoán bừa). Vì sao?</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -45,9 +40,13 @@
 <h3 id="t-m-l-i">Tóm lại</h3>
 <p>khi transfer trực tiếp.</p>
 <ul><li><strong>Covariate Shift:</strong> <code>P_source(x) ≠ P_target(x)</code> trong khi <code>P(y|x)</code> về lý thuyết không đổi.</li><li>Trong đồ án: CIC (switch Gigabit) vs Testbed (Hyper-V NAT) tạo phân phối đặc trưng khác nhau → <strong>MCC = −0,015</strong></li><li>Nguyên nhân: ảo hoá + NAT làm đổi packet size, timing, IAT, flag; scaler cũ ánh xạ sai.</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Đây là <em>chẩn đoán bệnh</em> cho Giai đoạn 3 của đồ án. Hiểu đúng bệnh (đầu vào dịch, không phải model dốt) mới kê đúng thuốc: <a href="layer-freezing-catastrophic-forgetting.html">Layer Freezing &amp; Catastrophic Forgetting — giữ nền, học lại phần ngọn</a> và <a href="model-surgery.html">Model Surgery — &quot;ghép thêm ngăn kéo&quot; cho model không phá đồ cũ</a> — và hiểu vì sao <a href="scaler-embedding-coupling.html">Scaler–Embedding Coupling — vì sao &quot;đổi mỗi scaler&quot; lại thất bại</a> khiến &quot;đổi mỗi scaler&quot; lại thất bại.</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Đây là <em>chẩn đoán bệnh</em> cho Giai đoạn 3 của đồ án. Hiểu đúng bệnh (đầu vào dịch, không phải model dốt) mới kê đúng thuốc: <a href="layer-freezing-catastrophic-forgetting.html">Layer Freezing &amp; Catastrophic Forgetting — giữ nền, học lại phần ngọn</a> và <a href="model-surgery.html">Model Surgery — &quot;ghép thêm ngăn kéo&quot; cho model không phá đồ cũ</a> — và hiểu vì sao <a href="scaler-embedding-coupling.html">Scaler–Embedding Coupling — vì sao &quot;đổi mỗi scaler&quot; lại thất bại</a> khiến &quot;đổi mỗi scaler&quot; lại thất bại.</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>Chẩn đoán drift phân phối CIC↔Testbed</td><td><code>Final/03_Testbed_Retrain/retrain/src/check_distribution_drift.py</code></td></tr><tr><td>Thử transfer thẳng / refit scaler</td><td><code>Final/03_Testbed_Retrain/retrain/domain_adaptation/1_refit_scaler_test.py</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> MCC âm khi transfer thẳng là <strong>bằng chứng định lượng</strong> của covariate shift; nguyên nhân là ảo hoá + NAT (xem chương phân tích).</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../E-transfer-domain-adaptation/covariate-shift/covariate-shift.md">Mở file Markdown gốc</a><a class="button" href="../E-transfer-domain-adaptation/covariate-shift/infographic.html">Mở infographic.html</a><a class="button" href="../E-transfer-domain-adaptation/covariate-shift/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="Covariate Shift — khi "cảm giác đầu vào" đổi, model lạc lối" src="../E-transfer-domain-adaptation/covariate-shift/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

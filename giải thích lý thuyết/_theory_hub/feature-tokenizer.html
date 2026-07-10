@@ -18,11 +18,6 @@
         <div class="eyebrow">B. FT-Transformer · Bài #4</div>
         <h1>Feature Tokenizer — biến mỗi con số thành một &quot;token&quot;</h1>
         <p>Transformer vốn sinh ra cho câu chữ: đầu vào là một chuỗi token (từ), mỗi từ đã là một vector nhúng. Nhưng dữ liệu của ta là dạng bảng (tabular) — chỉ là k con số rời rạc (duration...</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -57,9 +52,13 @@
 <hr>
 <h3 id="t-m-l-i">Tóm lại</h3>
 <ul><li>Feature Tokenizer <strong>biến mỗi đặc trưng scalar <code>x_j</code> thành một token vector</strong> <code>e_j = x_j w_j + b_j</code>.</li><li>Mỗi đặc trưng có <strong>bộ chiếu riêng</strong> → giữ được <em>danh tính cột</em> (khác MLP dùng chung trọng số).</li><li><strong>CLS token</strong> được thêm vào để cuối cùng <strong>tổng hợp toàn bộ input</strong> cho phân loại.</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Đây là cửa ngõ khiến Transformer dùng được cho dữ liệu bảng. Nó cũng là chỗ mà đồ án thực hiện <strong>Model Surgery</strong> (thêm 3 hàng đặc trưng mới <code>77 → 80</code>) — vì mỗi đặc trưng là một hàng độc lập trong ma trận embedding, ta ghép thêm hàng mà không phá phần cũ. Xem <a href="model-surgery.html">Model Surgery — &quot;ghép thêm ngăn kéo&quot; cho model không phá đồ cũ</a>.</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Đây là cửa ngõ khiến Transformer dùng được cho dữ liệu bảng. Nó cũng là chỗ mà đồ án thực hiện <strong>Model Surgery</strong> (thêm 3 hàng đặc trưng mới <code>77 → 80</code>) — vì mỗi đặc trưng là một hàng độc lập trong ma trận embedding, ta ghép thêm hàng mà không phá phần cũ. Xem <a href="model-surgery.html">Model Surgery — &quot;ghép thêm ngăn kéo&quot; cho model không phá đồ cũ</a>.</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>Per-feature Linear(1,d) + CLS token</td><td><code>Final/01_NSL_KDD/src/models/phase2_ft_transformer.py:95</code></td></tr><tr><td>Biến thể gộp nhóm (grouped)</td><td><code>Final/01_NSL_KDD/src/models/phase2_ft_transformer.py:127</code></td></tr><tr><td>Bản CIC</td><td><code>Final/02_CIC_IDS_2017/src/models/phase2_ft_transformer_v2.py</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> mỗi đặc trưng = một <code>nn.Linear(1, d_model)</code> riêng → đúng <code>e_j = x_j·w_j + b_j</code>. Lưu ý: NSL-KDD dùng biến thể <strong>grouped</strong> (gộp one-hot service/protocol thành token nhóm) để rút chuỗi token.</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../B-ft-transformer/feature-tokenizer/feature-tokenizer.md">Mở file Markdown gốc</a><a class="button" href="../B-ft-transformer/feature-tokenizer/infographic.html">Mở infographic.html</a><a class="button" href="../B-ft-transformer/feature-tokenizer/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="Feature Tokenizer — biến mỗi con số thành một "token"" src="../B-ft-transformer/feature-tokenizer/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

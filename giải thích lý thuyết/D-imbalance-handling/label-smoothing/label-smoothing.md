@@ -51,3 +51,16 @@ Vì thế đồ án **dùng `ε=0,10` cho Testbed V8.5** (giảm overfit) nhưng
 
 **Hiểu cái này thì làm được gì?** Bạn biết một "nút chỉnh" nhỏ để chống overfit, và quan trọng hơn — biết
 **khi nào tắt nó đi**, một quyết định tinh tế đáng ghi trong luận văn.
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| LabelSmoothingFocalLoss (smoothing=0.1) | `Final/01_NSL_KDD/src/models/phase2_ft_transformer.py:43` |
+| Dùng khi train | `Final/01_NSL_KDD/src/training/train_ft_transformer_nslkdd.py:631` |
+
+**Khi phản biện:** code rải khối lượng ε cho **C−1 lớp còn lại** (target = 1−ε, khác = ε/(C−1)) — một biến thể của công thức canonical `ε/C`, và **gộp thẳng vào Focal Loss**. Không dùng cho CIC Expert (hại Heartbleed).

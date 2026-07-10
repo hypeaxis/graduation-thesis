@@ -66,3 +66,17 @@ Kết quả từ hai nguồn được [[alert-aggregator]] hợp nhất.
 **Hiểu cái này thì làm được gì?** Bạn giải thích được **triết lý thiết kế tổng thể** của đồ án — không tôn thờ
 một phương pháp, mà ghép để phủ điểm mù. Đầu ra hợp nhất bởi [[alert-aggregator]]; giới hạn còn lại nằm ở
 [[static-flow-limits-temporal]].
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Snort + FTT two-stage | `Final/01_NSL_KDD/src/inference_product/snort_two_stage_inference.py` |
+| Tiền xử lý 122 feature cho nhánh Snort | `Final/01_NSL_KDD/src/inference_product/snort_preprocess_122.py` |
+| Backend ML nhận --snort-alert | `Final/04_HybridIDS_Deployment/wsl_pipeline/hybrid_ml_backend_example.py:78` |
+
+**Khi phản biện:** hai nhánh (Snort packet-level + FTT flow-level) chạy **độc lập, song song**; backend ML nhận thêm đường dẫn alert của Snort để hợp nhất.

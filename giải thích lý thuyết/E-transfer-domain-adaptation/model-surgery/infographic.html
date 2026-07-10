@@ -30,12 +30,12 @@
   <h1>✦ Model Surgery: ghép thêm ngăn kéo ✦</h1>
   <div class="sub">Mở rộng 77 → 80 đặc trưng mà <b>không phá</b> kiến thức đã học</div>
 
-  <div class="formula">W<sub>new</sub><sup>emb</sup> = [ W<sub>old</sub> (k×d, giữ nguyên) ; W<sub>newrows</sub> (Δ×d, init 𝒩(0, 0,01)) ]</div>
+  <div class="formula">W<sub>new</sub><sup>emb</sup> = [ W<sub>old</sub> (k×d, cấy ghép) ; W<sub>newrows</sub> (Δ×d, init mới) ]</div>
 
   <div class="row">
     <div class="panel p1"><h3>Giữ hàng cũ</h3><p>Ma trận embedding của 77 đặc trưng <b>cấy ghép nguyên</b> (transplant) → không mất gì.</p></div>
-    <div class="panel p2"><h3>Ghép Δ=3 hàng mới</h3><p>3 đặc trưng NAT (IAT_CV, Bwd_Pkt_Ratio, Pkt_Size_Ratio), init <b>gần 0</b>, học dần khi fine-tune.</p></div>
-    <div class="panel p3"><h3>Vì sao init ~0?</h3><p>Hàng mới lớn → bơm nhiễu phá phần cũ. Init 0,01 → "quan sát trước, phát biểu sau".</p></div>
+    <div class="panel p2"><h3>Ghép Δ=3 hàng mới</h3><p>3 đặc trưng NAT (IAT_CV, Bwd_Pkt_Ratio, Pkt_Size_Ratio), <b>init mới</b> (mặc định Linear), học dần khi fine-tune.</p></div>
+    <div class="panel p3"><h3>Vì sao "trung tính"?</h3><p>Hàng mới tín hiệu mạnh → bơm nhiễu phá phần cũ. Bắt đầu nhỏ → "quan sát trước, phát biểu sau".</p></div>
   </div>
 
   <div class="example">

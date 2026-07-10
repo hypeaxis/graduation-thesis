@@ -32,8 +32,8 @@
   <div class="sub">Bọc Attention bằng FFN + đường tắt + chuẩn hoá → xếp chồng <b>L</b> tầng thành mạng sâu</div>
 
   <div class="split">
-    <div class="formula"><div class="lbl">KHỐI ATTENTION</div>T' = LayerNorm( T + MHSA(T) )</div>
-    <div class="formula"><div class="lbl">KHỐI FFN</div>T'' = LayerNorm( T' + FFN(T') )</div>
+    <div class="formula"><div class="lbl">KHỐI ATTENTION (Pre-LN)</div>T' = T + MHSA( LayerNorm(T) )</div>
+    <div class="formula"><div class="lbl">KHỐI FFN (Pre-LN)</div>T'' = T' + FFN( LayerNorm(T') )</div>
   </div>
 
   <div class="row">

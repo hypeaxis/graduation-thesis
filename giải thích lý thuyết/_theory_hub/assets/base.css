@@ -43,10 +43,10 @@ a {
 
 .hero h1 {
   margin: 0;
-  font-size: clamp(2.2rem, 4.2vw, 4.5rem);
-  line-height: 1.12;
+  font-size: clamp(2rem, 3.4vw, 3.4rem);
+  line-height: 1.16;
   letter-spacing: -0.015em;
-  max-width: 13ch;
+  max-width: 32ch;
 }
 
 .hero p {

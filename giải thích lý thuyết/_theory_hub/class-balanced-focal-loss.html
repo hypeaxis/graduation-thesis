@@ -18,11 +18,6 @@
         <div class="eyebrow">D. Xử lý mất cân bằng · Bài #11</div>
         <h1>Class-Balanced Focal Loss — cân trọng số theo &quot;số mẫu hữu hiệu&quot;</h1>
         <p>focal-loss có phần α_t để cân giữa các lớp. Câu hỏi: đặt α cho mỗi lớp bằng bao nhiêu?</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -44,9 +39,13 @@
 <hr>
 <h3 id="t-m-l-i">Tóm lại</h3>
 <ul><li>CB-Focal đặt <code>α_c = (1−β)/(1−β^{n_c})</code> dựa trên <strong>số mẫu hữu hiệu</strong> — mẫu thêm vào lớp đông có giá trị giảm dần.</li><li>Kết quả: trọng số lớp hiếm <strong>chạm trần 1</strong>, không bùng nổ như <code>1/n_c</code> → <strong>ổn định</strong> khi lệch &gt;1000:1.</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn giải thích được vì sao đồ án chọn CB-alpha thay vì nghịch đảo tần suất — một chi tiết nhỏ nhưng quyết định độ ổn định khi train với Heartbleed chỉ 10 mẫu. Gắn với <a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a>.</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn giải thích được vì sao đồ án chọn CB-alpha thay vì nghịch đảo tần suất — một chi tiết nhỏ nhưng quyết định độ ổn định khi train với Heartbleed chỉ 10 mẫu. Gắn với <a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a>.</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>Tham số β = 0,9999 (effective number)</td><td><code>Final/01_NSL_KDD/src/training/train_ft_transformer_nslkdd.py:57</code></td></tr><tr><td>α theo effective number → nạp vào FocalLoss</td><td><code>Final/01_NSL_KDD/src/training/train_ft_transformer_nslkdd.py</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> <code>--class-balanced-beta</code> mặc định <strong>0.9999</strong> đúng như lý thuyết; α có trần tại 1 nên không nổ khi lớp cực hiếm.</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../D-imbalance-handling/class-balanced-focal-loss/class-balanced-focal-loss.md">Mở file Markdown gốc</a><a class="button" href="../D-imbalance-handling/class-balanced-focal-loss/infographic.html">Mở infographic.html</a><a class="button" href="../D-imbalance-handling/class-balanced-focal-loss/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="Class-Balanced Focal Loss — cân trọng số theo "số mẫu hữu hiệu"" src="../D-imbalance-handling/class-balanced-focal-loss/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

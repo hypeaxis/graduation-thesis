@@ -18,11 +18,6 @@
         <div class="eyebrow">B. FT-Transformer · Bài #6</div>
         <h1>Transformer Block &amp; Feed-Forward Network (Pre-LayerNorm)</h1>
         <p>Self-Attention giỏi cho các token trao đổi thông tin với nhau, nhưng bản thân nó chỉ là phép trộn tuyến tính. Để mạng thực sự mạnh, ta cần thêm:</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -38,13 +33,13 @@
 <blockquote><strong>Nói đơn giản:</strong> FFN như cho mỗi token một &quot;phòng làm việc rộng gấp 4&quot; để nghiền ngẫm, xong thu gọn kết quả.</blockquote>
 <hr>
 <h3 id="residual-layernorm-transformer-block-pre-ln">Residual + LayerNorm: Transformer Block (Pre-LN)</h3>
-<p>Đề tài dùng biến thể <strong>Pre-LayerNorm</strong> (LayerNorm đặt <em>trước</em> khi cộng residual — ổn định hơn khi mạng sâu):</p>
-<pre><code>T&#x27;  = LayerNorm( T  + MHSA(T)  )     ← khối Attention + đường tắt
-T&#x27;&#x27; = LayerNorm( T&#x27; + FFN(T&#x27;)  )     ← khối FFN + đường tắt</code></pre>
+<p>Đề tài dùng biến thể <strong>Pre-LayerNorm</strong>: LayerNorm được áp <em>trước</em> khi vào Attention/FFN, rồi mới <strong>cộng đường tắt</strong> (đúng như code: <code>x = x + sublayer(LayerNorm(x))</code> — ổn định hơn khi mạng sâu):</p>
+<pre><code>T&#x27;  = T  + MHSA( LayerNorm(T)  )     ← chuẩn hoá TRƯỚC, xong cộng đường tắt
+T&#x27;&#x27; = T&#x27; + FFN(  LayerNorm(T&#x27;) )</code></pre>
 <p>Bóc ý nghĩa:</p>
-<p>này, gradient chảy thẳng về tầng dưới → tránh <strong>vanishing gradient</strong>, huấn luyện được mạng sâu.</p>
-<p>qua từng tầng → ổn định.</p>
-<ul><li><strong><code>T + MHSA(T)</code> (residual)</strong> → <em>cộng thêm</em> kết quả Attention vào token gốc, không thay thế. Nhờ &quot;đường tắt&quot;</li><li><strong><code>LayerNorm</code></strong> → chuẩn hoá lại (mean 0, var 1) trên mỗi token → giữ các con số không phình to/teo nhỏ</li></ul>
+<p>số không phình to/teo nhỏ qua từng tầng → ổn định. (Đây là điểm khác Post-LN, nơi chuẩn hoá đặt <em>sau</em>.)</p>
+<p>gradient chảy thẳng về tầng dưới → tránh <strong>vanishing gradient</strong>, huấn luyện được mạng sâu.</p>
+<ul><li><strong><code>LayerNorm(T)</code></strong> → chuẩn hoá (mean 0, var 1) <em>trước</em>, để đầu vào Attention/FFN luôn &quot;sạch&quot;, giữ các con</li><li><strong><code>T + …</code> (residual)</strong> → <em>cộng thêm</em> kết quả sublayer vào token gốc, không thay thế. Nhờ &quot;đường tắt&quot; này,</li></ul>
 <blockquote><strong>So sánh đời thường:</strong> residual như <strong>bản nháp gốc luôn được giữ lại</strong> — mỗi tầng chỉ ghi chú <em>bổ sung</em> lên trên, lỡ tầng nào ghi bậy vẫn còn bản gốc để lần về.</blockquote>
 <hr>
 <h3 id="x-p-ch-ng-l-t-ng-cls-ph-n-lo-i">Xếp chồng L tầng → CLS → phân loại</h3>
@@ -59,9 +54,13 @@ T&#x27;&#x27; = LayerNorm( T&#x27; + FFN(T&#x27;)  )     ← khối FFN + đư�
 <h3 id="t-m-l-i">Tóm lại</h3>
 <p>đọc <strong>CLS</strong> → softmax phân loại.</p>
 <ul><li><strong>Transformer Block</strong> = MHSA + FFN, mỗi cái bọc trong <strong>residual + LayerNorm</strong> (kiểu Pre-LN).</li><li><strong>FFN</strong> (<code>GELU</code>, <code>d_ff = 4d</code>) cho mỗi token xử lý <strong>phi tuyến</strong> riêng.</li><li><strong>Residual</strong> tạo đường tắt chống vanishing gradient; <strong>LayerNorm</strong> giữ ổn định. Chồng <code>L</code> tầng rồi</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn nắm được <em>toàn bộ đường đi</em> từ đặc trưng thô đến nhãn — và hiểu vì sao có thể <strong>đóng băng vài tầng</strong> (<a href="layer-freezing-catastrophic-forgetting.html">Layer Freezing &amp; Catastrophic Forgetting — giữ nền, học lại phần ngọn</a>) khi thích nghi miền: tầng thấp học cái tổng quát, tầng cao học cái đặc thù.</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn nắm được <em>toàn bộ đường đi</em> từ đặc trưng thô đến nhãn — và hiểu vì sao có thể <strong>đóng băng vài tầng</strong> (<a href="layer-freezing-catastrophic-forgetting.html">Layer Freezing &amp; Catastrophic Forgetting — giữ nền, học lại phần ngọn</a>) khi thích nghi miền: tầng thấp học cái tổng quát, tầng cao học cái đặc thù.</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>TransformerBlock Pre-LN: x + sublayer(LN(x))</td><td><code>Final/01_NSL_KDD/src/models/phase2_ft_transformer.py:245</code></td></tr><tr><td>FFN: Linear→GELU→Dropout→Linear</td><td><code>Final/01_NSL_KDD/src/models/phase2_ft_transformer.py:235</code></td></tr><tr><td>Config mặc định d=128,h=8,L=4,d_ff=512</td><td><code>Final/01_NSL_KDD/src/models/phase2_ft_transformer.py:255</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> code là <strong>Pre-LayerNorm thật</strong> (<code>x = x + sublayer(LayerNorm(x))</code>). Quyển đồ án viết công thức dạng Post-LN (<code>LayerNorm(x + sublayer(x))</code>) — nếu hội đồng hỏi, giải thích rằng <strong>triển khai thực tế là Pre-LN</strong>.</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../B-ft-transformer/transformer-block-ffn/transformer-block-ffn.md">Mở file Markdown gốc</a><a class="button" href="../B-ft-transformer/transformer-block-ffn/infographic.html">Mở infographic.html</a><a class="button" href="../B-ft-transformer/transformer-block-ffn/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="Transformer Block & Feed-Forward Network (Pre-LayerNorm)" src="../B-ft-transformer/transformer-block-ffn/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

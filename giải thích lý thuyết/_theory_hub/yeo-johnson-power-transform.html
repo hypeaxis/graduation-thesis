@@ -18,11 +18,6 @@
         <div class="eyebrow">C. Tiền xử lý · Bài #7</div>
         <h1>Power Transformer — Yeo-Johnson: &quot;bẻ cong thước đo&quot; cho dữ liệu lệch</h1>
         <p>Dữ liệu thật đời hay bị lệch (skewed) — đặc biệt là dữ liệu mạng: số byte, số packet, thời lượng flow… đa số nhỏ, nhưng thỉnh thoảng có vài giá trị cực to (một cuộc tấn công</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -82,9 +77,13 @@ X_new = pt.fit_transform(X)</code></pre>
 <h3 id="t-m-l-i">Tóm lại</h3>
 <p>bằng cách nâng lên mũ <strong>λ</strong>.</p>
 <ul><li><strong>Yeo-Johnson</strong> = phép biến đổi lũy thừa <strong>nắn dữ liệu lệch về gần hình chuông (Gaussian)</strong>,</li><li>Nó là <strong>bản nâng cấp của Box-Cox</strong>: chạy được cả <strong>số âm và 0</strong>.</li><li><strong>λ do máy tự dò</strong> bằng MLE để dữ liệu giống chuông nhất — bạn không phải chọn.</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn biết <em>khi nào nên dùng</em> (feature lệch nặng, có số 0/âm), <em>tránh được data leakage</em> khi fit, và giải thích được trong luận văn <strong>vì sao</strong> bước tiền xử lý này giúp mô hình detection ổn định hơn — thay vì chỉ &quot;em thấy trong sklearn nên em dùng&quot;.</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn biết <em>khi nào nên dùng</em> (feature lệch nặng, có số 0/âm), <em>tránh được data leakage</em> khi fit, và giải thích được trong luận văn <strong>vì sao</strong> bước tiền xử lý này giúp mô hình detection ổn định hơn — thay vì chỉ &quot;em thấy trong sklearn nên em dùng&quot;.</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>PowerTransformer(yeo-johnson, standardize=True)</td><td><code>Final/02_CIC_IDS_2017/src/archive/phase2_train_v4_stage1.py:103</code></td></tr><tr><td>Unified scaler cho 80 feature (Testbed)</td><td><code>Final/03_Testbed_Retrain/retrain/domain_adaptation/3b_stage3_fixed_pipeline.py:251</code></td></tr><tr><td>Scaler dùng khi triển khai</td><td><code>Final/05_Replay_Detection/model_defs/hybrid_feature_scaler.py</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> <code>standardize=True</code> → combo Gaussian-hoá + chuẩn hoá; scaler <strong>fit trên train</strong> rồi lưu, <code>transform</code> khi inference → tránh data leakage.</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../C-preprocessing/yeo-johnson-power-transform/yeo-johnson.md">Mở file Markdown gốc</a><a class="button" href="../C-preprocessing/yeo-johnson-power-transform/infographic.html">Mở infographic.html</a><a class="button" href="../C-preprocessing/yeo-johnson-power-transform/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="Power Transformer — Yeo-Johnson: "bẻ cong thước đo" cho dữ liệu lệch" src="../C-preprocessing/yeo-johnson-power-transform/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

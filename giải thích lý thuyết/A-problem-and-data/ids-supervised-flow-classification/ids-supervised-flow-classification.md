@@ -87,3 +87,17 @@ Một flow khác: `Flow_Duration = 2,5s`, `Fwd_Packets = 40`, gói dài 800 byte
 **Hiểu cái này thì làm được gì?** Đây là *cái khung* mà toàn bộ đồ án đứng lên: mọi kỹ thuật sau này
 (FT-Transformer, Focal Loss, ensemble…) đều chỉ là những cách **làm cho hàm `f` này giỏi hơn** — nhất là
 ở những lớp tấn công hiếm và khó.
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Vector đặc trưng x của flow | `Final/05_Replay_Detection/ids_replay/features.py` |
+| Model f + suy luận (argmax softmax) | `Final/05_Replay_Detection/ids_replay/model.py` |
+| Pipeline flow → nhãn (triển khai) | `Final/04_HybridIDS_Deployment/wsl_pipeline/testbed_inference.py` |
+
+**Khi phản biện:** nhấn mạnh input là **vector thống kê của flow** (không phải payload thô), output là `argmax` trên phân phối softmax các lớp.

@@ -18,11 +18,6 @@
         <div class="eyebrow">D. Xử lý mất cân bằng · Bài #14</div>
         <h1>Label Smoothing — dạy model bớt &quot;kiêu ngạo&quot;</h1>
         <p>Khi huấn luyện, ta thường đưa nhãn dạng cứng (hard label): đúng lớp = 1, sai = 0. Điều này ép model tự tin 100% vào một đáp án. Hệ quả: model dễ kiêu ngạo (overconfident) và overfi...</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -43,9 +38,13 @@
 <hr>
 <h3 id="t-m-l-i">Tóm lại</h3>
 <ul><li>Label Smoothing biến nhãn cứng <code>1/0</code> thành nhãn mềm: <code>y^smooth = (1−ε)y + ε/C</code>.</li><li>Tác dụng: giảm <strong>overconfidence</strong> và <strong>overfit</strong>, giúp model tổng quát hoá tốt hơn.</li><li><strong>Cẩn trọng:</strong> làm loãng tín hiệu lớp siêu hiếm → đồ án dùng cho V8.5 nhưng bỏ với CIC Expert (Heartbleed 10 mẫu).</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn biết một &quot;nút chỉnh&quot; nhỏ để chống overfit, và quan trọng hơn — biết <strong>khi nào tắt nó đi</strong>, một quyết định tinh tế đáng ghi trong luận văn.</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn biết một &quot;nút chỉnh&quot; nhỏ để chống overfit, và quan trọng hơn — biết <strong>khi nào tắt nó đi</strong>, một quyết định tinh tế đáng ghi trong luận văn.</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>LabelSmoothingFocalLoss (smoothing=0.1)</td><td><code>Final/01_NSL_KDD/src/models/phase2_ft_transformer.py:43</code></td></tr><tr><td>Dùng khi train</td><td><code>Final/01_NSL_KDD/src/training/train_ft_transformer_nslkdd.py:631</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> code rải khối lượng ε cho <strong>C−1 lớp còn lại</strong> (target = 1−ε, khác = ε/(C−1)) — một biến thể của công thức canonical <code>ε/C</code>, và <strong>gộp thẳng vào Focal Loss</strong>. Không dùng cho CIC Expert (hại Heartbleed).</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../D-imbalance-handling/label-smoothing/label-smoothing.md">Mở file Markdown gốc</a><a class="button" href="../D-imbalance-handling/label-smoothing/infographic.html">Mở infographic.html</a><a class="button" href="../D-imbalance-handling/label-smoothing/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="Label Smoothing — dạy model bớt "kiêu ngạo"" src="../D-imbalance-handling/label-smoothing/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

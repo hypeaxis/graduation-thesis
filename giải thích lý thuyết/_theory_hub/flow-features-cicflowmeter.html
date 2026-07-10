@@ -18,11 +18,6 @@
         <div class="eyebrow">A. Nền tảng bài toán &amp; dữ liệu · Bài #2</div>
         <h1>Trích xuất đặc trưng flow bằng CICFlowMeter</h1>
         <p>Mô hình máy học không &quot;ăn&quot; được gói tin thô — nó cần một dãy số có độ dài cố định. Nhưng một flow có thể gồm 2 gói hoặc 2000 gói, dài ngắn khác nhau. Làm sao biến một flow bất kỳ</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -53,9 +48,13 @@
 <h3 id="t-m-l-i">Tóm lại</h3>
 <p>→ bỏ sót tấn công ẩn trong nội dung.</p>
 <ul><li>CICFlowMeter <strong>biến một flow độ dài bất kỳ thành vector 77–80 con số thống kê</strong> cố định.</li><li>Các nhóm chính: thời lượng, số/độ dài gói, IAT, cờ TCP, tốc độ, active/idle.</li><li><strong>Mạnh:</strong> chạy được với <strong>traffic mã hoá</strong> (chỉ dùng metadata). <strong>Yếu:</strong> <strong>không thấy payload</strong></li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn biết <strong>model đang nhìn cái gì</strong> để đoán — và quan trọng hơn, biết <strong>nó mù ở đâu</strong>, từ đó giải thích được vì sao một số tấn công (Infiltration, Heartbleed) cần phương pháp khác.</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn biết <strong>model đang nhìn cái gì</strong> để đoán — và quan trọng hơn, biết <strong>nó mù ở đâu</strong>, từ đó giải thích được vì sao một số tấn công (Infiltration, Heartbleed) cần phương pháp khác.</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>Trích/khớp đặc trưng flow</td><td><code>Final/05_Replay_Detection/ids_replay/features.py</code></td></tr><tr><td>Gom flow từ CICFlowMeter → dataset</td><td><code>Final/03_Testbed_Retrain/data_collection/dataset_builder.py</code></td></tr><tr><td>Danh sách cột đặc trưng</td><td><code>Final/01_NSL_KDD/src/.../models/feature_columns.json</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> chỉ dùng <strong>metadata thống kê</strong> nên chạy được traffic mã hoá; điểm mù payload (Infiltration/Heartbleed) là lý do cần thêm Snort.</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../A-problem-and-data/flow-features-cicflowmeter/flow-features-cicflowmeter.md">Mở file Markdown gốc</a><a class="button" href="../A-problem-and-data/flow-features-cicflowmeter/infographic.html">Mở infographic.html</a><a class="button" href="../A-problem-and-data/flow-features-cicflowmeter/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="Trích xuất đặc trưng flow bằng CICFlowMeter" src="../A-problem-and-data/flow-features-cicflowmeter/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

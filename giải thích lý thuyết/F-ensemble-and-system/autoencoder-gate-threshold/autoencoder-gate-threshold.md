@@ -64,3 +64,16 @@ so với bộ phân loại thuần dựa trên nhãn tấn công đã biết.
 **Hiểu cái này thì làm được gì?** Bạn thấy một cách tiếp cận **Gating khác** với bên CIC ([[two-stage-cascade-gating-expert]]):
 NSL-KDD dùng AE + ngưỡng, minh hoạ tư duy "sàng lọc trước, chuyên sâu sau" bằng **anomaly detection**.
 Tầng 2 sau đó là [[stacking-ensemble]].
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| AE reconstruction MSE (train normal-only) | `Final/01_NSL_KDD/src/data_processing/generate_ae_features.py` |
+| Cổng theo ngưỡng MSE (GATE_THRESHOLD) | `Final/01_NSL_KDD/src/training/evaluate_class_aware_gate.py:31` |
+
+**Khi phản biện:** ngưỡng `GATE_THRESHOLD` **cố định, không tune trên test**; bản nâng cấp còn dùng AE-MSE như **một đặc trưng** thay vì cổng cứng (xem `generate_ae_features.py`).

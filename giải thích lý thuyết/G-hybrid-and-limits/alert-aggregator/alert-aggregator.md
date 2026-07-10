@@ -53,3 +53,16 @@ thấp → tín hiệu đồng thuận **đáng tin cậy**.
 
 **Hiểu cái này thì làm được gì?** Bạn thấy mảnh ghép cuối biến hai model rời rạc thành **một hệ thống vận hành
 được** — giảm alert fatigue và làm nổi bật cảnh báo đáng tin. Nối tiếp [[snort-hybrid-ids]].
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Hợp nhất ML alert + Snort alert | `Final/04_HybridIDS_Deployment/wsl_pipeline/hybrid_ml_backend_example.py:78` |
+| Hậu xử lý cảnh báo (replay) | `Final/05_Replay_Detection/ids_replay/postprocess.py` |
+
+**Khi phản biện:** cùng một session xuất hiện ở **cả hai nguồn** → confirmed alert, nâng ưu tiên; giá trị đến từ tính độc lập của hai nguồn.

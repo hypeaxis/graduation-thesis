@@ -59,3 +59,17 @@ Kết quả đồ án (CIC Stage 2): **Accuracy 99,55%, Macro-F1 = 0,9294**.
 **Hiểu cái này thì làm được gì?** Bạn nắm **xương sống kiến trúc** của hệ CIC trong đồ án, và hiểu vì sao chia
 tầng lại thắng một model "ôm đồm". Các mảnh ghép: [[hard-negative-mining]] (trong Expert), và ensemble
 [[bias-variance-ensemble]] ở đầu ra.
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Gate Stage-1 + Stage-2 (Snort/NSL) | `Final/01_NSL_KDD/src/inference_product/snort_two_stage_inference.py:238` |
+| Cascade 9 lớp (Testbed) | `Final/03_Testbed_Retrain/data_collection/testbed_inference_cascade_9class.py` |
+| Đánh giá cascade (CIC) | `Final/02_CIC_IDS_2017/src/training/scripts_v7/evaluate_cascade_system_v7.py` |
+
+**Khi phản biện:** code in ra `stage1_normal_gate_rate` / `stage1_attack_gate_rate` — chứng minh Gating lọc phần lớn Benign trước khi vào Expert.

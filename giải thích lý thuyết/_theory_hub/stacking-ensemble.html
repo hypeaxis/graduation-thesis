@@ -18,11 +18,6 @@
         <div class="eyebrow">F. Ensemble &amp; hệ thống · Bài #21</div>
         <h1>Stacking Ensemble — hội đồng có &quot;chủ tọa&quot; biết tổng hợp</h1>
         <p>Khi có nhiều mô hình cùng dự đoán, cách đơn giản là bỏ phiếu (voting) — nhưng voting đối xử mọi mô hình ngang nhau và không học được mô hình nào giỏi ở tình huống nào.</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -50,9 +45,13 @@
 <hr>
 <h3 id="t-m-l-i">Tóm lại</h3>
 <ul><li><strong>Stacking</strong> = nhiều <strong>base model</strong> → đầu ra của chúng làm đầu vào cho một <strong>meta-learner</strong> học <strong>cách kết hợp</strong>.</li><li>Mạnh hơn voting vì <strong>học luật tổng hợp</strong> thay vì đếm phiếu ngang nhau.</li><li>Vẫn cần các base model <strong>đa dạng</strong> mới hiệu quả.</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn phân biệt được <strong>Stacking</strong> (có meta-learner, dùng ở NSL-KDD Stage 2) với <strong>Voting</strong> (<a href="asymmetric-cost-sensitive-voting.html">Asymmetric Voting — bỏ phiếu theo CHI PHÍ sai, không phải theo đa số</a>, dùng ở CIC) — hai cách ghép mô hình khác nhau trong cùng đồ án.</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn phân biệt được <strong>Stacking</strong> (có meta-learner, dùng ở NSL-KDD Stage 2) với <strong>Voting</strong> (<a href="asymmetric-cost-sensitive-voting.html">Asymmetric Voting — bỏ phiếu theo CHI PHÍ sai, không phải theo đa số</a>, dùng ở CIC) — hai cách ghép mô hình khác nhau trong cùng đồ án.</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>Meta-learner LR trên [p_lgbm ‖ p_ftt]</td><td><code>Final/01_NSL_KDD/src/training/stacking_ensemble.py:127</code></td></tr><tr><td>LogisticRegression làm meta</td><td><code>Final/01_NSL_KDD/src/training/stacking_ensemble.py:133</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> meta-learner là <code>LogisticRegression(class_weight=&#x27;balanced&#x27;)</code>, học trên tập <strong>val</strong> từ vector xác suất của các base model.</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../F-ensemble-and-system/stacking-ensemble/stacking-ensemble.md">Mở file Markdown gốc</a><a class="button" href="../F-ensemble-and-system/stacking-ensemble/infographic.html">Mở infographic.html</a><a class="button" href="../F-ensemble-and-system/stacking-ensemble/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="Stacking Ensemble — hội đồng có "chủ tọa" biết tổng hợp" src="../F-ensemble-and-system/stacking-ensemble/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

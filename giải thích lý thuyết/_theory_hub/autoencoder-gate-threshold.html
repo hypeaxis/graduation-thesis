@@ -18,11 +18,6 @@
         <div class="eyebrow">F. Ensemble &amp; hệ thống · Bài #20</div>
         <h1>Autoencoder Gate + ngưỡng tái tạo — &quot;vẽ lại được thì là quen&quot;</h1>
         <p>Ở nhánh NSL-KDD, tầng 1 (Gating) cần quyết định &quot;flow này có bất thường không?&quot;. Thay vì huấn luyện một bộ phân loại nhị phân thông thường, đồ án dùng một ý tưởng đẹp: Autoencoder...</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -49,9 +44,13 @@ E(x) ≥ τ  →  Suspicious (chuyển xuống Stage 2)</code></pre>
 <hr>
 <h3 id="t-m-l-i">Tóm lại</h3>
 <ul><li><strong>Autoencoder Gate</strong> học <strong>tái tạo dữ liệu Normal</strong>; mẫu lạ → <strong>lỗi tái tạo cao</strong>.</li><li>Cổng theo <strong>ngưỡng τ</strong>: <code>E(x) &lt; τ</code> → Normal thoát; <code>E(x) ≥ τ</code> → Suspicious xuống tầng 2.</li><li>Ưu điểm: chỉ cần dữ liệu Normal, gắn cờ được cả bất thường chưa từng thấy.</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn thấy một cách tiếp cận <strong>Gating khác</strong> với bên CIC (<a href="two-stage-cascade-gating-expert.html">Two-Stage Cascade (Gating + Expert) — chia để trị</a>): NSL-KDD dùng AE + ngưỡng, minh hoạ tư duy &quot;sàng lọc trước, chuyên sâu sau&quot; bằng <strong>anomaly detection</strong>. Tầng 2 sau đó là <a href="stacking-ensemble.html">Stacking Ensemble — hội đồng có &quot;chủ tọa&quot; biết tổng hợp</a>.</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn thấy một cách tiếp cận <strong>Gating khác</strong> với bên CIC (<a href="two-stage-cascade-gating-expert.html">Two-Stage Cascade (Gating + Expert) — chia để trị</a>): NSL-KDD dùng AE + ngưỡng, minh hoạ tư duy &quot;sàng lọc trước, chuyên sâu sau&quot; bằng <strong>anomaly detection</strong>. Tầng 2 sau đó là <a href="stacking-ensemble.html">Stacking Ensemble — hội đồng có &quot;chủ tọa&quot; biết tổng hợp</a>.</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>AE reconstruction MSE (train normal-only)</td><td><code>Final/01_NSL_KDD/src/data_processing/generate_ae_features.py</code></td></tr><tr><td>Cổng theo ngưỡng MSE (GATE_THRESHOLD)</td><td><code>Final/01_NSL_KDD/src/training/evaluate_class_aware_gate.py:31</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> ngưỡng <code>GATE_THRESHOLD</code> <strong>cố định, không tune trên test</strong>; bản nâng cấp còn dùng AE-MSE như <strong>một đặc trưng</strong> thay vì cổng cứng (xem <code>generate_ae_features.py</code>).</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../F-ensemble-and-system/autoencoder-gate-threshold/autoencoder-gate-threshold.md">Mở file Markdown gốc</a><a class="button" href="../F-ensemble-and-system/autoencoder-gate-threshold/infographic.html">Mở infographic.html</a><a class="button" href="../F-ensemble-and-system/autoencoder-gate-threshold/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="Autoencoder Gate + ngưỡng tái tạo — "vẽ lại được thì là quen"" src="../F-ensemble-and-system/autoencoder-gate-threshold/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

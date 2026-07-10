@@ -18,11 +18,6 @@
         <div class="eyebrow">G. Hệ lai &amp; giới hạn · Bài #26</div>
         <h1>Snort + FT-Transformer — hệ lai bù điểm mù cho nhau</h1>
         <p>Không một phương pháp nào bắt được mọi kiểu tấn công. Đồ án ghép hai hướng đối lập để chúng che điểm mù cho nhau:</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -50,9 +45,13 @@
 <p><strong>song song, độc lập</strong>.</p>
 <p>công chưa có luật.</p>
 <ul><li><strong>Hệ lai</strong> = <strong>Snort</strong> (rule-based, packet, đã biết, real-time) + <strong>FTT</strong> (ML, flow, chưa biết, mã hoá) chạy</li><li>Kết hợp vì <strong>điểm mù bù nhau</strong>: Snort bắt XSS/SQLi (payload); FTT bắt DoS chậm &amp; BruteForce (flow) và tấn</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn giải thích được <strong>triết lý thiết kế tổng thể</strong> của đồ án — không tôn thờ một phương pháp, mà ghép để phủ điểm mù. Đầu ra hợp nhất bởi <a href="alert-aggregator.html">Alert Aggregator — hợp nhất cảnh báo, xác nhận chéo</a>; giới hạn còn lại nằm ở <a href="static-flow-limits-temporal.html">Giới hạn của flow tĩnh — Infiltration &amp; Botnet cần phân tích THỜI GIAN</a>.</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn giải thích được <strong>triết lý thiết kế tổng thể</strong> của đồ án — không tôn thờ một phương pháp, mà ghép để phủ điểm mù. Đầu ra hợp nhất bởi <a href="alert-aggregator.html">Alert Aggregator — hợp nhất cảnh báo, xác nhận chéo</a>; giới hạn còn lại nằm ở <a href="static-flow-limits-temporal.html">Giới hạn của flow tĩnh — Infiltration &amp; Botnet cần phân tích THỜI GIAN</a>.</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>Snort + FTT two-stage</td><td><code>Final/01_NSL_KDD/src/inference_product/snort_two_stage_inference.py</code></td></tr><tr><td>Tiền xử lý 122 feature cho nhánh Snort</td><td><code>Final/01_NSL_KDD/src/inference_product/snort_preprocess_122.py</code></td></tr><tr><td>Backend ML nhận --snort-alert</td><td><code>Final/04_HybridIDS_Deployment/wsl_pipeline/hybrid_ml_backend_example.py:78</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> hai nhánh (Snort packet-level + FTT flow-level) chạy <strong>độc lập, song song</strong>; backend ML nhận thêm đường dẫn alert của Snort để hợp nhất.</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../G-hybrid-and-limits/snort-hybrid-ids/snort-hybrid-ids.md">Mở file Markdown gốc</a><a class="button" href="../G-hybrid-and-limits/snort-hybrid-ids/infographic.html">Mở infographic.html</a><a class="button" href="../G-hybrid-and-limits/snort-hybrid-ids/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="Snort + FT-Transformer — hệ lai bù điểm mù cho nhau" src="../G-hybrid-and-limits/snort-hybrid-ids/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

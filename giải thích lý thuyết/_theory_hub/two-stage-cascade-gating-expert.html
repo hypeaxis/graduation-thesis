@@ -18,11 +18,6 @@
         <div class="eyebrow">F. Ensemble &amp; hệ thống · Bài #19</div>
         <h1>Two-Stage Cascade (Gating + Expert) — chia để trị</h1>
         <p>Bắt một model vừa phải lọc ~83% Benign ra khỏi tấn công, vừa phải phân biệt tinh tế giữa 9 loại tấn công là quá tải. Gradient bị xé làm hai nhiệm vụ đối chọi: học &quot;Benign vs Attack...</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -47,9 +42,13 @@
 <h3 id="t-m-l-i">Tóm lại</h3>
 <p>traffic) — một dạng <strong>Mixture of Experts</strong>.</p>
 <ul><li><strong>Two-Stage Cascade</strong> = <strong>Gating</strong> (nhị phân, lọc Benign, ngưỡng bảo thủ 85%) → <strong>Expert</strong> (9 lớp, chỉ ~17,3%</li><li>Tách hai nhiệm vụ đối chọi → mỗi tầng chuyên biệt → gradient Expert tập trung phân biệt tấn công.</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn nắm <strong>xương sống kiến trúc</strong> của hệ CIC trong đồ án, và hiểu vì sao chia tầng lại thắng một model &quot;ôm đồm&quot;. Các mảnh ghép: <a href="hard-negative-mining.html">Hard Negative Mining — chỉ ôn lại những câu làm SAI</a> (trong Expert), và ensemble <a href="bias-variance-ensemble.html">Bias–Variance &amp; Ensemble giảm Variance — vì sao &quot;hỏi nhiều người&quot; tốt hơn</a> ở đầu ra.</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn nắm <strong>xương sống kiến trúc</strong> của hệ CIC trong đồ án, và hiểu vì sao chia tầng lại thắng một model &quot;ôm đồm&quot;. Các mảnh ghép: <a href="hard-negative-mining.html">Hard Negative Mining — chỉ ôn lại những câu làm SAI</a> (trong Expert), và ensemble <a href="bias-variance-ensemble.html">Bias–Variance &amp; Ensemble giảm Variance — vì sao &quot;hỏi nhiều người&quot; tốt hơn</a> ở đầu ra.</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>Gate Stage-1 + Stage-2 (Snort/NSL)</td><td><code>Final/01_NSL_KDD/src/inference_product/snort_two_stage_inference.py:238</code></td></tr><tr><td>Cascade 9 lớp (Testbed)</td><td><code>Final/03_Testbed_Retrain/data_collection/testbed_inference_cascade_9class.py</code></td></tr><tr><td>Đánh giá cascade (CIC)</td><td><code>Final/02_CIC_IDS_2017/src/training/scripts_v7/evaluate_cascade_system_v7.py</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> code in ra <code>stage1_normal_gate_rate</code> / <code>stage1_attack_gate_rate</code> — chứng minh Gating lọc phần lớn Benign trước khi vào Expert.</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../F-ensemble-and-system/two-stage-cascade-gating-expert/two-stage-cascade-gating-expert.md">Mở file Markdown gốc</a><a class="button" href="../F-ensemble-and-system/two-stage-cascade-gating-expert/infographic.html">Mở infographic.html</a><a class="button" href="../F-ensemble-and-system/two-stage-cascade-gating-expert/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="Two-Stage Cascade (Gating + Expert) — chia để trị" src="../F-ensemble-and-system/two-stage-cascade-gating-expert/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

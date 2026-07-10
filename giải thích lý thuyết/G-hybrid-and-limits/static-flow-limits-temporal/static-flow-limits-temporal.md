@@ -62,3 +62,16 @@ Các hướng này **nằm ngoài phạm vi đồ án hiện tại** nhưng là 
 **Hiểu cái này thì làm được gì?** Bạn viết được phần **"Giới hạn & Hướng phát triển"** của luận văn một cách
 thuyết phục — chỉ ra *ranh giới lý thuyết* của cách tiếp cận flow tĩnh, thay vì đổ lỗi cho model. Liên hệ
 [[flow-features-cicflowmeter]] (nguồn gốc giới hạn) và [[portscan-inseparability-nat]] (một giới hạn dữ liệu khác).
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Hậu xử lý flow-level (chưa temporal) | `Final/05_Replay_Detection/ids_replay/postprocess.py` |
+| Đặc trưng flow đơn lẻ | `Final/05_Replay_Detection/ids_replay/features.py` |
+
+**Khi phản biện:** đây là **giới hạn**: code chỉ phân loại flow đơn lẻ; session aggregation / DPI / LSTM-temporal là **hướng mở rộng**, chưa hiện thực trong `Final/`.

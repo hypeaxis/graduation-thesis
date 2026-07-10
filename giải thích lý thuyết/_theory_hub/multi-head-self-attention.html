@@ -18,11 +18,6 @@
         <div class="eyebrow">B. FT-Transformer · Bài #5</div>
         <h1>Multi-Head Self-Attention — cho các đặc trưng &quot;hỏi chuyện&quot; nhau</h1>
         <p>Nhiều tấn công không lộ ra ở một đặc trưng đơn lẻ, mà ở tổ hợp của chúng. Ví dụ: &quot;khi src_bytes cao VÀ rerror_rate cao đồng thời → tấn công R2L&quot;. Một mình src_bytes</p>
-        <div class="stats">
-          <div class="stat"><strong>Văn bản</strong><span class="muted">Render từ Markdown gốc</span></div>
-          <div class="stat"><strong>Infographic</strong><span class="muted">Mở song song ở cột phải</span></div>
-          <div class="stat"><strong>Nguồn gốc</strong><span class="muted">Không tách khỏi thư mục lý thuyết hiện tại</span></div>
-        </div>
       </header>
       <main class="grid detail-layout">
         <article class="panel detail-copy"><h3 id="n-sinh-ra-gi-i-quy-t-chuy-n-g">Nó sinh ra để giải quyết chuyện gì?</h3>
@@ -58,9 +53,13 @@ V = T·W^V    (Value — &quot;thông tin thực tôi mang&quot;)</code></pre>
 <h3 id="t-m-l-i">Tóm lại</h3>
 <p>theo trọng số softmax.</p>
 <ul><li>Self-Attention cho mỗi đặc trưng <strong>hỏi mọi đặc trưng khác mức liên quan</strong> qua <code>Q·Kᵀ</code>, rồi <strong>trộn Value</strong></li><li>Hệ số <strong><code>1/√d_k</code></strong> chống vanishing gradient khi số chiều lớn.</li><li><strong>Multi-Head</strong> = nhiều Attention song song, mỗi cái bắt một kiểu quan hệ → giàu hơn.</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Đây chính là lý do đồ án <strong>chọn FT-Transformer thay vì MLP/RF/XGBoost</strong>: Attention học <strong>tường minh</strong> tương tác đặc trưng, thay vì học ngầm. Nó cũng là nền để hiểu vì sao <a href="layer-freezing-catastrophic-forgetting.html">Layer Freezing &amp; Catastrophic Forgetting — giữ nền, học lại phần ngọn</a> hiệu quả — tầng Attention thấp học quan hệ tổng quát.</p></article>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Đây chính là lý do đồ án <strong>chọn FT-Transformer thay vì MLP/RF/XGBoost</strong>: Attention học <strong>tường minh</strong> tương tác đặc trưng, thay vì học ngầm. Nó cũng là nền để hiểu vì sao <a href="layer-freezing-catastrophic-forgetting.html">Layer Freezing &amp; Catastrophic Forgetting — giữ nền, học lại phần ngọn</a> hiệu quả — tầng Attention thấp học quan hệ tổng quát.</p>
+<hr>
+<h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
+<p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>
+<div class="table-wrap"><table><thead><tr><th>Vai trò trong code</th><th>File · vị trí</th></tr></thead><tbody><tr><td>Lớp MHSA (Q,K,V,O)</td><td><code>Final/01_NSL_KDD/src/models/phase2_ft_transformer.py:199</code></td></tr><tr><td>scores = QKᵀ / √d_k → softmax</td><td><code>Final/01_NSL_KDD/src/models/phase2_ft_transformer.py:222</code></td></tr></tbody></table></div>
+<p><strong>Khi phản biện:</strong> code khớp 1:1: <code>torch.matmul(q, k.transpose(-2,-1)) / (d_k ** 0.5)</code> rồi <code>softmax</code>. <code>d_model</code> chia hết cho <code>num_heads</code>.</p></article>
         <aside class="panel detail-visual">
-          <div class="visual-actions"><a class="button primary" href="index.html">Quay lại trang tổng hợp</a><a class="button" href="../B-ft-transformer/multi-head-self-attention/multi-head-self-attention.md">Mở file Markdown gốc</a><a class="button" href="../B-ft-transformer/multi-head-self-attention/infographic.html">Mở infographic.html</a><a class="button" href="../B-ft-transformer/multi-head-self-attention/infographic.png">Mở infographic.png</a></div>
           <div class="visual-frame"><img class="visual-image" alt="Multi-Head Self-Attention — cho các đặc trưng "hỏi chuyện" nhau" src="../B-ft-transformer/multi-head-self-attention/infographic.png"></div>
           <p class="footer-note">Nếu bạn cần in hoặc chèn vào slide, có thể mở trực tiếp file infographic.png hoặc infographic.html từ đây.</p>
         </aside>

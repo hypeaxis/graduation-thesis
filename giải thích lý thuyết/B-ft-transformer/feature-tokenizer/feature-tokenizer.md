@@ -86,3 +86,17 @@ Con số vô hồn `1,2` giờ đã thành một **vector 4 chiều** mang danh 
 **Hiểu cái này thì làm được gì?** Đây là cửa ngõ khiến Transformer dùng được cho dữ liệu bảng. Nó cũng là
 chỗ mà đồ án thực hiện **Model Surgery** (thêm 3 hàng đặc trưng mới `77 → 80`) — vì mỗi đặc trưng là một hàng
 độc lập trong ma trận embedding, ta ghép thêm hàng mà không phá phần cũ. Xem [[model-surgery]].
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Per-feature Linear(1,d) + CLS token | `Final/01_NSL_KDD/src/models/phase2_ft_transformer.py:95` |
+| Biến thể gộp nhóm (grouped) | `Final/01_NSL_KDD/src/models/phase2_ft_transformer.py:127` |
+| Bản CIC | `Final/02_CIC_IDS_2017/src/models/phase2_ft_transformer_v2.py` |
+
+**Khi phản biện:** mỗi đặc trưng = một `nn.Linear(1, d_model)` riêng → đúng `e_j = x_j·w_j + b_j`. Lưu ý: NSL-KDD dùng biến thể **grouped** (gộp one-hot service/protocol thành token nhóm) để rút chuỗi token.

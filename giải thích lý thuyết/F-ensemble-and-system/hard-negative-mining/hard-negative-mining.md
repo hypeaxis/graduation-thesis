@@ -64,3 +64,16 @@ nào để học tốt hơn, tăng trọng số mẫu sai chỉ **bơm nhiễu**
 
 **Hiểu cái này thì làm được gì?** Bạn nắm **tầng thứ ba** của chống mất cân bằng (sau dữ liệu và loss): tinh
 chỉnh **boundary**. Dùng trong Expert Network của [[two-stage-cascade-gating-expert]].
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Trích hard negatives (double HNM Botnet) | `Final/02_CIC_IDS_2017/src/training/scripts_v7/extract_hard_negatives_v7.py:87` |
+| Bản v5 | `Final/02_CIC_IDS_2017/src/archive/scripts_v5/extract_hard_negatives_v5.py` |
+
+**Khi phản biện:** code thu các mẫu Stage-1 coi là **Suspicious** (gồm cả True Positive lẫn hard negative) rồi tăng trọng số ở vòng huấn luyện Stage-2 tiếp theo — đúng tinh thần Boosting.

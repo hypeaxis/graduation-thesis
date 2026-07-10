@@ -76,3 +76,17 @@ Khi **nhiều thuật toán với inductive bias khác nhau đều thất bại 
 **Hiểu cái này thì làm được gì?** Bạn nắm một nguyên tắc chẩn đoán vàng: **khi mọi model đều tịt như nhau, hãy
 nghi ngờ dữ liệu, không phải thuật toán**. Liên hệ [[focal-loss]] (vô ích ở đây) và [[hard-negative-mining]]
 (cũng bó tay khi không phân tách).
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Tiêm CIC PortScan – gộp dataset | `Final/03_Testbed_Retrain/retrain/v8/v8.3_Feature_Engineering/huong2_inject_cic_portscan/combine_datasets.py` |
+| Khớp đặc trưng CIC→Testbed | `Final/03_Testbed_Retrain/retrain/v8/v8.3_Feature_Engineering/huong2_inject_cic_portscan/feature_mapper.py` |
+| Train với surrogate data | `Final/03_Testbed_Retrain/retrain/v8/v8.3_Feature_Engineering/huong2_inject_cic_portscan/v8_3_train_huong2.py` |
+
+**Khi phản biện:** giải pháp là **dữ liệu surrogate** (tiêm PortScan từ CIC), đưa F1 lên ~100% — không phải chỉnh thuật toán. Bằng chứng lỗi nằm ở dữ liệu, không phải model.

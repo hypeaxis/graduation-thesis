@@ -63,3 +63,15 @@ Một flow, ba phiếu: FTT=Benign, RF=Infiltration, KNN=Benign.
 **Hiểu cái này thì làm được gì?** Bạn thấy ensemble không chỉ là "gộp cho chính xác hơn" mà còn là **công cụ
 quản trị rủi ro** theo chi phí thực tế — một điểm sáng thực tiễn của đồ án. Nền lý thuyết: [[bias-variance-ensemble]],
 [[inductive-bias-diversity]].
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Infiltration Priority OR-rule | `Final/02_CIC_IDS_2017/src/training/scripts_v7/evaluate_cascade_system_v7.py:191` |
+
+**Khi phản biện:** luật trong code: `if rf=='Infiltration' or knn=='Infiltration' or (ft=='Infiltration' and ft_prob>=thr)` → gán Infiltration (tăng recall); các lớp khác dùng majority.

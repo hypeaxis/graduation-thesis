@@ -69,3 +69,16 @@ CF = (Acc_source_before − Acc_source_after) / Acc_source_before × 100%
 
 **Hiểu cái này thì làm được gì?** Đây là kỹ thuật **không thể làm với Random Forest/XGBoost** — một lý do
 đồ án chọn FT-Transformer ([[multi-head-self-attention]]). Thường đi kèm [[model-surgery]] để thêm đặc trưng mới.
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Freeze embedding + transformer_blocks[0],[1] | `Final/03_Testbed_Retrain/retrain/domain_adaptation/2_finetune_freeze.py:223` |
+| Freeze trong bước Model Surgery | `Final/03_Testbed_Retrain/retrain/domain_adaptation/3_feature_engineering_v2.py:272` |
+
+**Khi phản biện:** code **đóng băng 2/4 khối Attention đầu** (`requires_grad=False`) + embedding, chỉ mở 2 khối cuối + classifier — đúng với 'đóng băng 2/4 tầng, CF=0,61%'.

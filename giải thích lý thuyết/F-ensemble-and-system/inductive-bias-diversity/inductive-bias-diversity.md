@@ -56,3 +56,15 @@ Ngược lại, ở một mẫu có tương tác rối mà FTT bối rối, **RF
 **Hiểu cái này thì làm được gì?** Bạn biết **cách thiết kế ensemble đúng** — không phải cứ gộp nhiều model, mà
 phải gộp model **đa dạng**. Đây là cầu nối giữa lý thuyết [[bias-variance-ensemble]] và luật gộp
 [[asymmetric-cost-sensitive-voting]].
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Train 3 model khác bias (FTT/RF/KNN) | `Final/02_CIC_IDS_2017/src/training/scripts_v7/phase2_train_v7_stage2_ensemble.py` |
+
+**Khi phản biện:** FTT (Attention – toàn cục) + RandomForest (cây – cục bộ) + KNN (lân cận – lazy): ba bias khác nhau được chọn **có chủ đích** để ép ρ thấp.

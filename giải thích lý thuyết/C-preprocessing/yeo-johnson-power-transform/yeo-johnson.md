@@ -142,3 +142,17 @@ khủng khiếp. Yeo-Johnson kéo đuôi về giúp:
 **Hiểu cái này thì làm được gì?** Bạn biết *khi nào nên dùng* (feature lệch nặng, có số 0/âm),
 *tránh được data leakage* khi fit, và giải thích được trong luận văn **vì sao** bước tiền xử lý này giúp
 mô hình detection ổn định hơn — thay vì chỉ "em thấy trong sklearn nên em dùng".
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| PowerTransformer(yeo-johnson, standardize=True) | `Final/02_CIC_IDS_2017/src/archive/phase2_train_v4_stage1.py:103` |
+| Unified scaler cho 80 feature (Testbed) | `Final/03_Testbed_Retrain/retrain/domain_adaptation/3b_stage3_fixed_pipeline.py:251` |
+| Scaler dùng khi triển khai | `Final/05_Replay_Detection/model_defs/hybrid_feature_scaler.py` |
+
+**Khi phản biện:** `standardize=True` → combo Gaussian-hoá + chuẩn hoá; scaler **fit trên train** rồi lưu, `transform` khi inference → tránh data leakage.

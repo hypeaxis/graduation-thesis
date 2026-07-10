@@ -91,3 +91,17 @@ Nó "thành thật" vì chỉ cao khi model làm tốt **đồng thời cả 4 �
 
 **Hiểu cái này thì làm được gì?** Bạn chọn đúng thước đo để **báo cáo trong luận văn** và để **tuning model** —
 tránh cái bẫy kinh điển "accuracy 99% mà chẳng bắt được tấn công nào".
+
+---
+
+## 🔧 Ánh xạ sang codebase (`Final/`)
+
+Nơi lý thuyết này được **hiện thực trong code** — dùng để phản biện chính xác:
+
+| Vai trò trong code | File · vị trí |
+|---|---|
+| Macro-F1 làm mục tiêu tối ưu ngưỡng | `Final/01_NSL_KDD/src/training/evaluate_class_aware_gate.py:127` |
+| Macro-F1 objective (Nelder-Mead) | `Final/01_NSL_KDD/src/training/stacking_ensemble.py:94` |
+| Báo cáo per-class + macro (CIC) | `Final/02_CIC_IDS_2017/src/training/scripts_v7/evaluate_cascade_system_v7.py` |
+
+**Khi phản biện:** mọi lựa chọn ngưỡng/ensemble đều **tối ưu theo Macro-F1** (không phải Accuracy) — trả lời được câu 'vì sao không dùng accuracy?'.
