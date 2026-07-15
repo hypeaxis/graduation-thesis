@@ -1,0 +1,1802 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>Lý thuyết đồ án — theo giai đoạn</title>
+
+<style>
+:root{
+  --bg:#eceff3; --surface:#ffffff; --surface-2:#f5f7f9; --line:#d3dae2;
+  --ink:#0e1519; --ink-2:#3d4b57; --muted:#68798a;
+  --accent:#14507d; --accent-soft:#e3edf6;
+  --ok:#1f6b4e; --ok-soft:#e0f0e8;
+  --no:#a3352f; --no-soft:#f7e3e1;
+  --warn:#8a5a10; --warn-soft:#f7ecd8;
+  --code-bg:#101820; --code-ink:#d7e2ea;
+  --mono:ui-monospace,"Cascadia Code","JetBrains Mono","SF Mono",Consolas,monospace;
+  --sans:"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+  --rail:280px;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0b1014; --surface:#141b21; --surface-2:#1a232b; --line:#2a3742;
+    --ink:#e6edf3; --ink-2:#b3c1cd; --muted:#8698a7;
+    --accent:#6fb0e6; --accent-soft:#16293a;
+    --ok:#63c39a; --ok-soft:#162b23;
+    --no:#e5877f; --no-soft:#2e1a19;
+    --warn:#dcae62; --warn-soft:#2c2416;
+    --code-bg:#070b0e; --code-ink:#cdd9e2;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0b1014; --surface:#141b21; --surface-2:#1a232b; --line:#2a3742;
+  --ink:#e6edf3; --ink-2:#b3c1cd; --muted:#8698a7;
+  --accent:#6fb0e6; --accent-soft:#16293a;
+  --ok:#63c39a; --ok-soft:#162b23;
+  --no:#e5877f; --no-soft:#2e1a19;
+  --warn:#dcae62; --warn-soft:#2c2416;
+  --code-bg:#070b0e; --code-ink:#cdd9e2;
+}
+:root[data-theme="light"]{
+  --bg:#eceff3; --surface:#ffffff; --surface-2:#f5f7f9; --line:#d3dae2;
+  --ink:#0e1519; --ink-2:#3d4b57; --muted:#68798a;
+  --accent:#14507d; --accent-soft:#e3edf6;
+  --ok:#1f6b4e; --ok-soft:#e0f0e8;
+  --no:#a3352f; --no-soft:#f7e3e1;
+  --warn:#8a5a10; --warn-soft:#f7ecd8;
+  --code-bg:#101820; --code-ink:#d7e2ea;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.65;
+  font-size:16px;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.mono{font-family:var(--mono)}
+
+/* ---------- shell ---------- */
+.shell{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);min-height:100vh}
+.rail{border-right:1px solid var(--line);background:var(--surface);position:sticky;top:0;height:100vh;
+  overflow-y:auto;padding:20px 0 40px}
+.rail-head{padding:0 18px 14px;border-bottom:1px solid var(--line);margin-bottom:10px}
+.rail-title{font-size:15px;font-weight:700;letter-spacing:-.01em;line-height:1.3;margin:6px 0 2px;cursor:pointer}
+.rail-sub{font-size:12px;color:var(--muted)}
+.search{width:100%;margin-top:12px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;
+  background:var(--surface-2);color:var(--ink);font-family:var(--mono);font-size:12.5px}
+.search:focus{outline:2px solid var(--accent);outline-offset:1px}
+.grp{padding:10px 10px 4px}
+.grp-h{display:flex;gap:9px;align-items:baseline;padding:7px 8px;border-radius:6px;cursor:pointer}
+.grp-h:hover{background:var(--surface-2)}
+.grp-n{font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:700;flex:none}
+.grp-t{font-size:13px;font-weight:600;line-height:1.35}
+.grp-c{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-left:auto;flex:none}
+.grp ul{list-style:none;margin:2px 0 6px;padding:0 0 0 8px;border-left:1px solid var(--line);margin-left:14px}
+.grp li a{display:block;padding:5px 8px;font-size:13px;color:var(--ink-2);text-decoration:none;border-radius:5px;line-height:1.35}
+.grp li a:hover{background:var(--surface-2);color:var(--ink)}
+.grp li a.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.main{padding:34px 40px 90px;max-width:960px}
+
+/* ---------- home ---------- */
+h1{font-size:32px;line-height:1.2;letter-spacing:-.02em;margin:8px 0 10px;text-wrap:balance}
+h2{font-size:22px;letter-spacing:-.015em;margin:34px 0 12px;text-wrap:balance}
+.lede{font-size:17px;color:var(--ink-2);max-width:62ch}
+.note{border-left:3px solid var(--accent);background:var(--surface);padding:12px 16px;margin:22px 0;
+  font-size:14.5px;color:var(--ink-2);border-radius:0 6px 6px 0}
+.tl{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.tl-item{display:grid;grid-template-columns:64px minmax(0,1fr);gap:16px;background:var(--surface);
+  border:1px solid var(--line);border-radius:8px;padding:14px 16px;text-decoration:none;color:inherit}
+.tl-item:hover{border-color:var(--accent)}
+.tl-n{font-family:var(--mono);font-weight:700;font-size:13px;color:var(--accent);
+  border-right:1px solid var(--line);display:flex;align-items:center}
+.tl-t{font-weight:650;font-size:15.5px;margin-bottom:3px}
+.tl-q{font-size:13.5px;color:var(--muted)}
+.tl-r{font-family:var(--mono);font-size:12px;color:var(--ok);margin-top:5px}
+
+/* ---------- detail ---------- */
+.crumb{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-bottom:6px}
+.crumb a{color:var(--muted);text-decoration:none}
+.crumb a:hover{color:var(--accent)}
+.blk{background:var(--surface);border:1px solid var(--line);border-radius:8px;margin:16px 0;overflow:hidden}
+.blk-h{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line);
+  background:var(--surface-2)}
+.blk-h .eyebrow{font-weight:700;color:var(--ink-2)}
+.blk-b{padding:16px 18px}
+.blk-b > :first-child{margin-top:0}
+.blk-b > :last-child{margin-bottom:0}
+.blk-b p{margin:0 0 12px;max-width:70ch}
+.blk-b ul{margin:0 0 12px;padding-left:20px}
+.blk-b li{margin-bottom:5px}
+.formula{font-family:var(--mono);background:var(--surface-2);border:1px solid var(--line);
+  padding:11px 14px;border-radius:6px;font-size:14px;overflow-x:auto;margin:0 0 12px}
+code{font-family:var(--mono);font-size:.9em;background:var(--surface-2);border:1px solid var(--line);
+  padding:1px 5px;border-radius:4px}
+pre{margin:0;background:var(--code-bg);color:var(--code-ink);padding:13px 15px;overflow-x:auto;
+  font-family:var(--mono);font-size:12.5px;line-height:1.6}
+pre code{background:none;border:0;padding:0;color:inherit;font-size:inherit}
+.src{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11.5px;color:var(--muted);
+  padding:8px 15px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.src b{color:var(--accent);font-weight:600}
+.codewrap{border:1px solid var(--line);border-radius:6px;overflow:hidden;margin:0 0 12px}
+.cnote{font-size:13.5px;color:var(--muted);padding:9px 15px;background:var(--surface-2);
+  border-top:1px solid var(--line)}
+
+/* ---------- decision ledger ---------- */
+.ledger{width:100%;border-collapse:collapse;font-size:14px}
+.ledger th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;padding:0 12px 8px 0;border-bottom:1px solid var(--line)}
+.ledger td{padding:11px 12px 11px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.ledger tr:last-child td{border-bottom:0}
+.ledger td:first-child{font-weight:600;width:26%}
+.ledger td:nth-child(2){width:110px}
+.chip{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.05em;
+  padding:2px 7px;border-radius:4px;white-space:nowrap;text-transform:uppercase}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}
+.chip.no{background:var(--no-soft);color:var(--no)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.ev{list-style:none;padding:0;margin:0}
+.ev li{display:flex;gap:10px;padding:7px 0;border-bottom:1px dotted var(--line);font-size:14px}
+.ev li:last-child{border-bottom:0}
+.ev b{font-family:var(--mono);font-size:12.5px;color:var(--accent);flex:none;min-width:0}
+.gap{border-left:3px solid var(--no);background:var(--no-soft);padding:12px 16px;border-radius:0 6px 6px 0;
+  font-size:14px;color:var(--ink-2);margin:0}
+.gap strong{color:var(--no)}
+.hits{font-family:var(--mono);font-size:12px;color:var(--muted);padding:4px 18px 8px}
+@media(max-width:900px){
+  .shell{grid-template-columns:1fr}
+  .rail{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}
+  .main{padding:24px 18px 60px}
+  .ledger td:first-child{width:auto}
+}
+</style>
+
+<div class="shell">
+  <nav class="rail">
+    <div class="rail-head">
+      <div class="eyebrow">Đồ án tốt nghiệp · Hybrid NIDS</div>
+      <div class="rail-title" id="home-link">Lý thuyết theo giai đoạn</div>
+      <div class="rail-sub">Vì sao chọn → chạy thế nào trong code → vì sao không dùng cái tương tự</div>
+      <input class="search" id="q" type="search" placeholder="tìm: focal, surgery, portscan…" autocomplete="off">
+    </div>
+    <div class="hits" id="hits"></div>
+    <div id="nav"></div>
+  </nav>
+  <main class="main" id="main"></main>
+</div>
+
+<script>
+const PHASES = [
+  {id:"gd0", n:"GĐ 0", title:"Nền tảng bài toán & dữ liệu",
+   q:"Bài toán này thực chất là bài toán học máy gì, và dữ liệu vào là cái gì?",
+   result:"Chốt: phân loại có giám sát trên flow, 80 đặc trưng, đo bằng Macro-F1",
+   ws:"xuyên suốt cả 5 giai đoạn",
+   intro:"Trước khi bàn kiến trúc, phải chốt ba thứ: (1) IDS được quy về bài toán học máy nào, (2) một 'mẫu' là gì và có những trường nào, (3) đo bằng chỉ số nào để con số không đánh lừa mình. Ba lựa chọn này ràng buộc toàn bộ 5 giai đoạn sau — đặc biệt việc chọn <em>flow</em> làm đơn vị mẫu là thứ về sau sinh ra giới hạn PortScan."},
+  {id:"gd1", n:"GĐ 1", title:"NSL-KDD — chứng minh tính khả thi",
+   q:"FT-Transformer có thực sự ăn được dữ liệu bảng của IDS không?",
+   result:"Macro-F1 ≈ 0,681 (Stacking: LightGBM + FTT + Meta-LR)",
+   ws:"NSL_KDD_Workspace/",
+   intro:"Giai đoạn thăm dò trên bộ dữ liệu kinh điển. Mục tiêu không phải điểm cao mà là trả lời: kiến trúc Transformer cho dữ liệu bảng có hoạt động không, và có đáng để mang sang bộ dữ liệu lớn không. Ở đây định hình 3 khối lõi của FT-Transformer (dùng lại nguyên vẹn đến tận GĐ5) và bài học đầu tiên về ensemble."},
+  {id:"gd2", n:"GĐ 2", title:"CIC-IDS-2017 — quy mô lớn & mất cân bằng",
+   q:"Lên 2,8 triệu flow / 9 lớp cực lệch thì phải làm gì để lớp hiếm không bị nuốt?",
+   result:"Accuracy 99,55% · Macro-F1 0,9294 (Cascade + Asymmetric Voting)",
+   ws:"CIC_IDS_2017_Workspace/",
+   intro:"Đây là nơi hầu hết lý thuyết 'nặng' được đưa vào, và mỗi thứ đều sinh ra từ một triệu chứng cụ thể: lớp đông nuốt gradient (→ Focal Loss), một model tự tin sai (→ ensemble khác inductive bias), Benign bị báo nhầm (→ voting bất đối xứng + hard negative mining), và 99% traffic là Benign nên không cần model nặng xử lý hết (→ cascade hai tầng)."},
+  {id:"gd3", n:"GĐ 3", title:"Testbed thật & thích nghi miền",
+   q:"Model 99% trên CIC-IDS-2017 đem sang mạng WSL thật thì sập. Vì sao và cứu thế nào?",
+   result:"V8.5: Macro-F1 91,7% trên testbed (80 feature, 5 lớp)",
+   ws:"Custom_IDS_Testbed/ · Domain_Adaptation_Workspace/ · Phase3_4_Retrain/",
+   intro:"Giai đoạn 'vỡ mộng' và cũng là giai đoạn có giá trị khoa học nhất: model gần như hoàn hảo trên benchmark rơi thẳng khi gặp traffic thật. Chuỗi lý thuyết ở đây là một chuỗi <em>chẩn đoán</em>: đo lệch phân phối → thử cách rẻ nhất (re-fit scaler) → hiểu vì sao nó thất bại → mới đi tới freezing + model surgery. Nhiều lý thuyết ở đây được ghi lại kèm <strong>kết quả âm</strong>, vì chính chúng biện minh cho lựa chọn cuối."},
+  {id:"gd4", n:"GĐ 4", title:"Hệ lai Snort + FT-Transformer",
+   q:"Vì sao vẫn cần Snort khi đã có deep learning, và hai tầng nói chuyện với nhau kiểu gì?",
+   result:"Pipeline E2E chạy trên LAN thật xuyên máy (WSL2 mirrored)",
+   ws:"Custom_IDS_Testbed/",
+   intro:"Hai triết lý phát hiện — dựa trên dấu hiệu (signature) và dựa trên bất thường (anomaly) — có điểm mù bù nhau. Giai đoạn này là phần <em>hệ thống</em>: ghép Snort, CICFlowMeter và FT-Transformer thành một đường ống, và giải bài toán đồng bộ nhãn giữa hai nguồn cảnh báo khác đơn vị (gói tin vs flow)."},
+  {id:"gd5", n:"GĐ 5", title:"Realtime — Replay & Live micro-batch",
+   q:"Chạy thật thì model sai ở đâu, và sửa được bằng gì mà không phải train lại?",
+   result:"Macro-F1 end-to-end 0,978 · PortScan F1 0,996 (nhờ luật hậu xử lý)",
+   ws:"live_detection/",
+   intro:"Giai đoạn đối mặt với sự thật: trên benign thật, model V8.5 báo giả <strong>24,68%</strong>. Ở đây có ba lớp lý thuyết chồng nhau — hậu xử lý bằng luật (rẻ, không train lại), hiệu chỉnh xác suất (temperature scaling), và cuối cùng là fine-tune với benign thật. Kèm theo là những lỗ hổng đã tự phát hiện khi rà soát, được ghi thẳng ra thay vì giấu."}
+];
+
+const T = [];
+/* ---------- GĐ 0 ---------- */
+T.push({
+id:"ids-flow", phase:"gd0", tag:"Khung bài toán", title:"IDS = phân loại có giám sát trên flow",
+one:"Quy phát hiện xâm nhập về bài toán phân loại đa lớp trên một vector đặc trưng tổng hợp từ một luồng mạng.",
+why:`<p>Một cuộc tấn công không nằm trong một gói tin đơn lẻ — nó nằm trong <em>hình dạng</em> của cả cuộc trao đổi:
+gửi bao nhiêu gói, gói to hay nhỏ, cách nhau bao lâu, ai nói nhiều hơn ai. Nếu nhìn từng gói, một gói SYN của
+kẻ quét cổng và một gói SYN của người dùng thật <strong>giống hệt nhau</strong>.</p>
+<p>Vì vậy đơn vị mẫu của toàn bộ đồ án là <strong>flow</strong> (một chiều hội thoại 5-tuple: IP nguồn, IP đích,
+cổng nguồn, cổng đích, giao thức), và mỗi flow được nén thành một vector số. Bài toán trở thành:
+cho vector 80 chiều → trả về 1 trong 5 nhãn.</p>`,
+how:`<p>Đầu vào là ma trận <code>X ∈ R^(n×80)</code>, đầu ra là nhãn trong tập {Benign, DoS, PortScan, Brute Force,
+Web Attack}. Mô hình học ánh xạ <code>f: R^80 → R^5</code> rồi lấy softmax.</p>
+<div class="formula">ŷ = argmax_c  softmax(f(x))_c        conf = max_c softmax(f(x))_c</div>
+<p>Điểm mấu chốt: <strong>flow là ảnh chụp tĩnh</strong>. Toàn bộ thông tin thời gian đã bị nén thành thống kê
+(mean/std/max/min của khoảng cách giữa các gói). Model không thấy chuỗi, chỉ thấy tóm tắt.</p>`,
+codeIntro:`<p>Định nghĩa cứng của "một mẫu là gì" nằm ở danh sách 80 cột — đây là hợp đồng mà mọi tầng khác phải tuân theo:</p>`,
+code:[{file:"live_detection/ids_replay/features.py", lines:"9–11, 18–50",
+snippet:`EXPECTED_FEATURES_80 = [
+    'Flow_Duration', 'Total_Fwd_Packets', ... 'Idle_Min',
+    'Port_Is_Web', ... 'Custom_Pkt_Size_Ratio',
+]
+
+class FeatureExtractor:
+    """Chuyển DataFrame CICFlowMeter (raw) → ma trận 80 feature đúng thứ tự model cần."""
+    features = EXPECTED_FEATURES_80
+
+    def build(self, df):
+        ...
+        X = df[EXPECTED_FEATURES_80].values.astype(np.float32)
+        return np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)`,
+note:"Thứ tự cột là bất biến sống còn: model nạp trọng số theo <em>vị trí</em>, đảo cột = đảo nghĩa đặc trưng mà không báo lỗi."},
+{file:"live_detection/ids_replay/model.py", lines:"47–58",
+snippet:`def predict(self, X):
+    Xs = self.scaler.transform(X)
+    with torch.no_grad():
+        for i in range(0, len(Xs), 1024):
+            probs = torch.softmax(self.model(torch.FloatTensor(Xs[i:i+1024])), dim=1)
+            conf, idx = probs.max(dim=1)
+    return self.encoder.inverse_transform(idxs), confs`,
+note:"Toàn bộ bài toán rút gọn về đúng 3 dòng: scale → forward → argmax + confidence."}],
+alts:[
+{name:"Phân tích từng gói tin (DPI / payload)", v:"no", why:"Cần đọc nội dung gói — hỏng hoàn toàn với traffic mã hoá (HTTPS), lại nặng và có vấn đề riêng tư. Flow-based chỉ dùng metadata nên vẫn chạy được trên traffic mã hoá."},
+{name:"Mô hình chuỗi thời gian trên chuỗi gói (LSTM/Transformer theo gói)", v:"no", why:"Đúng về mặt lý thuyết và bắt được PortScan tốt hơn, nhưng đòi giữ trạng thái theo từng flow trong bộ nhớ và không dùng lại được CICFlowMeter — chi phí kỹ thuật vượt phạm vi đồ án. Đây được ghi là <strong>hướng phát triển</strong>, và chính là gốc rễ của giới hạn PortScan."},
+{name:"Phát hiện bất thường không giám sát (chỉ học Benign)", v:"no", why:"Không cho ra <em>loại</em> tấn công, chỉ nói bất thường/không. Đề tài cần phân loại 5 lớp để cảnh báo có ý nghĩa hành động."},
+{name:"Phân loại có giám sát trên flow 80 chiều", v:"ok", why:"Chạy được trên traffic mã hoá, tái dùng CICFlowMeter, cho ra nhãn cụ thể, và có dữ liệu gán nhãn (CIC-IDS-2017 + testbed tự thu)."}],
+gap:`<strong>Hệ quả phải nói trước hội đồng:</strong> chọn flow tĩnh làm đơn vị mẫu là nguyên nhân <em>gốc</em> khiến
+PortScan không phân tách được bằng model (xem mục PortScan & NAT ở GĐ 3) — vì bản chất PortScan là quan hệ
+<em>giữa nhiều flow</em>, không nằm trong bất kỳ flow đơn lẻ nào.`
+});
+
+T.push({
+id:"flow-features", phase:"gd0", tag:"Đặc trưng", title:"CICFlowMeter + 12 đặc trưng tự chế",
+one:"68 thống kê chuẩn từ CICFlowMeter, cộng 5 cờ nhóm cổng và 7 tỉ số tự thiết kế để lộ hành vi tấn công.",
+why:`<p>CICFlowMeter cho sẵn ~68 con số mô tả một flow, nhưng chúng là thống kê <em>thô</em>. Một số hành vi tấn công
+chỉ hiện ra khi <strong>lấy tỉ số</strong> giữa hai con số thô — ví dụ Slowloris giữ kết nối mở rất lâu nhưng gửi
+cực ít gói: nhìn riêng "thời lượng" hay riêng "số gói" đều bình thường, nhìn tỉ số mới thấy dị.</p>
+<p>Model học được tỉ số này về lý thuyết, nhưng phải tốn dung lượng mạng để học phép chia. Đưa sẵn tỉ số vào =
+tiêm tri thức chuyên ngành (domain knowledge), giúp mạng nhỏ vẫn học được.</p>`,
+how:`<p>Ba nhóm đặc trưng, cộng lại đúng 80:</p>
+<ul>
+<li><strong>68 thống kê CICFlowMeter</strong> — thời lượng, số gói, độ dài gói (max/min/mean/std), IAT (khoảng
+cách giữa các gói), 8 cờ TCP, Init_Win_bytes, Active/Idle…</li>
+<li><strong>5 cờ nhóm cổng</strong> — one-hot hoá cổng đích thành các nhóm ngữ nghĩa (Web / RemoteAccess /
+WellKnown / Registered / Ephemeral) thay vì để số cổng thô.</li>
+<li><strong>7 tỉ số tự chế</strong> — mỗi tỉ số nhắm một loại tấn công cụ thể.</li>
+</ul>
+<div class="formula">Custom_Slow_Index = Flow_Duration / Flow_IAT_Max      → Slowloris (giữ kết nối, gửi nhỏ giọt)
+Custom_IAT_CV    = Flow_IAT_Std / Flow_IAT_Mean       → nhịp đều như máy (bot) vs người
+Custom_Bwd_Pkt_Ratio = Bwd_Packets / Fwd_Packets      → PortScan: gửi nhiều, gần như không nhận lại</div>`,
+codeIntro:`<p>Toàn bộ 12 đặc trưng bổ sung được tính tại chỗ, ngay trước khi đưa vào model — nghĩa là suy luận
+live không cần bất kỳ bước tiền xử lý ngoại vi nào:</p>`,
+code:[{file:"live_detection/ids_replay/features.py", lines:"28–45",
+snippet:`p = df['Destination_Port'].astype(int)
+df['Port_Is_Web']           = p.isin([80, 443, 8080, 8443, 8888]).astype(int)
+df['Port_Is_RemoteAccess']  = p.isin([21, 22, 23, 2222, 3389]).astype(int)
+df['Port_Is_WellKnown']     = (p <= 1023).astype(int)
+
+fd = df['Flow_Duration'].astype(float).replace(0, 1)          # tránh chia 0
+df['Custom_Fwd_Pkt_Rate']   = df['Total_Fwd_Packets'] / (fd / 1e6)
+df['Custom_Slow_Index']     = fd / df['Flow_IAT_Max'].replace(0, 1)
+df['Custom_IAT_CV']         = df['Flow_IAT_Std'] / (df['Flow_IAT_Mean'] + 1e-6)
+df['Custom_Bwd_Pkt_Ratio']  = df['Total_Backward_Packets'] / (df['Total_Fwd_Packets'] + 1e-6)
+df['Custom_Pkt_Size_Ratio'] = df['Min_Packet_Length'] / (df['Max_Packet_Length'] + 1e-6)`,
+note:"Mọi mẫu số đều được <code>replace(0,1)</code> hoặc <code>+1e-6</code>: flow một-gói có Duration = 0 là chuyện thường trong traffic thật, chia 0 sẽ sinh inf rồi NaN xuyên suốt mạng."}],
+codeOutro:`<p>Cái giá phải trả: chính 3 trong số các đặc trưng tự chế này (<code>Custom_Bwd_Pkt_Ratio</code>,
+<code>Custom_IAT_Anomaly</code>, <code>Custom_Pkt_Size_Ratio</code>) về sau nằm trong nhóm <strong>lệch phân phối
+mạnh nhất</strong> giữa lab và mạng thật — vì chúng là tỉ số, sai số ở mẫu số bị khuếch đại.</p>`,
+alts:[
+{name:"Dùng thẳng số cổng đích làm đặc trưng số", v:"no", why:"Cổng là biến <em>định danh</em>, không phải biến thứ tự: cổng 443 không 'lớn hơn' cổng 80 theo nghĩa nào cả. Đưa số thô vào sẽ dạy model một quan hệ thứ tự không tồn tại. One-hot theo nhóm ngữ nghĩa giữ đúng bản chất."},
+{name:"Để model tự học tỉ số từ đặc trưng thô", v:"no", why:"Mạng phải học phép chia — tốn dung lượng và dữ liệu. Với lớp hiếm (Brute Force, Web Attack chỉ vài trăm mẫu) thì không đủ dữ liệu để học nổi."},
+{name:"Học biểu diễn tự động (autoencoder → embedding)", v:"no", why:"Mất tính giải thích được. IDS cần nói rõ 'vì gói backward gần bằng 0' để người vận hành tin — embedding ẩn không làm được."},
+{name:"68 thống kê + 5 cờ cổng + 7 tỉ số thủ công", v:"ok", why:"Giữ được tính giải thích, tiêm domain knowledge cho lớp hiếm, và tính được ngay trong pipeline live không cần dịch vụ ngoài."}],
+ev:[["12 đặc trưng","số cột tự thêm ngoài CICFlowMeter (5 cờ cổng + 7 tỉ số)"],
+["KS-test","Custom_Bwd_Pkt_Ratio, Custom_IAT_Anomaly nằm trong nhóm lệch mạnh nhất lab↔thật (GĐ5, Bước 1)"]]
+});
+
+T.push({
+id:"metrics", phase:"gd0", tag:"Đo lường", title:"Vì sao Accuracy là con số dối trá — Macro-F1 & MCC",
+one:"Với DoS:PortScan ≈ 164:1, một model đoán bừa 'DoS' đã đạt Accuracy rất cao mà không phát hiện được gì.",
+why:`<p>Dữ liệu testbed cực lệch: run5 có 91.600 flow DoS nhưng chỉ 442 flow PortScan và 271 Web Attack. Một model
+ngu ngốc luôn trả lời "DoS" sẽ có Accuracy ~82% — nghe như thành công, thực chất là <strong>vô dụng</strong>.</p>
+<p>Accuracy lấy trung bình theo <em>mẫu</em>, nên lớp đông áp đảo. Macro-F1 lấy trung bình theo <em>lớp</em>: lớp
+PortScan 442 mẫu có cùng trọng số với lớp DoS 91.600 mẫu. Bỏ sót lớp hiếm là bị phạt nặng ngay.</p>`,
+how:`<div class="formula">Macro-F1 = (1/C) · Σ_c  F1_c        F1_c = 2·P_c·R_c / (P_c + R_c)</div>
+<p>MCC (Matthews Correlation Coefficient) đi xa hơn: nó dùng cả 4 ô của ma trận nhầm lẫn (TP, TN, FP, FN), nên
+không bị đánh lừa kể cả khi lớp âm áp đảo. MCC = 0 nghĩa là "không hơn đoán bừa", bất kể Accuracy đẹp đến đâu.</p>
+<p>Trong IDS còn một chỉ số nữa quan trọng không kém: <strong>FPR trên benign</strong> — báo giả nhiều thì người
+vận hành sẽ tắt hệ thống, và lúc đó recall bằng bao nhiêu cũng vô nghĩa.</p>`,
+codeIntro:`<p>Điểm đáng chú ý nhất: ở vòng huấn luyện cuối (v8_7), tiêu chí chọn checkpoint <strong>không phải</strong>
+loss hay accuracy, mà là một hàm mục tiêu tự định nghĩa cân giữa hai thứ đối kháng:</p>`,
+code:[{file:"live_detection/training/v8_7_train_realbenign.py", lines:"275–312",
+snippet:`# Checkpoint theo score = Macro-F1(CIC) - FPR(benign thật): tối ưu đúng mục tiêu Bước 5
+print(f"    Tiêu chí checkpoint: score = Macro-F1(CIC) - FPR(benign thật val)")
+best_score = -1e9
+...
+    score = macro_f1 - fpr
+    if score > best_score:
+        best_score = score
+        torch.save(model.state_dict(), MODEL_SAVE_PATH)
+        print(f"   -> Checkpoint saved (score {best_score:.4f} | MacroF1 {macro_f1:.4f} | FPR {fpr*100:.2f}%)")`,
+note:"Chọn model theo <em>đúng thứ mình muốn tối ưu</em>, chứ không theo loss trên tập train. Đây là lý do v8_7 hạ được FPR từ 24,26% xuống 0,29% mà vẫn giữ được recall tấn công."}],
+alts:[
+{name:"Accuracy", v:"no", why:"Bị lớp đông chiếm quyền. Trên run5, đoán bừa 'DoS' cho ~82% accuracy mà PortScan recall = 0."},
+{name:"Micro-F1", v:"no", why:"Với bài toán đa lớp một-nhãn, Micro-F1 = Accuracy. Cùng một khuyết điểm."},
+{name:"Weighted-F1", v:"no", why:"Vẫn nhân trọng số theo số mẫu → lớp hiếm vẫn bị nhấn chìm, chỉ đỡ hơn Accuracy chút ít."},
+{name:"Macro-F1 (+ MCC, + FPR benign)", v:"ok", why:"Mỗi lớp một phiếu ngang nhau. MCC dùng để kiểm chứng chéo; FPR benign được theo dõi riêng vì nó quyết định hệ thống có dùng được thật không."}],
+ev:[["164:1","tỉ lệ DoS : PortScan trong dữ liệu huấn luyện testbed"],
+["99,2% vs 38,9%","model V5 có attack recall 99,2% nhưng Macro-F1 chỉ 38,9% — đúng cái bẫy mà Accuracy che giấu"],
+["0,9294","Macro-F1 GĐ2 trên CIC-IDS-2017 (9 lớp)"],
+["0,978","Macro-F1 end-to-end GĐ5 sau luật hậu xử lý"]]
+});
+
+/* ---------- GĐ 1 ---------- */
+T.push({
+id:"feature-tokenizer", phase:"gd1", tag:"Kiến trúc · 1/3", title:"Feature Tokenizer — biến mỗi cột số thành một 'từ'",
+one:"Transformer cần chuỗi token, nhưng dữ liệu bảng là một hàng số. Feature Tokenizer là cây cầu đó.",
+why:`<p>Transformer sinh ra cho ngôn ngữ: đầu vào là <em>chuỗi các token</em>, mỗi token là một vector. Dữ liệu IDS
+lại là một hàng 80 con số vô hướng. Không thể nhét thẳng vào Attention.</p>
+<p>Ý tưởng của FT-Transformer (Gorishniy et al., 2021): coi <strong>mỗi đặc trưng là một token</strong>. Mỗi cột
+có một vector nhúng <em>riêng</em> — <code>Flow_Duration</code> và <code>SYN_Flag_Count</code> có không gian
+biểu diễn khác nhau, vì chúng mang ý nghĩa khác nhau, dù đều là số.</p>`,
+how:`<p>Mỗi đặc trưng <em>j</em> có một cặp tham số học được (W_j, b_j), biến giá trị vô hướng x_j thành vector d chiều:</p>
+<div class="formula">token_j = x_j · W_j + b_j        (W_j, b_j ∈ R^d,  d = 128)</div>
+<p>Kết quả: 80 số → 80 token, mỗi token 128 chiều. Sau đó ghép thêm một token <strong>[CLS]</strong> học được vào
+đầu chuỗi — token này không ứng với đặc trưng nào, nhiệm vụ của nó là <em>đi thu thập</em> thông tin từ 80 token kia
+qua các tầng Attention, và cuối cùng chính nó được đưa vào bộ phân lớp.</p>
+<div class="formula">chuỗi vào Transformer:  [CLS] + [token_1 … token_80]   →  (81, 128)</div>`,
+code:[{file:"live_detection/model_defs/phase2_ft_transformer_v2.py", lines:"68–105",
+snippet:`class FeatureEmbedding(nn.Module):
+    def __init__(self, num_features: int, d_model: int):
+        super().__init__()
+        # MỖI đặc trưng một Linear(1 → d_model) riêng
+        self.feature_embeddings = nn.ModuleList(
+            [nn.Linear(1, d_model) for _ in range(num_features)])
+        # Token [CLS] có thể học được
+        self.cls_token = nn.Parameter(torch.randn(1, 1, d_model))
+
+    def forward(self, x):
+        tokens = [emb(x[:, i:i+1]) for i, emb in enumerate(self.feature_embeddings)]
+        x = torch.stack(tokens, dim=1)               # (B, 80, 128)
+        cls = self.cls_token.expand(x.size(0), -1, -1)
+        return torch.cat([cls, x], dim=1)            # (B, 81, 128)`,
+note:"<code>nn.ModuleList</code> 80 Linear riêng biệt — đây chính là chỗ khiến <strong>Model Surgery</strong> ở GĐ3 khả thi: muốn thêm 3 đặc trưng chỉ cần thêm 3 Linear mới, 77 cái cũ giữ nguyên trọng số."}],
+alts:[
+{name:"Một Linear chung (80 → d) cho cả hàng (MLP thường)", v:"no", why:"Trộn hết đặc trưng ngay ở tầng đầu → không còn khái niệm 'token của đặc trưng j' → Attention không có gì để so sánh cặp-đặc-trưng. Mất luôn khả năng làm Model Surgery ở GĐ3."},
+{name:"Chia bin rồi nhúng như từ vựng (giống NLP)", v:"no", why:"Mất thông tin thứ tự/độ lớn của số thực và phải chọn số bin — thêm siêu tham số nhạy cảm, trong khi đặc trưng flow có dải giá trị rất rộng (Flow_Duration từ 0 đến hàng triệu)."},
+{name:"Một Linear(1→d) riêng cho từng cột + [CLS] học được", v:"ok", why:"Giữ danh tính từng đặc trưng, cho Attention học tương tác cặp, và mở đường cho việc ghép thêm đặc trưng mới mà không phá trọng số cũ."}]
+});
+
+T.push({
+id:"mhsa", phase:"gd1", tag:"Kiến trúc · 2/3", title:"Multi-Head Self-Attention — học tương tác giữa các đặc trưng",
+one:"Cái mà cây quyết định phải tách nhiều nhánh mới diễn tả được, Attention học thẳng thành một trọng số.",
+why:`<p>Dấu hiệu tấn công hiếm khi nằm ở một đặc trưng đơn. Slowloris = <em>thời lượng dài</em> <strong>VÀ</strong>
+<em>số gói ít</em> <strong>VÀ</strong> <em>cổng là web</em>. Đây là <strong>tương tác</strong> giữa các đặc trưng.</p>
+<p>MLP thường phải học tương tác một cách gián tiếp qua nhiều tầng. Self-Attention cho phép mỗi đặc trưng
+<strong>nhìn thẳng</strong> vào mọi đặc trưng khác và tự quyết định "tôi nên chú ý tới ai".</p>`,
+how:`<p>Mỗi token sinh ra 3 vector: Query (tôi đang tìm gì), Key (tôi có gì), Value (nội dung tôi mang).
+Điểm tương đồng giữa Query của token i và Key của token j quyết định token i "nghe" token j bao nhiêu:</p>
+<div class="formula">Attention(Q,K,V) = softmax( Q·Kᵀ / √d_k ) · V</div>
+<ul>
+<li><code>Q·Kᵀ</code> → ma trận 81×81: mức độ liên quan của <em>mọi cặp</em> đặc trưng.</li>
+<li><code>/√d_k</code> → chống việc tích vô hướng phình to làm softmax bão hoà (gradient chết).</li>
+<li><code>softmax</code> → chuẩn hoá thành trọng số chú ý cộng lại bằng 1.</li>
+<li><strong>Multi-head</strong> (8 đầu) → 8 "góc nhìn" song song: đầu này chuyên bắt quan hệ về thời gian,
+đầu kia về kích thước gói… rồi ghép lại.</li>
+</ul>`,
+code:[{file:"live_detection/model_defs/phase2_ft_transformer_v2.py", lines:"107–129",
+snippet:`class MultiHeadSelfAttention(nn.Module):
+    def forward(self, x):
+        B, N, C = x.shape
+        qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, C // self.num_heads)
+        q, k, v = qkv.permute(2, 0, 3, 1, 4)
+
+        attn = (q @ k.transpose(-2, -1)) * self.scale   # scale = 1/sqrt(d_k)
+        attn = attn.softmax(dim=-1)                     # (B, heads, 81, 81)
+        attn = self.attn_drop(attn)
+
+        x = (attn @ v).transpose(1, 2).reshape(B, N, C)
+        return self.proj(x)`,
+note:"Ma trận attention 81×81 chính là thứ có thể trích ra để <em>giải thích</em> cảnh báo: đặc trưng nào đã chi phối quyết định. Model chạy trong live dùng <code>num_heads=8, d_model=128</code> → mỗi đầu 16 chiều."},
+{file:"live_detection/ids_replay/model.py", lines:"36–38",
+snippet:`self.model = FTTransformer(num_features=80, num_classes=len(self.encoder.classes_),
+                           d_model=128, num_heads=8, num_layers=4, d_ff=512,
+                           dropout=0.15, drop_path_rate=0.15)`,
+note:"Siêu tham số thật của model đang chạy production: 4 tầng, 8 đầu, 128 chiều."}],
+alts:[
+{name:"MLP nhiều tầng", v:"no", why:"Học được tương tác nhưng gián tiếp và tốn tầng; không cho ra trọng số tương tác đọc được. Đã dùng làm baseline ở GĐ1."},
+{name:"CNN 1D trên vector đặc trưng", v:"no", why:"Convolution giả định các đặc trưng <em>cạnh nhau</em> có quan hệ (như pixel). Với dữ liệu bảng, thứ tự cột là tuỳ ý — giả định này sai hoàn toàn."},
+{name:"Cây (Random Forest / LightGBM / XGBoost)", v:"warn", why:"Rất mạnh trên dữ liệu bảng — thực tế LightGBM <em>thắng</em> FT-Transformer ở GĐ1. Nhưng cây học tương tác bằng cách chẻ nhánh liên tiếp, kém khi tương tác liên tục và mượt. Kết luận: <strong>không loại bỏ mà kết hợp</strong> — chúng vào ensemble ở GĐ1 (Stacking) và GĐ2 (RF/KNN vote)."},
+{name:"Multi-Head Self-Attention (8 đầu)", v:"ok", why:"Học tương tác cặp trực tiếp, cho ma trận attention giải thích được, và là kiến trúc SOTA cho dữ liệu bảng tại thời điểm làm đồ án."}]
+});
+
+T.push({
+id:"transformer-block", phase:"gd1", tag:"Kiến trúc · 3/3", title:"Transformer Block: Pre-Norm + GEGLU + LayerScale + DropPath",
+one:"Bốn chi tiết nhỏ giữ cho mạng 4 tầng huấn luyện ổn định và không overfit lớp hiếm.",
+why:`<p>Attention chỉ là một nửa. Nửa còn lại là khối FFN xử lý từng token, cộng với các cơ chế giữ cho việc huấn
+luyện không nổ hoặc không chết. Trên dữ liệu cực lệch, mạng rất dễ overfit vài trăm mẫu lớp hiếm — nên phần
+regularization ở đây <strong>không phải trang trí</strong>.</p>`,
+how:`<p><strong>Pre-Norm</strong> — chuẩn hoá <em>trước</em> khi vào Attention/FFN (<code>x + f(norm(x))</code>) chứ
+không phải sau. Giữ đường residual sạch → gradient chảy thẳng từ tầng cuối về tầng đầu, huấn luyện ổn định hơn.</p>
+<p><strong>GEGLU</strong> — thay vì <code>ReLU(xW)</code>, chia đầu ra thành hai nửa, một nửa làm <em>nội dung</em>,
+nửa kia làm <em>cổng</em>:</p>
+<div class="formula">GEGLU(x) = a ⊗ GELU(b),   trong đó [a, b] = split(xW)</div>
+<p><strong>LayerScale</strong> — nhân đầu ra mỗi nhánh với hệ số γ học được, khởi tạo rất nhỏ (1e-4). Ban đầu mạng
+gần như là identity, rồi tự "mở van" dần → mạng sâu hội tụ được.</p>
+<p><strong>DropPath (Stochastic Depth)</strong> — khi huấn luyện, ngẫu nhiên bỏ nguyên cả nhánh residual của một
+tầng. Mạnh hơn Dropout: nó buộc mạng không phụ thuộc vào bất kỳ tầng đơn nào.</p>`,
+code:[{file:"live_detection/model_defs/phase2_ft_transformer_v2.py", lines:"131–158",
+snippet:`class TransformerBlock(nn.Module):
+    def __init__(self, d_model, num_heads, d_ff, dropout=0.1, drop_path=0.0):
+        self.norm1, self.attn = nn.LayerNorm(d_model), MultiHeadSelfAttention(...)
+        self.drop_path1 = DropPath(drop_path) if drop_path > 0. else nn.Identity()
+        # LayerScale parameters — khởi tạo nhỏ, mạng tự "mở van"
+        self.gamma1 = nn.Parameter(1e-4 * torch.ones(d_model))
+        self.gamma2 = nn.Parameter(1e-4 * torch.ones(d_model))
+        # GEGLU nhân đôi đầu ra trước khi chunk, nên Linear đầu tiên cần * 2 d_ff
+        self.ffn = nn.Sequential(nn.Linear(d_model, d_ff * 2), GEGLU(),
+                                 nn.Dropout(dropout), nn.Linear(d_ff, d_model))
+
+    def forward(self, x):
+        x = x + self.drop_path1(self.gamma1 * self.attn(self.norm1(x)))   # Pre-Norm
+        x = x + self.drop_path2(self.gamma2 * self.ffn(self.norm2(x)))
+        return x`,
+note:"Bốn kỹ thuật cùng nằm trên một dòng forward: Pre-Norm (norm trước attn), LayerScale (gamma), DropPath, residual."},
+{file:"live_detection/model_defs/phase2_ft_transformer_v2.py", lines:"181",
+snippet:`# DropPath scheduling (tăng dần theo chiều sâu mạng)
+dpr = [x.item() for x in torch.linspace(0, drop_path_rate, num_layers)]`,
+note:"Tầng đầu gần như không bị drop (0), tầng cuối drop mạnh nhất (0.15) — tầng sâu chuyên biệt hơn nên dễ overfit hơn."}],
+alts:[
+{name:"Post-Norm (Transformer gốc 2017)", v:"no", why:"Norm nằm trên đường residual → gradient bị bóp qua từng tầng, cần warmup rất cẩn thận mới hội tụ. Pre-Norm ổn định hơn hẳn với mạng sâu."},
+{name:"FFN với ReLU / GELU thường", v:"no", why:"Không có cơ chế cổng. GEGLU cho mạng tự quyết định thông tin nào được đi qua, đổi lại chỉ tốn thêm một nửa tham số ở Linear đầu."},
+{name:"Chỉ dùng Dropout", v:"no", why:"Dropout tắt <em>đơn vị</em>; DropPath tắt <em>cả tầng</em>. Với chỉ vài trăm mẫu Web Attack, regularization cấp tầng cần thiết hơn. Thực tế code dùng <strong>cả hai</strong>: dropout=0.15 và drop_path=0.15."},
+{name:"Pre-Norm + GEGLU + LayerScale + DropPath", v:"ok", why:"Bộ tứ chuẩn của FT-Transformer V2; giữ mạng 4 tầng huấn luyện ổn định trên dữ liệu lệch 164:1 mà không cần warmup phức tạp."}]
+});
+
+T.push({
+id:"onehot-minmax", phase:"gd1", tag:"Tiền xử lý", title:"One-Hot + MinMax — vì sao NSL-KDD nở ra 122 chiều",
+one:"NSL-KDD có 3 cột chữ (protocol, service, flag); one-hot chúng làm 41 đặc trưng thành 122.",
+why:`<p>NSL-KDD có 41 cột, trong đó 3 cột là <strong>định danh dạng chữ</strong>: <code>protocol_type</code> (tcp/udp/icmp),
+<code>service</code> (http, ftp, smtp… ~70 giá trị), <code>flag</code> (SF, REJ, S0…). Mạng nơ-ron chỉ ăn số.</p>
+<p>Nếu mã hoá thành số nguyên (http=1, ftp=2, smtp=3), ta vô tình dạy model rằng smtp "lớn hơn" http và
+ftp "nằm giữa" hai cái kia — một quan hệ thứ tự hoàn toàn bịa đặt.</p>`,
+how:`<p><strong>One-Hot</strong>: mỗi giá trị thành một cột nhị phân riêng → không có thứ tự giả. 41 cột nở thành
+<strong>122</strong> cột (đây là nguồn gốc của con số "FT-Transformer 122-feature" trong đồ án).</p>
+<p><strong>MinMax</strong>: đưa mọi cột về [0, 1]. Cần thiết vì <code>src_bytes</code> có thể lên hàng triệu trong
+khi các cột one-hot chỉ là 0/1 — không scale thì cột lớn sẽ chi phối gradient.</p>
+<div class="formula">x' = (x − min) / (max − min)</div>`,
+code:[{file:"NSL_KDD_Workspace/src/data_processing/preprocessing_pipeline.py", lines:"140, 168",
+snippet:`def _one_hot(df: pd.DataFrame) -> pd.DataFrame:
+    return pd.get_dummies(df, columns=['protocol_type', 'service', 'flag'])
+
+...
+scaler = MinMaxScaler()`,
+note:"Ràng buộc sống còn: scaler được <strong>fit trên train</strong> rồi <em>chỉ transform</em> trên test. Fit lại trên test = rò rỉ dữ liệu, và ở GĐ3 chính sai lầm 'fit lại scaler' này sẽ được kiểm chứng là phá huỷ model."}],
+codeOutro:`<p>Lưu ý: từ GĐ2 trở đi, dữ liệu CIC-IDS-2017/testbed <strong>không còn cột chữ</strong> (CICFlowMeter cho
+toàn số), nên one-hot biến mất và scaler đổi sang <strong>PowerTransformer Yeo-Johnson</strong> — xem GĐ2.</p>`,
+alts:[
+{name:"Label Encoding (http=1, ftp=2, …)", v:"no", why:"Bịa ra quan hệ thứ tự và khoảng cách giữa các giá trị định danh. Model sẽ học một cấu trúc không có thật."},
+{name:"Target / Frequency Encoding", v:"no", why:"Gọn hơn one-hot nhưng dùng thông tin nhãn để mã hoá đặc trưng → nguy cơ rò rỉ, phải làm cross-fold cẩn thận. Không đáng với chỉ 3 cột."},
+{name:"StandardScaler (z-score)", v:"no", why:"Giả định phân phối gần chuẩn. Đặc trưng mạng lệch phải cực mạnh (đuôi dài), z-score không sửa được độ lệch — đây chính là lý do GĐ2 chuyển sang Yeo-Johnson."},
+{name:"One-Hot + MinMax", v:"ok", why:"Đúng bản chất biến định danh, và MinMax là đủ cho NSL-KDD vì bộ này đã được chuẩn hoá tương đối. Đây là baseline để so sánh."}],
+ev:[["41 → 122","số chiều sau one-hot 3 cột định danh"]]
+});
+
+T.push({
+id:"stacking", phase:"gd1", tag:"Ensemble", title:"Stacking — để một model học cách phối hợp các model khác",
+one:"Thay vì tự chọn trọng số vote bằng tay, huấn luyện một Logistic Regression học cách tin ai khi nào.",
+why:`<p>Ở GĐ1 có hai model mạnh nhưng sai <em>khác nhau</em>: LightGBM (cây, giỏi ranh giới sắc) và FT-Transformer
+(giỏi tương tác mượt). Trung bình cộng xác suất của hai bên là cách phối hợp thô thiển — nó giả định hai bên
+đáng tin như nhau ở <strong>mọi lớp</strong>, điều rõ ràng sai.</p>
+<p>Stacking đặt câu hỏi đúng hơn: <em>"trong tình huống nào thì nên nghe ai?"</em> — và biến câu hỏi đó thành một
+bài toán học máy con.</p>`,
+how:`<p>Hai tầng:</p>
+<ul>
+<li><strong>Tầng cơ sở</strong>: LightGBM và FT-Transformer, mỗi model xuất vector xác suất 5 chiều.</li>
+<li><strong>Tầng meta</strong>: ghép hai vector thành đặc trưng 10 chiều, rồi huấn luyện Logistic Regression
+trên đó để dự đoán nhãn cuối.</li>
+</ul>
+<p>Meta-learner tự học được những luật kiểu "khi LightGBM nói R2L với xác suất cao mà FTT không đồng ý thì
+vẫn nên nghe LightGBM" — thứ mà voting bằng tay không diễn tả nổi.</p>`,
+code:[{file:"NSL_KDD_Workspace/src/training/stacking_ensemble.py", lines:"127–145",
+snippet:`X_meta_val  = np.hstack([p_lgbm_val,  p_ftt_val])    # (n_val,  10)
+X_meta_test = np.hstack([p_lgbm_test, p_ftt_test])   # (n_test, 10)
+
+meta = LogisticRegression(...)
+meta.fit(X_meta_val, y_val)
+
+meta_val_probs  = meta.predict_proba(X_meta_val)
+meta_test_probs = meta.predict_proba(X_meta_test)`,
+note:"Meta-learner được fit trên tập <strong>validation</strong>, không phải train — nếu fit trên chính tập mà model cơ sở đã học thuộc, xác suất đầu vào sẽ quá lạc quan và meta học sai."}],
+alts:[
+{name:"Soft voting (trung bình xác suất)", v:"no", why:"Giả định mọi model đáng tin như nhau ở mọi lớp. Không học được rằng LightGBM giỏi lớp này còn FTT giỏi lớp kia."},
+{name:"Hard voting (bỏ phiếu đa số)", v:"no", why:"Vứt bỏ độ tin cậy — một phiếu 0,51 và một phiếu 0,99 tính như nhau. Với 2 model thì còn hoà phiếu."},
+{name:"Meta-learner phức tạp (LightGBM/MLP làm meta)", v:"no", why:"Đầu vào meta chỉ có 10 chiều và tập val nhỏ → model meta mạnh sẽ overfit ngay. Logistic Regression đủ dung lượng và giữ được tính giải thích (đọc thẳng hệ số ra được)."},
+{name:"Stacking với Meta-LR", v:"ok", why:"Học được trọng số tin cậy theo từng lớp, tham số ít nên không overfit tập val, và hệ số của LR đọc được để giải thích trong quyển."}],
+ev:[["0,681","Macro-F1 cuối cùng của GĐ1 sau Stacking + tinh chỉnh ngưỡng"]]
+});
+
+T.push({
+id:"per-class-threshold", phase:"gd1", tag:"Ngưỡng quyết định", title:"Ngưỡng theo từng lớp — bỏ argmax để cứu lớp hiếm",
+one:"argmax ngầm áp một ngưỡng 0,5 cho mọi lớp; lớp hiếm gần như không bao giờ vượt nổi.",
+why:`<p>Lấy <code>argmax</code> nghĩa là: lớp nào có xác suất cao nhất thì thắng. Nhưng model được huấn luyện trên
+dữ liệu lệch sẽ có <em>thiên kiến ưu tiên</em> cho lớp đông — xác suất của lớp hiếm bị nén xuống một cách hệ thống.
+Một flow R2L có thể có P(R2L) = 0,35 và P(Normal) = 0,40 → argmax chọn Normal, dù 0,35 với lớp R2L đã là
+"rất cao" theo chuẩn của lớp đó.</p>`,
+how:`<p>Thay vì so xác suất giữa các lớp, so <strong>xác suất của mỗi lớp với ngưỡng riêng của lớp đó</strong>.
+Ngưỡng được tìm bằng tối ưu trực tiếp Macro-F1 trên tập validation:</p>
+<div class="formula">t* = argmax_t  MacroF1( predict(probs_val, t), y_val )</div>
+<p>Đây là bước "gần như miễn phí": không train lại, chỉ dịch chuyển ranh giới quyết định.</p>`,
+code:[{file:"NSL_KDD_Workspace/src/training/stacking_ensemble.py", lines:"85–102",
+snippet:`def predict_with_thresholds(probs, thresholds):
+    ...
+
+def tune_thresholds(probs_val, y_val):
+    def neg_f1(t):
+        return -f1_score(y_val, predict_with_thresholds(probs_val, t), average='macro')
+    # tối ưu trực tiếp Macro-F1 trên tập val`,
+note:"Tối ưu <em>đúng chỉ số mình báo cáo</em> (Macro-F1), chứ không tối ưu loss rồi hi vọng F1 tự đẹp."}],
+codeOutro:`<p>Ý tưởng này quay lại hai lần nữa: <strong>GĐ2</strong> (ngưỡng cho lớp Infiltration), và
+<strong>GĐ5</strong> (ngưỡng per-class sau temperature scaling — nơi nó sửa được lỗi ngưỡng global 0,6 vốn giết
+sạch PortScan: 0% → 36,5%).</p>`,
+alts:[
+{name:"argmax", v:"no", why:"Ngưỡng 0,5 ngầm định cho mọi lớp; lớp hiếm bị thiên kiến ưu tiên lớp đông đè xuống dưới ngưỡng."},
+{name:"Một ngưỡng chung cho mọi lớp", v:"warn", why:"Đã thử ở GĐ5 (<code>conf_threshold = 0.6</code>): cứu được Benign nhưng <strong>giết PortScan xuống 0%</strong>, vì PortScan vốn có confidence thấp. Bằng chứng trực tiếp cho việc phải tách ngưỡng theo lớp."},
+{name:"Sửa mất cân bằng ở tầng loss (Focal, class weight)", v:"ok", why:"Không mâu thuẫn — đây là cách bổ sung, được dùng song song ở GĐ2/GĐ3. Nhưng loss không sửa được thiên kiến còn sót lại sau khi train, nên vẫn cần ngưỡng."},
+{name:"Ngưỡng riêng từng lớp, tune trên val theo Macro-F1", v:"ok", why:"Rẻ (không train lại), tối ưu đúng chỉ số cần, và điều chỉnh được đúng chỗ lớp hiếm bị nén."}],
+ev:[["0% → 36,5%","PortScan recall khi bỏ ngưỡng global 0,6 và dùng ngưỡng per-class (GĐ5, Bước 2)"]]
+});
+/* ---------- GĐ 2 ---------- */
+T.push({
+id:"yeo-johnson", phase:"gd2", tag:"Tiền xử lý", title:"PowerTransformer Yeo-Johnson — bẻ thẳng phân phối lệch",
+one:"Đặc trưng mạng lệch phải cực mạnh: 99% flow ngắn, vài flow dài gấp triệu lần. Yeo-Johnson kéo chúng về gần chuẩn.",
+why:`<p>Nhìn <code>Flow_Duration</code>: đại đa số flow kết thúc trong vài mili-giây, nhưng một session SSH có thể
+kéo dài hàng giờ — chênh nhau <strong>6–7 bậc độ lớn</strong>. Histogram là một cột dựng đứng ở 0 và một cái đuôi
+dài lê thê.</p>
+<p>Với phân phối như vậy, StandardScaler vô dụng: nó trừ mean chia std, nhưng mean và std đều bị vài giá trị
+ngoại lai kéo lệch. Sau khi scale, 99% dữ liệu vẫn chen chúc trong một khoảng cực hẹp → mạng nơ-ron không phân
+biệt nổi.</p>`,
+how:`<p>Yeo-Johnson tìm một tham số λ để phép biến đổi luỹ thừa làm dữ liệu <em>gần chuẩn nhất</em> (tối đa hoá
+log-likelihood), rồi mới chuẩn hoá về mean 0, std 1:</p>
+<div class="formula">x ≥ 0:  ψ(x,λ) = ((x+1)^λ − 1) / λ        (λ ≠ 0)
+x &lt; 0:  ψ(x,λ) = −((−x+1)^(2−λ) − 1) / (2−λ)</div>
+<p>Ưu điểm quyết định so với log: <strong>Yeo-Johnson xử lý được cả giá trị âm và giá trị 0</strong>. Điều này bắt
+buộc, vì các đặc trưng tự chế của đồ án (tỉ số, hiệu) hoàn toàn có thể âm hoặc bằng 0 — <code>log(x)</code> sẽ nổ.</p>`,
+code:[{file:"live_detection/model_defs/hybrid_feature_scaler.py", lines:"35–45",
+snippet:`def fit_custom_scaler(self, X_new):
+    ...
+    from sklearn.preprocessing import PowerTransformer
+    self.scaler_3custom = PowerTransformer()      # mặc định method='yeo-johnson'`,
+note:"Scaler đang chạy production (<code>models/v8_5_scaler.pkl</code>) là một <strong>HybridFeatureScaler</strong> gồm hai PowerTransformer ghép lại — xem mục Hybrid Scaler ở GĐ3 để hiểu vì sao phải tách đôi."},
+{file:"Domain_Adaptation_Workspace/scripts/1_refit_scaler_test.py", lines:"166–168",
+snippet:`print("[*] Re-fitting PowerTransformer trên Testbed Data...")
+scaler = PowerTransformer(method='yeo-johnson', standardize=True)
+X_scaled = scaler.fit_transform(X_raw)`,
+note:"<code>standardize=True</code> → sau khi bẻ thẳng phân phối, tiếp tục chuẩn hoá về mean 0/std 1."}],
+alts:[
+{name:"StandardScaler (z-score)", v:"no", why:"Chỉ dịch và co dữ liệu, <strong>không đổi hình dạng</strong> phân phối. Đuôi dài vẫn là đuôi dài; 99% dữ liệu vẫn dồn cục."},
+{name:"MinMaxScaler", v:"no", why:"Còn tệ hơn với đuôi dài: một outlier duy nhất định nghĩa cả max → toàn bộ phần còn lại bị nén về gần 0. (Chỉ dùng được ở GĐ1 vì NSL-KDD đã tương đối chuẩn hoá sẵn.)"},
+{name:"log1p(x)", v:"no", why:"Bẻ thẳng được đuôi nhưng chết với giá trị âm, và λ bị cố định = 0 thay vì học từ dữ liệu. Các đặc trưng tỉ số tự chế có thể âm → loại."},
+{name:"Box-Cox", v:"no", why:"Cùng họ với Yeo-Johnson nhưng <strong>đòi x > 0 nghiêm ngặt</strong>. Rất nhiều đặc trưng flow bằng 0 (Bwd_Packets = 0 với PortScan) → loại."},
+{name:"QuantileTransformer", v:"warn", why:"Bẻ thẳng mạnh nhất, nhưng phi tuyến hoàn toàn và phá vỡ quan hệ khoảng cách — về sau ở GĐ5 (Bước 4) một biến thể mạnh tay tương tự (<code>RobustLogScaler</code>) đã được thử và làm <strong>FPR tăng từ 24,68% lên 73,87%</strong>."},
+{name:"PowerTransformer Yeo-Johnson", v:"ok", why:"Học λ từ dữ liệu, xử lý được số âm và số 0, giữ được tính đơn điệu (thứ tự giá trị không đổi) nên vẫn giải thích được."}],
+ev:[["73,87%","FPR khi thay Yeo-Johnson bằng RobustLogScaler ở Bước 4 — bằng chứng phản chứng rằng scaler hiện tại không phải thủ phạm"]]
+});
+
+T.push({
+id:"feature-filter", phase:"gd2", tag:"Tiền xử lý", title:"Lọc đặc trưng: phương sai 0 và rò rỉ dữ liệu",
+one:"Bỏ cột hằng số (vô dụng) và bỏ cột định danh (gây rò rỉ) — đặc biệt là số cổng đích.",
+why:`<p>Hai loại cột phải bỏ trước khi train, vì hai lý do khác hẳn nhau:</p>
+<ul>
+<li><strong>Phương sai bằng 0</strong> — cột chỉ có một giá trị duy nhất (ví dụ <code>Bwd_PSH_Flags</code> luôn = 0
+trong toàn bộ CIC-IDS-2017). Không mang thông tin, chỉ tốn tham số, và làm scaler chia cho 0.</li>
+<li><strong>Rò rỉ dữ liệu (leakage)</strong> — cột định danh như IP nguồn, cổng đích, timestamp. Model sẽ học
+"IP 192.168.0.106 = kẻ tấn công" thay vì học <em>hành vi</em> tấn công. Trên tập test cùng bộ dữ liệu thì
+accuracy đẹp giả tạo; đổi sang mạng thật là sập ngay.</li>
+</ul>`,
+how:`<p>Bỏ cột phương sai 0 dựa trên thống kê. Bỏ cột rò rỉ dựa trên <em>hiểu biết bài toán</em> — đây là quyết
+định của con người, không phải của thuật toán.</p>
+<p>Riêng cổng đích được xử lý tinh tế hơn: <strong>không vứt hẳn</strong> mà <em>trừu tượng hoá</em> thành 5 cờ
+nhóm (Web / RemoteAccess / WellKnown / Registered / Ephemeral). Giữ được tín hiệu "đây là dịch vụ web" mà không
+để model học thuộc số cổng cụ thể của testbed.</p>`,
+code:[{file:"CIC_IDS_2017_Workspace/src/data_processing/cic_data_processor_v2.py", lines:"43, 145–154",
+snippet:`df.drop(columns=['Destination_Port'], inplace=True)   # đã được thay bằng 5 cờ nhóm cổng
+...
+if zero_var_cols:
+    full_df.drop(columns=zero_var_cols, inplace=True)
+
+cols_to_drop = [c for c in leakage_cols if c in full_df.columns]
+if cols_to_drop:
+    print(f"-> Loại bỏ các cột gây rò rỉ dữ liệu (Data Leakage): {cols_to_drop}")
+    full_df.drop(columns=cols_to_drop, inplace=True)`,
+note:"Cột <code>Src IP</code>/<code>Timestamp</code> vẫn được <em>giữ trong DataFrame</em> ở tầng live — nhưng chỉ để luật hậu xử lý dùng (PortScanRule cần Src IP), <strong>không</strong> đưa vào 80 feature của model."}],
+gap:`<strong>Ghi chú trung thực:</strong> quyển đồ án có nhắc <em>lọc tương quan Pearson</em> (bỏ cột có |r| > 0,9)
+như một bước tiền xử lý. Trong code thực tế, bước này <strong>không được cài đặt</strong>: pipeline dùng lọc
+phương sai 0 + lọc cột rò rỉ, và giữ nguyên các cột tương quan cao. Lý do có thể bảo vệ được: Attention không
+bị đa cộng tuyến làm hỏng như hồi quy tuyến tính — trọng số có thể không định danh được nhưng dự đoán vẫn ổn.
+Nếu hội đồng hỏi, nên trả lời đúng như vậy thay vì khẳng định đã lọc.`,
+alts:[
+{name:"Lọc tương quan Pearson (|r| > 0,9)", v:"no", why:"Có trong quyển nhưng <strong>không có trong code</strong>. Với model dựa trên Attention, đa cộng tuyến không gây bệnh như với mô hình tuyến tính — bỏ cột tương quan cao có thể mất thông tin biên mà không được lợi gì."},
+{name:"PCA giảm chiều", v:"no", why:"Trộn các đặc trưng thành thành phần trừu tượng → mất hoàn toàn khả năng giải thích ('vì Flow_Duration cao'). IDS cần giải thích được cho người vận hành."},
+{name:"Chọn đặc trưng theo độ quan trọng (SHAP / RF importance)", v:"warn", why:"Đã dùng SHAP ở GĐ5 để <em>chẩn đoán</em>, và rút ra một bài học phương pháp quan trọng: SHAP xếp <code>Port_Is_Web</code> quan trọng nhất, nhưng ablation cho thấy nó gây <strong>0%</strong> tác động lên báo giả → <strong>quan trọng ≠ nguyên nhân</strong>. Không dùng SHAP để cắt đặc trưng."},
+{name:"Bỏ phương sai 0 + bỏ cột định danh + trừu tượng hoá cổng", v:"ok", why:"Xoá đúng hai loại cột có hại (vô dụng và gây rò rỉ) mà không hi sinh tính giải thích."}]
+});
+
+T.push({
+id:"cross-entropy", phase:"gd2", tag:"Hàm mất mát · nền", title:"Cross-Entropy và vì sao nó thất bại trên dữ liệu lệch",
+one:"CE cộng đều mọi mẫu, nên 91.600 mẫu DoS 'dễ' át hoàn toàn 442 mẫu PortScan 'khó'.",
+why:`<p>Đây là điểm khởi đầu — phải hiểu CE hỏng chỗ nào thì mới hiểu vì sao cần Focal Loss.</p>
+<p>CE phạt model theo mức độ nó gán xác suất thấp cho nhãn đúng. Vấn đề không nằm ở công thức, mà ở phép
+<strong>cộng dồn</strong>: gradient tổng của một batch là tổng gradient của từng mẫu. Một mẫu DoS mà model đã đoán
+đúng với p = 0,95 vẫn đóng góp một chút gradient — nhân với hàng nghìn mẫu như thế, phần đóng góp "vụn" ấy
+lấn át hoàn toàn gradient của vài mẫu lớp hiếm.</p>`,
+how:`<div class="formula">L_CE = − Σ_c y_c · log(p_c)  =  − log(p_t)      (với nhãn one-hot, p_t = xác suất lớp đúng)</div>
+<p>Ví dụ số: batch có 1000 mẫu Benign (p_t = 0,95) và 10 mẫu Brute Force (p_t = 0,40).</p>
+<ul>
+<li>Benign: 1000 × (−log 0,95) ≈ 1000 × 0,051 = <strong>51,3</strong></li>
+<li>Brute Force: 10 × (−log 0,40) ≈ 10 × 0,916 = <strong>9,2</strong></li>
+</ul>
+<p>Lớp đông đóng góp gấp <strong>5,6 lần</strong> — dù model đã làm tốt lớp đó rồi. Model sẽ tiếp tục dồn sức
+"tối ưu cái đã đúng".</p>`,
+code:[{file:"CIC_IDS_2017_Workspace/src/training/scripts_v7/phase2_train_v7_stage2_ensemble.py", lines:"37–45",
+snippet:`class FocalLoss(nn.Module):
+    def __init__(self, weight=None, gamma=1.5, label_smoothing=0.0):
+        # CE vẫn là lõi — Focal Loss chỉ bọc thêm hệ số điều biến lên trên
+        self.ce = nn.CrossEntropyLoss(weight=weight,
+                                      label_smoothing=label_smoothing,
+                                      reduction='none')
+    def forward(self, inputs, targets):
+        ...`,
+note:"Chú ý <code>reduction='none'</code>: phải giữ loss <em>từng mẫu</em> thì mới nhân được hệ số Focal riêng cho từng mẫu. Nếu để mặc định <code>'mean'</code> thì Focal Loss không cài được."}],
+alts:[
+{name:"Cross-Entropy thuần", v:"no", why:"Không có cơ chế nào phân biệt mẫu dễ với mẫu khó. Trên tỉ lệ 164:1, lớp hiếm bị nhấn chìm — đây là triệu chứng đã đo được, không phải suy đoán."},
+{name:"Cross-Entropy + trọng số lớp", v:"warn", why:"Cải thiện nhưng chưa đủ: nó cân theo <em>lớp</em>, không phân biệt được mẫu <em>khó</em> với mẫu <em>dễ</em> <strong>trong cùng một lớp</strong>. Vẫn được dùng — nhưng dùng <em>kèm</em> Focal, không thay thế."},
+{name:"Cross-Entropy làm lõi cho Focal Loss", v:"ok", why:"CE không bị vứt bỏ mà được bọc lại: <code>L_FL = (1−p_t)^γ · L_CE</code>. Giữ mọi tính chất tốt về gradient của CE, thêm cơ chế hạ trọng số mẫu dễ."}]
+});
+
+T.push({
+id:"focal-loss", phase:"gd2", tag:"Hàm mất mát", title:"Focal Loss — vặn nhỏ tiếng mẫu dễ",
+one:"Nhân CE với (1−p_t)^γ: mẫu model đã đoán chắc thì gần như im tiếng, mẫu còn khó thì vẫn nói to.",
+why:`<p>Giải trực tiếp bệnh của Cross-Entropy: lớp đông át gradient <strong>không phải vì nó đông</strong>, mà vì các
+mẫu của nó <em>đã dễ</em> mà vẫn tiếp tục đóng góp gradient. Vậy thì hãy bịt miệng những mẫu đã dễ.</p>`,
+how:`<div class="formula">L_FL = − α_t · (1 − p_t)^γ · log(p_t)</div>
+<ul>
+<li><code>(1−p_t)^γ</code> — <strong>hệ số điều biến</strong>. Mẫu dễ (p_t → 1) → hệ số teo về 0.
+Mẫu khó (p_t nhỏ) → hệ số giữ gần 1.</li>
+<li><code>γ</code> — nút vặn. γ = 0 quay về CE. Đồ án dùng <strong>γ = 1,5</strong> ở GĐ2 và <strong>γ = 2,0</strong>
+ở GĐ3/GĐ5.</li>
+<li><code>α_t</code> — trọng số theo lớp, chồng thêm lên (xem mục Trọng số lớp).</li>
+</ul>
+<p>Với γ = 2, mẫu Benign p_t = 0,95 bị nhân hệ số 0,05² = 0,0025 → gradient giảm <strong>400 lần</strong>.
+Ví dụ ở mục Cross-Entropy bị đảo ngược: từ chỗ Benign áp đảo 5,6:1 thành Brute Force áp đảo ~25:1.</p>`,
+code:[{file:"live_detection/training/v8_7_train_realbenign.py", lines:"79–91, 264",
+snippet:`class FocalLoss(nn.Module):
+    def __init__(self, gamma=2.0, weight=None, label_smoothing=0.10):
+        self.gamma = gamma
+        ...
+    def forward(self, inputs, targets):
+        ce = F.cross_entropy(inputs, targets, weight=self.weight,
+                             reduction='none', label_smoothing=self.label_smoothing)
+        pt = torch.exp(-ce)                       # p_t suy ra từ CE
+        return (((1 - pt) ** self.gamma) * ce).mean()
+
+...
+criterion = FocalLoss(gamma=2.0, weight=cw, label_smoothing=0.10)`,
+note:"<code>pt = torch.exp(-ce)</code> là mẹo cài đặt gọn: vì <code>ce = −log(p_t)</code> nên <code>exp(−ce) = p_t</code>. Ba cơ chế chồng lên nhau trong một dòng: Focal (gamma) + trọng số lớp (weight) + Label Smoothing."}],
+alts:[
+{name:"Cross-Entropy", v:"no", why:"Không phân biệt mẫu dễ/khó — xem mục riêng."},
+{name:"Class-Balanced Focal (trọng số theo 'số mẫu hiệu dụng')", v:"warn", why:"Tinh vi hơn: dùng <code>(1−β)/(1−β^n)</code> thay vì 1/n, vì các mẫu lớp đông trùng lặp nhiều nên 'số mẫu hiệu dụng' thấp hơn số mẫu thật. Đã cân nhắc; code cuối cùng dùng <code>compute_class_weight('balanced')</code> vì đơn giản hơn và cho kết quả tương đương trên bộ này."},
+{name:"Chỉ dùng trọng số lớp", v:"no", why:"Cân theo lớp nhưng không cân theo độ khó — một mẫu DoS dễ và một mẫu DoS khó vẫn cùng trọng số."},
+{name:"Focal Loss (γ=1.5 ở GĐ2, γ=2.0 ở GĐ3/5) + trọng số lớp", v:"ok", why:"Chồng cả hai cơ chế: cân giữa các lớp (α) và cân giữa mẫu dễ/khó trong cùng lớp (γ)."}],
+ev:[["400×","mức giảm gradient của mẫu Benign đã đoán chắc (p_t = 0,95, γ = 2)"],
+["7,5% → 6,8%","PortScan F1 khi thêm Focal Loss — <strong>không cải thiện</strong>"]],
+gap:`<strong>Giới hạn phải nói ra:</strong> Focal Loss giả định hai lớp <em>có thể phân tách được</em>, chỉ là lớp
+đông át gradient. Khi hai lớp <strong>chồng lên nhau trong không gian đặc trưng</strong> — đúng trường hợp PortScan
+vs Benign dưới NAT — Focal Loss bó tay: không có ranh giới nào để học tốt hơn dù vặn γ kiểu gì. Bằng chứng:
+PortScan F1 <strong>7,5% → 6,8%</strong>. Đây là lý do PortScan cuối cùng phải giải bằng <em>luật</em>, không phải
+bằng loss.`
+});
+
+T.push({
+id:"class-weight", phase:"gd2", tag:"Hàm mất mát", title:"Trọng số lớp 'balanced' — và cú đẩy tay cho lớp bướng",
+one:"Nhân loss của lớp hiếm lên tỉ lệ nghịch với tần suất, rồi đẩy tay thêm 1,5× cho những lớp vẫn cứng đầu.",
+why:`<p>Focal Loss cân theo <em>độ khó của mẫu</em>. Nhưng vẫn cần một cơ chế cân theo <em>lớp</em>: nếu lớp Web Attack
+chỉ có 271 mẫu còn DoS có 91.600, thì kể cả khi các mẫu khó như nhau, lớp DoS vẫn xuất hiện nhiều hơn 300 lần
+trong mỗi epoch.</p>`,
+how:`<p><code>compute_class_weight('balanced')</code> của scikit-learn dùng công thức:</p>
+<div class="formula">w_c = n_samples / (n_classes · n_c)</div>
+<p>Lớp càng hiếm, trọng số càng lớn. Trọng số này được truyền vào <code>weight=</code> của Cross-Entropy bên trong
+Focal Loss → mỗi mẫu của lớp hiếm "kêu to" hơn.</p>
+<p>Ở GĐ2 có thêm một thủ thuật thực dụng: sau khi tính trọng số cân bằng, <strong>nhân thêm 1,5×</strong> cho những
+lớp mà thực nghiệm cho thấy vẫn bị bỏ sót (Infiltration, Web Attack) — một cú "đẩy tay" dựa trên quan sát,
+không phải công thức.</p>`,
+code:[{file:"CIC_IDS_2017_Workspace/src/training/scripts_v7/phase2_train_v7_stage2_ensemble.py", lines:"253–259",
+snippet:`c_weights = compute_class_weight('balanced', classes=np.unique(y_train_full), y=y_train_full)
+...
+        c_weights[idx] *= 1.5          # đẩy tay cho lớp vẫn bị bỏ sót
+
+criterion = FocalLoss(weight=torch.tensor(c_weights, dtype=torch.float32).to(device),
+                      gamma=1.5, label_smoothing=0.05)`,
+note:"Ba cơ chế xử lý mất cân bằng cùng nằm trên một dòng khởi tạo criterion: trọng số lớp, Focal γ, và Label Smoothing."},
+{file:"Phase3_4_Retrain/v8/v8.5_Combined/v8_5_train.py", lines:"212, 228",
+snippet:`cw_balanced = compute_class_weight('balanced', classes=np.arange(5), y=y_train)
+...
+criterion = FocalLoss(gamma=2.0, weight=cw, label_smoothing=0.10)`,
+note:"Sang GĐ3 (5 lớp), cùng công thức nhưng γ tăng lên 2,0 và label smoothing lên 0,10 vì dữ liệu lệch nặng hơn."}],
+alts:[
+{name:"Không dùng trọng số", v:"no", why:"Lớp hiếm bị lấn át hoàn toàn — model V5 từng có PortScan recall 0,6%."},
+{name:"Oversampling / undersampling ở tầng dữ liệu", v:"warn", why:"Cùng mục tiêu nhưng đổi <em>dữ liệu</em> thay vì đổi <em>loss</em>. Undersampling vứt bỏ dữ liệu DoS thật; oversampling nhân bản gây overfit. Trọng số lớp đạt hiệu quả tương tự mà không đụng vào tập dữ liệu."},
+{name:"Class-Balanced weight — (1−β)/(1−β^n)", v:"no", why:"Về lý thuyết chính xác hơn ('số mẫu hiệu dụng'), nhưng thêm siêu tham số β phải dò, trong khi <code>'balanced'</code> đã cho kết quả tốt. Không đáng độ phức tạp."},
+{name:"'balanced' + hệ số đẩy tay 1,5× cho lớp bướng", v:"ok", why:"Công thức chuẩn làm nền, cộng một điều chỉnh dựa trên quan sát thực nghiệm cho đúng những lớp còn kém."}]
+});
+
+T.push({
+id:"label-smoothing", phase:"gd2", tag:"Regularization", title:"Label Smoothing — cấm model quá tự tin",
+one:"Thay nhãn đúng 1,0 bằng 0,9: model không còn có thể đẩy logit lên vô cực để 'chắc chắn tuyệt đối'.",
+why:`<p>Với nhãn one-hot cứng, cách duy nhất để CE về 0 là đẩy xác suất lớp đúng lên đúng 1,0 — tức là đẩy logit
+ra vô cực. Model học được thói quen <strong>quá tự tin</strong> (overconfident): nó nói 0,99 cả khi sai.</p>
+<p>Đây không phải vấn đề học thuật. Ở GĐ5, chẩn đoán Bước 1 đo được: các flow benign thật bị báo nhầm thành DoS
+có confidence trung bình <strong>0,82</strong> — model sai mà vẫn rất chắc chắn. Confidence quá tự tin làm hỏng
+mọi luật hậu xử lý dựa trên ngưỡng, vì không còn cách nào phân biệt "chắc đúng" với "chắc sai".</p>`,
+how:`<div class="formula">y_smooth = (1 − ε) · y_onehot + ε / C          (ε = 0,05 ở GĐ2; 0,10 ở GĐ3/GĐ5)</div>
+<p>Với ε = 0,1 và C = 5 lớp: nhãn đúng thành 0,92, mỗi lớp sai được 0,02. Model không bao giờ đạt loss 0, nên nó
+không có động lực đẩy logit ra vô cực → khoảng cách giữa các lớp trong không gian logit hẹp lại, và confidence
+xuất ra phản ánh thực tế hơn.</p>`,
+code:[{file:"live_detection/training/v8_7_train_realbenign.py", lines:"80, 264",
+snippet:`def __init__(self, gamma=2.0, weight=None, label_smoothing=0.10):
+    ...
+    ce = F.cross_entropy(inputs, targets, weight=self.weight,
+                         reduction='none', label_smoothing=self.label_smoothing)
+
+criterion = FocalLoss(gamma=2.0, weight=cw, label_smoothing=0.10)`,
+note:"PyTorch cài sẵn label smoothing trong <code>F.cross_entropy</code> — chỉ cần truyền tham số, không phải tự làm mềm nhãn."}],
+alts:[
+{name:"Nhãn cứng one-hot", v:"no", why:"Cho phép model quá tự tin. Đo được ở GĐ5: FP DoS có confidence 0,82 và ECE = 0,213 — confidence gần như vô nghĩa."},
+{name:"Temperature Scaling sau khi train", v:"ok", why:"Không mâu thuẫn — chữa phần <em>còn lại</em> sau khi train xong. Đồ án dùng cả hai: Label Smoothing khi train (phòng), Temperature Scaling sau train (chữa, T = 1,481 → ECE 0,213 → 0,154). Xem GĐ5."},
+{name:"Mixup / CutMix", v:"no", why:"Trộn tuyến tính hai mẫu — có nghĩa với ảnh, vô nghĩa với flow mạng: trộn nửa flow DoS với nửa flow Benign không tạo ra một flow tồn tại được trong thực tế."},
+{name:"Label Smoothing ε = 0,05–0,10", v:"ok", why:"Rẻ (một tham số), chống overconfidence ngay trong lúc train, và giúp confidence dùng được cho luật ngưỡng ở tầng hậu xử lý."}],
+ev:[["0,82","confidence trung bình của các flow benign thật bị báo nhầm DoS (GĐ5, Bước 1) — bằng chứng overconfidence"],
+["ECE 0,213","sai số hiệu chuẩn kỳ vọng của V8.5 trước khi hiệu chỉnh"]]
+});
+
+T.push({
+id:"cascade", phase:"gd2", tag:"Kiến trúc hệ thống", title:"Cascade hai tầng — Gating chặn 99%, Expert xử lý phần còn lại",
+one:"Tầng 1 chỉ hỏi 'có đáng ngờ không'; chỉ những gì đáng ngờ mới được đưa lên tầng 2 phân loại chi tiết.",
+why:`<p>Trong 2,8 triệu flow của CIC-IDS-2017, phần áp đảo là Benign. Bắt một model 9 lớp phải xử lý toàn bộ dòng
+chảy đó là lãng phí ba lần:</p>
+<ul>
+<li><strong>Tính toán</strong> — model nặng chạy trên traffic mà 99% là bình thường.</li>
+<li><strong>Học</strong> — model phải vừa học "phân biệt Benign với tấn công" (dễ) vừa học "phân biệt DoS với
+DDoS" (khó). Hai nhiệm vụ khác hẳn nhau về độ khó bị nhồi vào một hàm mất mát.</li>
+<li><strong>Mất cân bằng</strong> — với model 9 lớp, tỉ lệ lệch là toàn cục và cực đoan.</li>
+</ul>`,
+how:`<p>Chia làm hai chuyên gia:</p>
+<ul>
+<li><strong>Tầng 1 — Gating</strong>: phân loại nhị phân/thô, đầu ra chính là "Suspicious". Chỉ những flow được
+gán Suspicious <em>và</em> có xác suất ≥ ngưỡng mới đi tiếp.</li>
+<li><strong>Tầng 2 — Expert</strong>: chỉ nhìn tập con đã lọc, nên tỉ lệ lớp trong tập này <em>cân bằng hơn nhiều</em>,
+và nó chỉ phải học đúng một việc: phân biệt các loại tấn công với nhau.</li>
+</ul>
+<p>Flow không đáng ngờ, hoặc đáng ngờ nhưng xác suất dưới ngưỡng → gán thẳng Benign, không tốn tầng 2.</p>`,
+code:[{file:"CIC_IDS_2017_Workspace/src/training/scripts_v7/evaluate_cascade_system_v7.py", lines:"120–121, 175–176",
+snippet:`mask_stage2 = (s1_preds == suspicious_idx) & (s1_probs >= THRESHOLD)
+...
+# đáng ngờ nhưng không đủ chắc → hạ về Benign luôn, không cần tầng 2
+mask_low_prob = (s1_preds == suspicious_idx) & (s1_probs < THRESHOLD)
+final_preds_chunk[mask_low_prob] = 'Benign'`,
+note:"Ngưỡng của cổng gating là một nút vặn đánh đổi trực tiếp: hạ ngưỡng → nhiều flow lên tầng 2 → recall cao, tốn tính toán; nâng ngưỡng → ngược lại."}],
+codeOutro:`<p><strong>Điểm quan trọng cho GĐ5:</strong> hệ thống live hiện tại <em>không</em> dùng cascade — nó dùng
+một model V8.5 phẳng 5 lớp. Lý do: sau GĐ3, số lớp giảm từ 9 xuống 5 và bài toán mất cân bằng được giải bằng
+loss + luật hậu xử lý, nên thêm một tầng gating chỉ làm tăng độ trễ và thêm chỗ hỏng cho pipeline realtime.
+Cascade là thành tựu của GĐ2, không phải kiến trúc cuối cùng.</p>`,
+alts:[
+{name:"Một model phẳng 9 lớp", v:"no", why:"Phải học đồng thời hai nhiệm vụ khó khác nhau dưới một hàm mất mát, và chịu mất cân bằng toàn cục. Đây chính là baseline mà cascade đánh bại ở GĐ2."},
+{name:"Autoencoder làm cổng (học Benign, dùng lỗi tái tạo)", v:"no", why:"Cổng không giám sát: học nén flow Benign, flow nào tái tạo lỗi lớn thì bất thường. Hấp dẫn vì bắt được zero-day, nhưng ngưỡng lỗi tái tạo cực nhạy với domain shift — mà shift chính là vấn đề lớn nhất của đồ án (GĐ3). Không chọn."},
+{name:"Cascade Gating + Expert", v:"ok", why:"Mỗi tầng một nhiệm vụ, tập vào tầng 2 cân bằng hơn, và tiết kiệm tính toán trên 99% traffic bình thường."}],
+ev:[["99,55%","Accuracy hệ cascade trên CIC-IDS-2017"],
+["0,9294","Macro-F1 hệ cascade (9 lớp)"]]
+});
+
+T.push({
+id:"inductive-bias", phase:"gd2", tag:"Ensemble", title:"Đa dạng inductive bias — FTT + Random Forest + KNN",
+one:"Ensemble chỉ có giá trị khi các thành viên sai KHÁC nhau. Ba họ thuật toán khác nhau đảm bảo điều đó.",
+why:`<p>Trung bình cộng của N model giảm phương sai theo hệ số N <strong>chỉ khi</strong> lỗi của chúng độc lập.
+Nếu ba model cùng sai một chỗ, ensemble không giúp gì — chỉ tốn gấp ba lần tính toán.</p>
+<p>Vậy làm sao ép chúng sai khác nhau? Câu trả lời: cho chúng <strong>giả định khác nhau về thế giới</strong>
+(inductive bias). Ba model cùng là FT-Transformer chỉ khác seed vẫn có cùng thiên kiến — chúng sẽ sai giống nhau.</p>`,
+how:`<p>Ba họ thuật toán với ba giả định hoàn toàn khác:</p>
+<ul>
+<li><strong>FT-Transformer</strong> — giả định: nhãn phụ thuộc vào <em>tương tác</em> giữa các đặc trưng, và ranh
+giới là một mặt cong mượt trong không gian 80 chiều.</li>
+<li><strong>Random Forest</strong> — giả định: ranh giới có thể xấp xỉ bằng các <em>lát cắt vuông góc trục</em>
+("nếu Flow_Duration > 5000 VÀ SYN_Count > 3 thì…"). Rất mạnh khi ranh giới thật đúng là dạng ngưỡng.</li>
+<li><strong>KNN</strong> — giả định: <em>không có</em> ranh giới toàn cục nào cả, chỉ có "giống hàng xóm nào thì
+là loại đó". Model phi tham số, bắt được các cụm nhỏ lẻ mà hai model kia làm mượt mất.</li>
+</ul>
+<p>Ba giả định này sai ở những vùng khác nhau của không gian đặc trưng → lỗi ít tương quan → ensemble thực sự có lãi.</p>`,
+code:[{file:"CIC_IDS_2017_Workspace/src/training/scripts_v7/phase2_train_v7_stage2_ensemble.py", lines:"237, 242",
+snippet:`rf_model = RandomForestClassifier(n_estimators=150, max_features=20, max_depth=25,
+                                  random_state=42, n_jobs=-1, class_weight='balanced')
+...
+knn_model = KNeighborsClassifier(n_neighbors=16, n_jobs=-1)`,
+note:"RF cũng dùng <code>class_weight='balanced'</code> — cùng triết lý xử lý mất cân bằng như Focal Loss bên phía mạng nơ-ron. Cả ba model đều ăn cùng một <code>X_s2_scaled</code>, nên chỉ khác nhau ở inductive bias chứ không khác ở dữ liệu."}],
+alts:[
+{name:"Bagging cùng một kiến trúc (N × FT-Transformer khác seed)", v:"no", why:"Cùng inductive bias → lỗi tương quan cao → ensemble giảm phương sai rất ít. Tốn N lần tính toán để đổi lấy cải thiện không đáng kể."},
+{name:"Boosting (XGBoost/LightGBM nối tiếp)", v:"warn", why:"Rất mạnh nhưng giảm <em>bias</em> chứ không giảm <em>variance</em>, và các cây phụ thuộc nhau nên không tạo được sự đa dạng cần cho voting. Đã dùng ở GĐ1 (LightGBM trong Stacking) — ở đó nó là thành viên, không phải cơ chế ensemble."},
+{name:"Chỉ dùng FT-Transformer (bỏ ensemble)", v:"no", why:"FTT một mình <em>tự tin sai</em> ở lớp Bot: nhiều flow Benign bị gán Bot với xác suất cao. RF và KNN với giả định khác nhìn ra ngay — đó là lý do sinh ra luật Botnet Consensus."},
+{name:"FTT + Random Forest + KNN", v:"ok", why:"Ba họ thuật toán, ba giả định, lỗi ít tương quan. Và quan trọng: RF/KNN rẻ, chạy trên tập đã lọc bởi tầng gating nên không làm chậm hệ thống."}]
+});
+
+T.push({
+id:"asymmetric-voting", phase:"gd2", tag:"Ensemble", title:"Voting bất đối xứng — vì chi phí sai không đối xứng",
+one:"Bỏ sót tấn công và báo giả không có cùng giá. Vậy tại sao luật vote lại đối xứng?",
+why:`<p>Bỏ phiếu đa số ngầm giả định: mọi loại sai đều tệ như nhau. Trong an ninh mạng điều đó <strong>sai hiển
+nhiên</strong>:</p>
+<ul>
+<li>Bỏ sót một cuộc <strong>Infiltration</strong> (kẻ tấn công đã vào trong mạng) = thảm hoạ. Sai lầm này phải
+tránh bằng mọi giá.</li>
+<li>Báo giả một flow Benign thành <strong>Bot</strong> = nhân viên vận hành mất thời gian, và nếu nhiều quá thì
+họ sẽ tắt hệ thống — cũng là thảm hoạ, chỉ chậm hơn.</li>
+</ul>
+<p>Hai loại sai này cần <strong>hai chính sách vote khác nhau</strong>.</p>`,
+how:`<p>Ba luật, cố ý bất đối xứng:</p>
+<ul>
+<li><strong>Ưu tiên Infiltration</strong> — <em>bất kỳ</em> model nào (RF hoặc KNN) hô Infiltration là chốt
+Infiltration. Đây là vote kiểu "OR" — cực kỳ dễ kích hoạt, vì thà báo thừa còn hơn bỏ sót.</li>
+<li><strong>Đồng thuận Botnet</strong> — FTT hô Bot nhưng <em>chỉ cần một</em> model khác nói Benign là hạ về
+Benign. Vote kiểu "AND" — cực kỳ khó kích hoạt, vì FTT nổi tiếng báo giả Bot.</li>
+<li><strong>Ngưỡng mềm cho phần còn lại</strong> — tin FTT nếu xác suất ≥ 0,65, không thì Benign.</li>
+</ul>`,
+code:[{file:"CIC_IDS_2017_Workspace/src/training/scripts_v7/evaluate_cascade_system_v7.py", lines:"186–199",
+snippet:`for j in range(len(ft)):
+    if ft[j] == 'Benign':
+        stage2_final[j] = 'Benign'
+    else:
+        # 1. Infiltration Priority — chỉ cần MỘT phiếu là đủ (chống bỏ sót)
+        if rf[j] == 'Infiltration' or knn[j] == 'Infiltration' \\
+           or (ft[j] == 'Infiltration' and ft_prob[j] >= inf_thresh):
+            stage2_final[j] = 'Infiltration'
+        # 2. Botnet Consensus — chỉ cần MỘT phiếu phản đối là bác (chống báo giả)
+        elif ft[j] == 'Bot' and (rf[j] == 'Benign' or knn[j] == 'Benign'):
+            stage2_final[j] = 'Benign'
+        # 3. Ngưỡng mềm cho các lớp còn lại
+        elif ft_prob[j] >= 0.65:
+            stage2_final[j] = ft[j]
+        else:
+            stage2_final[j] = 'Benign'`,
+note:"Đọc kỹ luật 1 và luật 2: chúng <strong>ngược chiều nhau</strong> một cách có chủ ý. Luật 1 tối đa hoá recall cho lớp nguy hiểm nhất; luật 2 tối đa hoá precision cho lớp hay báo giả nhất. Đây là ma trận chi phí được mã hoá thẳng thành <code>if/elif</code>."}],
+alts:[
+{name:"Bỏ phiếu đa số (majority vote)", v:"no", why:"Đối xứng — coi bỏ sót Infiltration ngang với báo giả Bot. Không phản ánh được chi phí thật của bài toán an ninh."},
+{name:"Soft voting (trung bình xác suất)", v:"no", why:"Cũng đối xứng, và còn tệ hơn ở chỗ RF/KNN cho xác suất kém hiệu chuẩn nên trung bình cộng bị nhiễu."},
+{name:"Học ma trận chi phí bằng meta-learner (như Stacking GĐ1)", v:"warn", why:"Về nguyên tắc đẹp hơn, nhưng cần một tập val đủ lớn cho <em>từng lớp hiếm</em> — với Infiltration chỉ có vài chục mẫu thì meta-learner sẽ học nhiễu. Luật viết tay dựa trên hiểu biết miền đáng tin hơn ở quy mô này."},
+{name:"Luật vote bất đối xứng viết tay", v:"ok", why:"Mã hoá trực tiếp chi phí sai thật của bài toán, đọc được và bảo vệ được trước hội đồng, không cần thêm dữ liệu."}]
+});
+
+T.push({
+id:"hard-negative-mining", phase:"gd2", tag:"Chiến lược dữ liệu", title:"Hard Negative Mining — bắt model học lại đúng chỗ nó sai",
+one:"Thay vì cho model xem thêm dữ liệu ngẫu nhiên, nhân bản đúng những mẫu Benign mà nó từng báo giả.",
+why:`<p>Model V5 có một tật cụ thể: nó gán nhãn <strong>Bot</strong> cho nhiều flow thực ra là Benign. Cho nó học
+thêm 500.000 flow Benign ngẫu nhiên gần như vô ích — 99% trong số đó là những flow Benign "dễ" mà model đã phân
+loại đúng từ lâu. Gradient từ chúng bằng 0.</p>
+<p>Cái model cần là những mẫu Benign nằm <strong>sát ranh giới quyết định</strong> — chính là những mẫu nó đang sai.</p>`,
+how:`<p>Quy trình ba bước:</p>
+<ul>
+<li>Chạy model hiện tại lên toàn bộ tập train, thu lại các flow có nhãn thật = Benign nhưng bị dự đoán = Bot.
+Đây là tập <em>hard negative</em>.</li>
+<li>Dựng tập train mới = một lượng vừa phải Benign "dễ" (giữ phân phối) + tập hard negative được
+<strong>nhân bản 10 lần</strong>.</li>
+<li>Train lại. Gradient giờ tập trung vào đúng vùng ranh giới đang hỏng.</li>
+</ul>`,
+code:[{file:"CIC_IDS_2017_Workspace/src/training/scripts_v7/extract_hard_negatives_v7.py", lines:"129–148",
+snippet:`# Tìm tập Botnet FP: Label thực tế là Benign, nhưng Stage 2 V5 dự đoán là Bot
+df_botnet_fp = ...
+
+df_easy_benign = df_full[(df_full['Pred_Stage1'] != suspicious_idx)
+                         & (df_full['Label_Stage2_V7'] == 'Benign')]
+num_easy = min(50000, len(df_easy_benign))
+df_easy_benign = df_easy_benign.sample(n=num_easy, random_state=42)
+
+df_new = pd.concat([
+    df_easy_benign,
+    *[df_botnet_fp] * 10          # Nhân bản 10 lần Botnet FP
+])`,
+note:"<code>*[df_botnet_fp] * 10</code> — nhân bản thẳng 10 lần. Thô sơ nhưng hiệu quả: nó tăng trọng số hiệu dụng của vùng ranh giới đang sai lên 10× mà không phải đụng vào hàm loss."}],
+codeOutro:`<p>Cùng một triết lý được dùng lại ở <strong>GĐ5, Bước 5</strong>, ở quy mô lớn hơn nhiều: model V8.5 báo
+giả 24,26% trên benign thật → thu 40.000 flow benign <em>thật</em> (chứ không phải benign từ CIC-IDS-2017) và
+fine-tune. Kết quả: FPR rơi xuống 0,29%. Về bản chất, đó chính là hard negative mining ở cấp <em>miền dữ liệu</em>.</p>`,
+alts:[
+{name:"Thêm dữ liệu Benign ngẫu nhiên", v:"no", why:"Phần lớn là mẫu dễ, gradient ≈ 0 → tốn thời gian train mà không sửa được ranh giới."},
+{name:"Chỉ tăng trọng số lớp Benign trong loss", v:"no", why:"Tăng đều cho <em>mọi</em> mẫu Benign, kể cả hàng trăm nghìn mẫu đã đúng → làm lệch model sang Benign nói chung, hi sinh recall tấn công."},
+{name:"Online Hard Example Mining (chọn mẫu khó ngay trong mỗi batch)", v:"no", why:"Tinh vi hơn nhưng dễ bị nhiễu nhãn kéo đi: nếu tập train có nhãn sai, OHEM sẽ dồn toàn lực học chính những nhãn sai đó. Khai thác offline cho phép kiểm tra bằng mắt trước khi đưa vào."},
+{name:"Khai thác offline + nhân bản 10× mẫu báo giả", v:"ok", why:"Kiểm soát được (nhìn tận mắt tập hard negative), đơn giản, và nhắm đúng vùng ranh giới đang hỏng."}],
+ev:[["×10","hệ số nhân bản tập Benign bị báo giả thành Bot"],
+["24,26% → 0,29%","FPR khi áp dụng cùng triết lý ở cấp miền dữ liệu (GĐ5, Bước 5)"]]
+});
+
+T.push({
+id:"ema-schedule", phase:"gd2", tag:"Tối ưu hoá", title:"EMA + Warmup-Cosine — làm mượt quá trình huấn luyện",
+one:"Lấy trung bình trượt trọng số qua các bước, và cho learning rate khởi động chậm rồi tắt dần theo hình cosin.",
+why:`<p>SGD/AdamW nhảy quanh cực tiểu chứ không đứng yên ở đó. Trọng số ở bước cuối cùng chỉ là một điểm ngẫu nhiên
+trong vùng dao động — không nhất thiết là điểm tốt nhất.</p>
+<p>Đồng thời, learning rate lớn ngay từ bước đầu (khi trọng số còn ngẫu nhiên) dễ đẩy model vào vùng tồi và không
+quay ra được — đặc biệt với Transformer, vốn nổi tiếng nhạy với warmup.</p>`,
+how:`<p><strong>EMA (Exponential Moving Average)</strong> — giữ một bản sao trọng số được cập nhật trượt:</p>
+<div class="formula">θ_EMA ← decay · θ_EMA + (1 − decay) · θ        (decay = 0,999)</div>
+<p>Bản sao này nằm ở "tâm" của vùng dao động → thường tổng quát hoá tốt hơn trọng số tức thời.</p>
+<p><strong>Warmup + Cosine Annealing</strong> — learning rate tăng tuyến tính từ 0 trong vài epoch đầu (warmup),
+rồi giảm theo hình cosin về gần 0 ở cuối. Cuối quá trình, bước nhảy nhỏ dần → model "hạ cánh" êm vào cực tiểu
+thay vì tiếp tục nhảy quanh.</p>`,
+code:[{file:"CIC_IDS_2017_Workspace/src/training/scripts_v7/phase2_train_v7_stage2_ensemble.py", lines:"47–72",
+snippet:`class WarmupCosineSchedule(_LRScheduler):
+    def __init__(self, optimizer, warmup_epochs, total_epochs, min_lr=1e-6, ...):
+        ...
+
+class ModelEMA:
+    def __init__(self, model, decay=0.999):
+        ...
+    def update(self, model):
+        # θ_EMA ← 0.999·θ_EMA + 0.001·θ`,
+note:"decay = 0,999 nghĩa là bản EMA nhớ khoảng 1000 bước gần nhất."},
+{file:"live_detection/training/v8_7_train_realbenign.py", lines:"265–266",
+snippet:`optimizer = torch.optim.AdamW(param_groups, weight_decay=2e-4)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=EPOCHS)`,
+note:"Ở GĐ3/GĐ5 giữ Cosine Annealing nhưng <strong>bỏ warmup và bỏ EMA</strong> — vì đây là <em>fine-tune</em> từ trọng số đã tốt, không phải train từ đầu: không có giai đoạn 'trọng số ngẫu nhiên' để cần warmup bảo vệ."}],
+alts:[
+{name:"Learning rate cố định", v:"no", why:"Không hạ cánh được: đến cuối quá trình model vẫn nhảy quanh cực tiểu với bước nhảy nguyên như ban đầu."},
+{name:"Step decay (giảm LR theo bậc thang)", v:"no", why:"Mỗi lần rơi bậc là một cú sốc cho quá trình tối ưu. Cosine giảm liên tục, mượt hơn."},
+{name:"ReduceLROnPlateau", v:"warn", why:"Thích ứng theo validation — hợp lý, nhưng phụ thuộc vào độ nhiễu của chỉ số val. Với lớp hiếm chỉ vài trăm mẫu, val Macro-F1 dao động mạnh → scheduler sẽ giảm LR vì nhiễu chứ không vì hội tụ."},
+{name:"AdamW + Warmup-Cosine + EMA (GĐ2) / AdamW + Cosine (GĐ3, GĐ5)", v:"ok", why:"Train-from-scratch cần warmup và EMA; fine-tune thì không — dùng đúng công cụ cho đúng tình huống thay vì bê nguyên cấu hình."}]
+});
+/* ---------- GĐ 3 ---------- */
+T.push({
+id:"covariate-shift", phase:"gd3", tag:"Chẩn đoán · 1", title:"Covariate Shift — cùng một nhãn, khác một thế giới",
+one:"P(y|x) không đổi, nhưng P(x) đổi. Model học đúng quy luật, chỉ là quy luật ấy được đo trong một thế giới khác.",
+why:`<p>Model V4 đạt 99% trên CIC-IDS-2017. Đem sang testbed WSL2 thật thì sập. Nhưng "DoS vẫn là DoS" — định
+nghĩa tấn công không hề thay đổi. Vậy cái gì đổi?</p>
+<p><strong>Phân phối đầu vào đổi.</strong> CIC-IDS-2017 thu năm 2017 trên mạng vật lý thật: có độ trễ mạng, có
+MTU chuẩn, gói đi qua switch. Testbed chạy trên WSL2 năm 2026: loopback ảo, độ trễ gần bằng 0, MTU khác, và
+traffic đi qua NAT. Cùng một cuộc tấn công DoS cho ra những con số hoàn toàn khác.</p>`,
+how:`<div class="formula">P_train(x) ≠ P_test(x)      nhưng      P_train(y|x) = P_test(y|x)</div>
+<p>Đây là <em>covariate shift</em> — khác với <em>concept drift</em> (khi chính định nghĩa nhãn đổi). Tin tốt: quy
+luật vẫn còn đó, nên có thể cứu được. Tin xấu: model đã học các ranh giới quyết định <strong>được đo bằng thang đo
+của miền cũ</strong>, và giờ dữ liệu rơi vào những vùng nó chưa từng thấy.</p>
+<p>Đo lệch bằng <strong>KS-test</strong> (Kolmogorov–Smirnov) trên từng đặc trưng: so hàm phân phối tích luỹ của
+lab và của thật, lấy khoảng cách lớn nhất.</p>`,
+codeIntro:`<p>Chẩn đoán này được làm lại một cách hệ thống ở GĐ5 (Bước 1), với một bài học phương pháp đáng giá:</p>`,
+code:[{file:"live_detection/training/step1_diagnose.py", lines:"—",
+snippet:`# KS-test từng đặc trưng: lab (CIC/Combined) vs benign thật
+# → Bwd_IAT_Min, Custom_Bwd_Pkt_Ratio, Custom_IAT_Anomaly,
+#   Down_Up_Ratio, FIN_Flag_Count lệch mạnh nhất
+#
+# → traffic thật = flow SIÊU NGẮN (bắt tay xong là đóng),
+#   trong khi lab toàn flow "đầy đủ"`,
+note:"Kết quả: FPR thật là <strong>24,68%</strong> trên 50.721 flow benign thật — không phải ~52% như ước lượng cũ chỉ dựa trên 56 flow. Đo trên mẫu nhỏ đã cho một con số sai lệch hoàn toàn."},
+{file:"live_detection/training/step1_ablation_extra.py", lines:"—",
+snippet:`# Ablation: reset từng đặc trưng về giá trị lab rồi đo lại FP
+# min_seg_size_forward  → reset: 32% FP quay về Benign
+# Down_Up_Ratio         → 12%
+# Avg_Bwd_Segment_Size  → 11%
+# nhóm SHAP-top6 + Down_Up_Ratio → 77% FP quay về Benign`,
+note:"<strong>Bài học phương pháp:</strong> SHAP xếp <code>Port_Is_Web</code> quan trọng <em>nhất</em>, nhưng ablation cho thấy reset nó về giá trị lab làm <strong>0%</strong> FP quay lại. SHAP đo <em>độ quan trọng với dự đoán</em>, không đo <em>nguyên nhân của shift</em>. Phải giao cả KS-test và ablation mới tìm đúng thủ phạm."}],
+alts:[
+{name:"Giả định là concept drift (định nghĩa tấn công đã đổi)", v:"no", why:"Sai chẩn đoán → sẽ đi thu lại nhãn và định nghĩa lại lớp, tốn công vô ích. DoS năm 2026 vẫn là DoS."},
+{name:"Adversarial domain adaptation (DANN — huấn luyện discriminator để trộn hai miền)", v:"no", why:"Cần lượng dữ liệu miền đích lớn và quá trình huấn luyện đối kháng khó ổn định. Ở thời điểm GĐ3, testbed chỉ có ~37 flow benign — không đủ."},
+{name:"Đo lệch bằng KS-test + ablation nhân quả, rồi mới chọn cách chữa", v:"ok", why:"Chẩn đoán trước, chữa sau. Chính chuỗi này loại bỏ được hai giả thuyết sai (rò rỉ cổng, và tiền xử lý) trước khi tìm ra cách chữa thật."}],
+ev:[["24,68%","FPR thật của V8.5 trên 50.721 flow benign thật"],
+["20,8%","phần FP là DoS — chiếm áp đảo, với confidence trung bình 0,82"],
+["77%","tỉ lệ FP quay về Benign khi reset nhóm 7 đặc trưng shift về giá trị lab → chứng minh FP là shift <em>sửa được</em>"]]
+});
+
+T.push({
+id:"scaler-coupling", phase:"gd3", tag:"Chẩn đoán · 2 · kết quả âm", title:"Vì sao fit lại scaler trên miền mới lại PHÁ HUỶ model",
+one:"Cách rẻ nhất để chữa domain shift, và nó thất bại — nhưng chính thất bại này giải thích toàn bộ thiết kế sau đó.",
+why:`<p>Suy nghĩ đầu tiên, hoàn toàn tự nhiên: "phân phối đầu vào đổi → fit lại scaler trên dữ liệu mới là xong,
+không cần train lại gì cả." Rẻ, nhanh, hợp lý.</p>
+<p>Kết quả: <strong>model sập</strong>. Và hiểu ra vì sao mới là phần có giá trị nhất của GĐ3.</p>`,
+how:`<p>Điểm mấu chốt: <strong>scaler và trọng số embedding là một cặp bị khoá vào nhau</strong>.</p>
+<p>Feature Tokenizer học <code>token_j = x_j · W_j + b_j</code>. Trọng số W_j được học <em>với giả định rằng
+x_j đã được scale bằng scaler cũ</em>. Ví dụ: <code>Flow_Duration</code> sau scaler CIC-IDS-2017 có mean 0, std 1
+— và W_j được điều chỉnh cho đúng thang đo đó.</p>
+<p>Khi fit lại scaler trên testbed, cùng một <code>Flow_Duration</code> = 5000 µs giờ được ánh xạ sang một giá trị
+scaled <em>hoàn toàn khác</em> (vì mean/std/λ của testbed khác). W_j vẫn nguyên si nhưng đầu vào của nó đã đổi
+nghĩa → toàn bộ token sai → mọi tầng sau sai theo.</p>
+<div class="formula">Đổi scaler mà không đổi W  ⇔  đổi đơn vị đo mà không đổi công thức
+(giống như đưa số đo tính bằng mét vào công thức viết cho centimet)</div>`,
+code:[{file:"Domain_Adaptation_Workspace/scripts/1_refit_scaler_test.py", lines:"166–168, 209–214",
+snippet:`print("[*] Re-fitting PowerTransformer trên Testbed Data...")
+scaler = PowerTransformer(method='yeo-johnson', standardize=True)
+X_scaled = scaler.fit_transform(X_raw)      # ← FIT LẠI trên miền mới
+
+# ... nạp model gốc CIC-IDS-2017, giữ nguyên trọng số ...
+
+print("KẾT QUẢ SAU KHI RE-FIT SCALER")
+acc = accuracy_score(y_true, y_pred_binary)`,
+note:"Đây là một thí nghiệm được thiết kế để <strong>thất bại một cách có ích</strong>: nó chứng minh scaler không phải là một khối độc lập có thể thay nóng."}],
+codeOutro:`<p>Hệ quả trực tiếp cho toàn bộ thiết kế về sau — <strong>một ràng buộc sắt</strong>: nếu muốn giữ trọng số
+embedding cũ thì <em>phải</em> giữ nguyên scaler cũ cho những đặc trưng ấy. Đây chính là lý do sinh ra
+<strong>HybridFeatureScaler</strong> (77 cột dùng scaler cũ, 3 cột mới dùng scaler mới) và cũng là lý do
+<strong>Bước 4 ở GĐ5 bị cấm đổi scaler</strong>.</p>`,
+alts:[
+{name:"Fit lại scaler trên miền đích, giữ nguyên trọng số", v:"warn", why:"<strong>Đã thử — thất bại.</strong> Phá vỡ liên kết scaler↔embedding. Accuracy sụp đổ. Nhưng thí nghiệm này là bằng chứng cần thiết cho ràng buộc thiết kế sau đó."},
+{name:"Giữ nguyên scaler cũ, không làm gì", v:"no", why:"Không sửa được shift — đầu vào vẫn rơi vào vùng model chưa thấy bao giờ (z-score của <code>Flow_IAT_Min</code> lên tới 64.000)."},
+{name:"Fit lại scaler VÀ train lại toàn bộ model từ đầu", v:"no", why:"Nhất quán về mặt lý thuyết, nhưng vứt bỏ toàn bộ tri thức học được từ 2,8 triệu flow CIC-IDS-2017 — trong khi testbed chỉ có hơn 100 nghìn flow. Sẽ tệ hơn hẳn."},
+{name:"Giữ scaler cũ cho cột cũ + scaler mới cho cột mới (Hybrid)", v:"ok", why:"Tôn trọng liên kết scaler↔embedding ở những chỗ trọng số bị đóng băng, đồng thời cho phép các đặc trưng mới có thang đo phù hợp với miền mới."}]
+});
+
+T.push({
+id:"layer-freezing", phase:"gd3", tag:"Học chuyển giao", title:"Layer Freezing — chống quên thảm hoạ",
+one:"Đóng băng tầng đầu (tri thức chung), chỉ cho tầng cuối học lại (tri thức chuyên biệt miền).",
+why:`<p>Testbed có ít dữ liệu hơn CIC-IDS-2017 hàng chục lần. Fine-tune toàn bộ mạng trên tập nhỏ ấy sẽ gây
+<strong>catastrophic forgetting</strong> (quên thảm hoạ): gradient từ vài nghìn mẫu mới sẽ ghi đè lên tri thức
+đã học từ 2,8 triệu mẫu cũ. Model quên mất DoS trông như thế nào nói chung, chỉ còn nhớ DoS trên WSL.</p>
+<p>Nhưng không phải tầng nào cũng cần học lại. Trong mạng sâu có một sự phân công tự nhiên:</p>
+<ul>
+<li><strong>Tầng đầu</strong> học biểu diễn <em>chung</em>, ít phụ thuộc miền ("gói nhỏ + gửi nhanh").</li>
+<li><strong>Tầng cuối</strong> học tổ hợp <em>chuyên biệt</em>, gắn chặt với miền ("với đặc điểm mạng này thì
+tổ hợp đó nghĩa là DoS").</li>
+</ul>`,
+how:`<p>Đóng băng = đặt <code>requires_grad = False</code> → tham số không nhận gradient, optimizer không đụng tới.
+Chỉ 2 khối Transformer cuối và bộ phân lớp được học lại, với learning rate <strong>rất nhỏ</strong> (1e-5) để
+tránh phá vỡ trọng số cũ.</p>`,
+code:[{file:"Domain_Adaptation_Workspace/scripts/2_finetune_freeze.py", lines:"224–237, 252",
+snippet:`for param in model.feature_embedding.parameters():
+    param.requires_grad = False
+for param in model.transformer_blocks[0].parameters():
+    param.requires_grad = False
+for param in model.transformer_blocks[1].parameters():
+    param.requires_grad = False
+
+# Unfreeze 2 khối cuối và classifier
+for param in model.transformer_blocks[2].parameters():
+    param.requires_grad = True
+for param in model.transformer_blocks[3].parameters():
+    param.requires_grad = True
+for param in model.classifier.parameters():
+    param.requires_grad = True
+
+optimizer = torch.optim.AdamW(
+    filter(lambda p: p.requires_grad, model.parameters()),   # chỉ tối ưu phần chưa đóng băng
+    lr=1e-5, weight_decay=1e-4)`,
+note:"<code>filter(lambda p: p.requires_grad, ...)</code> — bắt buộc. Nếu truyền toàn bộ tham số vào optimizer, AdamW vẫn sẽ áp weight decay lên cả tham số đã đóng băng và làm chúng trôi dần về 0."}],
+codeOutro:`<p><strong>Nhưng đến GĐ5 thì freezing bị bỏ.</strong> Cả <code>v8_5_train.py</code> lẫn
+<code>v8_7_train_realbenign.py</code> đều <em>full unfreeze</em> — lý do: lúc này đã có <strong>63.401 flow benign
+thật</strong> chứ không còn 37 flow. Đủ dữ liệu thì không còn phải sợ quên thảm hoạ, và cho toàn mạng học lại sẽ
+thích nghi tốt hơn. Bù lại, dùng <strong>learning rate phân tầng</strong> (tầng sâu học chậm hơn) như một phiên
+bản mềm của freezing.</p>`,
+code2:null,
+alts:[
+{name:"Fine-tune toàn bộ mạng (khi dữ liệu ít)", v:"no", why:"Quên thảm hoạ. Với ~37 flow benign ở GĐ3, gradient từ tập nhỏ sẽ xoá trắng tri thức từ 2,8 triệu flow."},
+{name:"Chỉ train lại lớp phân loại cuối (linear probing)", v:"no", why:"An toàn nhất nhưng quá cứng: nếu shift nằm ở tầng biểu diễn (mà KS-test cho thấy đúng là như vậy) thì đổi mỗi lớp cuối không cứu nổi."},
+{name:"Adapter / LoRA (chèn module nhỏ, đóng băng phần còn lại)", v:"no", why:"Giải pháp hiện đại và đúng bài, nhưng thêm độ phức tạp cài đặt lớn cho một mạng chỉ 4 tầng / vài triệu tham số. Lợi ích không tương xứng ở quy mô này."},
+{name:"Đóng băng embedding + 2 khối đầu, học lại 2 khối cuối (lr = 1e-5)", v:"ok", why:"Giữ tri thức chung, cho phép thích nghi phần chuyên biệt miền, và tôn trọng ràng buộc scaler↔embedding (embedding đóng băng → scaler cũ phải giữ nguyên)."},
+{name:"Full unfreeze + learning rate phân tầng (GĐ5)", v:"ok", why:"Khi đã có 63.401 flow benign thật, dữ liệu đủ nhiều để không sợ quên. Learning rate phân tầng thay thế vai trò của freezing một cách mềm dẻo hơn."}]
+});
+
+T.push({
+id:"model-surgery", phase:"gd3", tag:"Học chuyển giao", title:"Model Surgery — ghép 3 đặc trưng mới vào mạng đã học",
+one:"Muốn thêm đặc trưng mới mà không vứt bỏ trọng số cũ: khởi tạo mạng 80 chiều rồi cấy trọng số của mạng 77 chiều vào.",
+why:`<p>Chẩn đoán cho thấy cần thêm đặc trưng mới để bắt được hành vi tấn công trong môi trường WSL. Nhưng model cũ
+được xây cho đúng 77 đặc trưng. Thêm 3 cột nữa nghĩa là kiến trúc đổi → không nạp được checkpoint cũ.</p>
+<p>Train lại từ đầu với 80 cột? Vứt bỏ toàn bộ tri thức từ 2,8 triệu flow. Không chấp nhận được.</p>`,
+how:`<p><strong>Chính kiến trúc Feature Tokenizer làm cho việc này khả thi.</strong> Vì mỗi đặc trưng có một
+<code>nn.Linear(1, d_model)</code> <em>riêng</em> (không phải một ma trận chung), nên thêm đặc trưng chỉ là thêm
+module vào <code>ModuleList</code> — 77 module cũ không hề bị ảnh hưởng.</p>
+<p>Quy trình:</p>
+<ul>
+<li>Khởi tạo mạng mới với <code>num_features = 80</code> (3 embedding cuối là ngẫu nhiên).</li>
+<li>Chép trọng số 77 embedding cũ vào 77 vị trí đầu.</li>
+<li>Chép nguyên <code>transformer_blocks</code>, <code>norm</code>, <code>classifier</code>, và cả token
+<code>[CLS]</code> — những phần này <em>không phụ thuộc số đặc trưng</em> (Attention chạy trên chuỗi dài bao nhiêu
+cũng được).</li>
+<li>Đóng băng 77 embedding cũ, chỉ cho 3 embedding mới học.</li>
+</ul>`,
+code:[{file:"Domain_Adaptation_Workspace/scripts/3_feature_engineering_v2.py", lines:"249–285",
+snippet:`print("[*] Khởi tạo mô hình 80 Features và chép đè trọng số (Model Surgery)...")
+model_old = FTTransformer(num_features=77, ...)
+model_old.load_state_dict(torch.load('.../best_stage1_model.pt'))
+
+model = FTTransformer(num_features=80, ...)      # 3 embedding cuối: ngẫu nhiên
+
+# 1. Feature Embedding cho 77 cột đầu
+for i in range(77):
+    model.feature_embedding.feature_embeddings[i].load_state_dict(
+        model_old.feature_embedding.feature_embeddings[i].state_dict())
+model.feature_embedding.cls_token.data.copy_(model_old.feature_embedding.cls_token.data)
+
+# 2. Transformer Blocks và Classifier — chép nguyên, không phụ thuộc số feature
+model.transformer_blocks.load_state_dict(model_old.transformer_blocks.state_dict())
+model.classifier.load_state_dict(model_old.classifier.state_dict())
+
+# --- LAYER FREEZING (Bảo vệ trí nhớ) ---
+for i in range(77):
+    for param in model.feature_embedding.feature_embeddings[i].parameters():
+        param.requires_grad = False
+for i in range(77, 80):                          # chỉ 3 embedding MỚI được học
+    for param in model.feature_embedding.feature_embeddings[i].parameters():
+        param.requires_grad = True`,
+note:"Điểm tinh tế: <code>transformer_blocks</code> chép được nguyên vẹn vì Self-Attention <strong>không quan tâm chuỗi dài bao nhiêu</strong> — 78 token hay 81 token đều dùng chung một bộ trọng số Q/K/V."}],
+codeOutro:`<p><strong>Cái giá dài hạn:</strong> Model Surgery để lại một <em>vết sẹo cấu trúc</em>. 80 đặc trưng của
+V8.5 được chia thành hai nhóm mang tính lịch sử (77 cũ + 3 mới), và HybridFeatureScaler phải giữ mãi ranh giới ấy.
+Đây là lý do không thể "cắt gọn" bộ đặc trưng của V8.5 về sau — mọi cải tiến đều phải sống chung với vết sẹo này.</p>`,
+alts:[
+{name:"Train lại từ đầu với 80 đặc trưng", v:"no", why:"Vứt bỏ tri thức từ 2,8 triệu flow CIC-IDS-2017 để đổi lấy hơn 100 nghìn flow testbed. Chắc chắn tệ hơn."},
+{name:"Không thêm đặc trưng, chỉ fine-tune 77 cột cũ", v:"no", why:"Các hành vi cần bắt (Slowloris giữ kết nối, PortScan gửi-không-nhận) không hiện ra trong 77 đặc trưng gốc — chính vì thế mới cần thêm."},
+{name:"Nhét 3 đặc trưng mới qua một mạng phụ rồi cộng vào", v:"no", why:"Chúng sẽ không tham gia vào cơ chế Attention với 77 đặc trưng kia — mất hoàn toàn khả năng học tương tác chéo, vốn là lý do dùng Transformer."},
+{name:"Model Surgery: mở rộng ModuleList + chép trọng số + đóng băng phần cũ", v:"ok", why:"Giữ trọn tri thức cũ, cho phép học đặc trưng mới, và khả thi <em>chính vì</em> Feature Tokenizer dùng embedding riêng cho từng cột."}],
+ev:[["77 → 80","số đặc trưng sau phẫu thuật"],
+["99,87%","accuracy cross-domain tốt nhất (finetuned_stage3c_hybrid.pt)"]]
+});
+
+T.push({
+id:"hybrid-scaler", phase:"gd3", tag:"Tiền xử lý", title:"HybridFeatureScaler — hai scaler cho một vector",
+one:"77 cột cũ dùng scaler CIC-IDS-2017 (vì embedding của chúng bị đóng băng), 3 cột mới dùng scaler fit trên testbed.",
+why:`<p>Đây là hệ quả trực tiếp và bắt buộc của hai kết luận trước:</p>
+<ul>
+<li>Từ <strong>Scaler-Embedding Coupling</strong>: embedding đóng băng ⇒ <em>không được</em> đổi scaler của cột đó.</li>
+<li>Từ <strong>Model Surgery</strong>: 3 embedding mới là ngẫu nhiên và đang được học ⇒ chúng <em>cần</em> một
+scaler fit trên chính miền dữ liệu mới.</li>
+</ul>
+<p>Hai yêu cầu mâu thuẫn nhau nếu chỉ có một scaler. Vậy thì dùng hai.</p>`,
+how:`<p>Vector 80 chiều bị cắt làm đôi, mỗi nửa đi qua một PowerTransformer khác nhau, rồi ghép lại:</p>
+<div class="formula">X_scaled = [ scaler_77_CIC.transform(X[:, :77])  ‖  scaler_3_testbed.transform(X[:, 77:]) ]</div>
+<p>Thứ tự cột trở thành một <strong>hợp đồng bất khả xâm phạm</strong>: 77 cột đầu phải đúng là 77 cột gốc của
+CIC-IDS-2017, theo đúng thứ tự cũ. Đảo cột = đưa dữ liệu vào nhầm scaler mà không có lỗi nào được báo.</p>`,
+code:[{file:"Domain_Adaptation_Workspace/scripts/3c_stage3_hybrid_pipeline.py", lines:"241–256, 275–285",
+snippet:`# 2a. Scaler GỐC cho 77 features (KHÔNG fit lại, giữ nguyên)
+scaler_77 = joblib.load(os.path.join(MODEL_DIR, 'scaler_stage1.pkl'))
+print(f"  77 features: {type(scaler_77).__name__} (giữ nguyên từ CIC-IDS-2017)")
+
+X_mixed_new = X_mixed[:, 77:]      # 3 features mới → fit scaler mới
+X_mixed_old = X_mixed[:, :77]      # 77 features cũ → transform bằng scaler cũ
+X_mixed_scaled = np.hstack((scaler_77.transform(X_mixed_old),
+                            scaler_3.transform(X_mixed_new)))
+
+pipeline = {
+    'scaler_77_original': scaler_77,
+    'n_old_features': 77, 'n_new_features': 3,
+    'scaler_type': 'Hybrid(PowerTransformer_77_original + PowerTransformer_3_new)',
+    'note': 'Hybrid pipeline: 77 features dùng scaler gốc CIC-IDS-2017 (khớp frozen embeddings), ...'
+}`,
+note:"Comment ở dòng 5–6 của file gốc nói thẳng lý do: <em>'Vì 77 embedding bị FROZEN, chúng kỳ vọng dữ liệu theo đúng scale gốc.'</em>"},
+{file:"live_detection/model_defs/hybrid_feature_scaler.py", lines:"5–70",
+snippet:`class HybridFeatureScaler:
+    def __init__(self, scaler_77_path=None, scaler_3custom_path=None):
+        ...
+    def fit_custom_scaler(self, X_new):
+        from sklearn.preprocessing import PowerTransformer
+        self.scaler_3custom = PowerTransformer()
+    def transform(self, X):
+        # X[:, :77] → scaler cũ ; X[:, 77:] → scaler mới`,
+note:"Chính class này được <code>joblib</code> nạp lại trong hệ thống live (<code>models/v8_5_scaler.pkl</code>) — nó là mã sản xuất, không phải script thí nghiệm."}],
+alts:[
+{name:"Một scaler duy nhất fit lại trên toàn bộ 80 cột", v:"warn", why:"<strong>Đã kiểm chứng là hỏng</strong> — phá vỡ liên kết với 77 embedding đóng băng. Xem mục Scaler-Embedding Coupling."},
+{name:"Một scaler duy nhất giữ nguyên từ CIC (chỉ áp cho 77 cột, cột mới không scale)", v:"no", why:"3 đặc trưng mới là tỉ số, có dải giá trị hoàn toàn khác (từ 0 đến hàng nghìn). Không scale → chúng sẽ áp đảo gradient của 77 cột đã chuẩn hoá."},
+{name:"RobustLogScaler thống nhất (log + robust + clip)", v:"warn", why:"<strong>Đã thử ở GĐ5 Bước 4 và thất bại nặng</strong>: FPR trên benign thật tăng từ 24,68% lên <strong>73,87%</strong>, FP-DoS từ 20,8% lên 38,9%. Kết quả âm này phủ định dứt khoát giả thuyết 'tiền xử lý là thủ phạm'."},
+{name:"HybridFeatureScaler (77 cũ + 3 mới)", v:"ok", why:"Cách duy nhất thoả mãn đồng thời hai ràng buộc: giữ scale cho embedding đóng băng, và cho embedding mới một thang đo phù hợp miền mới."}],
+ev:[["73,87%","FPR khi thay bằng RobustLogScaler — bằng chứng phản chứng, giữ nguyên Hybrid"]]
+});
+
+T.push({
+id:"smote", phase:"gd3", tag:"Cân bằng dữ liệu · kết quả âm", title:"SMOTE — sinh mẫu nhân tạo cho lớp hiếm, và vì sao nó không cứu được",
+one:"Nội suy giữa các mẫu lớp hiếm để tạo mẫu mới. Đã thử (V6), không giải quyết được PortScan.",
+why:`<p>PortScan chỉ có 442 mẫu so với 91.600 mẫu DoS. Ý tưởng tự nhiên: sinh thêm mẫu PortScan nhân tạo cho cân.</p>`,
+how:`<p><strong>SMOTE</strong> (Synthetic Minority Over-sampling): với mỗi mẫu lớp hiếm, tìm k láng giềng gần nhất
+<em>cùng lớp</em>, chọn ngẫu nhiên một láng giềng, rồi tạo mẫu mới nằm trên đoạn thẳng nối hai điểm:</p>
+<div class="formula">x_new = x_i + λ · (x_neighbor − x_i),      λ ~ U(0, 1)</div>
+<p><strong>SMOTE-ENN</strong>: sau khi sinh mẫu, dùng Edited Nearest Neighbours dọn dẹp — xoá những mẫu (kể cả mẫu
+thật) có nhãn khác đa số láng giềng của nó, nhằm làm sạch vùng ranh giới bị chồng lấn.</p>`,
+code:[{file:"Phase3_4_Retrain/archive_v6_smote/src/4d_retrain_smote_v6.py", lines:"182–191",
+snippet:`# 4. SMOTE (OVERSAMPLING)
+print("\\n[*] Áp dụng SMOTE lên tập Train...")
+target_smote = 15000
+smote_strategy = {}
+for ...:
+    # Nếu số lượng hiện tại nhỏ hơn target_smote, nâng lên target_smote`,
+note:"Thư mục tên <code>archive_v6_smote/</code> — chữ <em>archive</em> đã nói hết: hướng này đã bị bỏ."}],
+codeOutro:`<p><strong>Vì sao thất bại — và đây mới là phần đáng nói:</strong> SMOTE nội suy <em>trong không gian đặc
+trưng</em>. Nó giả định rằng điểm nằm giữa hai mẫu PortScan cũng là PortScan. Nhưng khi PortScan và Benign
+<strong>chồng lên nhau</strong> trong chính không gian đó (do NAT — xem mục sau), thì điểm nội suy giữa hai mẫu
+PortScan rất có thể rơi thẳng vào vùng Benign. SMOTE không tạo ra thông tin mới; nó chỉ <em>tô đậm</em> một cấu
+trúc vốn đã không phân tách được.</p>`,
+alts:[
+{name:"SMOTE / SMOTE-ENN", v:"warn", why:"<strong>Đã thử (V6) — không giải quyết được PortScan.</strong> Nội suy trong không gian đặc trưng vô nghĩa khi hai lớp chồng lấn trong chính không gian đó."},
+{name:"Random oversampling (nhân bản mẫu)", v:"no", why:"Không thêm thông tin, chỉ tăng nguy cơ overfit vào đúng 442 mẫu PortScan cụ thể."},
+{name:"Random undersampling lớp đông", v:"no", why:"Vứt bỏ hàng chục nghìn flow DoS thật — mất thông tin thật để đổi lấy cân bằng hình thức."},
+{name:"Weighted Random Sampling (lấy mẫu có trọng số khi tạo batch)", v:"warn", why:"Mỗi batch được lấy mẫu sao cho các lớp xuất hiện cân bằng. Rẻ hơn SMOTE và không bịa dữ liệu, nhưng cũng chỉ chữa được mất cân bằng — không chữa được chồng lấn."},
+{name:"Focal Loss + trọng số lớp (ở tầng loss)", v:"ok", why:"Đạt hiệu quả cân bằng tương tự mà không bịa mẫu và không vứt dữ liệu. Đây là hướng cuối cùng được chọn."},
+{name:"Giải PortScan bằng LUẬT thay vì bằng dữ liệu", v:"ok", why:"Kết luận thật sự của cả chuỗi thí nghiệm: PortScan không phải bài toán mất cân bằng, mà là bài toán <em>không phân tách được ở cấp flow đơn</em>. Không có kỹ thuật lấy mẫu nào chữa nổi. Xem PortScanRule ở GĐ5."}]
+});
+
+T.push({
+id:"portscan-nat", phase:"gd3", tag:"Giới hạn nguyên lý", title:"PortScan không phân tách được dưới NAT — giới hạn thật sự",
+one:"Không phải lỗi model, không phải lỗi dữ liệu. Thông tin cần thiết đơn giản không tồn tại trong một flow đơn lẻ.",
+why:`<p>Đây là kết luận quan trọng nhất của cả đồ án, và là thứ giải thích vì sao <em>mọi</em> kỹ thuật cân bằng
+dữ liệu đều thất bại với PortScan.</p>
+<p>Bản chất của quét cổng: kẻ tấn công gửi một gói SYN tới cổng 22, một gói tới cổng 23, một gói tới cổng 80…
+<strong>Mỗi lần chạm cổng là một flow riêng biệt.</strong> Nhìn vào <em>một</em> flow trong số đó, ta thấy gì?
+Một gói SYN gửi đi, không nhận lại gì. Nhưng một máy khách bình thường thử kết nối tới một cổng đang đóng cũng
+tạo ra <strong>đúng một flow như vậy</strong>.</p>
+<p>Cái làm nên "quét cổng" là <strong>quan hệ giữa nhiều flow</strong> — cùng một nguồn chạm hàng trăm cổng khác
+nhau trong vài giây. Thông tin đó <em>không nằm trong bất kỳ flow nào cả</em>.</p>`,
+how:`<p>Nói bằng ngôn ngữ học máy: hai lớp có <strong>miền giá trị chồng lấn</strong> (overlapping support) trong
+không gian đặc trưng 80 chiều.</p>
+<div class="formula">∃ vùng R:  P(x ∈ R | PortScan) > 0  VÀ  P(x ∈ R | Benign) > 0</div>
+<p>Với vùng R đó, <strong>không tồn tại</strong> hàm phân lớp nào — dù phức tạp đến đâu — có thể đạt độ chính xác
+100%. Đây là giới hạn Bayes, không phải giới hạn của FT-Transformer.</p>
+<p>Môi trường WSL2 + NAT còn làm mọi thứ tệ hơn: NAT làm nhoè IP nguồn thật, và mạng loopback ảo khiến các
+đặc trưng thời gian (IAT) của flow quét gần như trùng với flow bình thường.</p>`,
+codeIntro:`<p>Chuỗi bằng chứng thực nghiệm — mỗi cách chữa "trong không gian đặc trưng" đều thất bại theo cùng một kiểu:</p>`,
+code:[{file:"(tổng hợp thực nghiệm GĐ3 → GĐ5)", lines:"",
+snippet:`Focal Loss (gamma=2)      →  PortScan F1  7,5%  →  6,8%   (không cải thiện)
+SMOTE (V6)                →  không giải quyết được
+Ngưỡng global 0,6         →  PortScan recall        →  0%    (giết hẳn)
+Ngưỡng per-class          →  PortScan recall        →  36,5% (đỡ, chưa đủ)
+Fine-tune benign thật     →  PortScan (classifier)  →  0%    (mất hẳn)
+─────────────────────────────────────────────────────────────
+PortScanRule (đếm cổng)   →  PortScan F1            →  0,996`,
+note:"Đọc bảng này theo chiều dọc: mọi can thiệp <em>trong</em> không gian đặc trưng đều đâm đầu vào tường. Chỉ khi thoát <em>ra ngoài</em> không gian đó — đếm số cổng đích duy nhất theo (nguồn, cửa sổ thời gian), tức là dùng thông tin <strong>giữa các flow</strong> — bài toán mới giải được."}],
+alts:[
+{name:"Thêm dữ liệu PortScan", v:"no", why:"Thêm bao nhiêu cũng không tạo ra được ranh giới ở nơi hai lớp chồng nhau. Đã thu 77.218 flow PortScan ở GĐ5 — vẫn không cứu được classifier."},
+{name:"Model mạnh hơn / sâu hơn", v:"no", why:"Giới hạn Bayes không phụ thuộc dung lượng model. Không có hàm nào phân tách được hai phân phối chồng lấn."},
+{name:"Kỹ thuật cân bằng (Focal, SMOTE, sampling)", v:"warn", why:"<strong>Đã thử tất cả — thất bại.</strong> Chúng chữa mất cân bằng, không chữa chồng lấn. Hai bệnh khác nhau."},
+{name:"Đặc trưng liên-flow (đếm cổng đích theo cửa sổ thời gian)", v:"ok", why:"Đưa vào <em>thông tin mới</em> mà một flow đơn lẻ không thể có. Đây là cách duy nhất đúng về mặt nguyên lý — và nó cho PortScan F1 = 0,996."},
+{name:"Mô hình chuỗi trên chuỗi gói (LSTM/Transformer theo gói)", v:"no", why:"Cũng đúng về nguyên lý và mạnh hơn luật, nhưng vượt phạm vi đồ án. Được ghi là hướng phát triển."}],
+ev:[["0,996","PortScan F1 khi giải bằng luật liên-flow (so với ~7% khi giải bằng classifier)"]],
+gap:`<strong>Cách trả lời hội đồng nếu bị hỏi "sao model không bắt được PortScan":</strong> đây không phải thất bại
+của model mà là <em>phát hiện</em> của đồ án. Việc chứng minh được rằng PortScan không phân tách ở cấp flow đơn —
+bằng một chuỗi thí nghiệm loại trừ có hệ thống — chính là lý do chính đáng để đưa luật liên-flow vào hệ thống, và
+là luận cứ mạnh nhất cho kiến trúc lai.`
+});
+
+T.push({
+id:"threshold-calib-v81", phase:"gd3", tag:"Ngưỡng quyết định", title:"Hiệu chỉnh ngưỡng (V8.1) — nút vặn rẻ nhất",
+one:"Trước khi train lại, luôn thử dịch ranh giới quyết định: không tốn GPU, đôi khi đã đủ.",
+why:`<p>Model V5 có attack recall 99,2% nhưng Macro-F1 chỉ 38,9%. Trước khi lao vào train lại (mỗi lần vài giờ),
+cần trả lời một câu rẻ hơn: <em>liệu model đã học được biểu diễn tốt, chỉ là ranh giới quyết định đặt sai chỗ?</em></p>
+<p>Nếu đúng thì chỉ cần dịch ngưỡng — không cần một epoch nào.</p>`,
+how:`<p>Duyệt lưới ngưỡng cho từng lớp, mỗi lần đo lại Macro-F1 trên tập validation, chọn bộ ngưỡng tối ưu.
+Đây là bước "đo trước, mổ sau" — nó cũng đồng thời <em>chẩn đoán</em>: nếu chỉnh ngưỡng cải thiện được nhiều,
+biểu diễn của model vẫn tốt; nếu chỉnh kiểu gì cũng không lên, vấn đề nằm sâu hơn ở tầng đặc trưng.</p>`,
+code:[{file:"Phase3_4_Retrain/v8/v8.1_Threshold_Calibration/8a_evaluate_threshold.py", lines:"—",
+snippet:`# Duyệt ngưỡng cho từng lớp, tối ưu Macro-F1 trên validation
+# → Đây là thí nghiệm ĐẦU TIÊN của loạt V8, vì nó rẻ nhất:
+#   không train lại, chỉ dịch ranh giới quyết định.`,
+note:"Thứ tự các thí nghiệm V8 phản ánh đúng một nguyên tắc kỹ thuật: <strong>thử cái rẻ nhất trước</strong>. V8.1 ngưỡng (rẻ) → V8.2 cost-sensitive loss → V8.3 feature engineering → V8.4/V8.5 retrain (đắt)."}],
+alts:[
+{name:"Train lại ngay với siêu tham số mới", v:"no", why:"Đắt (nhiều giờ GPU) và không trả lời được câu hỏi chẩn đoán: vấn đề ở biểu diễn hay ở ranh giới?"},
+{name:"Chỉ dùng argmax", v:"no", why:"Với dữ liệu lệch, argmax luôn thiên vị lớp đông. Xem mục Ngưỡng per-class ở GĐ1."},
+{name:"Hiệu chỉnh ngưỡng trước, retrain sau", v:"ok", why:"Rẻ, nhanh, và <em>vừa chữa vừa chẩn đoán</em>. Kết quả của nó định hướng cho các thí nghiệm đắt tiền tiếp theo."}]
+});
+/* ---------- GĐ 4 ---------- */
+T.push({
+id:"snort-hybrid", phase:"gd4", tag:"Kiến trúc hệ lai", title:"Snort + FT-Transformer — hai điểm mù bù nhau",
+one:"Luật bắt cái đã biết, nhanh và gần như không báo giả. Model bắt cái chưa có luật, nhưng nhạy với lệch miền.",
+why:`<p>Câu hỏi hội đồng chắc chắn hỏi: <em>"đã có deep learning rồi thì cần Snort làm gì?"</em> Câu trả lời nằm ở
+chỗ hai phương pháp có <strong>điểm mù ngược nhau</strong>, chứ không phải cái này thay cái kia.</p>
+<table class="ledger"><thead><tr><th>Tiêu chí</th><th>Snort (dấu hiệu)</th><th>FT-Transformer (bất thường)</th></tr></thead>
+<tbody>
+<tr><td>Tấn công đã biết</td><td><span class="chip ok">rất tốt</span></td><td>tốt</td></tr>
+<tr><td>Biến thể / zero-day</td><td><span class="chip no">bỏ sót hoàn toàn</span></td><td><span class="chip ok">bắt được qua hành vi</span></td></tr>
+<tr><td>Báo giả</td><td>rất thấp</td><td><span class="chip no">cao (24,68% trước khi sửa)</span></td></tr>
+<tr><td>Giải thích được</td><td><span class="chip ok">chỉ đúng luật nào khớp</span></td><td>khó hơn (cần attention/SHAP)</td></tr>
+<tr><td>Khi mạng đổi (domain shift)</td><td>không ảnh hưởng</td><td><span class="chip no">suy giảm mạnh</span></td></tr>
+</tbody></table>
+<p>Snort không thể bắt cái nó chưa có luật. Model không thể tin cậy khi miền đổi. Ghép lại, mỗi bên che đúng chỗ
+bên kia hở.</p>`,
+how:`<p>Đường ống:</p>
+<div class="formula">Traffic → tcpdump ─┬─→ Snort 3          ─→ cảnh báo theo LUẬT
+                   └─→ CICFlowMeter ─→ FT-Transformer ─→ cảnh báo theo HÀNH VI
+                                              ↓
+                                     hợp nhất cảnh báo → dashboard</div>
+<p>Hai nhánh chạy <strong>song song trên cùng một dòng gói</strong>, không nối tiếp. Quan trọng: chúng làm việc ở
+hai <em>đơn vị</em> khác nhau — Snort cảnh báo theo <strong>gói tin</strong>, model phân loại theo
+<strong>flow</strong>. Việc ghép hai đơn vị này lại chính là bài toán kỹ thuật thật của giai đoạn.</p>`,
+code:[{file:"Custom_IDS_Testbed/snort_rules/local.rules", lines:"—",
+snippet:`# Luật Snort là dạng khớp mẫu tường minh — đọc được, kiểm chứng được:
+alert tcp any any -> $HOME_NET 22 (msg:"SSH Brute Force"; \\
+      flow:to_server; threshold:type both, track by_src, count 5, seconds 60; sid:1000001;)`,
+note:"Điểm mạnh của luật: nó nói rõ <em>vì sao</em> báo động (5 lần thử SSH trong 60 giây). Model chỉ nói 'Brute Force, tin cậy 0,93'."}],
+alts:[
+{name:"Chỉ dùng Snort (IDS truyền thống)", v:"no", why:"Không bắt được biến thể mới hoặc tấn công chưa có luật. Đây chính là khoảng trống mà đồ án nhắm vào."},
+{name:"Chỉ dùng FT-Transformer", v:"no", why:"Báo giả cao và tụt mạnh khi miền đổi (đã đo: 24,68% FPR trên benign thật). Không có Snort thì không còn tầng nào đáng tin cho các tấn công đã biết."},
+{name:"Nối tiếp: Snort lọc trước, model chỉ xem phần Snort bỏ qua", v:"no", why:"Nghe hợp lý nhưng sai: Snort bỏ qua phần lớn traffic <em>vì nó không có luật</em>, chứ không phải vì nó đã xác nhận là sạch. Cấu trúc này khiến model mất khả năng xác nhận chéo các cảnh báo của Snort."},
+{name:"Song song, hợp nhất cảnh báo ở tầng trên", v:"ok", why:"Mỗi tầng thấy toàn bộ traffic, mỗi tầng phát huy điểm mạnh riêng, và khi <em>cả hai</em> cùng báo thì độ tin cậy tăng vọt."}]
+});
+
+T.push({
+id:"alert-aggregator", phase:"gd4", tag:"Hệ thống", title:"Hợp nhất cảnh báo — ghép hai nguồn khác đơn vị",
+one:"Snort báo theo gói tin, model báo theo flow. Ghép được hay không quyết định hệ lai có thật sự lai hay không.",
+why:`<p>Không ghép cảnh báo thì đây chỉ là hai hệ thống chạy cạnh nhau, không phải một hệ lai. Nhưng ghép không hề
+tầm thường vì hai nguồn nói hai ngôn ngữ khác nhau:</p>
+<ul>
+<li>Snort: "gói tin lúc 10:03:41,229 từ .106 tới .103:22 khớp luật SID 1000001".</li>
+<li>Model: "flow (từ .106:51234 tới .103:22, TCP, kéo dài 3,2 giây) là Brute Force, tin cậy 0,93".</li>
+</ul>
+<p>Một cái là <em>sự kiện tại một thời điểm</em>, cái kia là <em>một khoảng thời gian</em>. Phải ánh xạ được
+gói vào flow chứa nó.</p>`,
+how:`<p>Khoá ghép là <strong>5-tuple + cửa sổ thời gian</strong>: một cảnh báo Snort thuộc về flow nào nếu 5-tuple
+khớp và timestamp của gói nằm trong khoảng [flow_start, flow_start + duration].</p>
+<p>Sau khi ghép, mức độ tin cậy được nâng theo sự đồng thuận:</p>
+<ul>
+<li><strong>Cả hai cùng báo</strong> → độ tin cậy cao nhất (hai phương pháp độc lập cùng kết luận).</li>
+<li><strong>Chỉ Snort báo</strong> → tấn công đã biết, model có thể chưa học kiểu này.</li>
+<li><strong>Chỉ model báo</strong> → nghi vấn biến thể mới / zero-day → <em>chính là giá trị của tầng ML</em>,
+nhưng cũng là nơi báo giả tập trung.</li>
+</ul>`,
+code:[{file:"Custom_IDS_Testbed/scripts/dataset_builder_v2.py", lines:"—",
+snippet:`# Đồng bộ cảnh báo Snort (theo GÓI) với flow CICFlowMeter (theo KHOẢNG)
+# → khoá ghép: 5-tuple (src_ip, src_port, dst_ip, dst_port, proto)
+#              + timestamp gói nằm trong [flow_start, flow_start + duration]
+# → sinh ra CSV có nhãn để huấn luyện`,
+note:"Script này còn có vai trò thứ hai, quan trọng hơn: nó chính là công cụ <strong>gán nhãn</strong> tự động cho dữ liệu testbed — Snort đóng vai 'giáo viên' dán nhãn cho các flow mà model sẽ học."}],
+codeOutro:`<p>Chính vì <code>dataset_builder</code> dùng Snort để gán nhãn, nên nhãn của tập testbed thừa hưởng cả điểm
+mạnh lẫn điểm yếu của Snort: những gì Snort không có luật thì cũng không được gán nhãn tấn công — một nguồn nhiễu
+nhãn cần thừa nhận.</p>`,
+alts:[
+{name:"Chỉ hiển thị hai luồng cảnh báo song song, không ghép", v:"no", why:"Người vận hành phải tự đối chiếu bằng mắt. Và về mặt học thuật thì đây không còn là 'hệ lai', chỉ là hai hệ chạy cạnh nhau."},
+{name:"Ghép chỉ theo IP nguồn", v:"no", why:"Quá thô: mọi flow từ cùng một IP sẽ bị gán chung một cảnh báo, kể cả những flow hoàn toàn bình thường của IP đó."},
+{name:"Ghép theo 5-tuple + cửa sổ thời gian", v:"ok", why:"Đủ chặt để đúng flow, đủ lỏng để chịu được sai lệch đồng hồ giữa Snort và CICFlowMeter."}],
+gap:`<strong>Nhiễu nhãn kế thừa:</strong> vì nhãn huấn luyện do Snort sinh ra, mọi tấn công mà Snort không có luật
+sẽ bị dán nhãn Benign trong tập train. Model học từ nhãn đó nên thừa hưởng chính điểm mù ấy — một hạn chế phải
+nêu trong phần đánh giá.`
+});
+
+/* ---------- GĐ 5 ---------- */
+T.push({
+id:"micro-batch", phase:"gd5", tag:"Kiến trúc realtime", title:"Micro-batch — cách bắt flow 'thật' mà không cần viết lại CICFlowMeter",
+one:"CICFlowMeter chỉ chạy offline trên file pcap. Cắt luồng gói thành từng lát nhỏ, mỗi lát thành một file.",
+why:`<p>Một mâu thuẫn thực tế: hệ thống cần chạy <strong>realtime</strong>, nhưng CICFlowMeter là công cụ
+<strong>offline</strong> — nó ăn một file pcap trọn vẹn rồi mới xuất CSV. Nó không có chế độ streaming.</p>
+<p>Viết lại CICFlowMeter dạng streaming là một đồ án riêng. Vậy phải lách.</p>`,
+how:`<p><strong>Micro-batch</strong>: giả vờ realtime bằng cách làm offline thật nhanh, thật nhiều lần.</p>
+<div class="formula">tcpdump (cắt file mỗi N giây) → CICFlowMeter chạy trên từng chunk
+   → CSV rơi vào thư mục drop → LiveSource quét thư mục → model → WebSocket → dashboard</div>
+<p>Độ trễ = độ dài chunk + thời gian CICFlowMeter xử lý. Đây là đánh đổi tường minh: chunk ngắn → độ trễ thấp
+nhưng flow bị cắt cụt (một session dài bị chia đôi giữa hai chunk, sinh ra hai flow nửa vời); chunk dài → flow
+đầy đủ hơn nhưng phản ứng chậm.</p>`,
+code:[{file:"live_detection/ids_replay/live_source.py", lines:"1, 42–69",
+snippet:`"""Nguồn dữ liệu LIVE — quét thư mục drop (CSV do cfm/CICFlowMeter V4 xuất ở WSL),
+..."""
+    def _new_files(self):        # tìm CSV mới xuất hiện
+    def _archive(self, path):    # xử lý xong thì chuyển đi, tránh đọc lại
+    def poll_new(self):          # → list các flow mới
+    def _file_to_events(self, path):`,
+note:"Thiết kế theo kiểu <strong>thư mục drop</strong>: hai tiến trình (script bắt gói ở WSL, và server Python) không gọi trực tiếp nhau mà giao tiếp qua hệ thống file. Đơn giản, và nếu một bên chết thì bên kia không sập theo."},
+{file:"live_detection/ids_replay/model.py", lines:"51",
+snippet:`for i in range(0, len(Xs), 1024):
+    probs = torch.softmax(self.model(torch.FloatTensor(Xs[i:i+1024])), dim=1)`,
+note:"Suy luận cũng theo lô 1024 flow — tận dụng vector hoá thay vì chạy từng flow một."}],
+alts:[
+{name:"Viết lại CICFlowMeter dạng streaming", v:"no", why:"Phải cài đặt lại quản lý trạng thái flow, timeout, và đúng ~68 công thức đặc trưng. Rủi ro sai lệch so với bản gốc — mà mọi trọng số model đều gắn với công thức của bản gốc."},
+{name:"Suy luận trên từng gói tin", v:"no", why:"Model được huấn luyện trên đặc trưng cấp flow. Không có flow thì không có đặc trưng để đưa vào."},
+{name:"Chỉ chạy chế độ REPLAY (phát lại CSV đã thu)", v:"warn", why:"Đủ để demo và đã cho Macro-F1 0,978, nhưng không chứng minh được hệ thống bắt được gói tin thật. Bản <code>live_detection/</code> bổ sung chế độ LIVE chính vì lý do đó."},
+{name:"Micro-batch qua thư mục drop", v:"ok", why:"Tái dùng nguyên vẹn CICFlowMeter (nên đặc trưng khớp chính xác với lúc train), tách rời hai tiến trình, và đạt độ trễ chấp nhận được cho demo."}],
+gap:`<strong>Giới hạn:</strong> flow bị cắt ở ranh giới chunk sẽ có đặc trưng méo (thời lượng cụt, số gói thiếu).
+Đây là một nguồn lệch phân phối <em>do chính pipeline sinh ra</em>, khác với lệch do môi trường mạng.`
+});
+
+T.push({
+id:"conf-threshold-rule", phase:"gd5", tag:"Hậu xử lý · luật", title:"Luật ngưỡng tin cậy — hạ báo động yếu về Benign",
+one:"Dự đoán tấn công có confidence < 0,6 thì hạ về Benign. Một dòng if, Macro-F1 0,679 → 0,725.",
+why:`<p>Sau khi chạy thật, triệu chứng rõ ràng: model báo tấn công quá nhiều trên traffic bình thường
+(Benign recall chỉ 75,4%). Nhưng quan sát kỹ hơn: <strong>phần lớn các báo giả ấy có confidence thấp</strong>,
+trong khi tấn công thật thường được nhận diện với confidence cao.</p>
+<p>Nếu vậy thì có một ranh giới rẻ tiền để cắt: đừng tin những báo động yếu ớt.</p>`,
+how:`<p>Áp dụng nguyên tắc <em>"nghi ngờ thì cho là vô tội"</em> — mã hoá lệch chi phí: báo giả một flow bình thường
+tốn công người vận hành, nên khi model không chắc thì nghiêng về Benign.</p>
+<div class="formula">nếu  pred ≠ Benign  VÀ  conf < T  →  pred := Benign          (T = 0,6)</div>
+<p>Kiến trúc luật tuân theo <strong>Open/Closed Principle</strong>: mỗi luật là một class riêng implement
+<code>PredictionRule</code>. Thêm luật mới = thêm class, không sửa code cũ.</p>`,
+code:[{file:"live_detection/ids_replay/postprocess.py", lines:"24–38",
+snippet:`class ConfidenceThresholdRule:
+    """Phương án A: dự đoán TẤN CÔNG có confidence < ngưỡng → hạ về Benign (giảm false positive)."""
+    name = "confidence_threshold"
+
+    def __init__(self, threshold: float, benign_label: str = "Benign"):
+        self.threshold = float(threshold)
+        self.benign_label = benign_label
+
+    def apply(self, df, preds, confs):
+        if self.threshold <= 0:
+            return preds
+        for i in range(len(preds)):
+            if preds[i] != self.benign_label and confs[i] < self.threshold:
+                preds[i] = self.benign_label
+        return preds`,
+note:"Luật chỉ hạ <em>xuống</em> Benign, không bao giờ nâng <em>lên</em> tấn công — bất đối xứng có chủ ý, đúng như voting ở GĐ2."},
+{file:"live_detection/replay_config.json", lines:"conf_threshold",
+snippet:`"conf_threshold": 0.6,
+"_conf_threshold_note": "Phương án A: ... T=0.6 đưa Macro F1 0.679→0.725,
+   Benign Recall 75.4%→95.2% (attack recall ~98%); kết hợp luật quét cổng
+   → Macro F1 cuối 0.978."`,
+note:"Ngưỡng nằm trong config, không hard-code — có thể chỉnh khi triển khai sang mạng khác mà không đụng code."},
+{file:"live_detection/ids_replay/postprocess.py", lines:"65–75",
+snippet:`class RulePipeline:
+    """Áp lần lượt các luật. Thứ tự quan trọng: threshold trước (hạ FP), rồi PortScan override."""
+    def apply(self, df, preds, confs):
+        preds = list(preds)
+        for rule in self.rules:
+            preds = rule.apply(df, preds, confs)
+        return preds`,
+note:"<strong>Thứ tự có ý nghĩa:</strong> ngưỡng chạy trước sẽ hạ cả những PortScan confidence thấp về Benign — rồi PortScanRule mới kéo chúng trở lại. Nếu đảo thứ tự, luật ngưỡng sẽ xoá mất kết quả của PortScanRule."}],
+alts:[
+{name:"Không hậu xử lý, tin thẳng model", v:"no", why:"Benign recall chỉ 75,4% — cứ 4 flow bình thường thì 1 flow bị báo động. Không ai dùng nổi hệ thống như vậy."},
+{name:"Train lại model để bớt báo giả", v:"warn", why:"Đúng bài hơn và cuối cùng <em>đã làm</em> (v8_7 ở Bước 5, FPR còn 0,29%). Nhưng tốn nhiều giờ GPU và cần dữ liệu benign thật — trong khi luật ngưỡng cho kết quả ngay, không tốn gì."},
+{name:"Một ngưỡng chung cho mọi lớp", v:"warn", why:"<strong>Đang dùng, và có tác dụng phụ đã biết:</strong> ngưỡng 0,6 giết PortScan xuống 0% recall vì PortScan vốn có confidence thấp. Cứu được nhờ PortScanRule chạy sau. Giải pháp sạch hơn là ngưỡng per-class (đã tính sẵn ở Bước 2, chưa wire vào)."},
+{name:"Ngưỡng tin cậy T = 0,6 + PortScanRule bù lại", v:"ok", why:"Rẻ (không train lại), hiệu quả ngay (Benign recall 75,4% → 95,2%), và tác dụng phụ lên PortScan được luật khác bù."}],
+ev:[["0,679 → 0,725","Macro-F1 khi bật luật ngưỡng"],
+["75,4% → 95,2%","Benign recall"],
+["~98%","attack recall vẫn giữ được"]]
+});
+
+T.push({
+id:"portscan-rule", phase:"gd5", tag:"Hậu xử lý · luật", title:"PortScanRule — đưa thông tin liên-flow vào bằng luật",
+one:"Một nguồn chạm ≥ 15 cổng đích khác nhau trong 2 giây thì đó là quét cổng. Model không thấy được điều này; luật thì thấy.",
+why:`<p>Đây là chỗ toàn bộ chuỗi chẩn đoán ở GĐ3 kết tinh lại. Đã chứng minh: PortScan <strong>không phân tách được
+ở cấp flow đơn</strong> — thông tin cần thiết là quan hệ <em>giữa các flow</em>, và không kỹ thuật học máy nào
+(Focal, SMOTE, thêm dữ liệu, model lớn hơn) chữa được điều đó.</p>
+<p>Vậy thì đừng bắt model làm việc bất khả thi. Hãy đưa thông tin còn thiếu vào bằng một luật.</p>`,
+how:`<p>Tính <strong>độ trải cổng</strong> (port spread): với mỗi cặp (IP nguồn, cửa sổ thời gian), đếm số cổng đích
+<em>duy nhất</em> mà nguồn đó đã chạm tới.</p>
+<div class="formula">intensity(i) = | { dst_port : cùng src, cùng bucket thời gian } |
+nếu intensity ≥ 15  →  pred := PortScan          (cửa sổ 2 giây)</div>
+<p>Đây là một đặc trưng <strong>không tồn tại</strong> trong 80 đặc trưng của model, vì nó cần nhìn nhiều flow cùng
+lúc. Luật cung cấp đúng thông tin mà kiến trúc flow-based đã đánh mất.</p>`,
+code:[{file:"live_detection/ids_replay/features.py", lines:"69–77",
+snippet:`def port_spread(src_arr, dport_arr, ts_arr, window_ms):
+    """Số cổng đích DUY NHẤT theo (src, bucket thời gian) — đặc trưng PortScan."""
+    bucket = (ts_arr // max(window_ms, 1)).astype(np.int64)
+    ports = defaultdict(set)
+    for i in range(n):
+        ports[(src_arr[i], bucket[i])].add(int(dport_arr[i]))
+    return np.array([len(ports[(src_arr[i], bucket[i])]) for i in range(n)])`,
+note:"<code>set</code> đảm bảo đếm cổng <em>duy nhất</em>: chạm cổng 22 một trăm lần vẫn chỉ tính là 1."},
+{file:"live_detection/ids_replay/postprocess.py", lines:"41–62",
+snippet:`class PortScanRule:
+    """Phương án D1: host (src) tiếp xúc > N cổng đích duy nhất trong cửa sổ ngắn → PortScan."""
+    def __init__(self, scanner_ip: str, window_sec: float = 2.0, min_unique_ports: int = 15):
+        ...
+    def apply(self, df, preds, confs):
+        ts = col(df, "Timestamp", "").apply(parse_ts).values.astype(np.float64)
+        if (ts > 0).mean() <= 0.5:   # parse timestamp thất bại → bỏ qua (tránh false override)
+            return preds
+        intensity = port_spread(src, dport, ts, self.window_ms)
+        for i in range(len(preds)):
+            if intensity[i] >= self.min_ports and src[i] == self.scanner_ip \\
+               and preds[i] != self.label:
+                preds[i] = self.label`,
+note:"Cơ chế an toàn ở dòng 54: nếu quá nửa số timestamp không parse được thì luật <strong>tự tắt</strong> thay vì override bừa. Luật phải biết khi nào mình không đủ thông tin để nói."}],
+alts:[
+{name:"Bắt model học PortScan (thêm dữ liệu / Focal / SMOTE)", v:"warn", why:"<strong>Đã thử tất cả — thất bại có hệ thống.</strong> Focal: 7,5%→6,8%. SMOTE: không cải thiện. Fine-tune benign thật: classifier mất hẳn PortScan (38,6%→0%). Đây là giới hạn nguyên lý, không phải thiếu nỗ lực."},
+{name:"Thêm đặc trưng liên-flow vào chính vector đầu vào của model", v:"no", why:"Về mặt lý thuyết đẹp hơn (model tự học ngưỡng thay vì ta đặt tay). Nhưng phải train lại toàn bộ, và <strong>phá vỡ Model Surgery</strong>: 80 đặc trưng của V8.5 bị khoá vào HybridFeatureScaler với ranh giới 77/3 — thêm cột nghĩa là làm lại phẫu thuật."},
+{name:"Dùng luật Snort cho PortScan", v:"warn", why:"Snort có luật quét cổng, nhưng đó là ở nhánh song song — không sửa được <em>nhãn</em> mà model xuất ra cho dashboard. Vẫn nên bật, như một tầng độc lập."},
+{name:"PortScanRule ở tầng hậu xử lý", v:"ok", why:"Đưa thông tin liên-flow vào mà không phải train lại, không phải mổ lại model, và cho PortScan F1 0,996. Chi phí tính toán không đáng kể."}],
+ev:[["0,996","PortScan F1 sau khi bật luật (so với ~7% khi để model tự lo)"],
+["15 cổng / 2 giây","ngưỡng đang dùng; đo được recall 99,2% với báo giả 0% trên benign"],
+["0,725 → 0,978","Macro-F1 end-to-end khi cộng PortScanRule vào luật ngưỡng"]],
+gap:`<strong>Lỗ hổng đã tự phát hiện khi rà soát (08/07) — phải nói ra nếu bị hỏi:</strong> con số "PortScanRule bắt
+100%" là <strong>ảo</strong>. Luật chỉ override khi <code>src == scanner_ip</code>
+(<a href="#/lt/portscan-rule">postprocess.py:60</a>), mà <code>scanner_ip</code> lấy từ
+<code>settings.attacker_ip</code> trong config — nghĩa là con số đó được đo trong chế độ replay <em>đã biết trước
+IP kẻ tấn công</em>. Trong mạng thật với IP lạ, luật sẽ <strong>câm</strong>. Thêm nữa, <code>port_spread</code>
+dùng bucket thời gian <em>cố định</em> chứ không phải cửa sổ trượt, nên một cuộc quét chậm hoặc vắt qua ranh giới
+bucket sẽ vô hình. Kế hoạch sửa (rule IP-agnostic + cửa sổ trượt) đã viết ở
+<code>training/KEHOACH_AUDIT_VA_PORTSCAN_LIVE.md</code>, chưa thực thi.`
+});
+T.push({
+id:"temperature-scaling", phase:"gd5", tag:"Hiệu chỉnh xác suất", title:"Temperature Scaling — làm confidence nói thật",
+one:"Chia logit cho một số T học được. Không đổi dự đoán nào, chỉ làm confidence phản ánh đúng xác suất đúng.",
+why:`<p>Mọi luật hậu xử lý ở trên đều dựa vào <strong>confidence</strong>. Nhưng confidence của model có đáng tin
+không? Chẩn đoán Bước 1 trả lời: <strong>không</strong>. Các flow benign thật bị báo nhầm DoS có confidence trung
+bình <strong>0,82</strong> — model sai mà rất chắc chắn. ECE (sai số hiệu chuẩn kỳ vọng) = 0,213.</p>
+<p>Một model được hiệu chuẩn tốt phải có tính chất: trong số các dự đoán có confidence 0,8, đúng khoảng 80%.
+V8.5 không có tính chất đó → mọi ngưỡng đặt trên confidence đều đang đứng trên cát.</p>`,
+how:`<p>Thêm đúng <strong>một</strong> tham số vô hướng T, chia vào logit trước khi softmax:</p>
+<div class="formula">p = softmax(z / T)        T > 1 → làm "mềm" phân phối (bớt tự tin)
+                          T < 1 → làm "nhọn" (tự tin hơn)</div>
+<p>T được học bằng cách tối thiểu hoá NLL trên một tập hiệu chuẩn riêng. Tính chất then chốt:
+<strong>chia mọi logit cho cùng một số không làm đổi thứ tự của chúng</strong> → <code>argmax</code> không đổi →
+<strong>không một dự đoán nào bị thay đổi</strong>. Nó chỉ chỉnh lại <em>thang đo</em> của độ tin cậy.</p>`,
+code:[{file:"live_detection/training/step2_calibrate.py", lines:"100–109",
+snippet:`logT = torch.zeros(1, requires_grad=True)          # T = exp(logT) > 0
+def closure():
+    ...                                            # tối thiểu hoá NLL trên tập calib
+T = float(logT.exp().item())
+print(f"    T* = {T:.3f}   |  ECE calib: {ece_before:.4f} -> {ece_after:.4f}")`,
+note:"Tham số hoá qua <code>logT</code> rồi <code>exp</code> để ép T > 0 mà không cần ràng buộc — mẹo tối ưu quen thuộc."},
+{file:"live_detection/models/v8_5_calibration.json", lines:"—",
+snippet:`{"temperature": 1.481, "per_class_threshold": {...}, "target_tpr": ...}`,
+note:"T = 1,481 > 1 → đúng như chẩn đoán: model <strong>quá tự tin</strong>, cần làm mềm lại."}],
+codeOutro:`<p><strong>Và đây là phần trung thực nhất của Bước 2 — nó chỉ chữa được một nửa.</strong> Đo AUROC khả năng
+tách "benign bị báo giả" khỏi "tấn công thật" bằng confidence:</p>
+<ul>
+<li><strong>Web Attack: AUROC 0,951</strong> → tách được. Đặt ngưỡng 0,7 loại 92% báo giả mà vẫn giữ 89% recall.</li>
+<li><strong>DoS: AUROC 0,664</strong> → <strong>không tách được</strong>. Benign bị báo giả có confidence 0,71,
+DoS thật có 0,77 — hai phân phối chồng lên nhau.</li>
+</ul>
+<p>Mà DoS chính là 20,8% trong tổng 24,68% báo giả. Kết luận: <strong>hiệu chỉnh xác suất không cứu được báo giả
+DoS</strong>, vì đó là lệch trong <em>không gian đặc trưng</em>, không phải lệch ở thang đo confidence.
+Chính kết luận này buộc phải đi tiếp tới Bước 4 và Bước 5.</p>`,
+alts:[
+{name:"Platt Scaling", v:"no", why:"Học cả hệ số góc và chệch (a·z + b) → có thể <em>đổi</em> dự đoán. Với bài toán đa lớp còn cần một cặp tham số cho mỗi lớp → dễ overfit tập hiệu chuẩn nhỏ."},
+{name:"Isotonic Regression", v:"no", why:"Phi tham số, mạnh nhất, nhưng cần nhiều dữ liệu hiệu chuẩn và dễ overfit. Với lớp hiếm chỉ vài trăm mẫu thì không đủ."},
+{name:"Label Smoothing lúc train", v:"ok", why:"Không thay thế mà <em>bổ sung</em>: phòng bệnh lúc train (ε = 0,10), Temperature Scaling chữa phần còn lại sau train. Đồ án dùng cả hai."},
+{name:"Temperature Scaling (T = 1,481)", v:"ok", why:"Một tham số duy nhất → gần như không thể overfit; và <strong>bảo toàn mọi dự đoán</strong> nên an toàn tuyệt đối để wire vào hệ đang chạy."}],
+ev:[["T = 1,481","nhiệt độ tối ưu (> 1 ⇒ model quá tự tin)"],
+["ECE 0,213 → 0,154","cải thiện hiệu chuẩn trên tập eval"],
+["AUROC 0,951 / 0,664","Web Attack tách được / DoS <strong>không</strong> tách được"],
+["24,68% → 21,77%","FPR — chỉ giảm phần Web Attack, DoS trơ ra"]],
+gap:`<strong>Trạng thái hiện tại:</strong> file <code>v8_5_calibration.json</code> đã có nhưng
+<strong>chưa được nối vào pipeline</strong> — quyết định của bạn (05/07) là làm Bước 4/5 trước rồi wire
+calibration + ngưỡng per-class một lần. Nếu hội đồng hỏi "confidence 0,6 lấy ở đâu ra", câu trả lời trung thực là:
+tune thực nghiệm trên replay, và phần hiệu chuẩn chặt chẽ hơn đã tính xong nhưng còn nằm ngoài đường chạy.`
+});
+
+T.push({
+id:"robust-log-negative", phase:"gd5", tag:"Kết quả âm · Bước 4", title:"RobustLogScaler — giả thuyết 'tiền xử lý là thủ phạm' bị bác bỏ",
+one:"Thay scaler bằng log+robust+clip để chống ngoại suy z-score. Kết quả: báo giả tăng gấp ba. Giả thuyết chết.",
+why:`<p>Sau Bước 1 và Bước 2, còn một giả thuyết hợp lý cho báo giả DoS: các flow thật có giá trị z-score
+<strong>nổ tung</strong> ngoài dải mà scaler từng thấy (<code>Flow_IAT_Min</code> có z ≈ 64.000;
+<code>Custom_Pkt_Size_Ratio</code> từ z ≤ 0,15 trong lab lên 6,6 ở mạng thật). Nếu đầu vào rơi ra ngoài miền đã
+học, model đoán bừa là chuyện thường.</p>
+<p>Giả thuyết: dùng một scaler <em>bền vững hơn</em> (log để nén đuôi, robust để chống ngoại lai, clip để chặn
+ngoại suy) sẽ kéo dữ liệu thật về đúng dải model quen → báo giả giảm.</p>`,
+how:`<p>Giả thuyết phải được kiểm chứng, không phải được tin. Hai thí nghiệm:</p>
+<ul>
+<li><strong>Chẩn đoán trước</strong> (<code>step4_diagnose.py</code>): thử clip đầu vào về [−5, 5]. Kết quả: chỉ
+<strong>0,2%</strong> flow DoS bị báo giả quay về Benign → z-score nổ <em>không phải</em> nguyên nhân chính.</li>
+<li><strong>Kiểm chứng đầy đủ</strong>: vẫn train hẳn một model v8_6 với <code>RobustLogScaler</code> để chắc chắn.</li>
+</ul>`,
+code:[{file:"live_detection/model_defs/robust_log_scaler.py + training/v8_6_train_robust.py", lines:"—",
+snippet:`# RobustLogScaler = log1p(|x|)·sign(x)  →  RobustScaler  →  clip
+# Ý tưởng: nén đuôi dài, dùng median/IQR thay mean/std, chặn ngoại suy.
+#
+# Kết quả (training/BUOC4_KETQUA.md):
+#   Macro-F1 trên CIC : 0,9193   (vẫn tốt!)
+#   FPR benign thật   : 24,68%  →  73,87%     ← TỆ HẲN
+#   FP-DoS            : 20,8%   →  38,9%`,
+note:"Model vẫn học tốt trên dữ liệu lab (Macro-F1 0,9193) nhưng lại báo giả gấp ba trên dữ liệu thật — bằng chứng rõ rệt rằng chỉ số trên tập lab <strong>không</strong> dự báo được hành vi ngoài đời."},
+{file:"live_detection/training/step4_diagnose.py", lines:"—",
+snippet:`# RF phân biệt benign-FP-DoS vs DoS-thật trên feature THÔ:
+#   CV-AUROC = 1.000     ← hai nhóm tách được HOÀN TOÀN trên feature gốc
+#
+# benign-FP-DoS: median 27 gói   (KHÔNG ngắn)
+# DoS-thật     : median  4 gói
+# → lọc "flow ngắn" sẽ phản tác dụng`,
+note:"Chi tiết đắt giá: một Random Forest tách được hai nhóm với AUROC = 1,000 trên <em>đặc trưng thô</em>. Nghĩa là thông tin phân biệt <strong>vẫn còn nguyên</strong> trong dữ liệu — chỉ là V8.5 không dùng được nó. Vấn đề nằm ở <em>ranh giới đã học</em>, không ở tiền xử lý."}],
+codeOutro:`<p><strong>Giá trị của một kết quả âm:</strong> Bước 4 tốn nhiều giờ GPU và cho ra một model bị vứt bỏ.
+Nhưng nó <em>loại trừ dứt khoát</em> một giả thuyết và thu hẹp không gian tìm kiếm — nhờ đó Bước 5 nhắm thẳng vào
+thủ phạm thật (thiếu dữ liệu benign thật lúc train) và thành công ngay. Trong quyển, đây nên được trình bày như
+một thí nghiệm có chủ đích, không phải một thất bại.</p>`,
+alts:[
+{name:"RobustLogScaler (log + robust + clip)", v:"warn", why:"<strong>Đã train, đã đo, đã bác bỏ.</strong> FPR 24,68% → 73,87%. Giữ lại như chứng cứ, không dùng trong pipeline."},
+{name:"Clip đầu vào về [−5, 5]", v:"no", why:"Chẩn đoán cho thấy chỉ đưa 0,2% FP-DoS về Benign. Không phải nguyên nhân."},
+{name:"Lọc bỏ flow quá ngắn trước khi suy luận", v:"no", why:"Phản tác dụng: benign bị báo giả có median <strong>27 gói</strong>, còn DoS <em>thật</em> chỉ có median 4 gói. Lọc flow ngắn sẽ giết đúng DoS thật."},
+{name:"Giữ nguyên HybridFeatureScaler, đi tìm nguyên nhân khác", v:"ok", why:"Đúng hướng. Nguyên nhân thật là <em>model chưa từng thấy benign thật lúc train</em> — giải ở Bước 5."}],
+ev:[["73,87%","FPR của v8_6 (so với 24,68% của V8.5) — tệ gấp ba"],
+["AUROC 1,000","RF tách được benign-FP-DoS khỏi DoS-thật trên feature thô ⇒ thông tin vẫn còn, chỉ là V8.5 không dùng"],
+["0,2%","tỉ lệ FP-DoS được cứu bởi clip [−5,5] ⇒ z-score nổ không phải thủ phạm"]]
+});
+
+T.push({
+id:"finetune-real-benign", phase:"gd5", tag:"Bước 5 · lời giải", title:"Fine-tune với benign THẬT — thứ cuối cùng thật sự hiệu quả",
+one:"Model chưa bao giờ thấy traffic bình thường của chính mạng nó phải bảo vệ. Cho nó thấy 40.000 flow. FPR: 24,26% → 0,29%.",
+why:`<p>Sau khi loại trừ hiệu chỉnh xác suất (Bước 2) và tiền xử lý (Bước 4), chỉ còn lại một giả thuyết — và nó
+đơn giản đến mức dễ bị bỏ qua:</p>
+<p><strong>Model chưa từng nhìn thấy benign thật.</strong> Nó học "Benign trông thế nào" từ CIC-IDS-2017 —
+một mạng vật lý năm 2017. Traffic bình thường của mạng WSL năm 2026 trông <em>khác hẳn</em> (flow siêu ngắn,
+bắt tay xong là đóng). Với model, những flow đó là <em>lạ</em> — và cái gì lạ thì nó gán cho lớp gần nhất mà nó
+biết, tình cờ là DoS.</p>
+<p>Cách chữa không phải kỹ thuật nào cao siêu. Chỉ là: <em>cho nó xem</em>.</p>`,
+how:`<p>Chia tập benign thật 63.401 flow (seed 42) thành train 40k / val 11,7k / <strong>test 11,7k giữ riêng
+tuyệt đối</strong> — chỉ 40k đi vào train, để con số đánh giá cuối cùng không bị nhiễm.</p>
+<p>Ba ràng buộc thiết kế, mỗi ràng buộc là một bài học từ giai đoạn trước:</p>
+<ul>
+<li><strong>GIỮ nguyên HybridFeatureScaler</strong> — Bước 4 đã chứng minh đổi scaler làm mọi thứ tệ đi.</li>
+<li><strong>Fine-tune từ V8.5</strong>, không train từ đầu — giữ tri thức về các lớp tấn công.</li>
+<li><strong>Chọn checkpoint theo <code>score = MacroF1(CIC) − FPR(benign thật)</code></strong> — tối ưu đúng
+sự đánh đổi mình quan tâm, thay vì tối ưu loss rồi hi vọng.</li>
+</ul>`,
+code:[{file:"live_detection/training/v8_7_train_realbenign.py", lines:"275–312",
+snippet:`# Checkpoint theo score = Macro-F1(CIC) - FPR(benign thật): tối ưu đúng mục tiêu Bước 5
+best_score = -1e9
+...
+    score = macro_f1 - fpr
+    if score > best_score:
+        best_score = score
+        torch.save(model.state_dict(), MODEL_SAVE_PATH)`,
+note:"Hàm mục tiêu này mã hoá trực tiếp sự đánh đổi: giữ khả năng phân loại tấn công (Macro-F1 trên CIC) <em>trừ đi</em> mức báo giả trên mạng thật. Model tốt nhất là model cân được cả hai."},
+{file:"live_detection/training/split_benign_b5.py", lines:"—",
+snippet:`# Chia pool benign thật 63.401 (seed 42):
+#   train 40.000  →  CHỈ tập này đi vào huấn luyện
+#   val   11.700  →  chọn checkpoint
+#   test  11.700  →  GIỮ RIÊNG TUYỆT ĐỐI, chỉ dùng đo lần cuối`,
+note:"Kỷ luật chia tập: nếu đo FPR trên chính dữ liệu đã train thì con số 0,29% sẽ vô giá trị. Tập test được cách ly từ đầu."}],
+codeOutro:`<p><strong>Cái giá phải trả — nói thẳng:</strong></p>
+<ul>
+<li>Classifier <strong>mất hẳn PortScan</strong> (38,6% → 0%). Chấp nhận được <em>chỉ vì</em> PortScanRule lo việc
+này độc lập — nhưng xem lỗ hổng đã ghi ở mục PortScanRule: luật hiện còn phụ thuộc <code>attacker_ip</code>.</li>
+<li>Macro-F1 trên CIC tụt <strong>0,95 → 0,88</strong>, do 587 flow benign-CIC bị chuyển thành Brute Force. Đây là
+đánh đổi <em>giữa hai miền</em>: model nghiêng về mạng thật thì phải nhả bớt ở mạng lab.</li>
+</ul>`,
+alts:[
+{name:"Hiệu chỉnh xác suất (Bước 2)", v:"warn", why:"<strong>Đã thử.</strong> Chỉ chữa được Web Attack (AUROC 0,951); DoS trơ ra (AUROC 0,664). FPR 24,68% → 21,77%, không đủ."},
+{name:"Đổi tiền xử lý (Bước 4)", v:"warn", why:"<strong>Đã thử — phản tác dụng.</strong> FPR lên 73,87%."},
+{name:"Train lại từ đầu với cả benign thật", v:"no", why:"Vứt bỏ tri thức tấn công học từ CIC-IDS-2017. Fine-tune giữ được cả hai."},
+{name:"Chỉ dùng luật ngưỡng để chặn báo giả", v:"warn", why:"<strong>Đang dùng và có tác dụng</strong> (Benign recall 95,2%), nhưng đó là băng dán vết thương: model vẫn sai bên trong, chỉ là ta không nghe. Sửa tận gốc vẫn tốt hơn."},
+{name:"Fine-tune V8.5 + 40k benign thật, giữ nguyên scaler", v:"ok", why:"Chữa đúng nguyên nhân đã chẩn đoán. FPR 24,26% → 0,29%, FP-DoS 20,46% → 0,25%, recall tấn công giữ được."}],
+ev:[["24,26% → 0,29%","FPR trên benign thật (tập test giữ riêng)"],
+["20,46% → 0,25%","FP-DoS — đúng thứ mà Bước 2 và Bước 4 đều không chạm tới được"],
+["BF 100% / WA 86,5%","recall tấn công vẫn giữ"],
+["38,6% → 0%","PortScan (classifier) — <strong>mất hẳn</strong>, phải dựa vào luật"],
+["0,95 → 0,88","Macro-F1 trên CIC — cái giá của việc nghiêng về miền thật"]],
+gap:`<strong>Trạng thái:</strong> v8_7 đã train xong và có checkpoint, nhưng <code>replay_config.json</code>
+<strong>vẫn đang trỏ v8_5</strong> — chưa nhận v8_7 làm model chính, đang chờ bạn quyết. Điều kiện để nhận:
+(1) sửa PortScanRule thành IP-agnostic + cửa sổ trượt, vì v8_7 mất hẳn PortScan ở classifier nên rủi ro dồn hết
+vào luật; (2) fit lại nhiệt độ T và ngưỡng per-class trên v8_7.`
+});
+
+T.push({
+id:"static-flow-limits", phase:"gd5", tag:"Giới hạn & hướng phát triển", title:"Giới hạn của flow tĩnh — vì sao cần phân tích thời gian",
+one:"Toàn bộ kiến trúc đứng trên một giả định: mọi thứ cần biết đều nén được vào một vector tĩnh. Giả định đó có giá.",
+why:`<p>Nhìn lại toàn bộ 5 giai đoạn, gần như mọi giới hạn còn lại đều truy về <strong>cùng một gốc</strong>: quyết
+định (ở GĐ0) coi một flow tĩnh là đơn vị mẫu.</p>
+<ul>
+<li><strong>PortScan không phân tách được</strong> → vì dấu hiệu nằm giữa <em>nhiều</em> flow.</li>
+<li><strong>Phải vá bằng luật hậu xử lý</strong> → vì model không có cách nào thấy được quan hệ liên-flow.</li>
+<li><strong>Flow bị cắt ở ranh giới micro-batch</strong> → vì "một flow" là một khái niệm cần trạng thái theo
+thời gian, mà pipeline lại xử lý theo lô.</li>
+<li><strong>Tấn công chậm (low-and-slow) vô hình</strong> → vì trải ra đủ lâu thì mỗi flow đơn lẻ đều trông
+bình thường.</li>
+</ul>`,
+how:`<p>Flow tĩnh nén thời gian thành thống kê: <code>Flow_IAT_Mean</code>, <code>Flow_IAT_Std</code>,
+<code>Idle_Mean</code>… Những con số này giữ được <em>phân phối</em> của các khoảng thời gian, nhưng
+<strong>mất hoàn toàn thứ tự</strong>.</p>
+<div class="formula">Chuỗi A: [1ms, 1ms, 1ms, 500ms]     Chuỗi B: [500ms, 1ms, 1ms, 1ms]
+→ cùng mean, cùng std, cùng max, cùng min → model thấy HAI FLOW GIỐNG HỆT NHAU</div>
+<p>Nhưng A và B có thể là hai hành vi hoàn toàn khác nhau. Đây không phải khuyết điểm cài đặt — nó là
+<em>hệ quả toán học</em> của việc dùng thống kê bất biến với hoán vị.</p>`,
+codeIntro:`<p>Hai chỗ trong code hiện tại chính là "vết vá" cho giới hạn này — và nhận ra chúng là vết vá chứ không
+phải thiết kế đẹp là điều nên nói trong phần Kết luận:</p>`,
+code:[{file:"live_detection/ids_replay/features.py", lines:"69–77",
+snippet:`def port_spread(src_arr, dport_arr, ts_arr, window_ms):
+    """Số cổng đích DUY NHẤT theo (src, bucket thời gian) — đặc trưng PortScan."""`,
+note:"Đây là một đặc trưng <strong>liên-flow</strong> bị đẩy ra ngoài model vì kiến trúc không chứa nổi nó. Nếu dùng model chuỗi, thông tin này sẽ nằm <em>bên trong</em> model một cách tự nhiên."},
+{file:"live_detection/ids_replay/postprocess.py", lines:"41–62",
+snippet:`class PortScanRule:
+    def __init__(self, scanner_ip, window_sec=2.0, min_unique_ports=15):`,
+note:"Ngưỡng 15 cổng / 2 giây là do <em>con người</em> đặt. Một model chuỗi sẽ tự học ngưỡng đó từ dữ liệu — và tự thích nghi khi mạng đổi, thay vì phải chỉnh tay."}],
+alts:[
+{name:"Giữ flow tĩnh + vá bằng luật liên-flow", v:"ok", why:"<strong>Lựa chọn hiện tại.</strong> Đạt Macro-F1 0,978 end-to-end, tái dùng được CICFlowMeter, và chạy được realtime. Chi phí: ngưỡng đặt tay, và luật phải được bảo trì khi mạng đổi."},
+{name:"Mô hình chuỗi trên chuỗi gói (LSTM / Transformer theo gói)", v:"no", why:"Đúng về nguyên lý: giữ được thứ tự, học được quan hệ liên-flow, tự học ngưỡng. Nhưng phải bỏ CICFlowMeter, tự quản lý trạng thái flow, và huấn luyện lại từ đầu — vượt phạm vi đồ án. <strong>Ghi là hướng phát triển chính.</strong>"},
+{name:"Graph Neural Network trên đồ thị host–host", v:"no", why:"Mô hình hoá tự nhiên quan hệ 'một nguồn chạm nhiều đích' (chính là PortScan). Rất hứa hẹn, nhưng cần dựng lại toàn bộ biểu diễn dữ liệu. Hướng phát triển."},
+{name:"Thêm đặc trưng cửa sổ trượt vào chính vector đầu vào", v:"warn", why:"Đường trung dung: giữ kiến trúc, nhưng thêm cột đếm liên-flow. Vướng đúng vết sẹo Model Surgery (ranh giới 77/3 của HybridFeatureScaler) — phải mổ lại. Khả thi nhưng tốn."}],
+gap:`<strong>Câu chốt nên dùng khi bảo vệ:</strong> hệ thống này đạt Macro-F1 0,978 <em>với</em> một lớp luật liên-flow
+bên ngoài model. Sự tồn tại của lớp luật đó không phải là điểm yếu cần giấu — nó là <strong>bằng chứng thực nghiệm</strong>
+cho luận điểm rằng biểu diễn flow tĩnh, dù đang là chuẩn mực trong hầu hết nghiên cứu NIDS dựa trên CIC-IDS-2017,
+có một giới hạn nguyên lý mà không kỹ thuật học máy nào vượt qua được.`
+});
+/* ==THEORIES== */
+
+/* ---------------- render ---------------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const CH = {ok:'đã chọn', no:'đã loại', warn:'thử & thất bại'};
+
+function navHtml(filter){
+  const f = (filter||'').trim().toLowerCase();
+  return PHASES.map(p=>{
+    let list = T.filter(t=>t.phase===p.id);
+    if(f) list = list.filter(t=>(t.title+' '+t.tag+' '+t.why+' '+(t.alts||[]).map(a=>a.name).join(' ')).toLowerCase().includes(f));
+    if(f && !list.length) return '';
+    return `<div class="grp">
+      <div class="grp-h" data-go="#/gd/${p.id}">
+        <span class="grp-n">${p.n}</span>
+        <span class="grp-t">${p.title}</span>
+        <span class="grp-c">${list.length}</span>
+      </div>
+      <ul>${list.map(t=>`<li><a href="#/lt/${t.id}" class="${location.hash==='#/lt/'+t.id?'on':''}">${t.title}</a></li>`).join('')}</ul>
+    </div>`;
+  }).join('');
+}
+
+function home(){
+  return `<div class="eyebrow">Tổng hợp lý thuyết · ${T.length} mục · 6 giai đoạn</div>
+  <h1>Mỗi lý thuyết trong đồ án này là câu trả lời cho một triệu chứng có thật</h1>
+  <p class="lede">Trang này không xếp lý thuyết theo chủ đề sách giáo khoa, mà theo <strong>giai đoạn của đồ án</strong> —
+  vì một lý thuyết chỉ có nghĩa khi biết nó được gọi vào lúc nào, để chữa cái gì. Mỗi mục trả lời đủ bốn câu:
+  vì sao cần nó, nó vận hành ra sao, <strong>nó nằm ở dòng nào trong code hiện tại</strong>, và vì sao không dùng
+  phương án tương tự.</p>
+  <div class="note"><strong>Cách đọc khi ôn bảo vệ:</strong> mỗi mục có một bảng <em>Sổ quyết định</em> liệt kê các
+  phương án đã cân nhắc kèm trạng thái <span class="chip ok">đã chọn</span> <span class="chip no">đã loại</span>
+  <span class="chip warn">thử &amp; thất bại</span>. Đây chính là phần hội đồng hay hỏi: “sao không dùng X?”.</div>
+  <h2>Sáu giai đoạn</h2>
+  <div class="tl">${PHASES.map(p=>`<a class="tl-item" href="#/gd/${p.id}">
+    <div class="tl-n">${p.n}</div>
+    <div><div class="tl-t">${p.title}</div><div class="tl-q">${p.q}</div>
+    <div class="tl-r">${p.result}</div></div></a>`).join('')}</div>`;
+}
+
+function phase(p){
+  const list = T.filter(t=>t.phase===p.id);
+  return `<div class="crumb"><a href="#/">Tổng quan</a> / ${p.n}</div>
+  <div class="eyebrow">${p.ws}</div>
+  <h1>${p.title}</h1>
+  <p class="lede">${p.intro}</p>
+  <div class="note"><strong>Câu hỏi giai đoạn này phải trả lời:</strong> ${p.q}<br>
+  <strong>Kết quả chốt lại:</strong> ${p.result}</div>
+  <h2>Lý thuyết dùng trong giai đoạn (${list.length})</h2>
+  <div class="tl">${list.map(t=>`<a class="tl-item" href="#/lt/${t.id}">
+    <div class="tl-n">${t.tag}</div>
+    <div><div class="tl-t">${t.title}</div><div class="tl-q">${t.one}</div></div></a>`).join('')}</div>`;
+}
+
+function theory(t){
+  const p = PHASES.find(x=>x.id===t.phase);
+  const code = (t.code||[]).map(c=>`<div class="codewrap">
+      <div class="src"><b>${c.file}</b>${c.lines?`<span>: ${c.lines}</span>`:''}</div>
+      <pre><code>${esc(c.snippet)}</code></pre>
+      ${c.note?`<div class="cnote">${c.note}</div>`:''}
+    </div>`).join('');
+  return `<div class="crumb"><a href="#/">Tổng quan</a> / <a href="#/gd/${p.id}">${p.n} · ${p.title}</a></div>
+  <div class="eyebrow">${t.tag}</div>
+  <h1>${t.title}</h1>
+  <p class="lede">${t.one}</p>
+
+  <div class="blk"><div class="blk-h"><span class="eyebrow">1 · Vì sao cần nó</span></div>
+    <div class="blk-b">${t.why}</div></div>
+
+  <div class="blk"><div class="blk-h"><span class="eyebrow">2 · Nó hoạt động thế nào</span></div>
+    <div class="blk-b">${t.how}</div></div>
+
+  <div class="blk"><div class="blk-h"><span class="eyebrow">3 · Nó chạy ở đâu trong code hiện tại</span></div>
+    <div class="blk-b">${t.codeIntro||''}${code}${t.codeOutro||''}</div></div>
+
+  <div class="blk"><div class="blk-h"><span class="eyebrow">4 · Sổ quyết định — vì sao không dùng cái tương tự</span></div>
+    <div class="blk-b"><table class="ledger">
+      <thead><tr><th>Phương án</th><th>Trạng thái</th><th>Lý do</th></tr></thead>
+      <tbody>${(t.alts||[]).map(a=>`<tr><td>${a.name}</td>
+        <td><span class="chip ${a.v}">${CH[a.v]}</span></td><td>${a.why}</td></tr>`).join('')}</tbody>
+    </table></div></div>
+
+  ${(t.ev&&t.ev.length)?`<div class="blk"><div class="blk-h"><span class="eyebrow">5 · Bằng chứng số trong đồ án</span></div>
+    <div class="blk-b"><ul class="ev">${t.ev.map(e=>`<li><b>${e[0]}</b><span>${e[1]}</span></li>`).join('')}</ul>
+    ${t.gap?`<div style="margin-top:14px" class="gap">${t.gap}</div>`:''}</div></div>`
+    :(t.gap?`<div class="blk"><div class="blk-h"><span class="eyebrow">5 · Giới hạn đã biết</span></div>
+      <div class="blk-b"><div class="gap">${t.gap}</div></div></div>`:'')}`;
+}
+
+function route(){
+  const h = location.hash || '#/';
+  let html;
+  if(h.startsWith('#/lt/')){
+    const t = T.find(x=>x.id===h.slice(5));
+    html = t ? theory(t) : home();
+  } else if(h.startsWith('#/gd/')){
+    const p = PHASES.find(x=>x.id===h.slice(5));
+    html = p ? phase(p) : home();
+  } else html = home();
+  $('#main').innerHTML = html;
+  $('#nav').innerHTML = navHtml($('#q').value);
+  window.scrollTo(0,0);
+}
+
+$('#q').addEventListener('input', e=>{
+  const v = e.target.value.trim();
+  $('#nav').innerHTML = navHtml(v);
+  const n = v ? T.filter(t=>(t.title+' '+t.tag+' '+t.why+' '+(t.alts||[]).map(a=>a.name).join(' ')).toLowerCase().includes(v.toLowerCase())).length : 0;
+  $('#hits').textContent = v ? `${n} kết quả` : '';
+});
+$('#nav').addEventListener('click', e=>{
+  const g = e.target.closest('[data-go]');
+  if(g) location.hash = g.dataset.go;
+});
+$('#home-link').addEventListener('click', ()=>{ location.hash = '#/'; });
+window.addEventListener('hashchange', route);
+route();
+</script>
+
+</body>
+</html>
