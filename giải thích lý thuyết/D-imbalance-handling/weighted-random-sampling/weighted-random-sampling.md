@@ -68,7 +68,7 @@ Batch 256 mẫu, bốc đều: có thể **0 mẫu Heartbleed** (vì nó chỉ c
 - Can thiệp ở **tầng dữ liệu**, bổ sung (không thay thế) [[focal-loss]] ở tầng loss.
 
 **Hiểu cái này thì làm được gì?** Bạn phân biệt được **ba tầng chống mất cân bằng** — dữ liệu (sampling/SMOTE),
-loss (Focal/CB), và boundary ([[hard-negative-mining]]) — và biết chúng phối hợp thế nào trong đồ án.
+loss (Focal/CB), và boundary (khai thác mẫu khó ở biên quyết định) — và biết chúng phối hợp thế nào trong đồ án.
 
 ---
 

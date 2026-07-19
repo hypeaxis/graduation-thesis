@@ -10,11 +10,11 @@ Hệ thống NIDS được đề xuất trong đề tài được xây dựng qu
 
 \textbf{Giai đoạn 2} (Mục \ref{sec:gd2}) tái thiết kế kiến trúc hoàn toàn cho CIC-IDS-2017: Two-Stage Cascade (Gating Network 6-lớp + Expert Network 5-lớp, xuất 9 lớp tổng hợp từ 15 nhãn gốc) kết hợp Asymmetric Ensemble Voting, đạt Accuracy 99,55\% và Macro F1 0,9294.
 
-\textbf{Giai đoạn 3} (Mục \ref{sec:gd3}) giải quyết vấn đề covariate shift khi triển khai mô hình CIC sang môi trường Testbed WSL, thông qua Layer Freezing Fine-tuning và Model Surgery.
-
-\textbf{Giai đoạn 4} (Mục \ref{sec:gd4}) tái huấn luyện hoàn toàn trên dữ liệu Testbed nội bộ, giải quyết các bài toán đặc thù của môi trường WSL và cho ra mô hình cuối V8.5 đạt Macro F1 91,7\%.
+\textbf{Giai đoạn 3} đưa hệ thống ra môi trường thực và được trình bày trong hai phần. Phần một (Mục \ref{sec:gd3}) chẩn đoán vấn đề covariate shift khi chuyển mô hình CIC sang môi trường Testbed WSL, và xử lý nó bằng Layer Freezing Fine-tuning cùng Model Surgery. Phần hai (Mục \ref{sec:gd4}) thu thập dữ liệu tấn công thực trên chính testbed, giải quyết các bài toán đặc thù của môi trường ảo hóa, và cho ra mô hình triển khai cuối \textbf{FT-IDS} đạt Macro F1 91,66\%.
 
 Hệ thống cuối cùng (Mục \ref{sec:deploy}) tích hợp Snort và FT-Transformer trong pipeline End-to-End chạy song song, thu thập traffic thực, trích xuất đặc trưng và phân loại theo thời gian gần-thực.
+
+Một điểm về quan hệ giữa các giai đoạn cần được nêu rõ ngay từ đầu, vì nó dễ bị hiểu nhầm: \textbf{ba giai đoạn không phải ba lần huấn luyện lại cùng một mô hình}. Chỉ hai giai đoạn đầu huấn luyện từ đầu, và chúng buộc phải tách rời vì không gian đặc trưng khác nhau về bản chất --- NSL-KDD dùng 122 chiều sau one-hot từ 41 đặc trưng gốc, trong khi CIC-IDS-2017 dùng 77 đặc trưng thống kê từ CICFlowMeter; không tồn tại một ánh xạ có ý nghĩa giữa hai tập này. Giai đoạn 3 thì ngược lại: mô hình cuối \textit{kế thừa} trọng số đã học của Giai đoạn 2 và chỉ tinh chỉnh phần cần thiết. Đây là \textit{transfer learning}, không phải huấn luyện lại --- và chính khả năng kế thừa này là lý do quyết định kiến trúc ở Giai đoạn 1 (giữ Feature Tokenizer, mỗi đặc trưng là một token độc lập) mang lại giá trị ở giai đoạn cuối, khi dữ liệu thật rất hạn chế.
 
 \begin{figure}[H]
 \centering
@@ -32,8 +32,8 @@ Hệ thống cuối cùng (Mục \ref{sec:deploy}) tích hợp Snort và FT-Tran
 % Nodes for Phases
 \node[phase] (p1) {Giai đoạn 1\\Khảo sát nền tảng};
 \node[phase, right=of p1] (p2) {Giai đoạn 2\\Thiết kế Two-Stage};
-\node[phase, right=of p2] (p3) {Giai đoạn 3\\Thích nghi miền (DA)};
-\node[phase, below=of p3] (p4) {Giai đoạn 4\\Tái huấn luyện};
+\node[phase, right=of p2] (p3) {Giai đoạn 3 --- Phần 1\\Chẩn đoán \& thích nghi miền};
+\node[phase, below=of p3] (p4) {Giai đoạn 3 --- Phần 2\\Thu dữ liệu thực \& FT-IDS};
 \node[phase, left=of p4, fill=green!10, draw=green!60] (deploy) {Triển khai End-to-End\\(Hệ thống Replay)};
 
 % Nodes for Datasets
@@ -52,7 +52,7 @@ Hệ thống cuối cùng (Mục \ref{sec:deploy}) tích hợp Snort và FT-Tran
 \draw[arrow] (p1) -- node[above, desc] {Đổi dataset vì\\thiếu tính hiện đại} (p2);
 \draw[arrow] (p2) -- node[above, desc] {Đưa mô hình CIC\\vào môi trường thực} (p3);
 \draw[arrow] (p3) -- node[right, desc] {Domain shift quá lớn,\\cần thu data riêng} (p4);
-\draw[arrow] (p4) -- node[above, desc] {Mô hình V8.5} (deploy);
+\draw[arrow] (p4) -- node[above, desc] {Mô hình FT-IDS} (deploy);
 
 % Highlight connections
 \draw[arrow, dashed, green!60!black] (p2.south) |- node[near start, left, desc] {Kiến trúc Two-Stage} (deploy.east);
@@ -78,7 +78,7 @@ Dữ liệu NSL-KDD sử dụng 41 đặc trưng dạng hỗn hợp: 38 đặc t
 
 Bài toán phân loại đa lớp trực tiếp trên NSL-KDD gặp phải một cái bẫy cấu trúc: nếu một mô hình duy nhất nhận toàn bộ 125.973 mẫu và phải phân loại năm lớp, gradient sẽ bị chi phối bởi Normal (53,5\%) và DoS (36,5\%), trong khi U2R --- lớp quan trọng nhất về mặt bảo mật --- chỉ có 52 mẫu training, tương đương 0,04\%. Kiến trúc Two-Stage được thiết kế để tháo gỡ sự xung đột này bằng cách tách biệt hai bài toán có bản chất khác nhau.
 
-\textbf{Stage 1 --- Autoencoder Anomaly Gate (Bộ lọc dị thường):}
+\textbf{Tầng 1 --- Autoencoder Anomaly Gate (Bộ lọc dị thường):}
 
 Autoencoder được huấn luyện \textit{chỉ} trên dữ liệu Normal theo nguyên lý unsupervised: mạng encoder-decoder học cách tái tạo lại các flow bình thường với sai số thấp nhất. Khi một flow tấn công đi qua mạng này --- có pattern khác hoàn toàn với những gì mô hình đã học --- lỗi tái tạo sẽ cao hơn đáng kể.
 
@@ -89,7 +89,7 @@ Sai số tái tạo được đo bằng Mean Squared Error:
 \end{equation}
 trong đó $D = 122$ là số chiều sau mã hóa one-hot, $\hat{\mathbf{x}}$ là đầu ra tái tạo của Autoencoder.
 
-Quyết định phân loại của Stage 1:
+Quyết định phân loại của Tầng 1:
 \begin{equation}
     \text{gate}(\mathbf{x}) = \begin{cases}
         \text{Normal} & \text{MSE}(\mathbf{x}) < \tau \\
@@ -97,13 +97,20 @@ Quyết định phân loại của Stage 1:
     \end{cases}
     \label{eq:ae-gate}
 \end{equation}
-với ngưỡng $\tau = 0{,}008481$ được chọn trên tập validation để tối đa hóa F1 nhị phân. Các flow được gán nhãn Normal thoát khỏi pipeline; các flow Suspicious được chuyển sang Stage 2.
+với ngưỡng $\tau = 0{,}008481$ được chọn bằng \textbf{chỉ số Youden trên đường cong ROC} --- điểm $\arg\max_\tau\,(\text{TPR}(\tau) - \text{FPR}(\tau))$, tức điểm cân bằng tốt nhất giữa tỉ lệ bắt đúng và tỉ lệ báo động giả. Cách chọn này khác với việc lấy một phân vị cố định của phân phối lỗi tái tạo trên tập Normal: Youden dùng thông tin nhãn của cả hai lớp, nên ngưỡng thu được phụ thuộc vào tập dùng để dò. Đây cũng là điểm cần lưu ý khi triển khai --- $\tau$ gắn chặt với scaler và tập dữ liệu tại thời điểm dò, đổi miền dữ liệu thì phải dò lại (xem Mục~\ref{subsec:gd3-covshift}). Các flow được gán nhãn Normal thoát khỏi pipeline; các flow Suspicious được chuyển sang Tầng 2.
 
-Lợi thế căn bản của Autoencoder Gate: mô hình học ``không gian chuẩn'' của traffic bình thường mà \textit{không cần nhãn tấn công}. Bất kỳ flow nào bị tái tạo kém là flow bất thường theo định nghĩa, kể cả tấn công chưa từng xuất hiện trong training. Stage 1 đạt Macro-F1 nhị phân = 0,84 và Precision = 0,93 trên KDDTest+.
+Lợi thế căn bản của Autoencoder Gate: mô hình học ``không gian chuẩn'' của traffic bình thường mà \textit{không cần nhãn tấn công}. Bất kỳ flow nào bị tái tạo kém là flow bất thường theo định nghĩa, kể cả tấn công chưa từng xuất hiện trong training. Tầng 1 đạt Macro-F1 nhị phân = 0,84 và Precision = 0,93 trên KDDTest+.
 
-\textbf{Stage 2 --- Stacking Ensemble cho phân loại chi tiết:}
+\textbf{Tầng 2 --- Stacking Ensemble cho phân loại chi tiết:}
 
-Stage 2 nhận các flow Suspicious từ Stage 1 và phân loại thành 4 lớp tấn công (DoS, Probe, R2L, U2R). Thay vì một mô hình đơn lẻ, Stacking Ensemble kết hợp hai bộ phân loại có inductive bias khác nhau để bù đắp điểm yếu lẫn nhau.
+Tầng 2 nhận các flow Suspicious từ Tầng 1 và phân loại thành 4 lớp tấn công (DoS, Probe, R2L, U2R). Thay vì một mô hình đơn lẻ, Stacking Ensemble kết hợp hai bộ phân loại có inductive bias khác nhau để bù đắp điểm yếu lẫn nhau.
+
+Cần phân biệt rõ hai cấu hình được xây dựng ở giai đoạn này, vì chúng phục vụ hai mục đích khác nhau và \textit{không} nên đọc như một mạch duy nhất:
+
+\begin{itemize}
+    \item \textbf{Cấu hình triển khai} --- Autoencoder Gate nối tiếp một FT-Transformer \textbf{4 lớp} (DoS, Probe, R2L, U2R). Đây là pipeline được đưa vào bản inference thực tế, nơi Gate đóng vai trò bộ lọc không cần nhãn tấn công.
+    \item \textbf{Cấu hình thí nghiệm đối chứng} --- Stacking Ensemble \textbf{5 lớp} phẳng (bao gồm cả Normal), \textit{không} đi qua Autoencoder Gate. Cấu hình này dùng để đo trần hiệu năng mà kiến trúc đạt được trên KDDTest+ và để so sánh công bằng với các mô hình đơn lẻ.
+\end{itemize}
 
 \textit{Base learner 1 --- FT-Transformer:} $d = 128$, 8 heads, 4 lớp Attention, $d_{ff} = 512$, dropout $= 0{,}1$. Cơ chế Attention cho phép mô hình học tương tác giữa các cặp đặc trưng (ví dụ: mối quan hệ giữa \texttt{src\_bytes} và \texttt{rerror\_rate}) --- hữu ích để phân biệt R2L với các tấn công khác.
 
@@ -119,7 +126,9 @@ Hai mô hình này sai trên các mẫu khác nhau: FT-Transformer đạt R2L Re
 \end{equation}
 Vector đầu vào của Meta-LR có 10 chiều (xác suất 5 lớp từ mỗi base learner). Meta-LR học \textit{khi nào} nên tin FT-Transformer và khi nào nên tin LightGBM hơn --- một dạng chuyên môn hóa động theo từng vùng không gian đặc trưng.
 
-Kết quả đầu-cuối trên KDDTest+ (5 lớp, bao gồm cả Stage 1): Macro F1 = 0,6809, Accuracy = 80,09\%. So với từng mô hình đơn lẻ (FT-Transformer: 0,654; LightGBM: 0,668), Stacking cải thiện đồng thời Normal F1 (0,823), Probe F1 (0,794) và U2R F1 (0,512).
+Kết quả trên KDDTest+: Macro F1 = 0,6809, Accuracy = 80,09\%. Con số này đến từ \textbf{cấu hình thí nghiệm đối chứng} --- Stacking 5 lớp dự đoán thẳng cả nhãn Normal, \textit{không} đi qua Autoencoder Gate --- nên nó đo năng lực của riêng khối Stacking, không phải hiệu năng đầu-cuối của pipeline hai tầng. So với từng mô hình đơn lẻ đo trên cùng điều kiện (FT-Transformer: 0,654; LightGBM: 0,668), Stacking cải thiện đồng thời Normal F1 (0,823), Probe F1 (0,794) và U2R F1 (0,512).
+
+Một quan sát đáng chú ý và cần được báo cáo trung thực: FT-Transformer \textit{đơn lẻ} \textbf{thua} LightGBM trên bộ dữ liệu này (0,654 so với 0,668). Trên dữ liệu dạng bảng, mô hình cây vẫn là đối thủ rất mạnh. Giá trị mà Stacking mang lại không nằm ở việc một kiến trúc vượt trội kiến trúc kia, mà ở chỗ meta-learner học được \textit{khi nào} nên tin mô hình nào --- chỉ khi kết hợp có học như vậy thì kết quả mới vượt được cả hai thành phần. Điều này cũng lý giải vì sao đóng góp thực sự của Giai đoạn 1 không phải con số 0,6809, mà là \textbf{quyết định giữ kiến trúc Feature Tokenizer} --- tiền đề kỹ thuật cho Model Surgery ở Giai đoạn 3 (Mục~\ref{subsec:gd3-surgery}).
 
 \subsection{Chiến lược xử lý mất cân bằng}
 \label{subsec:gd1-imbalance}
@@ -167,14 +176,39 @@ CIC-IDS-2017 \cite{sharafaldin2018} giải quyết cả hai vấn đề: dữ li
 \subsection{Bộ dữ liệu CIC-IDS-2017 và thách thức mất cân bằng cực đoan}
 \label{subsec:gd2-data}
 
-CIC-IDS-2017 \cite{sharafaldin2018} gồm traffic thu thập trong 5 ngày liên tiếp: thứ Hai (chỉ Benign), thứ Ba đến thứ Sáu (các kịch bản tấn công). Sau khi xử lý, tập dữ liệu sử dụng trong đề tài gồm khoảng 2,83 triệu flow với phân phối lớp mất cân bằng nghiêm trọng: lớp Benign chiếm 82,7\%, trong khi các lớp tấn công dao động từ DoS Slowloris (0,23\%) đến Heartbleed (0,003\%). Ba lớp đặc biệt thách thức là Botnet (0,07\%), Infiltration (0,03\%) và Heartbleed (0,003\%) --- tỷ lệ Benign:Infiltration lên đến hơn 2.750:1.
+CIC-IDS-2017 \cite{sharafaldin2018} gồm traffic thu thập trong 5 ngày liên tiếp: thứ Hai (chỉ Benign), thứ Ba đến thứ Sáu (các kịch bản tấn công). Sau bước tiền xử lý và loại các bản ghi lỗi, tập dữ liệu sử dụng trong đề tài gồm \textbf{2.829.385 flow} thuộc 15 nhãn gốc, được gộp thành 9 lớp mô hình với phân phối trình bày ở Bảng~\ref{tab:cic-distribution}.
+
+\begin{table}[H]
+    \centering
+    \caption{Phân phối 9 lớp của CIC-IDS-2017 sau tiền xử lý và gộp nhãn.}
+    \label{tab:cic-distribution}
+    \begin{tabular}{lrr}
+        \hline
+        \textbf{Lớp} & \textbf{Số flow} & \textbf{Tỉ lệ} \\
+        \hline
+        Benign       & 2.272.688 & 80,32\% \\
+        DoS          &   251.712 &  8,90\% \\
+        PortScan     &   158.930 &  5,62\% \\
+        DDoS         &   128.027 &  4,52\% \\
+        Brute Force  &    13.835 &  0,489\% \\
+        Web Attack   &     2.180 &  0,077\% \\
+        Botnet       &     1.966 &  0,070\% \\
+        Infiltration &        36 &  0,0013\% \\
+        Heartbleed   &        11 &  0,0004\% \\
+        \hline
+        \textbf{Tổng} & \textbf{2.829.385} & 100\% \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Mức mất cân bằng ở đây vượt xa các bài toán phân loại thông thường. Tỉ lệ giữa lớp lớn nhất và lớp nhỏ nhất là \textbf{khoảng 206.600:1} (Benign so với Heartbleed), và ngay cả với Infiltration --- lớp hiếm thứ hai --- tỉ lệ vẫn là khoảng \textbf{63.100:1}. Nói cách khác, nếu chia toàn bộ tập dữ liệu thành các batch 512 mẫu, thì trung bình phải duyệt hơn 120 batch mới gặp một mẫu Infiltration, và hơn 400 batch mới gặp một mẫu Heartbleed. Đây là lý do mà các kỹ thuật cân bằng thông thường --- lấy mẫu lại, nhân trọng số --- không đủ, và là động cơ trực tiếp cho kiến trúc phân tầng trình bày ở phần sau.
 
 Thách thức không chỉ nằm ở tỷ lệ mà còn ở sự \textit{không đồng đều về mức độ khó phân tách}: Heartbleed có pattern flow rất đặc trưng (dù hiếm) nên dễ học, trong khi Botnet có traffic C2 bắt chước Benign và Infiltration thực hiện exfiltration chậm không tạo pattern flow rõ ràng.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{fig_cic_imbalance}
-    \caption{Phân phối lớp trong CIC-IDS-2017 (~2,83 triệu flow, thang logarithm). Benign chiếm 82,7\%; tỉ lệ Benign:Infiltration vượt 2.750:1.}
+    \caption{Phân phối lớp trong CIC-IDS-2017 (2.829.385 flow, thang logarithm). Benign chiếm 80,32\%; tỉ lệ Benign:Infiltration khoảng 63.100:1.}
     \label{fig:cic-imbalance}
 \end{figure}
 
@@ -197,7 +231,7 @@ Chuẩn hóa đặc trưng sử dụng \textbf{PowerTransformer với phân ph�
 
 Lý do chọn PowerTransformer thay vì StandardScaler hay MinMaxScaler: nhiều đặc trưng CICFlowMeter có phân phối power-law (byte counts, IAT) với đuôi dài cực đoan. StandardScaler không thay đổi phân phối; MinMaxScaler đưa về $[0,1]$ nhưng không giải quyết skewness. PowerTransformer đưa phân phối về xấp xỉ Gaussian, giúp FT-Transformer học hiệu quả hơn và đặc biệt giúp các lớp thiểu số không bị ``chôn vùi'' trong đuôi phân phối của Benign.
 
-Ngoài ra, một số đặc trưng có tương quan Pearson cao ($r > 0{,}95$) được loại bỏ để tránh multicollinearity, giảm chiều từ 77 xuống 34 đặc trưng cho Expert Network (Stage 2).
+Ngoài ra, một số đặc trưng có tương quan Pearson cao ($r > 0{,}95$) được loại bỏ để tránh multicollinearity, giảm chiều từ 77 xuống 34 đặc trưng cho Expert Network (Tầng 2).
 
 \begin{figure}[H]
 \centering
@@ -220,11 +254,11 @@ Ngoài ra, một số đặc trưng có tương quan Pearson cao ($r > 0{,}95$) 
 \node[draw, rounded corners=3pt, fill=gray!10, minimum width=4.5cm, minimum height=0.7cm,
       font=\small, align=center] (input) {Flow đầu vào (77 đặc trưng)};
 
-% Stage 1
-\node[stage, below=0.9cm of input, minimum width=5.5cm] (s1) {Gating Network (Stage 1)\\FT-Transformer, 6 lớp};
+% Tầng 1
+\node[stage, below=0.9cm of input, minimum width=5.5cm] (s1) {Gating Network (Tầng 1)\\FT-Transformer, 6 lớp};
 \draw[arr] (input) -- (s1);
 
-% Stage 1 outputs - row
+% Tầng 1 outputs - row
 \node[benign,  below left=1.0cm and 2.2cm of s1]  (c_benign)  {Benign};
 \node[attack,  left=0.3cm of c_benign]             (c_dos)     {DoS};
 \node[attack,  right=0.3cm of c_benign]            (c_ddos)    {DDoS};
@@ -239,9 +273,9 @@ Ngoài ra, một số đặc trưng có tương quan Pearson cao ($r > 0{,}95$) 
 \draw[arr] (s1.south) -- ++(0,-0.4) -| (c_brute);
 \draw[arr] (s1.south) -- ++(0,-0.4) -| (c_susp);
 
-% Stage 2
+% Tầng 2
 \node[stage, fill=purple!10, draw=purple!50, below=1.3cm of c_susp, minimum width=5.0cm]
-    (s2) {Expert Network (Stage 2)\\FTT + RF + KNN, 5 lớp\\(Asymmetric Ensemble)};
+    (s2) {Expert Network (Tầng 2)\\FTT + RF + KNN, 5 lớp\\(Asymmetric Ensemble)};
 \draw[arr] (c_susp) -- (s2);
 \node[benign,  below left=1.0cm and 1.5cm of s2] (e_benign)  {Benign\\(từ chối FP)};
 \node[expert,  right=0.3cm of e_benign]           (e_web)     {Web Attack};
@@ -268,16 +302,20 @@ Ngoài ra, một số đặc trưng có tương quan Pearson cao ($r > 0{,}95$) 
 \subsection{Tầng 1: Gating Network}
 \label{subsec:gd2-stage1}
 
-Gating Network là bộ phân loại \textbf{6 lớp}: nhận 77 đặc trưng đầy đủ và phân loại flow thành \{Benign, DoS, DDoS, PortScan, Brute Force, Suspicious\}. Bốn lớp tấn công phổ biến (DoS, DDoS, PortScan, Brute Force) có pattern traffic đặc trưng rõ ràng và được phân loại trực tiếp tại Stage 1. Lớp thứ sáu --- Suspicious --- bao gồm các tấn công phức tạp (Web Attack, Bot, Infiltration, Heartbleed) có flow-level signature gần giống Benign; các flow này được chuyển tiếp sang Expert Network. Thiết kế 6-lớp có hai lợi ích: (1) Stage 1 phân loại sẵn 4 nhóm tấn công dễ nhận biết, giải phóng Expert Network để tập trung vào các tấn công khó; (2) Expert Network không phải xử lý toàn bộ traffic --- chỉ nhận các flow Suspicious.
+Gating Network là bộ phân loại \textbf{6 lớp}: nhận 77 đặc trưng đầy đủ và phân loại flow thành \{Benign, DoS, DDoS, PortScan, Brute Force, Suspicious\}. Bốn lớp tấn công phổ biến (DoS, DDoS, PortScan, Brute Force) có pattern traffic đặc trưng rõ ràng và được phân loại trực tiếp tại Tầng 1. Lớp thứ sáu --- Suspicious --- bao gồm các tấn công phức tạp (Web Attack, Bot, Infiltration, Heartbleed) có flow-level signature gần giống Benign; các flow này được chuyển tiếp sang Expert Network. Thiết kế 6-lớp có hai lợi ích: (1) Tầng 1 phân loại sẵn 4 nhóm tấn công dễ nhận biết, giải phóng Expert Network để tập trung vào các tấn công khó; (2) Expert Network không phải xử lý toàn bộ traffic --- chỉ nhận các flow Suspicious.
 
-Gating Network là một FT-Transformer với cấu hình ($d=128$, 4 lớp Attention, 8 đầu, $d_{ff}=512$, dropout=0,2) được huấn luyện với CB-Focal Loss ($\gamma=2$) và Weighted Sampling để ưu tiên recall tấn công. Ngưỡng 85\% được áp dụng cho xác suất lớp Suspicious: chỉ khi $P(\text{Suspicious}) \geq 0{,}85$ thì flow mới được chuyển sang Expert Network; nếu Stage 1 dự đoán Suspicious nhưng $P < 0{,}85$, flow được gán nhãn Benign (bảo thủ, tránh gánh nặng xử lý thêm).
+Gating Network là một FT-Transformer với cấu hình ($d=128$, 4 lớp Attention, 8 đầu, $d_{ff}=512$, dropout=0,2) được huấn luyện với CB-Focal Loss ($\gamma=2$) và Weighted Sampling để bù mất cân bằng lớp. Ngưỡng 85\% được áp dụng cho xác suất lớp Suspicious: chỉ khi $P(\text{Suspicious}) \geq 0{,}85$ thì flow mới được chuyển sang Expert Network; nếu Tầng 1 dự đoán Suspicious nhưng $P < 0{,}85$, flow được \textbf{ép về nhãn Benign}.
+
+Cần nêu đúng bản chất của ngưỡng này: nó là một \textbf{van giảm báo động giả}, không phải cơ chế ưu tiên recall. Chỉ những ca mà Tầng 1 thực sự tin là đáng ngờ mới được chuyển tiếp; phần còn lại bị loại khỏi luồng thay vì được soi kỹ hơn. Đánh đổi đi theo hướng \textit{hy sinh một phần recall để lấy precision} --- ngược với trực giác thông thường về một ``cổng lọc bảo thủ''. Lựa chọn này hợp lý trong bối cảnh vận hành: với 2,5 triệu flow, một tỉ lệ false positive nhỏ cũng đủ tạo ra khối lượng cảnh báo vượt khả năng xử lý của người trực, và hiện tượng \textit{alert fatigue} khiến các cảnh báo thật bị bỏ qua. Chi phí của đánh đổi này được bù lại một phần ở Tầng 2, nơi nhãn Benign được giữ lại để bắt lại các flow mà Tầng 1 chuyển nhầm.
 
 \subsection{Tầng 2: Expert Network và Hard Negative Mining}
 \label{subsec:gd2-stage2}
 
-Expert Network nhận đầu vào là các flow được Gating Network đánh dấu Suspicious và phân loại thành \textbf{5 lớp}: Benign, Web Attack, Bot, Infiltration, Heartbleed. Nhãn Benign trong Stage 2 cho phép Expert Network từ chối các flow bị Gating Network chuyển nhầm (false positive Stage 1). Toàn bộ hệ thống xuất \textbf{9 lớp}: Stage 1 xác định trực tiếp Benign/DoS/DDoS/PortScan/Brute Force; Stage 2 phân loại thêm Web Attack, Bot, Infiltration, Heartbleed cho các flow Suspicious. Mô hình sử dụng 34 đặc trưng (tập con sau loại bỏ tương quan cao) --- giảm chiều giúp Expert Network tập trung vào các đặc trưng thực sự phân biệt các tấn công phức tạp.
+Expert Network nhận đầu vào là các flow được Gating Network đánh dấu Suspicious và phân loại thành \textbf{5 lớp}: Benign, Web Attack, Bot, Infiltration, Heartbleed. Nhãn Benign trong Tầng 2 cho phép Expert Network từ chối các flow bị Gating Network chuyển nhầm (false positive Tầng 1). Toàn bộ hệ thống xuất \textbf{9 lớp}: Tầng 1 xác định trực tiếp Benign/DoS/DDoS/PortScan/Brute Force; Tầng 2 phân loại thêm Web Attack, Bot, Infiltration, Heartbleed cho các flow Suspicious. Mô hình sử dụng 34 đặc trưng (tập con sau loại bỏ tương quan cao) --- giảm chiều giúp Expert Network tập trung vào các đặc trưng thực sự phân biệt các tấn công phức tạp.
 
-Hard Negative Mining (HNM) được thực hiện hai vòng. Sau vòng huấn luyện đầu, toàn bộ tập validation được đưa qua Expert Network và các mẫu bị phân loại sai được xác định. Những mẫu này --- đặc biệt là Botnet và Infiltration bị nhầm thành Benign hoặc các lớp tấn công khác --- được \textbf{nhân bản 10 lần} và bổ sung vào tập huấn luyện vòng tiếp theo, tạo áp lực học đủ lớn trên các mẫu khó. Sau hai vòng HNM, Botnet F1 cải thiện từ 0,4787 lên 0,6512, và Infiltration F1 cải thiện từ 0,3821 lên 0,5903.
+Hard Negative Mining (HNM) được thực hiện hai vòng. Sau vòng huấn luyện đầu, toàn bộ tập validation được đưa qua Expert Network và các mẫu bị phân loại sai được xác định. Những mẫu này --- đặc biệt là Botnet và Infiltration bị nhầm thành Benign hoặc các lớp tấn công khác --- được \textbf{nhân bản 10 lần} và bổ sung vào tập huấn luyện vòng tiếp theo, tạo áp lực học đủ lớn trên các mẫu khó.
+
+Điểm đáng chú ý của kỹ thuật này nằm ở chỗ nó khác hẳn cách xử lý mất cân bằng thông thường. Nhân trọng số cho toàn bộ một lớp làm tăng tín hiệu học đều tay trên mọi mẫu của lớp đó, kể cả những mẫu mà mô hình vốn đã phân loại đúng --- phần lớn công sức bị tiêu vào chỗ không cần thiết. Hard Negative Mining dồn tín hiệu vào đúng vùng sát biên quyết định, nơi mô hình thực sự còn nhầm lẫn. So sánh trực tiếp trên lớp Botnet cho thấy khác biệt rõ: nhân trọng số lớp lên gấp mười đưa F1 lên 0,5103, trong khi hai vòng Hard Negative Mining đạt 0,6512 --- chênh khoảng 14 điểm tuyệt đối với cùng một mục tiêu.
 
 \subsection{Từ Expert Network đơn lẻ đến Asymmetric Ensemble Voting}
 \label{subsec:gd2-motivation-ensemble}
@@ -295,17 +333,20 @@ Kết luận: ba mô hình sai trên những mẫu khác nhau --- điều kiện
 
 Ba mô hình thành phần của Ensemble: (1) FT-Transformer (Expert Network, đã mô tả ở trên); (2) Random Forest với 150 cây, max\_depth=25, max\_features=20, class\_weight=\texttt{balanced}; (3) KNN với K=16, trọng số đều (uniform). Mỗi mô hình được huấn luyện độc lập trên cùng tập dữ liệu (sau HNM).
 
-Luật bỏ phiếu tiêu chuẩn là majority voting: nhãn được bầu bởi ít nhất 2/3 mô hình. Hai luật \textbf{bất đối xứng} bổ sung được thiết kế dựa trên phân tích chi phí lỗi:
+Điểm cần nhấn mạnh: luật kết hợp ở đây \textbf{không phải bỏ phiếu đa số}. Trong một ensemble majority voting thông thường, ba mô hình có quyền ngang nhau và nhãn thắng là nhãn được ít nhất 2/3 mô hình bầu. Thiết kế của đề tài đi theo hướng khác, xuất phát từ nhận định rằng \textit{chi phí của lỗi không đối xứng giữa các lớp}: FT-Transformer giữ vai trò bộ phân loại chủ đạo cho mọi lớp, còn Random Forest và KNN chỉ được trao \textbf{quyền phủ quyết} trên đúng hai lớp có đặc thù lỗi rõ rệt. Hai luật bất đối xứng đó là:
 
 \begin{itemize}
-    \item \textbf{Quy tắc Ưu tiên Infiltration:} Nếu RF \textit{hoặc} KNN bỏ phiếu Infiltration, kết quả cuối là Infiltration --- bất kể FT-Transformer bỏ phiếu gì. Lý do: Infiltration chiếm dưới 0,03\% dữ liệu và bỏ sót một cuộc Infiltration có hậu quả nghiêm trọng hơn rất nhiều so với một false alarm Infiltration. Quy tắc này tăng Infiltration Recall đáng kể đổi lấy một phần Precision.
+    \item \textbf{Quy tắc Ưu tiên Infiltration:} Nếu RF \textit{hoặc} KNN bỏ phiếu Infiltration, kết quả cuối là Infiltration --- bất kể FT-Transformer bỏ phiếu gì. Lý do: Infiltration chỉ chiếm 0,0013\% dữ liệu (36 flow trên toàn tập) và bỏ sót một cuộc Infiltration có hậu quả nghiêm trọng hơn rất nhiều so với một false alarm Infiltration. Quy tắc này tăng Infiltration Recall đáng kể đổi lấy một phần Precision.
 
     \item \textbf{Quy tắc Đồng thuận Botnet:} Kết quả là Botnet \textit{chỉ khi} FT-Transformer dự đoán Botnet \textit{và} cả RF lẫn KNN đều không dự đoán Benign. Lý do: FT-Transformer thường xuyên nhầm Benign thành Botnet (FP cao), gây alert fatigue. RF và KNN ít bị lỗi FP Botnet hơn nhờ inductive bias khác; nếu một trong hai dự đoán Benign thì kết quả cuối bị override thành Benign.
+    \item \textbf{Các lớp còn lại --- ngưỡng tin cậy mềm:} Với mọi lớp ngoài hai trường hợp trên, nhãn cuối lấy thẳng từ FT-Transformer nếu $P_\text{FTT} \geq 0{,}65$; dưới ngưỡng đó, flow được ép về Benign. Random Forest và KNN \textit{không tham gia} quyết định ở nhóm này. Ngưỡng 0,65 là một van giảm false positive thứ hai, đặt sau van 0,85 ở Tầng 1, và nó tác động trực tiếp tới recall của toàn bộ các lớp hiếm --- một dự đoán đúng nhưng thiếu tự tin vẫn bị loại.
 \end{itemize}
 
-Kết quả Ensemble cuối: Accuracy 99,55\%, Macro F1 0,9294, với Botnet F1 cải thiện lên 0,7344 và Infiltration F1 lên 0,7407 so với Expert Network đơn lẻ (xem Chi tiết ở Chương 5).
+Có thể tóm tắt tinh thần thiết kế bằng một phép so sánh: với một bệnh hiểm nghèo và hiếm gặp, chỉ cần một bác sĩ nghi ngờ là đã phải làm sinh thiết --- bỏ sót đắt hơn nhiều so với một lần dương tính giả. Ngược lại, với một chẩn đoán thường bị lạm dụng, cần sự đồng thuận rộng hơn mới kết luận. Đó chính là lý do quyền biểu quyết được phân bổ không đều giữa ba mô hình và giữa các lớp.
 
-\section{Giai đoạn 3: Thích nghi miền sang Testbed thực chiến}
+Kết quả Ensemble cuối: Accuracy 99,55\%, Macro F1 0,9294, với Botnet F1 cải thiện lên 0,7344 và Infiltration F1 lên 0,7407 so với Expert Network đơn lẻ (xem chi tiết ở Chương 5).
+
+\section{Giai đoạn 3 --- Phần một: Chẩn đoán và thích nghi miền}
 \label{sec:gd3}
 
 \subsection{Chẩn đoán Covariate Shift}
@@ -360,13 +401,15 @@ Model Surgery mở rộng chiều đầu vào $77 \rightarrow 80$: ma trận Fea
 
 Sau Model Surgery, MCC tăng thêm từ $0{,}6825$ lên $0{,}7333$, với cải thiện chủ yếu ở Botnet (Custom\_IAT\_CV giúp phân biệt periodic heartbeat) và PortScan (Custom\_Bwd\_Pkt\_Ratio tiết lộ tính một chiều của SYN scan).
 
-\section{Giai đoạn 4: Tái huấn luyện mô hình trên dữ liệu Testbed nội bộ}
+\section{Giai đoạn 3 --- Phần hai: Thu thập dữ liệu thực và xây dựng mô hình FT-IDS}
 \label{sec:gd4}
+
+Phần đầu của Giai đoạn 3 đã chẩn đoán được nguyên nhân sụt giảm hiệu năng và chứng minh rằng các can thiệp ở tầng kỹ thuật --- hiệu chỉnh scaler, đóng băng chọn lọc, mở rộng đặc trưng --- khôi phục được năng lực phân biệt cơ bản. Nhưng chúng chưa đủ để tạo ra một mô hình dùng được trong môi trường đích, vì mọi can thiệp đó vẫn dựa trên dữ liệu huấn luyện của miền cũ. Phần hai giải quyết nốt phần còn thiếu: thu thập dữ liệu tấn công thực trên chính môi trường triển khai, rồi tinh chỉnh mô hình trên dữ liệu đó để cho ra bản triển khai cuối --- được gọi là \textbf{FT-IDS} trong phần còn lại của đồ án.
 
 \subsection{Đặc điểm bộ dữ liệu Testbed nội bộ}
 \label{subsec:gd4-data}
 
-Sau khi domain adaptation từ Giai đoạn 3 giải quyết được một phần vấn đề covariate shift, thực nghiệm cho thấy mô hình vẫn có những điểm yếu đặc thù của môi trường WSL không thể khắc phục bằng fine-tuning. Quyết định được đưa ra: thu thập dữ liệu Testbed nội bộ và tái huấn luyện hoàn toàn mô hình trên dữ liệu này.
+Thực nghiệm ở phần một cho thấy mô hình vẫn còn những điểm yếu đặc thù của môi trường WSL mà việc tinh chỉnh trên dữ liệu miền cũ không khắc phục được. Quyết định được đưa ra: thu thập dữ liệu Testbed nội bộ và tinh chỉnh sâu hơn trên dữ liệu này --- vẫn theo hướng fine-tuning từ trọng số đã có, không huấn luyện lại từ đầu.
 
 Testbed gồm hai máy tính trên cùng mạng LAN: (1) máy Windows 11 (IP 192.168.1.x) chạy WSL2 Ubuntu là máy victim --- cài đặt Snort, CICFlowMeter, và DVWA (Damn Vulnerable Web Application) cho web attacks; (2) máy tấn công Kali Linux chạy các công cụ tấn công thực (nmap, hydra, slowhttptest, curl-based web attacks). WSL2 sử dụng chế độ Mirrored Networking, cho phép traffic từ mạng vật lý đến trực tiếp WSL interface mà không qua NAT translation hoàn toàn.
 
@@ -381,7 +424,7 @@ Nguyên nhân gốc rễ: trên môi trường WSL với NAT, mỗi lần chạy
 
 Giải pháp: inject 5.000 flow PortScan từ CIC-IDS-2017 Friday dataset (được thu thập trên switch vật lý thực) vào tập huấn luyện. Các flow CIC PortScan có đặc trưng rõ ràng --- nhiều SYN flags, duration ngắn nhưng \textit{đồng nhất}, byte count gần bằng 0 --- đủ phân biệt với Benign. Đây là giải pháp \textit{dữ liệu surrogate}: dùng dữ liệu từ môi trường khác (CIC real hardware) để bù cho dữ liệu thiếu chất lượng ở môi trường hiện tại (WSL).
 
-Kết quả sau injection CIC PortScan: PortScan F1 tăng từ 7,5\% lên 100\% --- và duy trì ổn định qua mọi phiên bản tiếp theo.
+Kết quả sau injection CIC PortScan: PortScan F1 tăng từ 7,5\% lên 99,9\% --- và duy trì ổn định qua mọi phiên bản tiếp theo.
 
 \subsection{Bài toán Brute Force: thiếu đa dạng pattern và giải pháp tăng cường dữ liệu}
 \label{subsec:gd4-bruteforce}
@@ -397,37 +440,42 @@ Sau khi thêm CIC Patator vào tập huấn luyện, tập validation được c
 
 Con số 100\% này đáng ngờ --- và thực tế là không đáng tin cậy. Tập validation gồm 100\% CIC Patator flows trong khi training đã thấy CIC Patator flows --- đây là đánh giá in-distribution, không phản ánh khả năng tổng quát hóa sang hydra (tool khác, pattern khác). Một mô hình overfit hoàn toàn vào Patator pattern cũng sẽ đạt F1 = 100\% trên tập validation này.
 
-Để kiểm tra thực sự, tập validation được xây dựng lại với thành phần \textit{đa dạng miền}: 400 hydra flows (từ Run10) + 398 Patator flows (CIC) = 798 flows BruteForce tổng cộng. Kết quả trên tập validation đa dạng này: BruteForce P=83\%, R=90\%, F1=86\%; Macro F1 = 91,7\%. Con số thấp hơn nhưng đáng tin cậy hơn --- phản ánh khả năng phát hiện BruteForce từ cả hai nguồn tool.
+Để kiểm tra thực sự, tập validation được xây dựng lại với thành phần \textit{đa dạng miền}: 400 hydra flows (từ Run10) + 398 Patator flows (CIC) = 798 flows BruteForce tổng cộng. Kết quả trên tập validation đa dạng này: BruteForce P=83\%, R=90\%, F1=86\%; Macro F1 = 91,66\%. Con số thấp hơn nhưng đáng tin cậy hơn --- phản ánh khả năng phát hiện BruteForce từ cả hai nguồn tool.
 
 Đây là minh chứng trực tiếp: metric cao trên tập validation đồng nhất miền không đảm bảo hiệu năng tốt trong thực tế với traffic đa dạng hơn.
 
-\subsection{Mô hình cuối V8.5: thiết kế, huấn luyện và đánh giá}
+\subsection{Mô hình cuối FT-IDS: thiết kế, huấn luyện và đánh giá}
 \label{subsec:gd4-final}
 
-Mô hình cuối V8.5 được fine-tune từ mô hình tốt nhất trước đó, với tập dữ liệu Combined\_V8\_5 gồm 111.825 flows:
+Mô hình cuối FT-IDS được fine-tune từ mô hình tốt nhất trước đó, trên tập dữ liệu \texttt{Combined\_V8\_5} gồm 111.825 flows. Tên gọi \textit{Combined} phản ánh đúng bản chất của tập này: đây \textbf{không phải} một tập testbed thuần túy, mà là tập \textbf{trộn miền có chủ đích} giữa dữ liệu tự thu và dữ liệu CIC-IDS-2017 bổ sung. Bảng~\ref{tab:v85-dataset} tách rõ hai nguồn.
 
 \begin{table}[H]
     \centering
-    \caption{Thành phần tập dữ liệu huấn luyện V8.5}
+    \caption{Thành phần tập dữ liệu huấn luyện \texttt{Combined\_V8\_5} của FT-IDS, tách theo nguồn thu thập.}
     \label{tab:v85-dataset}
-    \begin{tabular}{llrr}
+    \begin{tabular}{lrrrr}
         \hline
-        \textbf{Lớp} & \textbf{Nguồn} & \textbf{Số flows} & \textbf{Tỷ lệ} \\
+        \textbf{Lớp} & \textbf{Testbed tự thu} & \textbf{CIC bổ sung} & \textbf{Tổng} & \textbf{Tỷ lệ} \\
         \hline
-        Benign     & Testbed nội bộ (nhiều runs) & 51.975 & 46,5\% \\
-        DoS        & Testbed nội bộ              & 19.800 & 17,7\% \\
-        Web Attack & Run10 + CIC Thursday XSS/SQLi & 27.067 & 24,2\% \\
-        BruteForce & Run10 hydra + CIC Patator   &  7.983 &  7,1\% \\
-        PortScan   & CIC Friday                  &  5.000 &  4,5\% \\
+        Benign     & 51.994 &      0 &  51.994 & 46,5\% \\
+        DoS        & 19.781 &      0 &  19.781 & 17,7\% \\
+        Web Attack & 24.887 &  2.180 &  27.067 & 24,2\% \\
+        BruteForce &  2.984 &  4.999 &   7.983 &  7,1\% \\
+        PortScan   &      0 &  5.000 &   5.000 &  4,5\% \\
         \hline
-        \textbf{Tổng} & & \textbf{111.825} & 100\% \\
+        \textbf{Tổng} & \textbf{99.646} & \textbf{12.179} & \textbf{111.825} & 100\% \\
+                      & (89,1\%)        & (10,9\%)        &                  & \\
         \hline
     \end{tabular}
 \end{table}
 
-Cấu hình huấn luyện: learning rate theo từng lớp (backbone $10^{-5}$, mid $1{,}5 \times 10^{-5}$, head $3 \times 10^{-5}$), dropout 0,15, label smoothing 0,10, weight decay $2 \times 10^{-4}$, class weights $\sqrt{N/(K \cdot n_c)}$ clip về $[0{,}5;\; 2{,}0]$. Early stopping với patience=5, dừng tại epoch 6 (best checkpoint: epoch 1).
+Việc phải bổ sung dữ liệu CIC cho hai lớp cần được giải thích, vì nó ảnh hưởng trực tiếp tới cách diễn giải kết quả. Với \textbf{PortScan}, toàn bộ 5.000 flow đến từ CIC: qua lớp NAT của Hyper-V, các gói \texttt{nmap} bị gộp thành những flow SYN đơn lẻ gần như không mang đặc trưng thống kê nào phân biệt được với traffic thông thường --- mọi thuật toán thử nghiệm đều cho F1 dưới 9\% trên dữ liệu PortScan tự thu. Với \textbf{BruteForce}, testbed chỉ thu được 2.984 flow, không đủ để mô hình học ổn định, nên tập được bù thêm từ CIC Patator.
 
-Kết quả đánh giá trên tập validation 11.183 flows: Macro F1 = 91,7\%, Balanced Accuracy = 91,1\%. Chi tiết per-class: Benign F1=91\%, BruteForce F1=86\% (P=83\%/R=90\%), DoS F1=93\%, PortScan F1=100\%, Web Attack F1=88\%.
+Hệ quả trực tiếp: chỉ số PortScan trong Giai đoạn 3 \textbf{không phản ánh năng lực phát hiện PortScan trong môi trường NAT thật} --- nó đo trên dữ liệu miền CIC. Đây là lý do hệ thống triển khai cuối cùng bổ sung một luật phát hiện quét cổng dựa trên số cổng đích phân biệt trong cửa sổ thời gian, thay vì trông cậy vào mô hình học máy cho lớp này (Mục~\ref{sec:gd4}).
+
+Cấu hình huấn luyện: learning rate theo từng lớp (backbone $10^{-5}$, mid $2 \times 10^{-5}$, head $3 \times 10^{-5}$), dropout 0,15, label smoothing 0,10, weight decay $2 \times 10^{-4}$, class weights $\sqrt{N/(K \cdot n_c)}$ clip về $[0{,}5;\; 2{,}0]$. Early stopping với patience=5, dừng tại epoch 6 (best checkpoint: epoch 1).
+
+Kết quả đánh giá trên tập validation 11.183 flows: Macro F1 = 91,66\%, Balanced Accuracy = 91,14\%, MCC = 0,865. Chi tiết per-class: Benign F1 = 90,7\%, BruteForce F1 = 86,1\% ($P=82{,}6\%$ / $R=90{,}0\%$), DoS F1 = 93,4\%, PortScan F1 = 99,9\%, Web Attack F1 = 88,1\%.
 
 \section{Triển khai Hybrid IDS End-to-End}
 \label{sec:deploy}
@@ -467,7 +515,7 @@ Kết quả đánh giá trên tập validation 11.183 flows: Macro F1 = 91,7\%, 
 
 % FTT inference
 \node[comp, fill=purple!8, draw=purple!55, below=0.9cm of cicfm] (ftt)
-    {FT-Transformer V8.5\\(ML Inference)};
+    {FT-IDS\\(ML Inference)};
 \draw[arr] (cicfm) -- node[right, font=\scriptsize]{80 features/flow} (ftt);
 \node[alert, below=0.9cm of ftt] (ml_alert) {ML Alert Log\\(flow-level)};
 \draw[arr] (ftt) -- (ml_alert);
@@ -484,7 +532,7 @@ Kết quả đánh giá trên tập validation 11.183 flows: Macro F1 = 91,7\%, 
 
 \end{tikzpicture}%
 }
-\caption{Kiến trúc mục tiêu của hệ thống Hybrid IDS End-to-End: Snort (tầng packet, rule-based) và FT-Transformer V8.5 (tầng flow, ML) chạy song song, alert được hợp nhất tại Alert Aggregator. Đường xử lý thời gian thực hoàn toàn là thiết kế mục tiêu; bản đã hiện thực và đánh giá là hệ thống phát hiện theo phát lại (Mục~\ref{subsec:deploy-replay}).}
+\caption{Kiến trúc mục tiêu của hệ thống Hybrid IDS End-to-End: Snort (tầng packet, rule-based) và FT-IDS (tầng flow, ML) chạy song song, alert được hợp nhất tại Alert Aggregator. Đường xử lý thời gian thực hoàn toàn là thiết kế mục tiêu; bản đã hiện thực và đánh giá là hệ thống phát hiện theo phát lại (Mục~\ref{subsec:deploy-replay}).}
 \label{fig:e2e-pipeline}
 \end{figure}
 
@@ -494,18 +542,18 @@ Kiến trúc mục tiêu của hệ thống End-to-End gồm bốn thành phần
 
 \textbf{CICFlowMeter} chạy trong chế độ capture liên tục, đọc packets từ interface WSL. Mỗi khi một flow hoàn chỉnh (TCP connection đóng bằng RST/FIN hoặc timeout 30 giây), CICFlowMeter tính toán 80 đặc trưng thống kê và ghi vào file CSV. Một process Python giám sát file CSV này và đẩy các dòng mới vào hàng đợi phân loại.
 
-\textbf{FT-Transformer Inference Engine} đọc từ hàng đợi, áp dụng PowerTransformer (Testbed scaler) và đưa vào mô hình V8.5 để phân loại. Kết quả (nhãn lớp + confidence score) được ghi vào alert log thứ hai với thông tin flow đầy đủ.
+\textbf{FT-Transformer Inference Engine} đọc từ hàng đợi, áp dụng PowerTransformer (Testbed scaler) và đưa vào mô hình FT-IDS để phân loại. Kết quả (nhãn lớp + confidence score) được ghi vào alert log thứ hai với thông tin flow đầy đủ.
 
 \textbf{Alert Aggregator} đọc cả hai alert logs (Snort + ML) và hợp nhất vào một dashboard. Khi cùng một flow/session xuất hiện trong cả hai nguồn cảnh báo, mức độ ưu tiên được tăng lên (confirmed alert).
 
-Trong bốn thành phần trên, đường xử lý thời gian thực hoàn toàn --- bắt gói liên tục từ interface, lắp ghép flow trực tuyến và đưa qua mô hình ngay khi flow đóng --- đòi hỏi một dịch vụ truyền dòng ổn định mà phạm vi đồ án chưa hiện thực hóa trọn vẹn. Phần được xây dựng, kiểm thử và đánh giá đầy đủ là hệ thống phát hiện theo phát lại (replay-based live detection): thay vì bắt gói trực tiếp, hệ thống phát lại các tệp flow đã trích xuất sẵn qua đúng mô hình V8.5, đúng bộ tiền xử lý và đúng logic quyết định mà phiên bản thời gian thực sẽ sử dụng. Chỉ tầng thu gói và lắp ghép flow ở đầu vào được thay bằng việc đọc lại flow có sẵn; toàn bộ thành phần phía sau giữ nguyên. Cách tiếp cận này cho phép đánh giá định lượng hành vi phân loại của hệ thống trên dữ liệu Testbed thật, đồng thời tách biệt phần kỹ thuật truyền dòng còn dang dở. Việc hoàn thiện đường thời gian thực được đề xuất như một hướng phát triển tại Mục~\ref{sec:kl-tuonglai}.
+Trong bốn thành phần trên, đường xử lý thời gian thực hoàn toàn --- bắt gói liên tục từ interface, lắp ghép flow trực tuyến và đưa qua mô hình ngay khi flow đóng --- đòi hỏi một dịch vụ truyền dòng ổn định mà phạm vi đồ án chưa hiện thực hóa trọn vẹn. Phần được xây dựng, kiểm thử và đánh giá đầy đủ là hệ thống phát hiện theo phát lại (replay-based live detection): thay vì bắt gói trực tiếp, hệ thống phát lại các tệp flow đã trích xuất sẵn qua đúng mô hình FT-IDS, đúng bộ tiền xử lý và đúng logic quyết định mà phiên bản thời gian thực sẽ sử dụng. Chỉ tầng thu gói và lắp ghép flow ở đầu vào được thay bằng việc đọc lại flow có sẵn; toàn bộ thành phần phía sau giữ nguyên. Cách tiếp cận này cho phép đánh giá định lượng hành vi phân loại của hệ thống trên dữ liệu Testbed thật, đồng thời tách biệt phần kỹ thuật truyền dòng còn dang dở. Việc hoàn thiện đường thời gian thực được đề xuất như một hướng phát triển tại Mục~\ref{sec:kl-tuonglai}.
 
 \subsection{Hệ thống phát hiện theo phát lại}
 \label{subsec:deploy-replay}
 
-Hệ thống replay nạp mô hình V8.5 một lần, đọc tệp flow CICFlowMeter (\texttt{*\_Flow.csv}) của từng kịch bản tấn công, phân loại toàn bộ flow rồi phát kết quả ra giao diện qua WebSocket theo nhịp mô phỏng thời gian thực, có điều khiển play, pause và tốc độ. Nhãn đối chứng được gán theo IP nguồn: flow xuất phát từ máy tấn công nhận nhãn loại tấn công của phiên thu, các flow còn lại nhận nhãn Benign. Gán nhãn theo IP loại bỏ sự mơ hồ của việc ghép cảnh báo theo cửa sổ thời gian giữa hai nguồn dữ liệu.
+Hệ thống replay nạp mô hình FT-IDS một lần, đọc tệp flow CICFlowMeter (\texttt{*\_Flow.csv}) của từng kịch bản tấn công, phân loại toàn bộ flow rồi phát kết quả ra giao diện qua WebSocket theo nhịp mô phỏng thời gian thực, có điều khiển play, pause và tốc độ. Nhãn đối chứng được gán theo IP nguồn: flow xuất phát từ máy tấn công nhận nhãn loại tấn công của phiên thu, các flow còn lại nhận nhãn Benign. Gán nhãn theo IP loại bỏ sự mơ hồ của việc ghép cảnh báo theo cửa sổ thời gian giữa hai nguồn dữ liệu.
 
-Trên đầu ra của mô hình, hệ thống áp một chuỗi luật hậu xử lý theo thứ tự cố định. Luật thứ nhất là ngưỡng tin cậy: một dự đoán thuộc lớp tấn công nhưng có xác suất cực đại dưới ngưỡng $T$ được hạ về Benign. Với $T = 0{,}6$, luật cắt phần lớn cảnh báo giả sinh ra từ các dự đoán lưỡng lự mà không chạm tới các dự đoán tấn công có độ tin cậy cao. Luật thứ hai bù cho một đặc trưng mà bộ 80 chiều của V8.5 không chứa --- mức độ quét cổng: với mỗi IP nguồn, hệ thống đếm số cổng đích duy nhất tiếp xúc trong một cửa sổ ngắn (mặc định 2 giây), và nếu số này vượt ngưỡng (15 cổng) với flow xuất phát từ máy quét, nhãn được ghi đè thành PortScan. Mỗi luật là một đơn vị độc lập theo nguyên tắc Open/Closed --- thêm luật mới không sửa luật đã có.
+Trên đầu ra của mô hình, hệ thống áp một chuỗi luật hậu xử lý theo thứ tự cố định. Luật thứ nhất là ngưỡng tin cậy: một dự đoán thuộc lớp tấn công nhưng có xác suất cực đại dưới ngưỡng $T$ được hạ về Benign. Với $T = 0{,}6$, luật cắt phần lớn cảnh báo giả sinh ra từ các dự đoán lưỡng lự mà không chạm tới các dự đoán tấn công có độ tin cậy cao. Luật thứ hai bù cho một đặc trưng mà bộ 80 chiều của FT-IDS không chứa --- mức độ quét cổng: với mỗi IP nguồn, hệ thống đếm số cổng đích duy nhất tiếp xúc trong một cửa sổ ngắn (mặc định 2 giây), và nếu số này vượt ngưỡng (15 cổng) với flow xuất phát từ máy quét, nhãn được ghi đè thành PortScan. Mỗi luật là một đơn vị độc lập theo nguyên tắc Open/Closed --- thêm luật mới không sửa luật đã có.
 
 Luật quét cổng là hiện thân trực tiếp của nguyên lý lai ghép: một heuristic kiểu dấu hiệu --- đếm cổng đích theo nguồn --- bù chính xác điểm mù của mô hình thống kê, vốn không phân biệt được PortScan với DoS khi cả hai biểu hiện thành nhiều flow ngắn. Kết quả định lượng của chuỗi luật này được trình bày tại Mục~\ref{sec:tn-e2e}.
 

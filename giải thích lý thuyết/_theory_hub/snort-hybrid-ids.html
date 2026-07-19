@@ -15,7 +15,7 @@
   
     <div class="shell accent-slate">
       <header class="hero">
-        <div class="eyebrow">G. Hệ lai &amp; giới hạn · Bài #26</div>
+        <div class="eyebrow">G. Hệ lai &amp; giới hạn · Bài #25</div>
         <h1>Snort + FT-Transformer — hệ lai bù điểm mù cho nhau</h1>
         <p>Không một phương pháp nào bắt được mọi kiểu tấn công. Đồ án ghép hai hướng đối lập để chúng che điểm mù cho nhau:</p>
       </header>
@@ -45,7 +45,7 @@
 <p><strong>song song, độc lập</strong>.</p>
 <p>công chưa có luật.</p>
 <ul><li><strong>Hệ lai</strong> = <strong>Snort</strong> (rule-based, packet, đã biết, real-time) + <strong>FTT</strong> (ML, flow, chưa biết, mã hoá) chạy</li><li>Kết hợp vì <strong>điểm mù bù nhau</strong>: Snort bắt XSS/SQLi (payload); FTT bắt DoS chậm &amp; BruteForce (flow) và tấn</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn giải thích được <strong>triết lý thiết kế tổng thể</strong> của đồ án — không tôn thờ một phương pháp, mà ghép để phủ điểm mù. Đầu ra hợp nhất bởi <a href="alert-aggregator.html">Alert Aggregator — hợp nhất cảnh báo, xác nhận chéo</a>; giới hạn còn lại nằm ở <a href="static-flow-limits-temporal.html">Giới hạn của flow tĩnh — Infiltration &amp; Botnet cần phân tích THỜI GIAN</a>.</p>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn giải thích được <strong>triết lý thiết kế tổng thể</strong> của đồ án — không tôn thờ một phương pháp, mà ghép để phủ điểm mù. Đầu ra hợp nhất bởi <a href="alert-aggregator.html">Alert Aggregator — hợp nhất cảnh báo, xác nhận chéo</a>; giới hạn còn lại nằm ở giới hạn của biểu diễn flow tĩnh khi cần thông tin theo thời gian.</p>
 <hr>
 <h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
 <p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>

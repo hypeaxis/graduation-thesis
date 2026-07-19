@@ -43,7 +43,7 @@
 <h3 id="t-m-l-i">Tóm lại</h3>
 <p>(<code>x_new = x_i + λ(x_kr − x_i)</code>).</p>
 <ul><li>SMOTE <strong>tạo mẫu thiểu số mới</strong> bằng nội suy tuyến tính giữa một mẫu và láng giềng cùng lớp</li><li><strong>SMOTE-ENN</strong> thêm bước ENN <strong>xoá mẫu nhiễu gần biên</strong> cho ranh giới sạch.</li><li><strong>Giới hạn:</strong> với lớp cực hiếm trong không gian nhiều chiều, mẫu tổng hợp chỉ là bản sao gần → ít giá trị thật.</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn biết SMOTE là <em>lựa chọn phía dữ liệu</em>, và hiểu vì sao với các lớp siêu hiếm nó không phải &quot;viên đạn bạc&quot; — một lý do đồ án nghiêng về giải pháp phía loss (<a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a>) và <a href="hard-negative-mining.html">Hard Negative Mining — chỉ ôn lại những câu làm SAI</a>.</p>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn biết SMOTE là <em>lựa chọn phía dữ liệu</em>, và hiểu vì sao với các lớp siêu hiếm nó không phải &quot;viên đạn bạc&quot; — một lý do đồ án nghiêng về giải pháp phía loss (<a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a>) và việc tăng cường có chọn lọc các mẫu nằm sát biên quyết định.</p>
 <hr>
 <h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
 <p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>

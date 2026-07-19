@@ -15,7 +15,7 @@
   
     <div class="shell accent-slate">
       <header class="hero">
-        <div class="eyebrow">G. Hệ lai &amp; giới hạn · Bài #28</div>
+        <div class="eyebrow">G. Hệ lai &amp; giới hạn · Bài #27</div>
         <h1>PortScan không phân tách dưới NAT — giới hạn của DỮ LIỆU, không phải model</h1>
         <p>Đây là một trong những bài học sâu sắc nhất của đồ án: có những thất bại không thể sửa bằng thuật toán, vì gốc rễ nằm ở cách dữ liệu được thu thập.</p>
       </header>
@@ -45,7 +45,7 @@
 <p>→ giống hệt Benign.</p>
 <p>dữ liệu surrogate (CIC PortScan) → F1 100%.</p>
 <ul><li>PortScan <strong>tách được</strong> trên CIC nhưng <strong>không phân tách</strong> dưới WSL2 vì <strong>NAT gộp flow, đổi timing/duration</strong></li><li><strong>Nhiều thuật toán cùng thất bại</strong> = bằng chứng vấn đề ở <strong>dữ liệu thu thập</strong>, không phải model. Giải pháp:</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn nắm một nguyên tắc chẩn đoán vàng: <strong>khi mọi model đều tịt như nhau, hãy nghi ngờ dữ liệu, không phải thuật toán</strong>. Liên hệ <a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a> (vô ích ở đây) và <a href="hard-negative-mining.html">Hard Negative Mining — chỉ ôn lại những câu làm SAI</a> (cũng bó tay khi không phân tách).</p>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn nắm một nguyên tắc chẩn đoán vàng: <strong>khi mọi model đều tịt như nhau, hãy nghi ngờ dữ liệu, không phải thuật toán</strong>. Liên hệ <a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a> (vô ích ở đây) và khai thác mẫu khó (cũng bó tay khi không phân tách).</p>
 <hr>
 <h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
 <p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>

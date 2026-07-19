@@ -55,7 +55,7 @@ def fig_nslkdd_ablation():
 
     ax.set_ylim(0.60, 0.72)
     ax.set_ylabel('Macro F1 (5 lớp, KDDTest+)')
-    ax.set_title('So sánh kiến trúc trên NSL-KDD (đánh giá đầu-cuối)')
+    ax.set_title('So sánh kiến trúc trên NSL-KDD (5 lớp, KDDTest+)')
     ax.axhline(0.681, color=BLUE, linestyle='--', linewidth=0.8, alpha=0.5)
     ax.spines[['top','right']].set_visible(False)
     ax.yaxis.grid(True, alpha=0.3)
@@ -87,7 +87,7 @@ def fig_nslkdd_perclass():
     ax.set_xticklabels(classes)
     ax.set_ylim(0, 1.10)
     ax.set_ylabel('Score')
-    ax.set_title('Kết quả phân loại đầu-cuối trên KDDTest+ (Stacking Ensemble)')
+    ax.set_title('Phân loại 5 lớp trên KDDTest+ — Stacking Ensemble\n(không qua Autoencoder Gate)')
     ax.legend(loc='upper right')
     ax.spines[['top','right']].set_visible(False)
     ax.yaxis.grid(True, alpha=0.3)
@@ -108,10 +108,10 @@ def fig_nslkdd_perclass():
 
 # ── 3. CIC-IDS-2017 class imbalance ──────────────────────────────────────────
 def fig_cic_imbalance():
-    labels = ['Benign', 'DoS\nHulk', 'DoS\nGoldenEye', 'DoS\nSlowloris', 'DoS\nSlowhttptest',
-              'DDoS', 'PortScan', 'Brute\nForce', 'Web\nAttack', 'Bot', 'Infiltration', 'Heartbleed']
-    # approximate percentages from 2.83M flows
-    pcts = [82.70, 5.11, 2.33, 0.82, 0.60, 4.69, 2.27, 0.53, 0.47, 0.07, 0.03, 0.003]
+    labels = ['Benign', 'DoS', 'PortScan', 'DDoS',
+              'Brute\nForce', 'Web\nAttack', 'Botnet', 'Infiltration', 'Heartbleed']
+    # tỉ lệ 9 lớp, đếm trực tiếp từ cic_train_full.csv + cic_test_full.csv (2.829.385 flow)
+    pcts = [80.3245, 8.8964, 5.6171, 4.5249, 0.4890, 0.0770, 0.0695, 0.0013, 0.0004]
     colors_bar = [GREEN if p > 5 else (ORANGE if p > 0.5 else RED) for p in pcts]
     colors_bar[0] = GRAY
 
@@ -123,20 +123,20 @@ def fig_cic_imbalance():
     ax.set_xticks(x)
     ax.set_xticklabels(labels, fontsize=9)
     ax.set_ylabel('Tỉ lệ (%, thang log)')
-    ax.set_title('Phân phối lớp trong CIC-IDS-2017 (~2,83 triệu flow)')
+    ax.set_title('Phân phối 9 lớp trong CIC-IDS-2017 (2.829.385 flow)')
     ax.spines[['top','right']].set_visible(False)
     ax.yaxis.grid(True, alpha=0.3)
     ax.set_axisbelow(True)
 
     # annotate ratios
-    ax.annotate('82,7%', xy=(0, 82.7), xytext=(0.5, 70),
+    ax.annotate('80,32%', xy=(0, 80.32), xytext=(0.5, 65),
                 fontsize=9, color=GRAY, fontweight='bold')
-    ax.annotate('Benign:Infiltration\n= 2.750 : 1', xy=(10, 0.03), xytext=(7, 0.008),
+    ax.annotate('Benign:Infiltration\n$\\approx$ 63.100 : 1', xy=(7, 0.0013), xytext=(4.5, 0.0035),
                 arrowprops=dict(arrowstyle='->', color=RED),
                 fontsize=8, color=RED)
 
     patches = [
-        mpatches.Patch(color=GRAY,   label='Benign (82,7%)'),
+        mpatches.Patch(color=GRAY,   label='Benign (80,32%)'),
         mpatches.Patch(color=GREEN,  label='Tấn công > 5%'),
         mpatches.Patch(color=ORANGE, label='Tấn công 0,5–5%'),
         mpatches.Patch(color=RED,    label='Tấn công < 0,5%'),
@@ -152,35 +152,32 @@ def fig_cic_imbalance():
 
 # ── 4. HNM ablation ───────────────────────────────────────────────────────────
 def fig_hnm_ablation():
-    stages  = ['Baseline\n(trước HNM)', 'Sau 2 vòng\nHNM']
-    botnet  = [0.4787, 0.6512]
-    infilt  = [0.3821, 0.5903]
+    # So sánh hai chiến lược xử lý mất cân bằng trên lớp Botnet,
+    # đo ở phạm vi nội bộ Tầng 2 (xem Bảng "So sánh HNM với nhân trọng số lớp").
+    stages  = ['Nhân trọng số lớp\n$\\times 10$', 'Hard Negative Mining\n(2 vòng, nhân bản 10$\\times$)']
+    botnet  = [0.5103, 0.6512]
 
     x = np.arange(len(stages))
-    w = 0.30
-    fig, ax = plt.subplots(figsize=(5.5, 4))
+    w = 0.42
+    fig, ax = plt.subplots(figsize=(6.0, 4))
 
-    b1 = ax.bar(x - w/2, botnet, w, label='Botnet F1',      color='#FCA5A5', edgecolor=RED,    linewidth=1.3)
-    b2 = ax.bar(x + w/2, infilt, w, label='Infiltration F1', color='#93C5FD', edgecolor=BLUE,   linewidth=1.3)
+    bars = ax.bar(x, botnet, w, color=['#FDE68A', '#FCA5A5'],
+                  edgecolor=[ORANGE, RED], linewidth=1.3)
 
-    for bar, val in zip(list(b1)+list(b2), botnet+infilt):
+    for bar, val in zip(bars, botnet):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.008,
-                f'{val:.4f}', ha='center', va='bottom', fontsize=9)
+                f'{val:.4f}', ha='center', va='bottom', fontsize=10, fontweight='bold')
 
-    # delta annotations
-    ax.annotate('', xy=(1 - w/2, 0.6512), xytext=(0 - w/2, 0.4787),
+    ax.annotate('', xy=(1, 0.6512), xytext=(0, 0.5103),
                 arrowprops=dict(arrowstyle='->', color=RED, lw=1.5))
-    ax.annotate('', xy=(1 + w/2, 0.5903), xytext=(0 + w/2, 0.3821),
-                arrowprops=dict(arrowstyle='->', color=BLUE, lw=1.5))
-    ax.text(0.32, 0.62, '+36,0%', color=RED,  fontsize=9, fontweight='bold')
-    ax.text(0.68, 0.54, '+54,5%', color=BLUE, fontsize=9, fontweight='bold')
+    ax.text(0.5, 0.60, '+0,1409', color=RED, fontsize=10,
+            fontweight='bold', ha='center')
 
     ax.set_xticks(x)
-    ax.set_xticklabels(stages)
+    ax.set_xticklabels(stages, fontsize=9)
     ax.set_ylim(0, 0.80)
-    ax.set_ylabel('F1-score')
-    ax.set_title('Đóng góp của Hard Negative Mining\n(2 vòng, nhân bản 10×)')
-    ax.legend()
+    ax.set_ylabel('Botnet F1-score')
+    ax.set_title('Hard Negative Mining so với nhân trọng số lớp\n(lớp Botnet, đo nội bộ Tầng 2)')
     ax.spines[['top','right']].set_visible(False)
     ax.yaxis.grid(True, alpha=0.3)
     ax.set_axisbelow(True)
@@ -194,16 +191,17 @@ def fig_hnm_ablation():
 
 # ── 5. Ensemble ablation ──────────────────────────────────────────────────────
 def fig_ensemble_compare():
+    # Đo đầu-cuối trên 2.529.391 flow: V6 (trước ensemble) so với V7 (sau ensemble).
     metrics = ['Botnet F1', 'Infiltration F1']
-    before  = [0.6512, 0.5903]   # after HNM, before ensemble
-    after   = [0.7344, 0.7407]   # final ensemble
+    before  = [0.6294, 0.7407]   # trước Asymmetric Ensemble Voting
+    after   = [0.7344, 0.7407]   # sau ensemble — Infiltration không đổi
 
     x = np.arange(len(metrics))
     w = 0.32
     fig, ax = plt.subplots(figsize=(5.5, 4))
 
-    b1 = ax.bar(x - w/2, before, w, label='Expert Network (sau HNM)', color='#FDE68A', edgecolor=ORANGE, linewidth=1.3)
-    b2 = ax.bar(x + w/2, after,  w, label='Asymmetric Ensemble cuối',  color=BLUE,      edgecolor='#1D4ED8', linewidth=1.3)
+    b1 = ax.bar(x - w/2, before, w, label='Trước ensemble (đầu-cuối)', color='#FDE68A', edgecolor=ORANGE, linewidth=1.3)
+    b2 = ax.bar(x + w/2, after,  w, label='Sau Asymmetric Ensemble Voting',  color=BLUE,      edgecolor='#1D4ED8', linewidth=1.3)
 
     for bar, val in zip(list(b1)+list(b2), before+after):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.008,
@@ -213,7 +211,7 @@ def fig_ensemble_compare():
     ax.set_xticklabels(metrics, fontsize=11)
     ax.set_ylim(0, 0.90)
     ax.set_ylabel('F1-score')
-    ax.set_title('Đóng góp của Asymmetric Ensemble Voting\n(FTT + RF + KNN)')
+    ax.set_title('Đóng góp của Asymmetric Ensemble Voting\n(đo đầu-cuối trên 2.529.391 flow)')
     ax.legend(loc='lower right')
     ax.spines[['top','right']].set_visible(False)
     ax.yaxis.grid(True, alpha=0.3)
@@ -311,19 +309,20 @@ def fig_portscan_inseparable():
 # ── 8. V8.5 per-class F1 ─────────────────────────────────────────────────────
 def fig_v85_perclass():
     classes = ['Benign', 'BruteForce', 'DoS', 'PortScan', 'Web Attack']
-    f1      = [0.91, 0.86, 0.93, 1.00, 0.88]
+    # F1 tính lại từ confusion matrix trong train_v8_5.log (11.183 flow)
+    f1      = [0.9074, 0.8614, 0.9341, 0.9990, 0.8812]
     colors  = [GRAY, ORANGE, BLUE, GREEN, PURPLE]
 
     fig, ax = plt.subplots(figsize=(6.5, 4))
     bars = ax.bar(classes, f1, color=colors, edgecolor='white', linewidth=0.5, width=0.55)
     for bar, val in zip(bars, f1):
         ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+0.005,
-                f'{val:.2f}', ha='center', va='bottom', fontsize=11, fontweight='bold')
+                f'{val:.4f}', ha='center', va='bottom', fontsize=10, fontweight='bold')
 
-    ax.axhline(0.917, color='black', linestyle='--', linewidth=1.0, label='Macro F1 = 0,917')
+    ax.axhline(0.9166, color='black', linestyle='--', linewidth=1.0, label='Macro F1 = 0,9166')
     ax.set_ylim(0.70, 1.08)
     ax.set_ylabel('F1-score')
-    ax.set_title('V8.5 — Kết quả per-class trên tập validation đa dạng miền\n(11.183 flows, 5 lớp)')
+    ax.set_title('FT-IDS — Kết quả per-class trên tập validation đa dạng miền\n(11.183 flow, 5 lớp)')
     ax.legend(loc='lower right')
     ax.spines[['top','right']].set_visible(False)
     ax.yaxis.grid(True, alpha=0.3); ax.set_axisbelow(True)

@@ -125,27 +125,30 @@ Kết chương **không được** viết giống Tổng quan. Không dùng gạ
 
 | Lỗi | Đã sửa tại |
 |---|---|
-| Benign count tab:v85-dataset: 56,600 → 51,975 | Ch3 |
-| HNM attribution: 0.4787→0.7344 nhờ HNM → đúng là 0.4787→0.6512 nhờ HNM, sau đó +Ensemble = 0.7344 | Ch4 |
+| Benign count tab:v85-dataset: 56.600 → **51.994** (đếm trực tiếp từ `Combined_V8_5.csv`; DoS = **19.781**) | Ch3 |
+| **0,4787 KHÔNG phải Botnet F1** — đó là *Precision* của Bot ở V6; F1 khi đó đã là **0,6294**. Chuỗi đúng: HNM (nội bộ Tầng 2) 0,5103 → 0,6512; Ensemble (đầu-cuối) 0,6294 → 0,7344 | Ch1, Ch3, Ch4, Ch5, Ch6, tóm tắt |
+| **0,3821 không có nguồn.** Infiltration F1 ở V6 **đã là 0,7407** — ensemble không làm thay đổi lớp này | Ch3, Ch5, Ch6 |
+| **0,7831 / 0,8817 / 0,9102 / 0,9181 / 0,9247 không có nguồn sơ cấp** — thay bằng chuỗi có báo cáo: V5 0,6065 → V6 0,9160 → V7 0,9294 | Ch5, Phụ lục B |
+| Benign CIC: 82,7% → **80,32%**; Infiltration 0,03% → **0,0013%**; tỉ lệ Benign:Infiltration 2.750:1 → **~63.100:1** | Ch3, Ch5 |
+| Tổng CIC 2.830.743 → **2.829.385** (sau tiền xử lý) | Ch5 |
+| Learning rate tầng mid: 1,5e-5 → **2e-5** (`train_v8_5.log`) | Ch3, Phụ lục B |
+| PortScan F1 100% → **99,90%** (499/500) | Ch3, Ch5, Ch6 |
+| Tập đánh giá domain adaptation: "5.000 flow" → **4.542 flow**, và đây là đánh giá **nhị phân** với chỉ 7 mẫu Benign | Ch5, Phụ lục B |
+| `Custom_Bwd_Pkt_Ratio` = Bwd/**Fwd** (không phải /Total); `Custom_Pkt_Size_Ratio` = **min/max** packet | Phụ lục B |
+| 0,6809 **không** đi qua Autoencoder Gate — đó là Stacking phẳng 5 lớp | Ch3, Ch5 |
 | PortScan table: RF=8.2%/KNN=8.7% → RF=5.2%/KNN=4.9% | Ch5 |
-| CIC FTT Stage 2: L=3 → L=4 (đây là Stage 1; Stage 2 dùng L=3, d=64) | Ch2 |
+| CIC FTT Tầng 2: L=3 → L=4 (đây là Tầng 1; Tầng 2 dùng L=3, d=64); `d_ff` 256 → **512** (giá trị mặc định ngầm) | Ch2, Phụ lục B |
 | E2E Benign false alarm: "Không có" → mô tả đúng Precision=83% | Ch5 |
+
+> **Quy ước tên gọi đã chốt:** mô hình cuối gọi là **FT-IDS** (không dùng "V8.5" trong phần chính); hai tầng cascade gọi là **Tầng 1 / Tầng 2**; đồ án có **ba** giai đoạn, trong đó Giai đoạn 3 gồm hai phần. Bảng ánh xạ sang định danh nội bộ nằm ở đầu Phụ lục B.
 
 ## 7. CÁC LỖI CẦN SỬA — CHƯA THỰC HIỆN
 
-| # | Vị trí | Lỗi |
+*Rà lại ngày 19/07/2026: các mục 1–10 của danh sách cũ đã hoàn tất — không còn chỗ nào ghi "14 lớp" trong `Chuong/*.tex`, và `Bia.tex` đã điền đủ tên đề tài, sinh viên, GVHD, khoa/trường. Chỉ còn lại một việc:*
+
+| # | Vị trí | Việc còn lại |
 |---|---|---|
-| 1 | Ch1 dòng 53 | "Expert Network, 14 lớp" → 9 lớp |
-| 2 | Ch3 dòng 11 | "14 lớp tấn công hiện đại" → giải thích 15 nhãn gốc, gộp thành 9 |
-| 3 | Ch3 dòng 115 | "14 lớp (7 lớp...)" → sửa toàn bộ đoạn giải thích 15→9 |
-| 4 | Ch3 dòng 153 | Gating Network "2 lớp Attention" → 4 lớp |
-| 5 | Ch3 dòng 158 | "14 lớp tấn công" → 9 lớp; thêm config Expert FTT (d=64, 3 lớp, 4 đầu) |
-| 6 | Ch3 dòng 253 | Chỉ đề cập Infiltration+Botnet; cần thêm DDoS và Heartbleed với lý do |
-| 7 | Ch4 dòng 128 | "trong 14 lớp" → "trong 9 lớp" |
-| 8 | Ch5 dòng 128 | "Expert Network (14 lớp tấn công)" → 9 lớp |
-| 9 | Ch6 dòng 12 | "trên 14 lớp tấn công" → "trên 9 lớp phân loại" |
-| 10 | Bia.tex | Vẫn là placeholder (tên đề tài, sinh viên, GVHD chưa điền) |
-| 11 | Tất cả chương | Thiếu Tổng quan và Kết chương |
+| 1 | Tất cả chương | Thiếu đoạn Tổng quan đầu chương và Kết chương cuối chương (xem quy tắc ở Mục 5 — hai phần này không được viết giống nhau, không dùng gạch đầu dòng) |
 
 ---
 

@@ -1,6 +1,6 @@
 """Composition root — nơi DUY NHẤT khởi tạo + wire mọi dependency (Dependency Injection).
 
-Chạy:  uvicorn server:app --host 0.0.0.0 --port 8000   (từ thư mục Replay_Live_Detection/)
+Chạy:  uvicorn server:app --host 0.0.0.0 --port 8000   (từ thư mục live_detection/ hoặc Final/05_Replay_Detection/)
 """
 from pathlib import Path
 

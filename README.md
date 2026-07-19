@@ -33,9 +33,9 @@ IDS luật (Snort) bắt nhanh, ít báo giả nhưng bỏ sót biến thể m�
 | 2 | [`CIC_IDS_2017_Workspace/`](CIC_IDS_2017_Workspace/) | Two-Stage Cascade + Asymmetric Ensemble Voting trên CIC-IDS-2017 (2,8 triệu dòng, 9 lớp) | Gating + Expert FT-Transformer V2 + Random Forest + KNN + HNM | Acc **99,55%**, Macro F1 **0,9294** |
 | 3 | [`Custom_IDS_Testbed/`](Custom_IDS_Testbed/) + [`Domain_Adaptation_Workspace/`](Domain_Adaptation_Workspace/) + [`Phase3_4_Retrain/`](Phase3_4_Retrain/) | Testbed WSL2 thật (Snort + CICFlowMeter), chẩn đoán covariate shift, thu dữ liệu thực, retrain V5→V8.5 | FT-Transformer 80-feature V8.5 (5 lớp) | Macro F1 **91,7%** |
 | 4 | [`Custom_IDS_Testbed/`](Custom_IDS_Testbed/) | Pipeline Hybrid IDS End-to-End: Snort + CICFlowMeter + FT-Transformer trên mạng LAN giả lập xuyên máy (Mirrored Networking WSL2) | Triển khai | Dashboard + pipeline WSL thật |
-| 5 | [`live_detection/`](live_detection/) *(bản đang phát triển)* / [`Replay_Live_Detection/`](Replay_Live_Detection/) *(bản gốc)* | Demo realtime: **REPLAY** (phát lại corpus CSV đã thu) + **LIVE micro-batch** (`tcpdump` → CICFlowMeter offline mỗi chunk → suy luận) qua WebSocket lên dashboard | Tái dùng V8.5 | Macro F1 end-to-end **0,978** (với luật hậu xử lý); PortScan F1 0,996 |
+| 5 | [`live_detection/`](live_detection/) | Demo realtime: **REPLAY** (phát lại corpus CSV đã thu) + **LIVE micro-batch** (`tcpdump` → CICFlowMeter offline mỗi chunk → suy luận) qua WebSocket lên dashboard | Tái dùng V8.5 | Macro F1 end-to-end **0,978** (với luật hậu xử lý); PortScan F1 0,996 |
 
-> **`Final/`** là gói **nộp bài đã đóng gói portable** (đủ code 5 GĐ + trọng số demo + hướng dẫn, không kèm dữ liệu thô/báo cáo, mục tiêu zip < 30MB) — xem [Final/README.md](Final/README.md). `Final.zip` là bản zip của thư mục đó.
+> **`Final/`** là gói **nộp bài đã đóng gói portable** (đủ code 5 GĐ + trọng số demo + hướng dẫn, không kèm dữ liệu thô/báo cáo, mục tiêu zip < 30MB) — xem [Final/README.md](Final/README.md). Cần file nộp thì zip lại thư mục đó khi cần.
 
 ---
 
@@ -48,8 +48,7 @@ IDS luật (Snort) bắt nhanh, ít báo giả nhưng bỏ sót biến thể m�
 | [`Custom_IDS_Testbed/`](Custom_IDS_Testbed/) | GĐ3/4 — testbed thực chiến: cấu hình Snort, script thu dữ liệu isolated (`collect_isolated.sh`), tài liệu kiến trúc Hybrid IDS |
 | [`Domain_Adaptation_Workspace/`](Domain_Adaptation_Workspace/) | Nghiên cứu concept drift / domain adaptation khi model CIC-IDS-2017 gặp dữ liệu testbed lệch phân phối |
 | [`Phase3_4_Retrain/`](Phase3_4_Retrain/) | Các vòng retrain V5 → V8.5 (SMOTE, Focal Loss, Cost-Sensitive Learning, Threshold Calibration) để giải quyết PortScan F1 thấp |
-| [`Replay_Live_Detection/`](Replay_Live_Detection/) | Bản demo replay-based gốc (package `ids_replay/` kiến trúc SOLID) — kèm corpus CSV đầy đủ 5 lớp (~212MB) |
-| [`live_detection/`](live_detection/) | Bản làm việc hiện tại (bản sao độc lập, self-contained từ `Replay_Live_Detection`), bổ sung chế độ **LIVE micro-batch** bắt gói thật qua WSL |
+| [`live_detection/`](live_detection/) | GĐ5 — demo replay (package `ids_replay/` kiến trúc SOLID) + chế độ **LIVE micro-batch** bắt gói thật qua WSL. Giữ **corpus CSV đầy đủ 5 lớp** trong `data/` (~212MB) — `Final/05_Replay_Detection/data/` symlink về đây. `archive_replay_docs/` là tài liệu kế hoạch của bản demo gốc |
 | [`Final/`](Final/) | Gói nộp bài portable, tổng hợp code + trọng số + hướng dẫn cả 5 GĐ (không kèm dữ liệu thô/báo cáo) |
 | [`Noi_dung_do_an/`](Noi_dung_do_an/) | Nội dung viết luận văn (template LaTeX SOICT, nội dung từng chương, ghi chú) |
 | [`docs/`](docs/) | Dữ liệu flow CSV thu thập được (pcap → CICFlowMeter) + `Project_Documentation/` (báo cáo thực trạng, roadmap, hướng dẫn thu dữ liệu) |

@@ -63,7 +63,7 @@ không tăng bao nhiêu.
 
 **Hiểu cái này thì làm được gì?** Bạn biết SMOTE là *lựa chọn phía dữ liệu*, và hiểu vì sao với các lớp siêu
 hiếm nó không phải "viên đạn bạc" — một lý do đồ án nghiêng về giải pháp phía loss ([[focal-loss]]) và
-[[hard-negative-mining]].
+việc tăng cường có chọn lọc các mẫu nằm sát biên quyết định.
 
 ---
 

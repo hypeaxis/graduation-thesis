@@ -282,7 +282,7 @@ def main():
     log(f"\n{'='*60}", "G")
     log(f"  HOÀN TẤT '{args.type}' trong {str(datetime.now() - t0).split('.')[0]}", "G")
     log("  Tiếp: Victim Ctrl+C tcpdump → ./cfm <pcap> ~/cicflow/ →", "G")
-    log(f"        copy {args.type}_only.pcap_Flow.csv vào Replay_Live_Detection/data/", "G")
+    log(f"        copy {args.type}_only.pcap_Flow.csv vào live_detection/data/", "G")
     log("=" * 60, "G")
 
 

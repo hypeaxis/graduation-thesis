@@ -44,7 +44,7 @@
 <hr>
 <h3 id="t-m-l-i">Tóm lại</h3>
 <ul><li>Weighted Random Sampling cho <strong>mỗi mẫu một trọng số</strong> (<code>w_i = N/(K·n_c)</code>) để <strong>lớp hiếm được bốc ra nhiều hơn</strong>.</li><li>Biến thể V8.5 <strong>khai căn + clip [0,5; 2,0]</strong> để thiên vị <em>có chừng mực</em>, tránh cực đoan.</li><li>Can thiệp ở <strong>tầng dữ liệu</strong>, bổ sung (không thay thế) <a href="focal-loss.html">Focal Loss — vặn nhỏ tiếng mẫu dễ, khuếch đại mẫu khó</a> ở tầng loss.</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn phân biệt được <strong>ba tầng chống mất cân bằng</strong> — dữ liệu (sampling/SMOTE), loss (Focal/CB), và boundary (<a href="hard-negative-mining.html">Hard Negative Mining — chỉ ôn lại những câu làm SAI</a>) — và biết chúng phối hợp thế nào trong đồ án.</p>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn phân biệt được <strong>ba tầng chống mất cân bằng</strong> — dữ liệu (sampling/SMOTE), loss (Focal/CB), và boundary (khai thác mẫu khó ở biên quyết định) — và biết chúng phối hợp thế nào trong đồ án.</p>
 <hr>
 <h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
 <p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>

@@ -19,7 +19,7 @@
         <h1>Trang tổng hợp lý thuyết để đọc lại nhanh</h1>
         <p>Mỗi bài lý thuyết trong thư mục này được đưa về một nơi duy nhất: chia theo 7 phần, tìm nhanh bằng từ khóa, và mở ra trang chi tiết 2 cột để xem cùng lúc phần văn bản giải thích và infographic.</p>
         <div class="stats">
-          <div class="stat"><strong>29</strong><span class="muted">lý thuyết đã tổng hợp</span></div>
+          <div class="stat"><strong>28</strong><span class="muted">lý thuyết đã tổng hợp</span></div>
           <div class="stat"><strong>7</strong><span class="muted">cụm nội dung lớn</span></div>
           <div class="stat"><strong>2 cột</strong><span class="muted">đọc văn bản song song infographic</span></div>
         </div>
@@ -29,7 +29,7 @@
           <h2>Điều hướng nhanh</h2>
           <p>Dùng ô tìm kiếm để lọc theo tên lý thuyết, cụm nội dung hoặc từ khóa mô tả.</p>
           <input id="searchBox" class="search" type="search" placeholder="Tìm: focal loss, model surgery, Snort...">
-          <div class="nav-list"><a class="nav-link" href="#A-problem-and-data">A. Nền tảng bài toán & dữ liệu <span class="muted">(3)</span></a><a class="nav-link" href="#B-ft-transformer">B. FT-Transformer <span class="muted">(3)</span></a><a class="nav-link" href="#C-preprocessing">C. Tiền xử lý <span class="muted">(2)</span></a><a class="nav-link" href="#D-imbalance-handling">D. Xử lý mất cân bằng <span class="muted">(6)</span></a><a class="nav-link" href="#E-transfer-domain-adaptation">E. Thích nghi miền <span class="muted">(4)</span></a><a class="nav-link" href="#F-ensemble-and-system">F. Ensemble & hệ thống <span class="muted">(7)</span></a><a class="nav-link" href="#G-hybrid-and-limits">G. Hệ lai & giới hạn <span class="muted">(4)</span></a></div>
+          <div class="nav-list"><a class="nav-link" href="#A-problem-and-data">A. Nền tảng bài toán & dữ liệu <span class="muted">(4)</span></a><a class="nav-link" href="#B-ft-transformer">B. FT-Transformer <span class="muted">(3)</span></a><a class="nav-link" href="#C-preprocessing">C. Tiền xử lý <span class="muted">(2)</span></a><a class="nav-link" href="#D-imbalance-handling">D. Xử lý mất cân bằng <span class="muted">(6)</span></a><a class="nav-link" href="#E-transfer-domain-adaptation">E. Thích nghi miền <span class="muted">(4)</span></a><a class="nav-link" href="#F-ensemble-and-system">F. Ensemble & hệ thống <span class="muted">(6)</span></a><a class="nav-link" href="#G-hybrid-and-limits">G. Hệ lai & giới hạn <span class="muted">(3)</span></a></div>
           <div class="footer-note">Mở file này trực tiếp trong trình duyệt: <strong>_theory_hub/index.html</strong></div>
         </aside>
         <section class="panel content">
@@ -39,7 +39,7 @@
                   <h2>A. Nền tảng bài toán &amp; dữ liệu</h2>
                   <p>Khung bài toán IDS, flow và cách dữ liệu được biểu diễn.</p>
                 </div>
-                <div class="badge">3 bài</div>
+                <div class="badge">4 bài</div>
               </div>
               <div class="cards">
                 <a class="card" data-theory-card data-search="phát hiện xâm nhập như một bài toán phân loại có giám sát trên flow câu hỏi gốc của ids (intrusion detection system — hệ thống phát hiện xâm nhập) rất đơn giản: &quot;kết nối mạng này là bình thường hay là tấn công?&quot; a. nền tảng bài toán &amp; dữ liệu" href="ids-supervised-flow-classification.html">
@@ -58,6 +58,12 @@
                   <span class="badge">#3 · A. Nền tảng bài toán &amp; dữ liệu</span>
                   <h3>Mất cân bằng dữ liệu &amp; chỉ số đánh giá đúng (Macro-F1, MCC)</h3>
                   <p>Trong dữ liệu IDS, các lớp lệch nhau khủng khiếp:</p>
+                </a>
+                
+                <a class="card" data-theory-card data-search="vì sao đồ án bỏ nsl-kdd để chuyển sang cic-ids-2017 và có một câu trả lời sai mà rất nhiều người nói: a. nền tảng bài toán &amp; dữ liệu" href="vi-sao-doi-nsl-kdd-sang-cic-ids-2017.html">
+                  <span class="badge">#9999 · A. Nền tảng bài toán &amp; dữ liệu</span>
+                  <h3>Vì sao đồ án bỏ NSL-KDD để chuyển sang CIC-IDS-2017</h3>
+                  <p>Và có một câu trả lời sai mà rất nhiều người nói:</p>
                 </a>
                 </div>
             </section>
@@ -202,7 +208,7 @@
                   <h2>F. Ensemble &amp; hệ thống</h2>
                   <p>Cascade, voting, stacking và lý do phải đa dạng hóa mô hình.</p>
                 </div>
-                <div class="badge">7 bài</div>
+                <div class="badge">6 bài</div>
               </div>
               <div class="cards">
                 <a class="card" data-theory-card data-search="two-stage cascade (gating + expert) — chia để trị bắt một model vừa phải lọc ~83% benign ra khỏi tấn công, vừa phải phân biệt tinh tế giữa 9 loại tấn công là quá tải. gradient bị xé làm hai nhiệm vụ đối chọi: học &quot;benign vs attack... f. ensemble &amp; hệ thống" href="two-stage-cascade-gating-expert.html">
@@ -240,12 +246,6 @@
                   <h3>Asymmetric Voting — bỏ phiếu theo CHI PHÍ sai, không phải theo đa số</h3>
                   <p>Cách gộp ensemble quen thuộc là Majority Voting (đa số 2/3). Nó tối ưu khi chi phí của mọi loại sai là NHƯ NHAU. Nhưng trong IDS, cái giá của các kiểu sai rất khác nhau tùy lớp:</p>
                 </a>
-                
-                <a class="card" data-theory-card data-search="hard negative mining — chỉ ôn lại những câu làm sai với các lớp khó (botnet, infiltration), cách quen thuộc là tăng class weight — nhân trọng số cho toàn bộ mẫu của lớp đó. nhưng cách này lãng phí: nó tăng gradient cho cả những mẫu... f. ensemble &amp; hệ thống" href="hard-negative-mining.html">
-                  <span class="badge">#25 · F. Ensemble &amp; hệ thống</span>
-                  <h3>Hard Negative Mining — chỉ ôn lại những câu làm SAI</h3>
-                  <p>Với các lớp khó (Botnet, Infiltration), cách quen thuộc là tăng class weight — nhân trọng số cho toàn bộ mẫu của lớp đó. Nhưng cách này lãng phí: nó tăng gradient cho cả những mẫu...</p>
-                </a>
                 </div>
             </section>
             
@@ -255,31 +255,25 @@
                   <h2>G. Hệ lai &amp; giới hạn</h2>
                   <p>Hệ lai Snort + FTT, hợp nhất cảnh báo và những giới hạn nguyên lý.</p>
                 </div>
-                <div class="badge">4 bài</div>
+                <div class="badge">3 bài</div>
               </div>
               <div class="cards">
                 <a class="card" data-theory-card data-search="snort + ft-transformer — hệ lai bù điểm mù cho nhau không một phương pháp nào bắt được mọi kiểu tấn công. đồ án ghép hai hướng đối lập để chúng che điểm mù cho nhau: g. hệ lai &amp; giới hạn" href="snort-hybrid-ids.html">
-                  <span class="badge">#26 · G. Hệ lai &amp; giới hạn</span>
+                  <span class="badge">#25 · G. Hệ lai &amp; giới hạn</span>
                   <h3>Snort + FT-Transformer — hệ lai bù điểm mù cho nhau</h3>
                   <p>Không một phương pháp nào bắt được mọi kiểu tấn công. Đồ án ghép hai hướng đối lập để chúng che điểm mù cho nhau:</p>
                 </a>
                 
                 <a class="card" data-theory-card data-search="alert aggregator — hợp nhất cảnh báo, xác nhận chéo hệ lai của đồ án có hai nguồn cảnh báo chạy song song (snort-hybrid-ids): snort (packet-level) và ftt (flow-level). nếu cứ để hai luồng cảnh báo đổ thẳng ra màn hình, đội vận hành... g. hệ lai &amp; giới hạn" href="alert-aggregator.html">
-                  <span class="badge">#27 · G. Hệ lai &amp; giới hạn</span>
+                  <span class="badge">#26 · G. Hệ lai &amp; giới hạn</span>
                   <h3>Alert Aggregator — hợp nhất cảnh báo, xác nhận chéo</h3>
                   <p>Hệ lai của đồ án có hai nguồn cảnh báo chạy song song (snort-hybrid-ids): Snort (packet-level) và FTT (flow-level). Nếu cứ để hai luồng cảnh báo đổ thẳng ra màn hình, đội vận hành...</p>
                 </a>
                 
                 <a class="card" data-theory-card data-search="portscan không phân tách dưới nat — giới hạn của dữ liệu, không phải model đây là một trong những bài học sâu sắc nhất của đồ án: có những thất bại không thể sửa bằng thuật toán, vì gốc rễ nằm ở cách dữ liệu được thu thập. g. hệ lai &amp; giới hạn" href="portscan-inseparability-nat.html">
-                  <span class="badge">#28 · G. Hệ lai &amp; giới hạn</span>
+                  <span class="badge">#27 · G. Hệ lai &amp; giới hạn</span>
                   <h3>PortScan không phân tách dưới NAT — giới hạn của DỮ LIỆU, không phải model</h3>
                   <p>Đây là một trong những bài học sâu sắc nhất của đồ án: có những thất bại không thể sửa bằng thuật toán, vì gốc rễ nằm ở cách dữ liệu được thu thập.</p>
-                </a>
-                
-                <a class="card" data-theory-card data-search="giới hạn của flow tĩnh — infiltration &amp; botnet cần phân tích thời gian có những tấn công mà mỗi flow đơn lẻ trông hoàn toàn bình thường — dấu hiệu chỉ lộ ra khi nhìn chuỗi nhiều flow theo thời gian. với các tấn công này, mô hình phân loại từng flow mộ... g. hệ lai &amp; giới hạn" href="static-flow-limits-temporal.html">
-                  <span class="badge">#29 · G. Hệ lai &amp; giới hạn</span>
-                  <h3>Giới hạn của flow tĩnh — Infiltration &amp; Botnet cần phân tích THỜI GIAN</h3>
-                  <p>Có những tấn công mà mỗi flow đơn lẻ trông hoàn toàn bình thường — dấu hiệu chỉ lộ ra khi nhìn chuỗi nhiều flow theo thời gian. Với các tấn công này, mô hình phân loại từng flow mộ...</p>
                 </a>
                 </div>
             </section>

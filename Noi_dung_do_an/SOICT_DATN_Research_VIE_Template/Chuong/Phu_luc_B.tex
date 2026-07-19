@@ -1,37 +1,63 @@
 \documentclass[../DoAn.tex]{subfiles}
 \begin{document}
 
-\section{Siêu tham số mô hình}
-\label{sec:plb-hyperparams}
+\section{Quy ước tên gọi mô hình}
+\label{sec:plb-naming}
 
-\subsection{NSL-KDD --- Stage 1: Autoencoder Anomaly Gate}
+Trong quá trình phát triển, các mô hình được đánh số phiên bản nội bộ theo thứ tự thử nghiệm. Các số hiệu này xuất hiện trong mã nguồn, tên tệp trọng số và nhật ký huấn luyện, nhưng không mang thông tin gì cho người đọc nên không được dùng trong phần chính của đồ án. Bảng~\ref{tab:model-naming} đối chiếu tên gọi dùng trong đồ án với định danh nội bộ tương ứng, để tiện tra cứu khi đối chiếu với mã nguồn.
 
 \begin{table}[H]
     \centering
-    \caption{Siêu tham số Autoencoder NSL-KDD Stage 1}
+    \caption{Đối chiếu tên gọi trong đồ án và định danh nội bộ trong mã nguồn.}
+    \label{tab:model-naming}
+    \begin{tabular}{llp{5.2cm}}
+        \hline
+        \textbf{Giai đoạn} & \textbf{Tên trong đồ án} & \textbf{Định danh nội bộ / tệp} \\
+        \hline
+        1 & Autoencoder Anomaly Gate & \texttt{autoencoder\_v2\_best.h5} \\
+        1 & Stacking Ensemble & \texttt{v12\_stacking\_seed42} (FT-Transformer \texttt{v9} + LightGBM \texttt{v11} $\to$ Meta-LR) \\
+        2 & Two-Stage Cascade & chuỗi V5 $\to$ V6 $\to$ V7; kết quả báo cáo lấy từ \textbf{V7} \\
+        2 & \quad Tầng 1 --- Gating Network & \texttt{phase2\_train\_v4\_stage1.py}, \texttt{encoder\_stage1.pkl} \\
+        2 & \quad Tầng 2 --- Expert Network & \texttt{encoder\_stage2.pkl} \\
+        3 & \textbf{FT-IDS} & \textbf{V8.5} --- \texttt{v8\_5\_model.pt}; dòng phát triển V8.1--V8.4 \\
+        3 & Tập dữ liệu Testbed Combined & \texttt{Combined\_V8\_5.csv} \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Riêng dòng V8 cần một ghi chú để tránh hiểu nhầm về thứ tự các bước: \textbf{Model Surgery mở rộng 77 lên 80 đặc trưng được thực hiện ở đầu dòng V8}, không phải ở bước chuyển từ V8.4 sang V8.5. Các phiên bản V8.1--V8.4 là những lần thử nghiệm khác nhau về chiến lược xử lý mất cân bằng và thành phần dữ liệu trên cùng không gian 80 đặc trưng đó; V8.5 là phiên bản kết hợp các lựa chọn tốt nhất và được chọn làm bản triển khai.
+
+\section{Siêu tham số mô hình}
+\label{sec:plb-hyperparams}
+
+\subsection{NSL-KDD --- Tầng 1: Autoencoder Anomaly Gate}
+
+\begin{table}[H]
+    \centering
+    \caption{Siêu tham số Autoencoder NSL-KDD Tầng 1}
     \label{tab:hyp-ae}
     \begin{tabular}{ll}
         \hline
         \textbf{Tham số} & \textbf{Giá trị} \\
         \hline
-        Kiến trúc Encoder & 122 $\to$ 64 $\to$ 32 $\to$ 16 \\
-        Kiến trúc Decoder & 16 $\to$ 32 $\to$ 64 $\to$ 122 \\
+        Kiến trúc Encoder & 122 $\to$ 128 $\to$ 64 $\to$ 32 $\to$ 16 \\
+        Kiến trúc Decoder & 16 $\to$ 32 $\to$ 64 $\to$ 128 $\to$ 122 \\
         Activation & ReLU \\
         Optimizer & Adam (lr=0,001) \\
-        Epochs & 100 (Early Stopping patience=10) \\
+        Epochs & 100 (Early Stopping patience=5) \\
         Batch size & 256 \\
         Reconstruction loss & MSE \\
-        Ngưỡng $\tau$ & 0,008481 (percentile 95 của Normal train errors) \\
+        Ngưỡng $\tau$ & 0,008481 (chỉ số Youden trên ROC: $\arg\max(\text{TPR}-\text{FPR})$) \\
         Huấn luyện trên & Normal flows only (KDDTrain+) \\
         \hline
     \end{tabular}
 \end{table}
 
-\subsection{NSL-KDD --- Stage 2: FT-Transformer}
+\subsection{NSL-KDD --- Tầng 2: FT-Transformer}
 
 \begin{table}[H]
     \centering
-    \caption{Siêu tham số FT-Transformer NSL-KDD Stage 2}
+    \caption{Siêu tham số FT-Transformer NSL-KDD Tầng 2}
     \label{tab:hyp-ftt-nsl}
     \begin{tabular}{ll}
         \hline
@@ -55,11 +81,11 @@
     \end{tabular}
 \end{table}
 
-\subsection{NSL-KDD --- Stage 2: LightGBM}
+\subsection{NSL-KDD --- Tầng 2: LightGBM}
 
 \begin{table}[H]
     \centering
-    \caption{Siêu tham số LightGBM NSL-KDD Stage 2}
+    \caption{Siêu tham số LightGBM NSL-KDD Tầng 2}
     \label{tab:hyp-lgbm}
     \begin{tabular}{ll}
         \hline
@@ -68,17 +94,21 @@
         n\_estimators & 1000 \\
         max\_leaves & 127 \\
         learning\_rate & 0,05 \\
-        min\_child\_samples & 20 \\
-        feature\_fraction & 0,8 \\
-        bagging\_fraction & 0,8 \\
-        bagging\_freq & 5 \\
+        min\_child\_samples & 5 \\
+        colsample\_bytree (feature\_fraction) & 0,8 \\
+        subsample (bagging\_fraction) & 0,8 \\
+        subsample\_freq & không đặt (xem ghi chú) \\
+        reg\_alpha & 0,1 \\
+        reg\_lambda & 1,0 \\
         class\_weight & inverse frequency \\
         early\_stopping\_rounds & 50 \\
         \hline
     \end{tabular}
 \end{table}
 
-\subsection{NSL-KDD --- Stage 2: Meta Logistic Regression}
+\textit{Ghi chú về bagging:} cấu hình sử dụng API \texttt{scikit-learn} của LightGBM và chỉ đặt \texttt{subsample=0,8} mà không đặt \texttt{subsample\_freq}. Trong LightGBM, bagging chỉ được kích hoạt khi \texttt{subsample\_freq > 0}; với giá trị mặc định bằng 0, tham số \texttt{subsample} \textbf{không có tác dụng} và mô hình thực tế được huấn luyện trên toàn bộ tập dữ liệu ở mỗi vòng lặp. Bảng trên ghi lại đúng cấu hình đã chạy, kèm ghi chú này để tránh hiểu nhầm rằng bagging đã tham gia vào kết quả báo cáo.
+
+\subsection{NSL-KDD --- Tầng 2: Meta Logistic Regression}
 
 \begin{table}[H]
     \centering
@@ -90,18 +120,18 @@
         \hline
         Input dimension & 10 (5 xác suất $\times$ 2 base learners) \\
         C (regularization) & 1,0 \\
-        max\_iter & 1000 \\
+        max\_iter & 2000 \\
         solver & lbfgs \\
         multi\_class & multinomial \\
         \hline
     \end{tabular}
 \end{table}
 
-\subsection{CIC-IDS-2017 --- Stage 1: Gating Network}
+\subsection{CIC-IDS-2017 --- Tầng 1: Gating Network}
 
 \begin{table}[H]
     \centering
-    \caption{Siêu tham số Gating Network FT-Transformer (CIC Stage 1)}
+    \caption{Siêu tham số Gating Network FT-Transformer (CIC Tầng 1)}
     \label{tab:hyp-gating}
     \begin{tabular}{ll}
         \hline
@@ -112,22 +142,24 @@
         $n_{layers}$ & 4 \\
         $d_{ff}$ (FFN) & 512 \\
         Dropout & 0,2 \\
+        Label smoothing & 0,05 \\
         Loss & CB-Focal Loss ($\gamma=2$, $\alpha$ nghịch effective number) \\
         Optimizer & AdamW (lr=1e-4) \\
-        Epochs & 30 (Early Stopping patience=5) \\
+        Scheduler & CosineAnnealing với warmup (3 epoch) \\
+        Epochs & 15 \\
         Batch size & 512 \\
         Số features đầu vào & 77 \\
         Số lớp đầu ra & 6 (Benign, DoS, DDoS, PortScan, Brute Force, Suspicious) \\
-        Ngưỡng phân loại & 0,85 ($P(\text{Suspicious}) \geq 85\%$ $\to$ chuyển Stage 2; ngược lại Benign) \\
+        Ngưỡng phân loại & 0,85 ($P(\text{Suspicious}) \geq 85\%$ $\to$ chuyển Tầng 2; ngược lại Benign) \\
         \hline
     \end{tabular}
 \end{table}
 
-\subsection{CIC-IDS-2017 --- Stage 2: Expert Network}
+\subsection{CIC-IDS-2017 --- Tầng 2: Expert Network}
 
 \begin{table}[H]
     \centering
-    \caption{Siêu tham số Expert Network FT-Transformer (CIC Stage 2)}
+    \caption{Siêu tham số Expert Network FT-Transformer (CIC Tầng 2)}
     \label{tab:hyp-expert}
     \begin{tabular}{ll}
         \hline
@@ -136,11 +168,12 @@
         $d_{model}$ & 64 \\
         $n_{heads}$ & 4 \\
         $n_{layers}$ & 3 \\
-        $d_{ff}$ (FFN) & 256 \\
+        $d_{ff}$ (FFN) & 512 \\
         Dropout & 0,2 \\
+        Label smoothing & 0,05 \\
         Loss & CB-Focal Loss ($\gamma=1{,}5$) + HNM ($w_{hard}=2{,}0$, 2 vòng) \\
-        Optimizer & AdamW (lr=5e-5) \\
-        Epochs & 50 (Early Stopping patience=7) \\
+        Optimizer & AdamW (lr=1e-4) \\
+        Epochs & 20 \\
         Batch size & 256 \\
         Số features đầu vào & 34 (sau lọc correlation $> 0{,}95$) \\
         Số lớp đầu ra & 5 (Benign, Web Attack, Bot, Infiltration, Heartbleed) \\
@@ -148,7 +181,9 @@
     \end{tabular}
 \end{table}
 
-\subsection{CIC-IDS-2017 --- Stage 2: Random Forest và KNN}
+\textit{Ghi chú về $d_{ff}$:} mã huấn luyện khởi tạo mô hình mà không truyền tham số $d_{ff}$, nên giá trị được dùng là mặc định của lớp cài đặt, tức $d_{ff}=512$ chứ không phải 256. Giá trị này được xác nhận trực tiếp từ checkpoint: trọng số lớp FFN đầu tiên có kích thước $(1024, 64)$ --- hệ số 2 đến từ cơ chế GEGLU vốn cần hai nhánh chiếu --- và lớp chiếu ngược có kích thước $(64, 512)$. Đây là một điểm đáng lưu ý về mặt phương pháp: một siêu tham số không được ghi tường minh vẫn ảnh hưởng tới dung lượng mô hình, và chỉ có thể xác định chắc chắn bằng cách đọc lại trọng số đã lưu.
+
+\subsection{CIC-IDS-2017 --- Tầng 2: Random Forest và KNN}
 
 \begin{table}[H]
     \centering
@@ -160,18 +195,23 @@
         \hline
         n\_estimators / K & 150 & 16 \\
         max\_depth / weights & 25 & uniform \\
-        max\_features / metric & 20 & euclidean \\
-        min\_samples\_split / algorithm & 5 & ball\_tree \\
-        class\_weight / leaf\_size & balanced & 30 \\
+        max\_features / metric & 20 & euclidean (mặc định) \\
+        min\_samples\_split / algorithm & 2 (mặc định) & auto (mặc định) \\
+        min\_samples\_leaf / leaf\_size & 1 (mặc định) & 30 (mặc định) \\
+        class\_weight & balanced & --- \\
         \hline
     \end{tabular}
 \end{table}
 
-\subsection{Testbed V8.5 --- FT-Transformer}
+\textit{Ghi chú về \texttt{class\_weight} của Random Forest:} cấu hình đã chạy dùng \texttt{balanced}, không phải \texttt{balanced\_subsample}. Hai lựa chọn này khác nhau về thời điểm tính trọng số: \texttt{balanced} tính một lần trên toàn bộ tập huấn luyện, còn \texttt{balanced\_subsample} tính lại trên mẫu bootstrap của từng cây. Với các lớp cực hiếm --- Heartbleed chỉ có 10 mẫu --- \texttt{balanced\_subsample} về lý thuyết phù hợp hơn, vì nhiều cây bootstrap sẽ không chứa mẫu Heartbleed nào và trọng số tính trên toàn tập không phản ánh đúng phân phối mà cây đó thực sự nhìn thấy. Đây là một điểm có thể cải thiện trong các phiên bản sau.
+
+\textit{Ghi chú về \texttt{weights} của KNN:} mô hình dùng \texttt{uniform}, tức 16 láng giềng bỏ phiếu ngang nhau bất kể khoảng cách xa gần. Cấu hình \texttt{distance} --- trọng số tỉ lệ nghịch với khoảng cách --- thường phù hợp hơn với các lớp có vùng đặc trưng nhỏ và cô lập như Infiltration, nhưng không được sử dụng trong kết quả báo cáo.
+
+\subsection{FT-IDS --- FT-Transformer triển khai trên Testbed}
 
 \begin{table}[H]
     \centering
-    \caption{Siêu tham số FT-Transformer Testbed V8.5}
+    \caption{Siêu tham số FT-IDS (FT-Transformer 80 đặc trưng)}
     \label{tab:hyp-v85}
     \begin{tabular}{ll}
         \hline
@@ -181,25 +221,79 @@
         $n_{heads}$ & 8 \\
         $n_{layers}$ & 4 \\
         $d_{ff}$ (FFN) & 512 \\
+        Activation (FFN) & GEGLU \\
         Dropout & 0,15 \\
+        Drop path (stochastic depth) & 0,15 \\
         Loss & CB-Focal Loss ($\gamma=2$) \\
-        Optimizer & AdamW (lr theo lớp: backbone 1e-5, mid 1,5e-5, head 3e-5) \\
+        Optimizer & AdamW (lr theo lớp: backbone 1e-5, mid 2e-5, head 3e-5) \\
         Weight decay & 2e-4 \\
         Label smoothing & 0,10 \\
-        Epochs & 50 (Early Stopping patience=5, dừng tại epoch 6) \\
+        Gradient clipping & 1,0 (theo chuẩn) \\
+        Class weights & $\sqrt{N/(K \cdot n_c)}$, clip $[0{,}5;\,2{,}0]$, chuẩn hóa mean = 1 \\
+        Epochs & 15 (Early Stopping patience=5, dừng tại epoch 6) \\
         Batch size & 256 \\
         Số features đầu vào & 80 (77 đặc trưng pipeline CIC + 3 đặc trưng Model Surgery) \\
         Số lớp đầu ra & 5 (Benign, BruteForce, DoS, PortScan, WebAttack) \\
+        Khởi tạo & fine-tune từ backbone 77 đặc trưng của Giai đoạn 2 \\
         \hline
     \end{tabular}
 \end{table}
 
+Bảng trên là cấu hình đã chạy, đối chiếu trực tiếp với mã huấn luyện và checkpoint. Hai chi tiết đáng giải thích thêm:
+
+\textit{Về hàm kích hoạt:} khối FFN dùng \textbf{GEGLU} chứ không phải GELU thuần. GEGLU chia đầu ra phép chiếu thành hai nhánh, một nhánh đi qua GELU và đóng vai trò cổng nhân với nhánh còn lại. Cơ chế cổng này cho phép mạng học được cách \textit{tắt} có chọn lọc từng chiều biểu diễn, và là lý do trọng số chiếu vào có chiều gấp đôi $d_{ff}$.
+
+\textit{Về công thức trọng số lớp:} trọng số \texttt{balanced} thuần túy $N/(K \cdot n_c)$ tạo ra giá trị rất lớn cho lớp cực hiếm --- một lớp chiếm 0,1\% dữ liệu sẽ nhận trọng số khoảng 200. Phép căn bậc hai kéo giá trị đó về khoảng 14: vẫn giữ ưu tiên cho lớp hiếm nhưng không để một lớp nhỏ chi phối toàn bộ gradient. Phép clip về $[0{,}5;\,2{,}0]$ chặn cứng cả hai đầu, và bước chuẩn hóa về trung bình 1 giữ độ lớn tổng thể của hàm mất mát ổn định để learning rate không bị đổi ý nghĩa. Ràng buộc này rút ra từ một thực nghiệm trước đó, trong đó trọng số 1,565 cho lớp BruteForce đã làm F1 của chính lớp này sụt từ 91,9\% xuống khoảng 50\% do false positive tăng vọt.
+
 \textbf{3 đặc trưng bổ sung cho môi trường NAT:}
 \begin{itemize}
-    \item \texttt{IAT\_CV} = std(IAT) / mean(IAT) --- hệ số biến thiên inter-arrival time
-    \item \texttt{Bwd\_Pkt\_Ratio} = Bwd\_Packets / Total\_Packets --- tỷ lệ gói tin chiều ngược
-    \item \texttt{Pkt\_Size\_Ratio} = Bwd\_Pkt\_Len\_Mean / Fwd\_Pkt\_Len\_Mean --- tỷ lệ kích thước gói tin
+    \item \texttt{Custom\_IAT\_CV} $= \sigma_{IAT} / (\mu_{IAT} + \varepsilon)$ --- hệ số biến thiên của khoảng cách thời gian giữa các gói
+    \item \texttt{Custom\_Bwd\_Pkt\_Ratio} $= N_{bwd} / (N_{fwd} + \varepsilon)$ --- tỉ lệ gói chiều ngược trên chiều thuận (\textit{không} phải trên tổng số gói)
+    \item \texttt{Custom\_Pkt\_Size\_Ratio} $= L_{min} / (L_{max} + \varepsilon)$ --- tỉ lệ kích thước gói nhỏ nhất trên lớn nhất trong flow
 \end{itemize}
+
+\section{Tham số vận hành của hệ thống triển khai}
+\label{sec:plb-runtime}
+
+Ngoài các siêu tham số huấn luyện ở Mục~\ref{sec:plb-hyperparams}, hệ thống triển khai còn chứa một tập hằng số điều khiển hành vi ra quyết định lúc chạy. Những giá trị này không được học từ dữ liệu mà được chọn bằng quan sát và tinh chỉnh thủ công; chúng ảnh hưởng trực tiếp tới kết quả nhưng thường không xuất hiện trong mô tả kiến trúc. Mục này tập hợp chúng lại để bảo đảm tính tái lập.
+
+\subsection{Ngưỡng điều phối trong cascade CIC-IDS-2017}
+
+\begin{table}[H]
+    \centering
+    \caption{Các hằng số quyết định trong pipeline đánh giá cascade.}
+    \label{tab:runtime-cascade}
+    \begin{tabular}{lcp{7.2cm}}
+        \hline
+        \textbf{Hằng số} & \textbf{Giá trị} & \textbf{Vai trò} \\
+        \hline
+        Ngưỡng định tuyến Tầng 1 & 0,85 & Flow bị Tầng 1 gán Suspicious nhưng $P < 0{,}85$ được ép về Benign thay vì chuyển xuống Tầng 2. Giảm false positive, đổi lại mất một phần recall. \\
+        Ngưỡng tin cậy Tầng 2 & 0,65 & Nhãn của FT-Transformer chỉ được giữ khi $P \geq 0{,}65$; dưới ngưỡng, flow bị ép về Benign. \\
+        Dải ngưỡng Infiltration & 0,65 / 0,68 / 0,70 & Ba giá trị được quét khi đánh giá. Cả ba cho kết quả Macro F1 giống hệt nhau (0,9294), nên kết luận cuối không phụ thuộc vào lựa chọn trong dải này. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Tham số hiệu chỉnh và luật bổ trợ của hệ thống phát hiện}
+
+\begin{table}[H]
+    \centering
+    \caption{Tham số vận hành của mô hình triển khai trên Testbed.}
+    \label{tab:runtime-live}
+    \begin{tabular}{lcp{6.6cm}}
+        \hline
+        \textbf{Tham số} & \textbf{Giá trị} & \textbf{Vai trò} \\
+        \hline
+        Temperature scaling $T$ & 1,4811 & Chia logit cho $T$ trước softmax. $T > 1$ làm mềm phân phối xác suất, kéo độ tự tin xuống cho khớp độ chính xác thực tế --- giá trị này cho thấy mô hình gốc quá tự tin. \\
+        Ngưỡng riêng theo lớp & PortScan 0,319; DoS 0,308; Web Attack 0,534; Brute Force 0,588; Benign 0,0 & Dự đoán tấn công có độ tin cậy dưới ngưỡng của lớp tương ứng bị hạ về Benign. Ngưỡng thấp ưu tiên recall; ngưỡng cao siết lại các lớp hay báo nhầm. \\
+        Tiêu chí sinh ngưỡng & TPR mục tiêu 0,95 & Với mỗi lớp, chọn ngưỡng thấp nhất còn giữ được 95\% recall trên tập hiệu chỉnh. \\
+        Luật quét cổng --- cửa sổ & 2,0 giây & Cửa sổ thời gian gom các kết nối từ cùng một IP nguồn. \\
+        Luật quét cổng --- số cổng & 15 & Số cổng đích phân biệt trong cửa sổ đủ để kết luận PortScan. Ngưỡng thấp hơn dễ báo nhầm trình duyệt mở nhiều kết nối; cao hơn thì bỏ lọt các đợt quét nhẹ. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Luật quét cổng tồn tại vì lý do đã trình bày ở Mục~\ref{subsec:gd4-final}: trong môi trường NAT, PortScan không phân tách được bằng đặc trưng thống kê mức flow. Thay vì cố ép mô hình học một ranh giới không tồn tại trong dữ liệu, hệ thống chuyển lớp này sang một luật dựa trên hành vi tương quan nhiều flow --- đúng loại thông tin mà biểu diễn mức flow đã làm mất đi.
 
 \section{Kết quả chi tiết các thực nghiệm}
 \label{sec:plb-results}
@@ -229,21 +323,24 @@
 
 \begin{table}[H]
     \centering
-    \caption{Ablation study các cải tiến kiến trúc trên CIC-IDS-2017}
+    \caption{Chuỗi cải tiến kiến trúc trên CIC-IDS-2017 (đo trên cùng tập kiểm định end-to-end 2.529.391 flow).}
     \label{tab:res-cic-ablation}
-    \begin{tabular}{lcc}
+    \begin{tabular}{lccc}
         \hline
-        \textbf{Kiến trúc} & \textbf{Accuracy} & \textbf{Macro F1} \\
+        \textbf{Phiên bản} & \textbf{Accuracy} & \textbf{Macro F1} & \textbf{Bot F1} \\
         \hline
-        1-Stage 9-class FTT & 98,21\% & 0,7831 \\
-        Two-Stage (không HNM) & 99,55\% & 0,8817 \\
-        + HNM vòng 1 & 99,58\% & 0,9102 \\
-        + HNM vòng 2 & 99,60\% & 0,9181 \\
-        + HNM + Majority Vote (2/3) & 99,61\% & 0,9247 \\
-        \textbf{+ HNM + Asymmetric Vote} & \textbf{99,55\%} & \textbf{0,9294} \\
+        Two-Stage Cascade, nhãn Web Attack lỗi & --- & 0,6065 & --- \\
+        + sửa nhãn Web Attack, HNM 2 vòng & 99,51\% & 0,9160 & 0,6294 \\
+        \textbf{+ Asymmetric Ensemble Voting} & \textbf{99,55\%} & \textbf{0,9294} & \textbf{0,7344} \\
         \hline
     \end{tabular}
 \end{table}
+
+Bảng~\ref{tab:res-cic-ablation} chỉ liệt kê các mốc có báo cáo nghiệm thu tương ứng trong kho mã nguồn; các cấu hình trung gian khác đã được chạy trong quá trình phát triển nhưng không được lưu báo cáo đầy đủ nên không đưa vào đây.
+
+Đóng góp của bước Asymmetric Ensemble Voting cần được mô tả chính xác, vì nó tập trung gần như hoàn toàn vào một lớp duy nhất. Macro F1 tăng từ 0,9160 lên 0,9294, và phần lớn mức tăng này đến từ Botnet: F1 đi từ 0,6294 lên 0,7344. Cơ chế đứng sau là quy tắc phủ quyết Botnet --- Precision của lớp này tăng vọt từ 47,87\% lên 79,47\%, đổi lại Recall giảm từ 91,87\% xuống 68,26\%. Nói cách khác, ensemble không giúp mô hình \textit{tìm ra} thêm Botnet; nó giúp mô hình \textit{bớt gọi nhầm} Benign thành Botnet.
+
+Một quan sát đi kèm cũng cần được ghi nhận trung thực: Infiltration F1 giữ nguyên ở 0,7407 trước và sau khi áp dụng ensemble. Quy tắc ưu tiên Infiltration --- vốn được thiết kế để tăng recall cho lớp này --- \textbf{không tạo ra thay đổi đo được} trên tập kiểm định, do Random Forest và KNN hầu như không đưa ra dự đoán Infiltration nào mà FT-Transformer bỏ sót. Quy tắc này vì vậy nên được hiểu là một biện pháp phòng vệ theo thiết kế, chưa phải một cải tiến đã được kiểm chứng bằng số liệu.
 
 \subsection{CIC-IDS-2017 --- Kết quả per-class cuối}
 
@@ -274,7 +371,7 @@
 
 \begin{table}[H]
     \centering
-    \caption{Kết quả chuỗi can thiệp domain adaptation}
+    \caption{Kết quả chuỗi can thiệp domain adaptation. Đánh giá nhị phân trên 4.542 flow Testbed (7 flow Benign).}
     \label{tab:res-domain}
     \begin{tabular}{lccc}
         \hline
@@ -289,11 +386,11 @@
     \end{tabular}
 \end{table}
 
-\subsection{Testbed V8.5 --- Kết quả per-class trên val set đa dạng miền}
+\subsection{FT-IDS --- Kết quả per-class trên val set đa dạng miền}
 
 \begin{table}[H]
     \centering
-    \caption{Kết quả per-class mô hình V8.5 trên val set đa dạng miền}
+    \caption{Kết quả per-class mô hình FT-IDS trên val set đa dạng miền}
     \label{tab:res-v85}
     \begin{tabular}{lccccc}
         \hline
@@ -306,7 +403,7 @@
         Web Attack & 0,96 & 0,81 & 0,88 & 2.707 & Testbed nội bộ \\
         \hline
         \textbf{Macro avg} & \textbf{0,93} & \textbf{0,91} & \textbf{0,917} & \textbf{11.183} & \\
-        Balanced Accuracy  & & & \textbf{91,1\%} & & \\
+        Balanced Accuracy  & & & \textbf{91,14\%} & & \\
         MCC                & & & \textbf{0,865}  & & \\
         \hline
     \end{tabular}
@@ -322,8 +419,8 @@
         \hline
         \textbf{Tập kiểm định} & \textbf{BruteForce F1} & \textbf{DoS F1} & \textbf{Macro F1} \\
         \hline
-        V8.4 --- 100\% CIC Patator (đồng nhất) & 1,000 & 0,95 & 0,970 \\
-        V8.5 --- Mixed hydra + CIC Patator    & 0,860 & 0,93 & 0,916 \\
+        Phiên bản trước --- 100\% CIC Patator (đồng nhất) & 1,000 & 0,95 & 0,970 \\
+        FT-IDS --- Mixed hydra + CIC Patator    & 0,860 & 0,93 & 0,916 \\
         \textbf{Chênh lệch}                   & $\mathbf{-0{,}140}$ & $-0{,}02$ & $\mathbf{-0{,}054}$ \\
         \hline
     \end{tabular}

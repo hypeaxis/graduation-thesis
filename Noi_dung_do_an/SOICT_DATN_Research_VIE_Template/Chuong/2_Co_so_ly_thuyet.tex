@@ -10,6 +10,111 @@ Phương pháp trích xuất đặc trưng phổ biến nhất trong nghiên c�
 
 Bài toán phân loại flow-based IDS phải đối mặt với thách thức mất cân bằng dữ liệu không điển hình. Ngay trong nhóm tấn công, sự phân tầng kích thước cũng cực đoan: DoS/DDoS có thể có hàng triệu flow trong khi Infiltration chỉ có vài nghìn. Điều này đòi hỏi metric phù hợp hơn là accuracy --- cụ thể là Macro F1 (đánh giá đều tất cả các lớp không kể kích thước) và Matthews Correlation Coefficient (MCC) cho đánh giá tổng thể trên dữ liệu mất cân bằng cực đoan.
 
+\section{Định nghĩa các lớp và căn cứ nhận diện trên đặc trưng flow}
+\label{sec:dinh-nghia-lop}
+
+Trước khi mô tả kiến trúc mô hình, cần làm rõ \textit{đối tượng} mà mô hình phải phân biệt: mỗi nhãn lớp nghĩa là gì, và quan trọng hơn --- \textit{dựa vào đâu} mà một flow được kết luận thuộc lớp đó. Đây không phải câu hỏi hình thức. Toàn bộ khả năng và giới hạn của hệ thống trong đồ án đều bắt nguồn từ chỗ này: một lớp tấn công chỉ có thể học được nếu hành vi của nó để lại dấu vết \textbf{trong thống kê mức flow}. Nếu dấu hiệu phân biệt nằm hoàn toàn trong nội dung gói tin, mô hình sẽ không có căn cứ nào để nhận ra nó, bất kể kiến trúc mạnh đến đâu.
+
+\subsection{Nguyên tắc chung: mô hình nhìn thấy gì}
+\label{subsec:mo-hinh-nhin-gi}
+
+CICFlowMeter không đọc payload. Với mỗi flow, nó chỉ ghi lại các đại lượng thống kê mô tả \textit{hình dạng} của cuộc trao đổi: kéo dài bao lâu, bao nhiêu gói theo mỗi chiều, gói to hay nhỏ và đều hay lệch, các gói đến cách nhau bao lâu, cờ TCP nào được bật, cổng đích thuộc nhóm nào. Có thể hình dung mô hình như một người quan sát hai người đang nói chuyện qua tấm kính cách âm: không nghe được nội dung, nhưng thấy được ai nói trước, mỗi lượt dài bao nhiêu, nhịp trao đổi đều hay ngắt quãng, một bên nói nhiều hay cả hai cân bằng.
+
+Từ góc nhìn đó, mỗi loại tấn công để lại một \textit{chữ ký hình dạng} riêng. Bảng~\ref{tab:feature-groups} tóm tắt bốn nhóm đặc trưng và loại thông tin hành vi mà mỗi nhóm mang lại --- đây là bảng cần đối chiếu khi đọc phần định nghĩa từng lớp phía dưới.
+
+\begin{table}[H]
+    \centering
+    \caption{Bốn nhóm đặc trưng flow và thông tin hành vi tương ứng.}
+    \label{tab:feature-groups}
+    \begin{tabular}{p{3.1cm}p{4.1cm}p{5.2cm}}
+        \hline
+        \textbf{Nhóm} & \textbf{Đặc trưng tiêu biểu} & \textbf{Cho biết điều gì} \\
+        \hline
+        Thời lượng và nhịp độ &
+        \texttt{Flow\_Duration}, \texttt{Flow\_IAT\_Mean/Std/Max}, \texttt{Custom\_IAT\_CV} &
+        Cuộc trao đổi kéo dài hay chớp nhoáng; nhịp gửi đều đặn như máy hay ngẫu nhiên như người dùng thật. \\[2pt]
+        Khối lượng và hướng &
+        \texttt{Total\_Fwd/Backward\_Packets}, \texttt{Down\_Up\_Ratio}, \texttt{Custom\_Bwd\_Pkt\_Ratio} &
+        Trao đổi hai chiều cân bằng hay một chiều; bên nào chủ động gửi. \\[2pt]
+        Hình dạng gói tin &
+        \texttt{Packet\_Length\_Mean/Std/Variance}, \texttt{Custom\_Pkt\_Size\_Ratio} &
+        Các gói đồng đều như sinh tự động hay biến thiên như nội dung thật. \\[2pt]
+        Trạng thái giao thức &
+        \texttt{SYN/FIN/RST/PSH/ACK\_Flag\_Count}, \texttt{Init\_Win\_bytes}, \texttt{Port\_Is\_*} &
+        Kết nối có hoàn tất bắt tay không, bị từ chối hay bỏ dở; dịch vụ đích thuộc nhóm nào. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Các lớp trên NSL-KDD}
+\label{subsec:lop-nslkdd}
+
+NSL-KDD gộp các nhãn gốc thành năm lớp theo mục đích của kẻ tấn công:
+
+\textbf{Normal} --- lưu lượng hợp lệ. Đây là lớp tham chiếu; mọi lớp còn lại được định nghĩa bởi mức độ lệch khỏi nó.
+
+\textbf{DoS} (Denial of Service) --- làm cạn tài nguyên máy đích để dịch vụ ngừng đáp ứng. \textit{Căn cứ nhận diện:} số kết nối tới cùng một dịch vụ tăng vọt trong thời gian ngắn, tỉ lệ kết nối lỗi cao, và kích thước gói gần như đồng nhất vì được sinh tự động. Đây là lớp dễ nhất trong năm lớp --- bản chất của DoS là tạo ra khối lượng bất thường, mà khối lượng thì thống kê mức flow đo được trực tiếp.
+
+\textbf{Probe} --- dò quét để lập bản đồ hệ thống trước khi tấn công thật. \textit{Căn cứ nhận diện:} nhiều kết nối rất ngắn tới \textit{nhiều} cổng hoặc nhiều máy khác nhau, phần lớn không hoàn tất bắt tay. Dấu hiệu đặc trưng là sự \textit{phân tán}: một nguồn chạm vào nhiều đích trong thời gian ngắn.
+
+\textbf{R2L} (Remote to Local) --- truy cập trái phép từ xa vào tài khoản trên máy đích, chủ yếu qua đoán mật khẩu hoặc khai thác dịch vụ đăng nhập. \textit{Căn cứ nhận diện --- và đây là lớp khó:} một phiên R2L thành công về mặt hình dạng gần như trùng khớp với một phiên đăng nhập hợp lệ. Cùng giao thức, cùng khoảng kích thước gói, cùng nhịp. Phần lớn tín hiệu phân biệt nằm ở \textit{nội dung} --- mật khẩu sai, chuỗi khai thác --- tức chính thứ mà đặc trưng flow không nhìn thấy. Đây là nguyên nhân gốc của kết quả R2L Recall thấp được báo cáo ở Chương~5.
+
+\textbf{U2R} (User to Root) --- leo thang đặc quyền từ tài khoản thường lên quản trị. \textit{Căn cứ nhận diện:} khó tương tự R2L, và còn thêm vấn đề dữ liệu --- toàn bộ tập huấn luyện chỉ có 52 mẫu, quá ít để mô hình khái quát hóa một hành vi vốn đã kín đáo.
+
+\subsection{Các lớp trên CIC-IDS-2017}
+\label{subsec:lop-cic}
+
+Đây là không gian nhãn chính của đồ án. Mười lăm nhãn gốc được gộp thành chín lớp mô hình theo nguyên tắc: các biến thể cùng \textit{cơ chế tấn công} thì gộp chung, vì chúng để lại chữ ký flow tương tự nhau. Ví dụ, bốn nhãn \texttt{DoS Hulk}, \texttt{DoS GoldenEye}, \texttt{DoS slowloris}, \texttt{DoS Slowhttptest} đều gộp vào lớp DoS. Bảng~\ref{tab:class-signatures} trình bày định nghĩa và căn cứ nhận diện của từng lớp.
+
+\begin{table}[H]
+    \centering
+    \caption{Định nghĩa và căn cứ nhận diện chín lớp của CIC-IDS-2017 trên đặc trưng flow.}
+    \label{tab:class-signatures}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{p{2.2cm}p{5.4cm}p{7.0cm}}
+        \hline
+        \textbf{Lớp} & \textbf{Định nghĩa} & \textbf{Căn cứ nhận diện trên đặc trưng flow} \\
+        \hline
+        Benign & Lưu lượng sinh hoạt hợp lệ: duyệt web, email, truyền tệp, streaming. &
+        Lớp tham chiếu. Đặc trưng: trao đổi hai chiều cân bằng, kích thước gói biến thiên theo nội dung thật, nhịp gửi không đều vì phụ thuộc thao tác người dùng. \\[2pt]
+
+        DoS & Làm cạn tài nguyên một máy chủ từ \textit{một} nguồn, bằng cách gửi ồ ạt hoặc giữ kết nối mở thật lâu. &
+        Hai kiểu con để lại hai chữ ký ngược nhau. Kiểu ồ ạt (Hulk, GoldenEye): \texttt{Flow\_Packets\_s} rất cao, \texttt{Flow\_IAT\_Mean} rất nhỏ. Kiểu chậm (slowloris, Slowhttptest): ngược lại --- \texttt{Flow\_Duration} rất dài với rất ít gói, \texttt{Flow\_IAT\_Max} lớn, vì tấn công cố tình kéo dài kết nối để chiếm slot phục vụ. \\[2pt]
+
+        DDoS & Tấn công từ chối dịch vụ phân tán từ \textit{nhiều} nguồn đồng thời. &
+        Ở mức từng flow, chữ ký giống DoS kiểu ồ ạt. Điểm phân biệt nằm ở số lượng: rất nhiều flow gần như giống hệt nhau về hình dạng, tới cùng một đích, trong cùng khoảng thời gian. \\[2pt]
+
+        PortScan & Dò quét cổng đang mở để lập bản đồ dịch vụ. &
+        Chữ ký rõ nhất trong các lớp: flow cực ngắn, gần như không có dữ liệu, \texttt{SYN\_Flag\_Count} bật nhưng thiếu FIN/ACK hoàn chỉnh, và \texttt{Custom\_Bwd\_Pkt\_Ratio} rất thấp vì máy đích hầu như không hồi đáp --- trao đổi gần như một chiều. \\[2pt]
+
+        Brute Force & Thử hàng loạt cặp tài khoản/mật khẩu trên dịch vụ đăng nhập (FTP, SSH). &
+        Nhiều kết nối lặp lại tới cùng một cổng dịch vụ, mỗi kết nối ngắn và có kích thước gói gần như đồng nhất giữa các lần thử --- vì mỗi lần chỉ khác nhau ở chuỗi mật khẩu. Nhịp thử đều đặn do công cụ tự động sinh ra. \\[2pt]
+
+        Web Attack & Khai thác lỗ hổng ứng dụng web: SQL Injection, XSS, Brute Force biểu mẫu. &
+        Lớp khó vì payload độc hại nằm trong thân HTTP mà mô hình không đọc được. Dấu vết còn lại chỉ là gián tiếp: yêu cầu HTTP dài bất thường, tỉ lệ phản hồi lỗi cao, nhịp gửi đều do công cụ tự động. Nhiều flow XSS với payload ngắn gần như không phân biệt được với HTTP hợp lệ. \\[2pt]
+
+        Botnet & Máy bị nhiễm liên lạc định kỳ với máy chủ điều khiển (C2) để nhận lệnh. &
+        Dấu hiệu là \textit{tính chu kỳ}: các kết nối nhỏ, lặp lại ở khoảng thời gian đều đặn --- \texttt{Custom\_IAT\_CV} thấp bất thường, vì máy móc gửi đều còn người dùng thật thì không. Khó khăn: nhiều kết nối nền hợp lệ (đồng bộ, kiểm tra cập nhật) cũng có tính chu kỳ, gây nhầm lẫn hai chiều. \\[2pt]
+
+        Infiltration & Kẻ tấn công đã vào được bên trong mạng, thực hiện di chuyển ngang và rút dữ liệu ở tốc độ chậm. &
+        Lớp khó nhất. Bản chất của Infiltration là \textit{cố tình} bắt chước lưu lượng bình thường, nên từng flow riêng lẻ gần như không thể phân biệt với một phiên tải tệp hợp lệ. Dấu hiệu thật chỉ xuất hiện khi tương quan nhiều flow theo thời gian --- thông tin mà biểu diễn mức flow đã làm mất. \\[2pt]
+
+        Heartbleed & Khai thác lỗ hổng OpenSSL để đọc trộm bộ nhớ máy chủ. &
+        Ngược lại, đây là lớp có chữ ký rõ ràng nhất: yêu cầu rất nhỏ nhưng phản hồi rất lớn, khiến \texttt{Custom\_Bwd\_Pkt\_Ratio} và \texttt{Down\_Up\_Ratio} lệch cực đoan --- một bất đối xứng gần như không tồn tại trong lưu lượng bình thường. Khó khăn duy nhất là dữ liệu: chỉ 11 mẫu trên toàn tập. \\
+        \hline
+    \end{tabular}%
+    }
+\end{table}
+
+Bảng trên giải thích một điều quan trọng cho phần kết quả: \textbf{thứ tự khó của các lớp không tương ứng với độ hiếm của chúng}. Heartbleed chỉ có 11 mẫu nhưng đạt F1 tuyệt đối, vì chữ ký của nó không thể nhầm lẫn. Ngược lại, Web Attack có tới 2.180 mẫu nhưng vẫn khó, còn Infiltration khó vì \textit{cả hai lý do} cùng lúc --- vừa hiếm vừa không có chữ ký riêng. Nói cách khác, có hai nguồn khó khác nhau cần được xử lý bằng hai loại giải pháp khác nhau: hiếm dữ liệu thì xử lý bằng kỹ thuật huấn luyện (trọng số lớp, Hard Negative Mining), còn thiếu chữ ký phân biệt thì chỉ có thể xử lý bằng cách bổ sung thông tin --- thêm đặc trưng, thêm luật, hoặc tương quan nhiều flow.
+
+\subsection{Các lớp trên tập Testbed}
+\label{subsec:lop-testbed}
+
+Tập dữ liệu tự thu ở Giai đoạn 3 dùng năm lớp: Benign, Brute Force, DoS, PortScan và Web Attack. Định nghĩa và căn cứ nhận diện giữ nguyên như Bảng~\ref{tab:class-signatures}, vì cùng bộ trích xuất đặc trưng CICFlowMeter. Hai lớp Botnet và Infiltration không được đưa vào do không thể mô phỏng đáng tin cậy trên một testbed hai máy: Botnet cần hạ tầng C2 thật, còn Infiltration cần một mạng nội bộ nhiều máy để có hành vi di chuyển ngang có ý nghĩa.
+
+Một điểm cần lưu ý trước, sẽ được phân tích kỹ ở Chương~4: chữ ký của PortScan mô tả trong Bảng~\ref{tab:class-signatures} \textbf{không còn giữ được} trong môi trường ảo hóa có NAT. Lớp NAT gộp và biến đổi các gói dò quét trước khi chúng tới được điểm bắt, khiến flow thu được mất đi chính những đặc điểm làm nên chữ ký của lớp này. Đây là ví dụ cụ thể cho nguyên tắc nêu ở đầu mục: khi môi trường thu thập xóa mất dấu vết, không kỹ thuật huấn luyện nào khôi phục được nó.
+
 \section{Các nghiên cứu liên quan}
 \label{sec:lien-quan}
 
@@ -234,7 +339,7 @@ Weighted Random Sampling điều chỉnh xác suất chọn mẫu trong mỗi mi
 
 trong đó $N$ là tổng số mẫu, $K$ là số lớp, và $n_c$ là số mẫu của lớp $c$. Tập $\{w_i\}$ được chuẩn hóa thành xác suất chọn mẫu, đảm bảo mỗi lớp xuất hiện với tần suất tương đương trong mỗi batch huấn luyện.
 
-Để tránh trọng số cực đoan gây mất ổn định, thực tế thường dùng biến thể làm mượt $w_i = \sqrt{N/(K \cdot n_c)}$ và clip về khoảng $[w_{min}, w_{max}]$. Trong Giai đoạn 4 (Testbed V8.5), class weights được tính theo $\sqrt{N/(K \cdot n_c)}$ và clip về $[0{,}5;\; 2{,}0]$, cho BruteForce weight $= 1{,}328$ và PortScan weight $= 1{,}587$.
+Để tránh trọng số cực đoan gây mất ổn định, thực tế thường dùng biến thể làm mượt $w_i = \sqrt{N/(K \cdot n_c)}$ và clip về khoảng $[w_{min}, w_{max}]$. Trong Giai đoạn 3 (FT-IDS), class weights được tính theo $\sqrt{N/(K \cdot n_c)}$ và clip về $[0{,}5;\; 2{,}0]$, cho BruteForce weight $= 1{,}328$ và PortScan weight $= 1{,}587$.
 
 Ngoài Weighted Sampling tác động vào quá trình lấy mẫu batch, \textbf{Label Smoothing} tác động vào nhãn mục tiêu: thay vì one-hot cứng, nhãn được làm mềm bằng cách phân phối một phần nhỏ $\varepsilon$ sang các lớp còn lại:
 
@@ -243,7 +348,7 @@ Ngoài Weighted Sampling tác động vào quá trình lấy mẫu batch, \textb
     \label{eq:label-smooth}
 \end{equation}
 
-Label Smoothing với $\varepsilon = 0{,}10$ được sử dụng trong V8.5 để giảm overfitting của mô hình lên các pattern training cụ thể.
+Label Smoothing với $\varepsilon = 0{,}10$ được sử dụng trong FT-IDS để giảm overfitting của mô hình lên các pattern training cụ thể.
 
 \section{Học chuyển giao và thích nghi miền}
 \label{sec:transfer}

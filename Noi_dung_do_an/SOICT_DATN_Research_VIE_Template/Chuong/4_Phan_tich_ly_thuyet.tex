@@ -22,7 +22,7 @@ Với Focal Loss ($\gamma = 2$), gradient đóng góp được nhân với $(1-p
 
 Tỷ lệ đảo ngược: BruteForce giờ đóng góp gradient lớn gấp 25 lần Benign. Mô hình được buộc phải ưu tiên học từ các mẫu khó, khó phân loại --- đúng là những mẫu cần học nhất trong bài toán IDS.
 
-Tuy nhiên, Focal Loss không phải giải pháp toàn năng. Trong thực nghiệm Giai đoạn 4 của đề tài, Focal Loss giúp cải thiện BruteForce recall nhưng không giải quyết được vấn đề PortScan (F1 chỉ đạt 7,5\% bất kể siêu tham số $\gamma$ và $\alpha_t$). Lý do: vấn đề PortScan không phải là \textit{bất cân bằng gradient} (có thể giải quyết bằng Focal Loss) mà là \textit{tính không phân tách đặc trưng} --- hai lớp PortScan và Benign không thể phân biệt được trong không gian đặc trưng CICFlowMeter trên môi trường WSL, bất kể hàm mất mát nào được sử dụng.
+Tuy nhiên, Focal Loss không phải giải pháp toàn năng. Trong thực nghiệm Giai đoạn 3 của đề tài, Focal Loss giúp cải thiện BruteForce recall nhưng không giải quyết được vấn đề PortScan (F1 chỉ đạt 7,5\% bất kể siêu tham số $\gamma$ và $\alpha_t$). Lý do: vấn đề PortScan không phải là \textit{bất cân bằng gradient} (có thể giải quyết bằng Focal Loss) mà là \textit{tính không phân tách đặc trưng} --- hai lớp PortScan và Benign không thể phân biệt được trong không gian đặc trưng CICFlowMeter trên môi trường WSL, bất kể hàm mất mát nào được sử dụng.
 
 \section{Phân tích tính phân tách đặc trưng PortScan và Benign}
 \label{sec:pt-portscan}
@@ -61,9 +61,9 @@ Bài học tổng quát: khi nhiều thuật toán khác nhau đều thất bạ
 
 Hard Negative Mining (HNM) là kỹ thuật học tập trung vào các mẫu khó --- những mẫu nằm gần biên giới quyết định và bị phân loại sai hoặc với confidence thấp. Về mặt lý thuyết, HNM liên hệ chặt chẽ với tư tưởng của Boosting: thay vì huấn luyện đồng đều trên tất cả mẫu, tập trung tài nguyên huấn luyện vào những mẫu mà mô hình hiện tại xử lý kém nhất.
 
-Quá trình HNM trong đề tài được thực hiện theo hai vòng lặp. Sau vòng huấn luyện đầu (Stage 1 → Stage 2 Expert Network), toàn bộ tập validation được đưa qua mô hình và các mẫu bị phân loại sai được trích xuất. Những mẫu này --- \textit{hard negatives} --- được thêm vào tập huấn luyện cho vòng tiếp theo với trọng số tăng cường. Mô hình buộc phải học từ chính những trường hợp nó đang xử lý sai.
+Quá trình HNM trong đề tài được thực hiện theo hai vòng lặp. Sau vòng huấn luyện đầu (Tầng 1 → Tầng 2 Expert Network), toàn bộ tập validation được đưa qua mô hình và các mẫu bị phân loại sai được trích xuất. Những mẫu này --- \textit{hard negatives} --- được thêm vào tập huấn luyện cho vòng tiếp theo với trọng số tăng cường. Mô hình buộc phải học từ chính những trường hợp nó đang xử lý sai.
 
-Tại sao HNM hiệu quả hơn chỉ tăng class weight? Class weight tác động đồng đều lên toàn bộ lớp --- mọi mẫu của lớp Botnet đều được tăng cường như nhau, kể cả những mẫu đã được phân loại đúng dễ dàng. HNM tập trung vào \textit{vùng biên giới quyết định}: chỉ những mẫu mà mô hình thực sự đang nhầm lẫn mới được tăng cường, cho phép mô hình tinh chỉnh biên giới quyết định một cách hiệu quả hơn. Trong thực nghiệm Giai đoạn 2, HNM cải thiện Botnet F1 từ 0,4787 lên 0,6512 --- mức tăng 17,3\% tuyệt đối sau hai vòng; kết hợp thêm với Asymmetric Ensemble Voting, kết quả cuối đạt 0,7344.
+Tại sao HNM hiệu quả hơn chỉ tăng class weight? Class weight tác động đồng đều lên toàn bộ lớp --- mọi mẫu của lớp Botnet đều được tăng cường như nhau, kể cả những mẫu đã được phân loại đúng dễ dàng. HNM tập trung vào \textit{vùng biên giới quyết định}: chỉ những mẫu mà mô hình thực sự đang nhầm lẫn mới được tăng cường, cho phép mô hình tinh chỉnh biên giới quyết định một cách hiệu quả hơn. Trong thực nghiệm Giai đoạn 2, so sánh trên cùng lớp Botnet và cùng điều kiện đo nội bộ Tầng 2, HNM hai vòng đạt F1 = 0,6512 trong khi nhân trọng số lớp $\times 10$ chỉ đạt 0,5103. Kết hợp thêm Asymmetric Ensemble Voting, F1 đầu-cuối của lớp này đạt 0,7344.
 
 Giới hạn của HNM: kỹ thuật này hiệu quả khi hai lớp \textit{có thể phân tách} nhưng biên giới quyết định chưa được học tốt. Với PortScan/Benign trong môi trường WSL --- hai lớp không thể phân tách --- HNM không giúp được vì không tồn tại biên giới quyết định nào phân tách chúng một cách đáng tin cậy.
 
@@ -95,7 +95,7 @@ trong đó $\rho$ là hệ số tương quan trung bình giữa các mô hình. 
 
 Ba mô hình có xu hướng sai trên những mẫu khác nhau --- đảm bảo $\rho$ thấp, tức là ensemble giảm được variance đáng kể.
 
-\textbf{Asymmetric Voting} là sự mở rộng của majority voting tiêu chuẩn khi không phải tất cả lỗi đều có chi phí như nhau. Hai luật bất đối xứng được thiết kế dựa trên đặc thù của từng lớp:
+\textbf{Asymmetric Voting} thay thế majority voting tiêu chuẩn trong bối cảnh chi phí của lỗi không đồng đều giữa các lớp. Thay vì trao quyền biểu quyết ngang nhau cho ba mô hình, cơ chế này giữ một mô hình làm bộ phân loại chủ đạo và trao cho hai mô hình còn lại quyền phủ quyết giới hạn trên những lớp có đặc thù lỗi rõ rệt. Hai luật bất đối xứng được thiết kế dựa trên đặc thù của từng lớp:
 
 \begin{itemize}
     \item \textbf{Infiltration Priority Rule}: Nếu RF hoặc KNN bỏ phiếu cho Infiltration, kết quả cuối là Infiltration --- bất kể FT-Transformer nghĩ gì. Lý do: Infiltration rất hiếm (dưới 0,1\% tập dữ liệu) và bỏ sót Infiltration có hậu quả nghiêm trọng hơn nhiều so với false alarm. Luật này tăng recall cho Infiltration đổi lấy một ít precision.
@@ -131,6 +131,6 @@ Tấn công Infiltration là trường hợp giới hạn căn bản của hư�
 
 Giải pháp tiềm năng cho vấn đề Infiltration nằm ngoài phạm vi đề tài hiện tại nhưng đáng được đề cập: session aggregation (tổng hợp nhiều flow của cùng một session thành một vector đặc trưng dài hơn), temporal graph analysis (phân tích đồ thị kết nối theo thời gian), hoặc payload inspection kết hợp với flow-level analysis. Đây là hướng phát triển tự nhiên tiếp theo cho hệ thống.
 
-Giới hạn tương tự cũng xuất hiện với Botnet trong giai đoạn C2 communication: các flow C2 riêng lẻ trông như Benign DNS/HTTP, nhưng pattern periodic heartbeat chỉ rõ khi quan sát nhiều flow liên tiếp. Đây là lý do Botnet F1 dù đã cải thiện đáng kể (0,4787 → 0,7344 nhờ HNM) vẫn là lớp có kết quả thấp nhất trong Stage 2.
+Giới hạn tương tự cũng xuất hiện với Botnet trong giai đoạn C2 communication: các flow C2 riêng lẻ trông như Benign DNS/HTTP, nhưng pattern periodic heartbeat chỉ rõ khi quan sát nhiều flow liên tiếp. Đây là lý do Botnet, dù đã cải thiện đáng kể nhờ Hard Negative Mining và luật phủ quyết của ensemble (F1 đầu-cuối đạt 0,7344), vẫn là lớp có kết quả thấp nhất trong Tầng 2.
 
 \end{document}

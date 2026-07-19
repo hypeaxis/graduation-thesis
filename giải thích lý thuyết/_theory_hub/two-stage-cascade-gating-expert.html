@@ -42,7 +42,7 @@
 <h3 id="t-m-l-i">Tóm lại</h3>
 <p>traffic) — một dạng <strong>Mixture of Experts</strong>.</p>
 <ul><li><strong>Two-Stage Cascade</strong> = <strong>Gating</strong> (nhị phân, lọc Benign, ngưỡng bảo thủ 85%) → <strong>Expert</strong> (9 lớp, chỉ ~17,3%</li><li>Tách hai nhiệm vụ đối chọi → mỗi tầng chuyên biệt → gradient Expert tập trung phân biệt tấn công.</li></ul>
-<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn nắm <strong>xương sống kiến trúc</strong> của hệ CIC trong đồ án, và hiểu vì sao chia tầng lại thắng một model &quot;ôm đồm&quot;. Các mảnh ghép: <a href="hard-negative-mining.html">Hard Negative Mining — chỉ ôn lại những câu làm SAI</a> (trong Expert), và ensemble <a href="bias-variance-ensemble.html">Bias–Variance &amp; Ensemble giảm Variance — vì sao &quot;hỏi nhiều người&quot; tốt hơn</a> ở đầu ra.</p>
+<p><strong>Hiểu cái này thì làm được gì?</strong> Bạn nắm <strong>xương sống kiến trúc</strong> của hệ CIC trong đồ án, và hiểu vì sao chia tầng lại thắng một model &quot;ôm đồm&quot;. Các mảnh ghép: khai thác mẫu khó (trong Expert), và ensemble <a href="bias-variance-ensemble.html">Bias–Variance &amp; Ensemble giảm Variance — vì sao &quot;hỏi nhiều người&quot; tốt hơn</a> ở đầu ra.</p>
 <hr>
 <h3 id="nh-x-sang-codebase-final">🔧 Ánh xạ sang codebase (<code>Final/</code>)</h3>
 <p>Nơi lý thuyết này được <strong>hiện thực trong code</strong> — dùng để phản biện chính xác:</p>

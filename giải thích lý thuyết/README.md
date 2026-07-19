@@ -75,13 +75,11 @@ python .\build_theory_hub.py
 22. [Bias–Variance & Ensemble giảm Variance](F-ensemble-and-system/bias-variance-ensemble/bias-variance-ensemble.md)
 23. [Đa dạng Inductive Bias (FTT+RF+KNN)](F-ensemble-and-system/inductive-bias-diversity/inductive-bias-diversity.md)
 24. [Asymmetric / Cost-sensitive Voting](F-ensemble-and-system/asymmetric-cost-sensitive-voting/asymmetric-cost-sensitive-voting.md)
-25. [Hard Negative Mining](F-ensemble-and-system/hard-negative-mining/hard-negative-mining.md)
 
 ## G. Hệ lai & giới hạn
 26. [Snort + FT-Transformer (hệ lai)](G-hybrid-and-limits/snort-hybrid-ids/snort-hybrid-ids.md)
 27. [Alert Aggregator](G-hybrid-and-limits/alert-aggregator/alert-aggregator.md)
 28. [PortScan không phân tách dưới NAT](G-hybrid-and-limits/portscan-inseparability-nat/portscan-inseparability-nat.md)
-29. [Giới hạn flow tĩnh — cần phân tích thời gian](G-hybrid-and-limits/static-flow-limits-temporal/static-flow-limits-temporal.md)
 
 ---
 

@@ -1,18 +1,30 @@
 # GĐ5 — Corpus replay
 
-## Kèm sẵn trong gói
-- `dos_only.pcap_Flow.csv` (~6,4MB) — kịch bản DoS, để demo chạy ngay.
+Đây là **nguồn duy nhất** của corpus replay trong repo. `Final/05_Replay_Detection/data/` symlink về thư mục này — đừng nhân bản thêm.
 
-## KHÔNG kèm (nặng ~212MB tổng) — tự thu/tải
-| Kịch bản | File | Cách lấy |
+| Kịch bản | File | Kích thước |
 |---|---|---|
-| PortScan | `portscan_only.pcap_Flow.csv` (~82MB) | thu trên Win11 host (nmap) → CICFlowMeter |
-| Brute Force | `bruteforce_only.pcap_Flow.csv` (~95MB) | hydra trên Testbed → CICFlowMeter |
-| Web Attack | `webattack_only.pcap_Flow.csv` (~12MB) | DVWA + payload → CICFlowMeter |
-| Benign | `benign_only.pcap_Flow.csv` (~17MB) | background traffic → CICFlowMeter |
+| PortScan | `portscan_only.pcap_Flow.csv` | ~86MB |
+| Brute Force | `bruteforce_only.pcap_Flow.csv` | ~100MB |
+| Benign | `benign_only.pcap_Flow.csv` | ~17MB |
+| Web Attack | `webattack_only.pcap_Flow.csv` | ~12MB |
+| DoS | `dos_only.pcap_Flow.csv` | ~6,7MB |
+
+`replay_config.json` đã trỏ sẵn đường dẫn `data/<file>`.
+
+> Định dạng: CSV do **CICFlowMeter** xuất (mỗi dòng = 1 flow với ~80 đặc trưng thống kê).
+
+## Thu lại nếu cần
+
+| Kịch bản | Cách lấy |
+|---|---|
+| PortScan | thu trên Win11 host (nmap) → CICFlowMeter |
+| Brute Force | hydra trên Testbed → CICFlowMeter |
+| Web Attack | DVWA + payload → CICFlowMeter |
+| Benign | background traffic → CICFlowMeter |
 
 Quy trình thu chi tiết: [../../Final/03_Testbed_Retrain/HUONG_DAN_THU_DU_LIEU.md](../../Final/03_Testbed_Retrain/HUONG_DAN_THU_DU_LIEU.md).
 
-Sau khi có file, đặt vào thư mục này — `replay_config.json` đã trỏ sẵn đường dẫn `data/<file>`.
+## `analysis/`
 
-> Định dạng: CSV do **CICFlowMeter** xuất (mỗi dòng = 1 flow với ~80 đặc trưng thống kê).
+Dataset dùng cho huấn luyện/đánh giá (benign thật, các lớp tấn công tách riêng) — xem `../training/`.

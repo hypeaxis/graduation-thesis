@@ -74,7 +74,7 @@ Khi **nhiều thuật toán với inductive bias khác nhau đều thất bại 
   dữ liệu surrogate (CIC PortScan) → F1 100%.
 
 **Hiểu cái này thì làm được gì?** Bạn nắm một nguyên tắc chẩn đoán vàng: **khi mọi model đều tịt như nhau, hãy
-nghi ngờ dữ liệu, không phải thuật toán**. Liên hệ [[focal-loss]] (vô ích ở đây) và [[hard-negative-mining]]
+nghi ngờ dữ liệu, không phải thuật toán**. Liên hệ [[focal-loss]] (vô ích ở đây) và khai thác mẫu khó
 (cũng bó tay khi không phân tách).
 
 ---

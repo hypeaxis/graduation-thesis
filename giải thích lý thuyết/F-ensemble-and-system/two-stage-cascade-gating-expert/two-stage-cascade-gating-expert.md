@@ -57,7 +57,7 @@ Kết quả đồ án (CIC Stage 2): **Accuracy 99,55%, Macro-F1 = 0,9294**.
 - Tách hai nhiệm vụ đối chọi → mỗi tầng chuyên biệt → gradient Expert tập trung phân biệt tấn công.
 
 **Hiểu cái này thì làm được gì?** Bạn nắm **xương sống kiến trúc** của hệ CIC trong đồ án, và hiểu vì sao chia
-tầng lại thắng một model "ôm đồm". Các mảnh ghép: [[hard-negative-mining]] (trong Expert), và ensemble
+tầng lại thắng một model "ôm đồm". Các mảnh ghép: khai thác mẫu khó (trong Expert), và ensemble
 [[bias-variance-ensemble]] ở đầu ra.
 
 ---

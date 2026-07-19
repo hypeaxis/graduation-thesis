@@ -127,12 +127,12 @@ java -jar target/CICFlowMeter-4.0-SNAPSHOT.jar \
 
 \textbf{Xử lý đặc trưng trong Python:}
 
-\begin{lstlisting}[language=Python, caption={Load flow CSV và apply PowerTransformer V8.5}]
+\begin{lstlisting}[language=Python, caption={Load flow CSV và apply PowerTransformer của FT-IDS}]
 import pandas as pd
 from sklearn.preprocessing import PowerTransformer
 import joblib
 
-# Load scaler da train tren Testbed V8.5
+# Load scaler da train tren Testbed (FT-IDS)
 scaler = joblib.load('models/v8_5_scaler.pkl')
 
 # Load flow CSV tu CICFlowMeter
@@ -164,7 +164,7 @@ python3 testbed_inference.py \
     --scaler models/v8_5_scaler.pkl \
     --output /var/log/ids/ml_alerts.log &
 
-echo "IDS Pipeline started. Snort + FTT V8.5 active."
+echo "IDS Pipeline started. Snort + FT-IDS active."
 \end{lstlisting}
 
 \textbf{Dừng pipeline:}

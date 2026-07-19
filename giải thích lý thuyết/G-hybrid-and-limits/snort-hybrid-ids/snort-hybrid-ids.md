@@ -65,7 +65,7 @@ Kết quả từ hai nguồn được [[alert-aggregator]] hợp nhất.
 
 **Hiểu cái này thì làm được gì?** Bạn giải thích được **triết lý thiết kế tổng thể** của đồ án — không tôn thờ
 một phương pháp, mà ghép để phủ điểm mù. Đầu ra hợp nhất bởi [[alert-aggregator]]; giới hạn còn lại nằm ở
-[[static-flow-limits-temporal]].
+giới hạn của biểu diễn flow tĩnh khi cần thông tin theo thời gian.
 
 ---
 

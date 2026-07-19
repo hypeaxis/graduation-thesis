@@ -31,13 +31,13 @@ Ba bộ dữ liệu được sử dụng qua từng giai đoạn nghiên cứu, 
         \hline
         NSL-KDD Train+  & 1 & 125.973 & 41 gốc $\to$ 122 & 5 \\
         NSL-KDD Test+   & 1 & 22.542  & 41 gốc $\to$ 122 & 5 \\
-        CIC-IDS-2017    & 2, 3 & 2.830.743 & 77 & 15 \\
-        Testbed V8.5    & 4 & 111.825 & 80 & 5 \\
+        CIC-IDS-2017    & 2, 3 & 2.829.385 & 77 & 15 \\
+        Testbed Combined & 3 & 111.825 & 80 & 5 \\
         \hline
     \end{tabular}
 \end{table}
 
-NSL-KDD sử dụng 41 đặc trưng gốc, được mở rộng lên 122 chiều sau mã hóa one-hot cho ba đặc trưng phân loại (\texttt{protocol\_type}: 3 giá trị, \texttt{service}: 70 giá trị, \texttt{flag}: 11 giá trị) và MinMaxScaler cho phần còn lại. CIC-IDS-2017 sử dụng 77 đặc trưng --- gồm 68 đặc trưng thống kê CICFlowMeter, 5 chỉ báo nhóm cổng và 4 đặc trưng tỉ lệ được kỹ thuật hóa trong pipeline tiền xử lý --- chuẩn hóa bằng PowerTransformer (Yeo-Johnson). Testbed V8.5 mở rộng tập này lên 80 đặc trưng bằng 3 đặc trưng từ bước Model Surgery (IAT\_CV, Bwd\_Pkt\_Ratio, Pkt\_Size\_Ratio), chuẩn hóa bằng PowerTransformer được fit trên phân phối Testbed.
+NSL-KDD sử dụng 41 đặc trưng gốc, được mở rộng lên 122 chiều sau mã hóa one-hot cho ba đặc trưng phân loại (\texttt{protocol\_type}: 3 giá trị, \texttt{service}: 70 giá trị, \texttt{flag}: 11 giá trị) và MinMaxScaler cho phần còn lại. CIC-IDS-2017 sử dụng 77 đặc trưng --- gồm 68 đặc trưng thống kê CICFlowMeter, 5 chỉ báo nhóm cổng và 4 đặc trưng tỉ lệ được kỹ thuật hóa trong pipeline tiền xử lý --- chuẩn hóa bằng PowerTransformer (Yeo-Johnson). Tập Testbed Combined mở rộng tập này lên 80 đặc trưng bằng 3 đặc trưng từ bước Model Surgery (IAT\_CV, Bwd\_Pkt\_Ratio, Pkt\_Size\_Ratio), chuẩn hóa bằng PowerTransformer được fit trên phân phối Testbed.
 
 \subsection{Các chỉ số đánh giá}
 \label{subsec:tn-metrics}
@@ -57,7 +57,9 @@ Tất cả các bài toán phân loại trong đề tài đều có mất cân b
 \section{Kết quả giai đoạn NSL-KDD}
 \label{sec:tn-nslkdd}
 
-Giai đoạn NSL-KDD thiết lập kiến trúc Two-Stage (Autoencoder gate + Stage 2 Stacking Ensemble) và xác định các chiến lược xử lý mất cân bằng cốt lõi. Tất cả kết quả được đánh giá trên KDDTest+ (22.542 mẫu) theo metric Macro-F1 trên 5 lớp đầu-cuối --- tức là bao gồm cả ảnh hưởng của Stage 1 Autoencoder Gate lên kết quả cuối.
+Giai đoạn NSL-KDD thiết lập hai thành phần --- Autoencoder Anomaly Gate và Stacking Ensemble --- đồng thời xác định các chiến lược xử lý mất cân bằng cốt lõi. Tất cả kết quả trong mục này được đánh giá trên KDDTest+ (22.542 mẫu) theo Macro-F1 trên 5 lớp.
+
+Một lưu ý về phạm vi đo, cần thiết để đọc đúng các bảng phía dưới: toàn bộ số liệu ở đây đến từ \textbf{cấu hình Stacking phẳng 5 lớp}, trong đó mô hình dự đoán trực tiếp cả nhãn Normal lẫn bốn nhãn tấn công trên toàn bộ KDDTest+. Cấu hình này \textit{không} đi qua Autoencoder Gate. Gate là thành phần của bản triển khai inference (nối tiếp một bộ phân loại 4 lớp tấn công) và được đánh giá riêng bằng chỉ số nhị phân. Việc tách bạch này là cần thiết vì hai cấu hình có không gian nhãn khác nhau --- 5 lớp so với 4 lớp --- nên các chỉ số của chúng không thể đặt chung một bảng.
 
 \subsection*{So sánh các phiên bản kiến trúc}
 
@@ -65,7 +67,7 @@ Bảng~\ref{tab:nslkdd-ablation} trình bày quá trình cải thiện kiến tr
 
 \begin{table}[H]
     \centering
-    \caption{So sánh Macro-F1 đầu-cuối (5 lớp, KDDTest+) qua các phiên bản kiến trúc}
+    \caption{So sánh Macro-F1 trên 5 lớp (KDDTest+) qua các phiên bản kiến trúc, đo ở cấu hình Stacking phẳng.}
     \label{tab:nslkdd-ablation}
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{lcc}
@@ -84,7 +86,7 @@ Bảng~\ref{tab:nslkdd-ablation} trình bày quá trình cải thiện kiến tr
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.72\textwidth]{fig_nslkdd_ablation}
-    \caption{So sánh Macro F1 qua các phiên bản kiến trúc trên NSL-KDD (đánh giá đầu-cuối trên KDDTest+).}
+    \caption{So sánh Macro F1 qua các phiên bản kiến trúc trên NSL-KDD (5 lớp, KDDTest+).}
     \label{fig:nslkdd-ablation}
 \end{figure}
 
@@ -94,7 +96,7 @@ Mỗi bước cải thiện có động cơ rõ ràng: Boost-Minority Val giải
 
 \begin{table}[H]
     \centering
-    \caption{Kết quả phân loại đầu-cuối trên KDDTest+ (Two-Stage: AE Gate + Stacking Ensemble)}
+    \caption{Kết quả phân loại 5 lớp trên KDDTest+ --- Stacking Ensemble (FTT + LightGBM $\to$ Meta-LR), không qua Autoencoder Gate.}
     \label{tab:nslkdd-final}
     \begin{tabular}{lcccc}
         \hline
@@ -115,15 +117,17 @@ Mỗi bước cải thiện có động cơ rõ ràng: Boost-Minority Val giải
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{fig_nslkdd_perclass}
-    \caption{Kết quả phân loại đầu-cuối trên KDDTest+ — Stacking Ensemble (FTT + LightGBM → Meta-LR).}
+    \caption{Kết quả phân loại 5 lớp trên KDDTest+ --- Stacking Ensemble (FTT + LightGBM $\to$ Meta-LR).}
     \label{fig:nslkdd-perclass}
 \end{figure}
 
 \subsection*{Phân tích kết quả}
 
-\textbf{Điểm mạnh:} Normal Recall đạt 0,9682 --- Stage 1 Autoencoder Gate lọc lưu lượng bình thường với Precision binary = 0,93, chuyển 82,7\% traffic Benign ra khỏi pipeline trước Stage 2. DoS F1 = 0,8759 và Probe F1 = 0,7937 phản ánh các lớp này có pattern flow đặc trưng và đủ dữ liệu training. U2R F1 = 0,5120 với chỉ 52 mẫu training là kết quả cạnh tranh so với literature.
+\textbf{Điểm mạnh:} Normal Recall đạt 0,9682 --- mô hình nhận ra gần như trọn vẹn lưu lượng bình thường, vốn chiếm 9.711 trong 22.542 mẫu của KDDTest+. Cần đọc con số này cùng với Precision tương ứng chỉ 0,7154: mô hình gán nhãn Normal khá rộng tay, nên bắt được hầu hết Normal thật nhưng cũng kéo theo một lượng đáng kể mẫu tấn công bị gán nhầm thành Normal --- chủ yếu là R2L, như phân tích ngay dưới đây. DoS F1 = 0,8759 và Probe F1 = 0,7937 phản ánh các lớp này có pattern flow đặc trưng và đủ dữ liệu huấn luyện. U2R F1 = 0,5120 với chỉ 52 mẫu huấn luyện là kết quả cạnh tranh so với các công bố trên cùng bộ dữ liệu.
 
-\textbf{Điểm yếu cấu trúc --- R2L:} R2L Recall = 0,2523 là giới hạn khó vượt qua. Phân tích cho thấy 62\% test R2L bị Stage 1 AE phân loại nhầm thành Normal (MSE thấp hơn threshold) vì các flow này có tính chất timing giống Benign. Ngay cả khi những flow này đến được Stage 2, phần lớn R2L test sử dụng giao thức pop3 (61\% test) trong khi toàn bộ R2L training là telnet --- model không có khả năng generalize sang protocol chưa thấy. Đây là giới hạn cứng của NSL-KDD, không phải của thuật toán.
+\textbf{Điểm yếu cấu trúc --- R2L:} R2L Recall = 0,2523 là giới hạn khó vượt qua, và điều đáng chú ý là nó đi kèm Precision rất cao (0,9681). Cặp chỉ số này mô tả một mô hình \textit{quá thận trọng} với R2L: khi đã gọi một flow là R2L thì gần như luôn đúng, nhưng ba phần tư số R2L thật bị bỏ sót và rơi vào nhãn Normal.
+
+Nguyên nhân không nằm ở thuật toán mà ở chính cấu tạo của bộ dữ liệu. R2L là các tấn công truy cập trái phép từ xa, biểu hiện ở mức flow gần như trùng khớp với một phiên đăng nhập hợp lệ --- cùng giao thức, cùng khoảng kích thước gói, cùng nhịp thời gian --- nên phần lớn tín hiệu phân biệt nằm ở nội dung payload chứ không ở thống kê flow. Nghiêm trọng hơn, tập huấn luyện và tập kiểm tra của NSL-KDD lệch nhau về giao thức: R2L trong KDDTrain+ tập trung ở telnet, trong khi phần lớn R2L của KDDTest+ đi qua pop3. Mô hình vì vậy được yêu cầu tổng quát hóa sang một giao thức chưa từng quan sát. Đây là giới hạn cứng của bộ dữ liệu, và cũng là một trong những lý do dẫn tới quyết định chuyển sang CIC-IDS-2017 ở giai đoạn sau.
 
 \textbf{Đặt trong bối cảnh literature:} Macro-F1 = 0,6809 trên KDDTest+ (5 lớp, 5-way end-to-end, không rò rỉ train/test) nằm trong khoảng cạnh tranh 0,60--0,70 của các nghiên cứu đánh giá trung thực. Các kết quả báo cáo 99\%+ trên NSL-KDD trong literature thường sử dụng cross-validation trên KDDTrain+ --- không phản ánh distribution shift thật giữa KDDTrain+ và KDDTest+.
 
@@ -135,20 +139,22 @@ Kết quả này xác nhận hai điều: kiến trúc Two-Stage với Stacking 
 \subsection{Hiệu quả kiến trúc Two-Stage so với mô hình 1-Stage}
 \label{subsec:tn-cic-twostage}
 
-Vấn đề cốt lõi với mô hình 1-Stage trực tiếp trên CIC-IDS-2017: Benign chiếm 82,7\% trong 2,83 triệu flow. Khi một FT-Transformer đơn lẻ phải phân loại 9 lớp đồng thời (Benign và 8 nhóm tấn công gộp từ 15 nhãn gốc), gradient bị dominated bởi Benign và các lớp lớn, khiến các lớp tấn công hiếm như Infiltration (0,03\%) và Botnet (0,07\%) nhận gradient quá nhỏ để học được pattern phân biệt.
+Vấn đề cốt lõi với mô hình 1-Stage trực tiếp trên CIC-IDS-2017: Benign chiếm 80,32\% trong 2,83 triệu flow. Khi một FT-Transformer đơn lẻ phải phân loại 9 lớp đồng thời (Benign và 8 nhóm tấn công gộp từ 15 nhãn gốc), gradient bị dominated bởi Benign và các lớp lớn, khiến các lớp tấn công hiếm như Infiltration (0,0013\%) và Botnet (0,070\%) nhận gradient quá nhỏ để học được pattern phân biệt.
 
 Kiến trúc Two-Stage tách bài toán thành hai không gian riêng biệt:
 
-\textbf{Stage 1 --- Gating Network (6 lớp):} Phân loại flow thành \{Benign, DoS, DDoS, PortScan, Brute Force, Suspicious\} trên 77 đặc trưng. Bốn lớp tấn công phổ biến được phân loại trực tiếp. Ngưỡng bảo thủ $P(\text{Suspicious}) \geq 85\%$ đảm bảo gần như không có tấn công phức tạp nào bị lọc nhầm; flow Suspicious dưới ngưỡng này được gán Benign.
+\textbf{Tầng 1 --- Gating Network (6 lớp):} Phân loại flow thành \{Benign, DoS, DDoS, PortScan, Brute Force, Suspicious\} trên 77 đặc trưng. Bốn lớp tấn công phổ biến được phân loại trực tiếp. Ngưỡng $P(\text{Suspicious}) \geq 85\%$ quyết định flow nào được chuyển tiếp; flow bị đánh dấu Suspicious nhưng dưới ngưỡng được ép về Benign. Như đã phân tích ở Mục~\ref{subsec:gd2-stage1}, ngưỡng này hoạt động như một van giảm false positive --- nó hy sinh một phần recall để đổi lấy precision, chứ không mở rộng vùng nghi ngờ.
 
-\textbf{Stage 2 --- Expert Network (5 lớp):} Chỉ nhận Suspicious flows từ Stage 1 và phân loại thành \{Benign, Web Attack, Bot, Infiltration, Heartbleed\}. Khi các lớp đa số (Benign, DoS, DDoS, PortScan, Brute Force) đã được lọc ra ngoài, Expert Network học trong không gian sạch hơn --- gradient tập trung phân biệt \textit{giữa các tấn công phức tạp} thay vì bị overwhelmed bởi lưu lượng đa số.
+\textbf{Tầng 2 --- Expert Network (5 lớp):} Chỉ nhận Suspicious flows từ Tầng 1 và phân loại thành \{Benign, Web Attack, Bot, Infiltration, Heartbleed\}. Khi các lớp đa số (Benign, DoS, DDoS, PortScan, Brute Force) đã được lọc ra ngoài, Expert Network học trong không gian sạch hơn --- gradient tập trung phân biệt \textit{giữa các tấn công phức tạp} thay vì bị overwhelmed bởi lưu lượng đa số.
 
-Lợi ích định lượng của phân tầng thể hiện rõ nhất ở hai lớp thiểu số cực đoan: Infiltration và Botnet. Khi Expert Network không còn phải ``cạnh tranh'' gradient với 82,7\% Benign, Macro F1 tăng từ 0,7831 (1-Stage) lên 0,8817 (Two-Stage, trước HNM) --- cải thiện 9,9 điểm tuyệt đối.
+Cơ chế mang lại lợi ích của phân tầng có thể phát biểu chính xác qua tỉ lệ đóng góp gradient. Trong cấu hình một tầng, mỗi bước cập nhật trọng số nhận tín hiệu từ một batch mà Benign chiếm 80,32\%; các lớp như Infiltration (0,0013\%) và Botnet (0,070\%) đóng góp một phần gradient nhỏ hơn từ ba tới bốn bậc độ lớn, và phần đóng góp đó tiếp tục bị pha loãng bởi bốn lớp tấn công phổ biến vốn có hàng trăm nghìn mẫu. Hệ quả là mô hình hội tụ về một nghiệm tối ưu cho các lớp đa số, trong đó việc luôn dự đoán ``không phải Infiltration'' gần như không bị phạt.
+
+Kiến trúc phân tầng loại bỏ chính sự pha loãng đó. Sau khi Tầng 1 đã tách trực tiếp bốn lớp tấn công phổ biến cùng phần lớn Benign, Expert Network chỉ còn phải phân biệt \textit{trong nội bộ nhóm lớp hiếm}. Tỉ lệ tương đối giữa các lớp mà nó nhìn thấy thay đổi hoàn toàn: một lớp chiếm 0,0013\% toàn tập có thể chiếm vài phần trăm trong luồng Suspicious. Đây là lý do các lớp hiếm học được ở Tầng 2 những pattern mà cấu hình một tầng không học được --- và cũng là lý do Expert Network có thể dùng kiến trúc nhỏ hơn ($d=64$, 3 tầng) mà vẫn hiệu quả, vì nhiệm vụ của nó hẹp hơn hẳn.
 
 \subsection{Đóng góp của Hard Negative Mining}
 \label{subsec:tn-cic-hnm}
 
-Sau vòng huấn luyện đầu tiên của Expert Network, hai lớp tấn công vẫn có hiệu năng thấp: Botnet F1 = 0,4787 và Infiltration F1 = 0,3821. Phân tích confusion matrix cho thấy hai nguyên nhân khác nhau:
+Sau vòng huấn luyện đầu tiên của Expert Network, Botnet và Infiltration vẫn là hai lớp có hiệu năng thấp nhất. Phân tích confusion matrix cho thấy hai nguyên nhân khác nhau:
 
 \begin{itemize}
     \item \textbf{Botnet}: Nhiều false positive --- nhầm một phần Benign long-idle connection thành Botnet C2 heartbeat do cả hai đều có pattern periodic, low-rate ở tần suất tương đương.
@@ -157,18 +163,20 @@ Sau vòng huấn luyện đầu tiên của Expert Network, hai lớp tấn côn
 
 Hard Negative Mining (HNM) chạy hai vòng: thu thập các mẫu bị phân loại sai trên tập validation, thêm vào training với trọng số tăng cường $w_\text{hard} = 2{,}0$, huấn luyện lại. Bảng~\ref{tab:hnm-progress} cho thấy kết quả tích lũy:
 
+Để tách bạch đóng góp của HNM khỏi các kỹ thuật xử lý mất cân bằng khác, thực nghiệm so sánh trực tiếp nó với phương án thông dụng nhất --- nhân trọng số lớp --- trên cùng lớp Botnet và cùng điều kiện đo nội bộ Tầng 2.
+
 \begin{table}[H]
     \centering
-    \caption{Kết quả Hard Negative Mining qua hai vòng trên hai lớp khó nhất}
+    \caption{So sánh Hard Negative Mining với nhân trọng số lớp, đo trên Botnet ở phạm vi nội bộ Tầng 2.}
     \label{tab:hnm-progress}
-    \begin{tabular}{lcc}
+    \begin{tabular}{lc}
         \hline
-        \textbf{Giai đoạn} & \textbf{Botnet F1} & \textbf{Infiltration F1} \\
+        \textbf{Chiến lược xử lý mất cân bằng} & \textbf{Botnet F1} \\
         \hline
-        Baseline Expert Network (trước HNM)  & 0,4787 & 0,3821 \\
-        Sau 2 vòng Hard Negative Mining      & 0,6512 & 0,5903 \\
+        Nhân trọng số lớp $\times 10$      & 0,5103 \\
+        Hard Negative Mining, 2 vòng       & \textbf{0,6512} \\
         \hline
-        Mức cải thiện & $+0{,}1725$ (+36,0\%) & $+0{,}2082$ (+54,5\%) \\
+        Chênh lệch & $+0{,}1409$ \\
         \hline
     \end{tabular}
 \end{table}
@@ -176,11 +184,13 @@ Hard Negative Mining (HNM) chạy hai vòng: thu thập các mẫu bị phân lo
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.65\textwidth]{fig_hnm_ablation}
-    \caption{Cải thiện F1 của Botnet và Infiltration sau 2 vòng Hard Negative Mining (nhân bản 10×).}
+    \caption{So sánh hiệu quả của Hard Negative Mining và nhân trọng số lớp trên lớp Botnet.}
     \label{fig:hnm-ablation}
 \end{figure}
 
-HNM hiệu quả vì nó tập trung tài nguyên học vào đúng những mẫu mà mô hình đang nhầm, thay vì học lại trên toàn bộ dataset (phần lớn là mẫu đã phân loại đúng). Sau 2 vòng HNM, Infiltration và Botnet cải thiện lần lượt 54,5\% và 36,0\% --- xác nhận chiến lược curriculum này phù hợp với các lớp tấn công có pattern phức tạp, dễ nhầm.
+Chênh lệch khoảng 14 điểm tuyệt đối giữa hai chiến lược cho thấy điều quan trọng không nằm ở việc \textit{tăng bao nhiêu} tín hiệu học cho lớp thiểu số, mà ở việc \textit{tăng vào đâu}. Nhân trọng số lớp phân bổ đều mức tăng cường lên mọi mẫu Botnet, trong đó phần lớn là các mẫu mô hình vốn đã phân loại đúng --- phần tăng cường dành cho chúng gần như không mang lại thông tin mới, thậm chí có thể đẩy biên quyết định lấn sang vùng Benign và làm tăng false positive. Hard Negative Mining chỉ tăng cường các mẫu nằm sát biên, tức đúng vùng mà mô hình còn chưa quyết định được.
+
+Cần lưu ý về phạm vi đo: các con số trong Bảng~\ref{tab:hnm-progress} được tính trong nội bộ Tầng 2, trên tập validation riêng của tầng này. Khi đánh giá đầu-cuối trên toàn bộ cascade --- nơi Botnet còn phải đi qua bộ lọc của Tầng 1 --- F1 của lớp này ở cùng phiên bản đạt 0,6294 (Bảng~\ref{tab:res-cic-ablation}). Hai con số đo hai thứ khác nhau và không nên đặt cạnh nhau như một chuỗi cải tiến.
 
 \subsection{Kết quả Ensemble Voting cuối cùng}
 \label{subsec:tn-cic-ensemble}
@@ -194,19 +204,27 @@ Sau HNM, Expert Network đơn lẻ vẫn còn hai điểm yếu còn dư: Botnet
 
 \begin{table}[H]
     \centering
-    \caption{So sánh Expert Network (sau HNM) và Asymmetric Ensemble cuối trên CIC-IDS-2017}
+    \caption{So sánh trước và sau Asymmetric Ensemble Voting, đo đầu-cuối trên 2.529.391 flow của CIC-IDS-2017.}
     \label{tab:cic-final-compare}
     \begin{tabular}{lcc}
         \hline
-        \textbf{Chỉ số} & \textbf{Expert Network (sau HNM)} & \textbf{Ensemble cuối} \\
+        \textbf{Chỉ số} & \textbf{Trước Ensemble} & \textbf{Sau Ensemble} \\
         \hline
-        Accuracy        & ---    & \textbf{99,55\%} \\
-        Macro F1        & ---    & \textbf{0,9294} \\
-        Botnet F1       & 0,6512 & \textbf{0,7344} \\
-        Infiltration F1 & 0,5903 & \textbf{0,7407} \\
+        Accuracy             & 99,51\%  & \textbf{99,55\%} \\
+        Macro F1             & 0,9160   & \textbf{0,9294} \\
+        Botnet F1            & 0,6294   & \textbf{0,7344} \\
+        \quad Botnet Precision & 47,87\%  & \textbf{79,47\%} \\
+        \quad Botnet Recall    & 91,87\%  & 68,26\% \\
+        Infiltration F1      & 0,7407   & 0,7407 \\
         \hline
     \end{tabular}
 \end{table}
+
+Bảng~\ref{tab:cic-final-compare} cho thấy hai luật bất đối xứng có hiệu lực rất khác nhau trong thực tế, và điều này cần được báo cáo đúng.
+
+Quy tắc Đồng thuận Botnet hoạt động đúng như thiết kế và là nguồn gần như duy nhất của mức tăng Macro F1. Precision của Botnet tăng từ 47,87\% lên 79,47\%: trước đó, cứ hai cảnh báo Botnet thì có hơn một cảnh báo sai. Cái giá phải trả là Recall giảm từ 91,87\% xuống 68,26\% --- khoảng một phần tư số Botnet thật bị hạ xuống Benign vì Random Forest hoặc KNN phản đối. Với một lớp mà false positive gây alert fatigue nghiêm trọng, đánh đổi này là có chủ đích, nhưng nó là đánh đổi thật chứ không phải cải thiện thuần túy.
+
+Quy tắc Ưu tiên Infiltration thì \textbf{không tạo ra thay đổi đo được}: F1 giữ nguyên 0,7407 trước và sau khi áp dụng ensemble. Nguyên nhân là Random Forest và KNN hầu như không đưa ra dự đoán Infiltration nào nằm ngoài tập mà FT-Transformer đã bắt được, nên nhánh phủ quyết gần như không bao giờ được kích hoạt trên tập kiểm định này. Với 33 mẫu Infiltration, tập kiểm định cũng quá nhỏ để kết luận chắc chắn về hiệu lực của quy tắc. Cách diễn giải trung thực là: đây là một biện pháp phòng vệ hợp lý về mặt thiết kế chi phí lỗi, nhưng chưa có bằng chứng thực nghiệm cho thấy nó đóng góp vào kết quả cuối.
 
 \begin{figure}[H]
     \centering
@@ -224,7 +242,7 @@ Giai đoạn 3 đánh giá khả năng tái sử dụng mô hình CIC-IDS-2017 t
 
 \textbf{Đường cơ sở --- Áp dụng thẳng mô hình CIC lên Testbed:}
 
-Mô hình CIC (Accuracy 99,55\% trên tập kiểm tra CIC) được áp dụng trực tiếp lên 5.000 flow Testbed mà không thay đổi gì. Kết quả: Accuracy = 21,93\%, MCC = $-0{,}015$. MCC âm cho thấy mô hình không chỉ hoạt động kém mà đang phân loại sai hướng có hệ thống --- tệ hơn cả dự đoán ngẫu nhiên. Covariate shift giữa hai môi trường (switch vật lý Gigabit vs card ảo Hyper-V + NAT Windows) đủ lớn để làm mô hình hoàn toàn mất phương hướng.
+Mô hình CIC (Accuracy 99,55\% trên tập kiểm tra CIC) được áp dụng trực tiếp lên 4.542 flow Testbed mà không thay đổi gì. Kết quả: Accuracy = 21,93\%, MCC = $-0{,}015$. MCC âm cho thấy mô hình không chỉ hoạt động kém mà đang phân loại sai hướng có hệ thống --- tệ hơn cả dự đoán ngẫu nhiên. Covariate shift giữa hai môi trường (switch vật lý Gigabit vs card ảo Hyper-V + NAT Windows) đủ lớn để làm mô hình hoàn toàn mất phương hướng.
 
 \textbf{Can thiệp 1 --- Re-fit Scaler đơn thuần (thất bại):}
 
@@ -244,7 +262,7 @@ Sau Layer Freezing, ba đặc trưng kỹ thuật mới được thêm vào (IAT
 
 \begin{table}[H]
     \centering
-    \caption{Kết quả qua chuỗi can thiệp domain adaptation}
+    \caption{Kết quả qua chuỗi can thiệp domain adaptation. Đánh giá nhị phân (Benign/tấn công) trên 4.542 flow Testbed, trong đó chỉ có 7 flow Benign --- xem lưu ý về phạm vi đo ngay sau bảng.}
     \label{tab:domain-adapt-results}
     \begin{tabular}{lccc}
         \hline
@@ -265,7 +283,11 @@ Sau Layer Freezing, ba đặc trưng kỹ thuật mới được thêm vào (IAT
     \label{fig:da-comparison}
 \end{figure}
 
-Layer Freezing phục hồi MCC từ $-0{,}015$ lên $0{,}6825$ --- cải thiện 69,4 điểm tuyệt đối. CF = 0,61\% xác nhận mô hình giữ lại 99,39\% hiệu năng trên CIC gốc. Re-fit Scaler đơn thuần cho MCC $\approx +0{,}006$ (gần bằng ngẫu nhiên), tệ hơn thậm chí cả mô hình trực tiếp ($-0{,}015$), xác nhận mâu thuẫn embedding/scaler. Model Surgery nâng tiếp MCC lên 0,7333 nhờ Custom\_IAT\_CV (nhận diện Botnet C2 periodic heartbeat) và Custom\_Bwd\_Pkt\_Ratio (nhận diện PortScan SYN scan một chiều).
+Trước khi diễn giải các con số này, cần nêu rõ phạm vi đo, vì nó quyết định mức độ tin cậy có thể gán cho chúng. Chuỗi thí nghiệm domain adaptation được thực hiện ở dạng \textbf{phân loại nhị phân} (Benign so với tấn công), không phải phân loại nhiều lớp như các mục trước. Tập đánh giá gồm \textbf{4.542 flow Testbed, trong đó chỉ có 7 flow Benign}. Sự chênh lệch cực đoan này là hệ quả của cách thu dữ liệu --- các phiên thu tập trung vào lưu lượng tấn công --- và nó đặt ra hai giới hạn phải tính đến khi đọc bảng.
+
+Thứ nhất, chỉ số Accuracy gần như vô nghĩa ở đây: một mô hình dự đoán mọi flow là tấn công cũng đạt trên 99,8\%. Đây chính là lý do MCC được chọn làm chỉ số chính cho mục này. Thứ hai, ngay cả MCC cũng rất nhạy với vài mẫu: khoảng cách giữa Layer Freezing (0,6825) và Model Surgery (0,7333) tương ứng với việc \textit{hai} flow được phân loại lại đúng trong tổng số 4.542 --- ma trận nhầm lẫn chuyển từ 8 xuống 6 lỗi. Chênh lệch đó nằm trong biên độ dao động thống kê của một tập nhỏ như vậy và không nên được trình bày như một cải thiện đã được khẳng định.
+
+Với những giới hạn đó, kết luận đáng tin cậy của chuỗi thí nghiệm này là ở \textit{dấu hiệu} chứ không phải ở \textit{độ lớn}. Khoảng cách giữa nhóm can thiệp thất bại (MCC âm hoặc gần 0) và nhóm can thiệp thành công (MCC trên 0,68) lớn tới mức không thể quy cho nhiễu thống kê: Layer Freezing thực sự khôi phục được năng lực phân biệt mà chuyển miền trực tiếp đã đánh mất. Ngược lại, Re-fit Scaler đơn thuần cho MCC $\approx +0{,}006$ --- gần như không phân biệt được gì --- và kém hơn cả mô hình chuyển thẳng, xác nhận mâu thuẫn giữa scaler và embedding đã phân tích ở Mục~\ref{subsec:gd3-scaler}. Riêng đóng góp bổ sung của Model Surgery thì cần một tập đánh giá lớn hơn và cân bằng hơn mới kết luận được; bằng chứng thuyết phục hơn cho ba đặc trưng mới nằm ở kết quả nhiều lớp của mô hình cuối (Mục~\ref{sec:tn-testbed}), nơi tập kiểm định có 11.183 flow với đủ năm lớp.
 
 Chuỗi can thiệp này cung cấp một quy trình thực tiễn rõ ràng cho việc tái sử dụng mô hình IDS qua các môi trường mạng khác nhau: (1) không thể thay đổi scaler độc lập với tham số mô hình; (2) Layer Freezing + Mixed-Domain Batch là kỹ thuật hiệu quả cho domain adaptation IDS; (3) thiết kế đặc trưng nhắm vào đặc điểm hạ tầng của môi trường đích có thể bổ sung cải thiện đáng kể.
 
@@ -291,7 +313,7 @@ Kết quả đầu tiên khi huấn luyện mô hình trên dữ liệu Testbed 
         Random Forest  & 150 cây, default         & 5,2\% \\
         KNN            & K=5                      & 4,9\% \\
         \hline
-        \textit{Tất cả} & CIC PortScan inject (5.000 flow) & \textbf{100\%} \\
+        \textit{Tất cả} & CIC PortScan inject (5.000 flow) & \textbf{99,9\%} \\
         \hline
     \end{tabular}
 \end{table}
@@ -307,16 +329,16 @@ Kết quả $< 9\%$ nhất quán trên mọi thuật toán và mọi cấu hình
 
 Nguyên nhân gốc rễ: nmap gửi SYN packet đến từng port, NAT Windows xử lý mỗi connection riêng lẻ và CICFlowMeter chỉ capture $\approx 7$ flow mỗi lần scan --- mỗi flow là TCP SYN ngắn không có payload, flow statistics (duration $\approx 0$, bytes $\approx 0$, IAT ngẫu nhiên) hoàn toàn trùng với Benign health check hay short HTTP connection.
 
-Sau khi inject 5.000 PortScan flow từ CIC-IDS-2017 Friday (thu thập trên switch vật lý, có nhiều SYN flags, duration đồng nhất, packet count cao): PortScan F1 tăng từ 7,5\% lên \textbf{100\%} và duy trì ổn định. Kết quả này xác nhận: khi môi trường thu thập tạo ra dữ liệu không phân tách, giải pháp phải ở tầng dữ liệu --- dùng surrogate data từ môi trường phần cứng thực --- không phải tầng thuật toán.
+Sau khi inject 5.000 PortScan flow từ CIC-IDS-2017 Friday (thu thập trên switch vật lý, có nhiều SYN flags, duration đồng nhất, packet count cao): PortScan F1 tăng từ 7,5\% lên \textbf{99,9\%} và duy trì ổn định. Kết quả này xác nhận: khi môi trường thu thập tạo ra dữ liệu không phân tách, giải pháp phải ở tầng dữ liệu --- dùng surrogate data từ môi trường phần cứng thực --- không phải tầng thuật toán.
 
 \subsection{Kết quả phiên bản cuối}
 \label{subsec:tn-testbed-final}
 
-Mô hình V8.5 được đánh giá trên tập validation 11.183 flows với thành phần đa dạng miền: BruteForce validation bao gồm cả hydra SSH/FTP (Testbed nội bộ) và CIC Patator --- đảm bảo đánh giá khả năng tổng quát hóa thực sự, không phải in-distribution.
+Mô hình FT-IDS được đánh giá trên tập validation 11.183 flows với thành phần đa dạng miền: BruteForce validation bao gồm cả hydra SSH/FTP (Testbed nội bộ) và CIC Patator --- đảm bảo đánh giá khả năng tổng quát hóa thực sự, không phải in-distribution.
 
 \begin{table}[H]
     \centering
-    \caption{Kết quả V8.5 trên tập validation đa dạng miền}
+    \caption{Kết quả FT-IDS trên tập validation đa dạng miền}
     \label{tab:v85-final}
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{lcccc}
@@ -330,7 +352,7 @@ Mô hình V8.5 được đánh giá trên tập validation 11.183 flows với th
         Web Attack & 0,96 & 0,81 & 0,88 & Testbed nội bộ \\
         \hline
         \textbf{Macro F1} & & & \textbf{0,917} & \\
-        Balanced Accuracy & & & \textbf{0,911} & \\
+        Balanced Accuracy & & & \textbf{0,9114} & \\
         \hline
     \end{tabular}%
     }
@@ -339,7 +361,7 @@ Mô hình V8.5 được đánh giá trên tập validation 11.183 flows với th
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.72\textwidth]{fig_v85_perclass}
-    \caption{V8.5 — F1-score per-class trên tập validation đa dạng miền (11.183 flows). Đường ngang thể hiện Macro F1 = 0,917.}
+    \caption{FT-IDS --- F1-score per-class trên tập validation đa dạng miền (11.183 flows). Đường ngang thể hiện Macro F1 = 0,917.}
     \label{fig:v85-perclass}
 \end{figure}
 
@@ -347,17 +369,17 @@ Kết quả đáng chú ý nhất là BruteForce F1 = 86\% (Recall = 90\%) trên
 
 Web Attack F1 = 88\% với Recall = 81\%: 19\% flow Web Attack bị bỏ sót chủ yếu là SQLi payload ngắn và XSS thất bại có flow statistics gần giống Benign HTTP POST. Đây là giới hạn của phương pháp flow-based --- payload-level analysis của Snort bổ sung phát hiện chính xác những gì ML bỏ sót.
 
-V8.5 đạt Macro F1 = 91,7\% trên 5 lớp tấn công trong điều kiện validation đa dạng miền, trên phần cứng phổ thông không có GPU, với dữ liệu thu thập thực từ tấn công xuyên thiết bị trên mạng LAN gia đình.
+FT-IDS đạt Macro F1 = 91,66\% trên 5 lớp tấn công trong điều kiện validation đa dạng miền, trên phần cứng phổ thông không có GPU, với dữ liệu thu thập thực từ tấn công xuyên thiết bị trên mạng LAN gia đình.
 
 \section{Thử nghiệm hệ thống End-to-End}
 \label{sec:tn-e2e}
 
-Hệ thống Hybrid IDS được đánh giá ở hai mức bổ sung cho nhau. Mức thứ nhất đối chiếu khả năng phát hiện của tầng dấu hiệu (Snort) và tầng học máy (FT-Transformer V8.5) trên từng loại tấn công, kiểm chứng giả thuyết hai tầng bù điểm mù cho nhau. Mức thứ hai đo hiệu năng phân loại định lượng của hệ thống phát hiện theo phát lại (Mục~\ref{subsec:deploy-replay}) trên toàn bộ corpus Testbed. Đường xử lý thời gian thực hoàn toàn chưa được hiện thực hóa trong phạm vi đồ án; các số liệu của tầng học máy dưới đây đo trên hệ thống replay, dùng đúng mô hình, bộ tiền xử lý và logic quyết định mà phiên bản thời gian thực sẽ sử dụng.
+Hệ thống Hybrid IDS được đánh giá ở hai mức bổ sung cho nhau. Mức thứ nhất đối chiếu khả năng phát hiện của tầng dấu hiệu (Snort) và tầng học máy (FT-IDS) trên từng loại tấn công, kiểm chứng giả thuyết hai tầng bù điểm mù cho nhau. Mức thứ hai đo hiệu năng phân loại định lượng của hệ thống phát hiện theo phát lại (Mục~\ref{subsec:deploy-replay}) trên toàn bộ corpus Testbed. Đường xử lý thời gian thực hoàn toàn chưa được hiện thực hóa trong phạm vi đồ án; các số liệu của tầng học máy dưới đây đo trên hệ thống replay, dùng đúng mô hình, bộ tiền xử lý và logic quyết định mà phiên bản thời gian thực sẽ sử dụng.
 
 \subsection{Khả năng phát hiện theo loại tấn công}
 \label{subsec:e2e-complementarity}
 
-\textbf{Cấu hình:} Năm phiên thu cô lập --- mỗi loại tấn công một phiên riêng, máy tấn công IP \texttt{192.168.0.106}, victim \texttt{192.168.0.103} --- cung cấp corpus phát lại, mỗi tệp lấy tối đa 8.000 flow để cân bằng giữa các lớp. Tầng học máy phân loại các flow này qua mô hình V8.5; tầng Snort 3.1 (bộ luật Custom Rules kết hợp Community Rules và Emerging Threats Open) được đối chiếu trên cùng các kịch bản tấn công. Nhãn đối chứng gán theo IP nguồn.
+\textbf{Cấu hình:} Năm phiên thu cô lập --- mỗi loại tấn công một phiên riêng, máy tấn công IP \texttt{192.168.0.106}, victim \texttt{192.168.0.103} --- cung cấp corpus phát lại, mỗi tệp lấy tối đa 8.000 flow để cân bằng giữa các lớp. Tầng học máy phân loại các flow này qua mô hình FT-IDS; tầng Snort 3.1 (bộ luật Custom Rules kết hợp Community Rules và Emerging Threats Open) được đối chiếu trên cùng các kịch bản tấn công. Nhãn đối chứng gán theo IP nguồn.
 
 \begin{table}[H]
     \centering
@@ -377,7 +399,7 @@ Hệ thống Hybrid IDS được đánh giá ở hai mức bổ sung cho nhau. M
     \end{tabular}
 \end{table}
 
-\textit{Ký hiệu: \checkmark = phát hiện đúng, $\circ$ = phát hiện một phần, $\times$ = không cảnh báo (đúng với lưu lượng bình thường).} Cột ML phản ánh kết quả của V8.5 trên corpus phát lại; cột Snort phản ánh độ phủ luật trên cùng tập tấn công.
+\textit{Ký hiệu: \checkmark = phát hiện đúng, $\circ$ = phát hiện một phần, $\times$ = không cảnh báo (đúng với lưu lượng bình thường).} Cột ML phản ánh kết quả của FT-IDS trên corpus phát lại; cột Snort phản ánh độ phủ luật trên cùng tập tấn công.
 
 \textbf{Tính bổ sung giữa hai tầng phát hiện:}
 
@@ -402,7 +424,7 @@ Trên corpus gộp năm phiên (40.000 flow, 8.000 mỗi loại; PortScan dùng 
         \hline
         \textbf{Cấu hình} & \textbf{Macro F1} & \textbf{Benign Recall} & \textbf{PortScan F1} \\
         \hline
-        V8.5, không hậu xử lý                     & 0,679 & 75,4\% & 0,000 \\
+        FT-IDS, không hậu xử lý                     & 0,679 & 75,4\% & 0,000 \\
         \quad + ngưỡng tin cậy $T=0{,}6$          & 0,725 & 95,2\% & 0,000 \\
         \quad + luật quét cổng                    & \textbf{0,978} & \textbf{95,2\%} & \textbf{0,996} \\
         \hline
@@ -411,7 +433,7 @@ Trên corpus gộp năm phiên (40.000 flow, 8.000 mỗi loại; PortScan dùng 
 
 Ở cấu hình cuối, mọi lớp đạt F1 không dưới 0,95: PortScan 0,996, BruteForce 0,991, DoS 0,951, Web Attack 0,990, Benign 0,961; accuracy tổng 0,977.
 
-Macro F1 = 0,978 trên corpus phát lại và Macro F1 = 91,7\% mà V8.5 đạt trên tập validation đa dạng miền (Mục~\ref{sec:tn-testbed}) không so sánh trực tiếp được: chúng đo trên hai tập dữ liệu khác nhau, và 0,978 còn bao gồm chuỗi luật hậu xử lý mà 91,7\% không có. Trên chính corpus phát lại, mô hình đơn lẻ chỉ đạt Macro F1 = 0,679 (Bảng~\ref{tab:replay-progress}); hai luật hậu xử lý nâng nó lên 0,978 --- ngưỡng tin cậy đưa Benign Recall từ 75,4\% lên 95,2\%, và luật quét cổng đưa PortScan từ không phát hiện được (F1 0,000) lên 0,996.
+Macro F1 = 0,978 trên corpus phát lại và Macro F1 = 91,66\% mà FT-IDS đạt trên tập validation đa dạng miền (Mục~\ref{sec:tn-testbed}) không so sánh trực tiếp được: chúng đo trên hai tập dữ liệu khác nhau, và 0,978 còn bao gồm chuỗi luật hậu xử lý mà 91,66\% không có. Trên chính corpus phát lại, mô hình đơn lẻ chỉ đạt Macro F1 = 0,679 (Bảng~\ref{tab:replay-progress}); hai luật hậu xử lý nâng nó lên 0,978 --- ngưỡng tin cậy đưa Benign Recall từ 75,4\% lên 95,2\%, và luật quét cổng đưa PortScan từ không phát hiện được (F1 0,000) lên 0,996.
 
 \subsection{Lỗi sai và bài học}
 \label{subsec:tn-baihoc}
@@ -424,7 +446,7 @@ Quá trình xây dựng hệ thống replay bộc lộ một số lỗi đặc t
 
 \textbf{nmap cần tùy chọn \texttt{-Pn}.} Khi victim chặn ping, nmap mặc định coi host đã tắt và bỏ qua bước quét, chỉ để lại vài flow rải rác. Bỏ bước kiểm tra sống bằng \texttt{-Pn} là điều kiện để thu được một phiên quét đầy đủ.
 
-\textbf{Một luật dấu hiệu có thể bù đặc trưng còn thiếu rẻ hơn tái huấn luyện.} Bộ 80 đặc trưng của V8.5 không mã hóa mức độ quét cổng, nên mô hình không thể tách PortScan khỏi DoS. Một luật đếm cổng đích theo nguồn --- đúng tinh thần dấu hiệu --- bù trực tiếp điểm mù đó, nâng PortScan F1 từ 0,000 lên 0,996 mà không chạm tới trọng số mô hình. So với việc thêm đặc trưng thứ 81 rồi huấn luyện lại toàn bộ, luật hậu xử lý đạt cùng mục tiêu với chi phí thấp hơn nhiều và giữ nguyên hành vi đã kiểm chứng của mô hình trên bốn lớp còn lại.
+\textbf{Một luật dấu hiệu có thể bù đặc trưng còn thiếu rẻ hơn tái huấn luyện.} Bộ 80 đặc trưng của FT-IDS không mã hóa mức độ quét cổng, nên mô hình không thể tách PortScan khỏi DoS. Một luật đếm cổng đích theo nguồn --- đúng tinh thần dấu hiệu --- bù trực tiếp điểm mù đó, nâng PortScan F1 từ 0,000 lên 0,996 mà không chạm tới trọng số mô hình. So với việc thêm đặc trưng thứ 81 rồi huấn luyện lại toàn bộ, luật hậu xử lý đạt cùng mục tiêu với chi phí thấp hơn nhiều và giữ nguyên hành vi đã kiểm chứng của mô hình trên bốn lớp còn lại.
 
 \textbf{Đo trước khi sửa.} Ảnh chụp chỉ số ở mốc gốc cho thấy điểm kéo Macro F1 xuống mạnh nhất là PortScan (F1 0,000), không phải false positive của Benign như giả định ban đầu. Sửa theo trực giác sẽ dồn công nhầm vào Benign trong khi nút thắt thực nằm ở PortScan.
 
