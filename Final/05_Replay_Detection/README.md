@@ -1,6 +1,6 @@
 # GĐ5 — Replay Detection (phát hiện dạng phát lại)
 
-## ⚠️ "Replay" ≠ "Live"
+## Lưu ý: "Replay" ≠ "Live"
 Hệ thống này **phát lại** các flow đã thu sẵn dưới dạng CSV (`*_Flow.csv` do CICFlowMeter xuất), đẩy từng flow theo thời gian thực qua **WebSocket** lên dashboard, và để FT-Transformer **V8.5** suy luận. Nó **KHÔNG bắt gói trực tiếp** từ card mạng. Đường xử lý live thật là hướng phát triển — nhưng dùng đúng mô hình, bộ tiền xử lý và logic quyết định mà bản live sẽ dùng.
 
 ## Kiến trúc (đã refactor SOLID — package `ids_replay/`)

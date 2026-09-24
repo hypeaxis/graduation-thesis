@@ -2,7 +2,7 @@
 
 Gói sản phẩm cuối của đồ án tốt nghiệp. Tổng hợp **toàn bộ code/pipeline qua 5 giai đoạn nghiên cứu**, kèm trọng số để demo chạy ngay, **không kèm dữ liệu thô** (chỉ hướng dẫn tải/thu).
 
-> ⚠️ Gói này **KHÔNG kèm báo cáo (đồ án)** — báo cáo được nộp ở nơi khác.
+> Lưu ý: Gói này **KHÔNG kèm báo cáo (đồ án)** — báo cáo được nộp ở nơi khác.
 
 ---
 

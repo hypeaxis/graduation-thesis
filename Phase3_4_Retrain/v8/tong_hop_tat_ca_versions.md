@@ -47,8 +47,8 @@ PortScan F1:
 | V8.2 | Run10 hydra | ~300 | — | — | 91.9% | Chưa có PortScan data |
 | V8.3 H1 | Run10 hydra | 298 | 0.34 | **0.98** | 50% | Class weight quá cao → FP nhiều |
 | V8.3 H2 | Run10 hydra | 298 | **1.00** | 0.54 | 70.3% | Uniform weight → bỏ sót nhiều |
-| V8.4 | CIC Patator only | 500 | **1.00** | **1.00** | **100%†** | ⚠️ Same-domain overfit |
-| **V8.5** | **Mixed hydra+Patator** | **798** | **0.83** | **0.90** | **86%** | ✅ Đáng tin cậy nhất |
+| V8.4 | CIC Patator only | 500 | **1.00** | **1.00** | **100%†** | (Same-domain overfit) |
+| **V8.5** | **Mixed hydra+Patator** | **798** | **0.83** | **0.90** | **86%** | Đáng tin cậy nhất |
 
 ---
 
@@ -57,7 +57,7 @@ PortScan F1:
 ### V8.2 → V8.3 H1: Giải quyết PortScan (WSL blind spot)
 - **Vấn đề:** PortScan F1 = 7.5% vì WSL chỉ capture ~7 flows/round
 - **Giải pháp:** Run11 — 50 rounds nmap + SMOTE → 2,000 flows
-- **Kết quả:** PortScan 7.5% → 100% ✓
+- **Kết quả:** PortScan 7.5% → 100% (đã khắc phục)
 - **Trade-off:** BruteForce giảm 91.9% → 50% do class weight 1.565 quá cao
 
 ### V8.3 H2: CIC PortScan injection
@@ -69,7 +69,7 @@ PortScan F1:
 - **Vấn đề:** H2 BruteForce recall chỉ 54% — bỏ sót quá nhiều
 - **Giải pháp:** Thay Run10 hydra (2,984) bằng CIC FTP+SSH Patator (4,999)
 - **Kết quả:** Macro F1 94.95%, BF F1 100% trên val
-- **Bài học:** ⚠️ Val set = 100% CIC Patator → không test được hydra generalization
+- **Bài học:** (Lưu ý: Val set = 100% CIC Patator → không test được hydra generalization)
 
 ### V8.5: Combined + Anti-Overfit
 - **Vấn đề:** V8.4 val set không có hydra → F1 bị inflate

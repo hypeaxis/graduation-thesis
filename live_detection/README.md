@@ -2,7 +2,7 @@
 
 > **Nguồn gốc:** đây là **bản sao độc lập** của `Final/05_Replay_Detection` (copy ngày 2026-07-02), dùng làm nơi phát triển/thử nghiệm đường xử lý **live thật** (bắt gói trực tiếp) mà không đụng tới bản replay gốc. Đường dẫn đã chỉnh về **self-contained** (`REPO_ROOT = HERE`).
 
-## ⚠️ Trạng thái hiện tại: vẫn là "Replay" (điểm khởi đầu)
+## Trạng thái hiện tại: vẫn là "Replay" (điểm khởi đầu)
 Hiện code kế thừa nguyên vẹn từ bản replay: **phát lại** các flow đã thu sẵn dưới dạng CSV (`*_Flow.csv` do CICFlowMeter xuất), đẩy từng flow theo thời gian thực qua **WebSocket** lên dashboard, để FT-Transformer **V8.5** suy luận. Nó **CHƯA bắt gói trực tiếp** từ card mạng — đó là việc sẽ triển khai trong thư mục này (thay nguồn CSV bằng flow live từ pyflowmeter/cicflowmeter).
 
 ## Kiến trúc (đã refactor SOLID — package `ids_replay/`)

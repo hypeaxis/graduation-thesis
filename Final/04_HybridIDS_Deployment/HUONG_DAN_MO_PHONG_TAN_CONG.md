@@ -20,4 +20,4 @@ Sinh tấn công để kiểm chứng tính bổ sung hai tầng Snort (dấu hi
 - Đối chiếu: tấn công nào chỉ một tầng bắt được → minh hoạ giá trị của kiến trúc lai ghép.
 - Luật hậu xử lý đếm cổng (kiểu dấu hiệu) nâng **PortScan F1 từ 0,000 → 0,996** mà không train lại mô hình.
 
-> ⚠️ Chỉ thực hiện trong **mạng lab cô lập** mà bạn sở hữu/được phép. Không nhắm vào hệ thống ngoài.
+> Lưu ý: Chỉ thực hiện trong **mạng lab cô lập** mà bạn sở hữu/được phép. Không nhắm vào hệ thống ngoài.

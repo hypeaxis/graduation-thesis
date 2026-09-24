@@ -1,6 +1,6 @@
 # GĐ1 — Kết quả NSL-KDD: file nào là SỐ LIỆU CHÍNH THỨC
 
-> ⭐ **Số liệu headline của đồ án (Macro F1 = 0,6809):**
+> **Số liệu headline của đồ án (Macro F1 = 0,6809):**
 > [`nslkdd_ft_experiments/v12_stacking_seed42/meta_lr_report.txt`](nslkdd_ft_experiments/v12_stacking_seed42/meta_lr_report.txt)
 > — đây là **Stacking Ensemble (FTT + LightGBM → Meta-LR)**, khớp đúng bảng kết quả Chương 5 (per-class: Normal 0,8228 · DoS 0,8759 · Probe 0,7937 · R2L 0,4003 · U2R 0,5120 · Acc 80,09%).
 

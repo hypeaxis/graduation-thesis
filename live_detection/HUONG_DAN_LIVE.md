@@ -21,11 +21,11 @@ macro-F1 (đang 0.978) sẽ tụt → buộc phải train lại. Vì vậy tiêu
 
 | Công cụ | Kết luận |
 |---|---|
-| **NFStream** | ❌ Định nghĩa flow khác hẳn → domain shift lớn → phải sinh lại data + retrain. |
-| **pyflowmeter** | ❌ Cũ, không maintain. |
-| **cicflowmeter (pip, hieulw 0.5.0)** | ❌ CLI hỏng (bug lệch tham số positional); output **snake_case** khác schema data train; không maintain. |
-| **HERA** | ⚠️ Chỉ offline PCAP→CSV, **không** làm live → chỉ hợp cho chuẩn bị dataset. |
-| **Java CICFlowMeter V4 (`cfm`)** | ✅ **Chính là công cụ đã tạo dataset của đồ án.** |
+| **NFStream** | [Không đạt] Định nghĩa flow khác hẳn → domain shift lớn → phải sinh lại data + retrain. |
+| **pyflowmeter** | [Không đạt] Cũ, không maintain. |
+| **cicflowmeter (pip, hieulw 0.5.0)** | [Không đạt] CLI hỏng (bug lệch tham số positional); output **snake_case** khác schema data train; không maintain. |
+| **HERA** | [Hạn chế] Chỉ offline PCAP→CSV, **không** làm live → chỉ hợp cho chuẩn bị dataset. |
+| **Java CICFlowMeter V4 (`cfm`)** | [Đạt chuẩn] **Chính là công cụ đã tạo dataset của đồ án.** |
 
 **Bằng chứng quyết định:**
 - Tài liệu thu dữ liệu (`Custom_IDS_Testbed/docs/walkthrough.md`) dùng `./cfm` = Java CICFlowMeter V4.
@@ -81,7 +81,7 @@ Vì sao chia đôi WSL / Windows:
 | `ids_replay/streaming.py` | `LiveEngine` (song song `ReplayEngine`) — poll + broadcast |
 | `ids_replay/api.py` | Endpoint `/api/live/start`, `/api/live/stop` |
 | `server.py` | Composition root — khởi tạo & wire `LiveEngine` |
-| `dashboard.html` | Nút **🔴 LIVE**, hiển thị flow live (không có nhãn thật) |
+| `dashboard.html` | Nút **LIVE**, hiển thị flow live (không có nhãn thật) |
 
 Phần trích đặc trưng + model + hậu xử lý **dùng chung y hệt luồng replay** → parity tuyệt đối,
 không sửa `features.py` / `model.py` / `postprocess.py`.
@@ -112,7 +112,7 @@ uvicorn server:app --host 127.0.0.1 --port 8000
 
 ### 6.2 WSL — cho tcpdump bắt gói không cần sudo mỗi lần
 
-> ⚠️ Các lệnh dưới đây là **lệnh Linux — phải chạy BÊN TRONG WSL**, không phải PowerShell.
+> Lưu ý: Các lệnh dưới đây là **lệnh Linux — phải chạy BÊN TRONG WSL**, không phải PowerShell.
 
 Mở WSL rồi chạy (sẽ hỏi mật khẩu Linux của user):
 ```bash
@@ -130,7 +130,7 @@ getcap "$(readlink -f "$(which tcpdump)")"   # kiểm tra: có 'cap_net_raw' là
 
 ## 7. Chạy demo
 
-1. **Windows:** đảm bảo server đang chạy → mở `http://127.0.0.1:8000` → bấm **🔴 LIVE**.
+1. **Windows:** đảm bảo server đang chạy → mở `http://127.0.0.1:8000` → bấm **LIVE**.
 2. **WSL:** bật bắt gói:
    ```bash
    bash "/mnt/d/ĐỒ ÁN/graduation-thesis/live_detection/wsl/capture_and_extract.sh"
@@ -140,8 +140,8 @@ getcap "$(readlink -f "$(which tcpdump)")"   # kiểm tra: có 'cap_net_raw' là
    sudo IFACE=eth0 bash "/mnt/d/ĐỒ ÁN/graduation-thesis/live_detection/wsl/capture_and_extract.sh"
    ```
 3. **Tạo traffic** (tấn công hoặc benign). Sau mỗi ~`CHUNK_SEC` giây, flow mới hiện trên
-   dashboard kèm nhãn dự đoán; có tấn công → banner **⚠ PHÁT HIỆN TẤN CÔNG**.
-4. **Dừng:** bấm **⏹ Dừng LIVE** trên dashboard, và `Ctrl-C` ở WSL.
+   dashboard kèm nhãn dự đoán; có tấn công → banner **PHÁT HIỆN TẤN CÔNG**.
+4. **Dừng:** bấm **Dừng LIVE** trên dashboard, và `Ctrl-C` ở WSL.
 
 ---
 

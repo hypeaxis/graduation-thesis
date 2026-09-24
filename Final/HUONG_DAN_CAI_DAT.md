@@ -11,7 +11,7 @@
 | Đĩa | 10 GB trống | SSD NVMe |
 | GPU | Không cần | Không cần (**CPU-only**) |
 | OS | Linux / WSL2 | **Win11 22H2 + WSL2 Ubuntu 22.04** |
-| Python | 3.8–3.12 | 3.8 (đã kiểm thử) — ⚠️ **không dùng 3.14**, torch/tensorflow chưa có wheel |
+| Python | 3.8–3.12 | 3.8 (đã kiểm thử) — (Lưu ý: không dùng 3.14, torch/tensorflow chưa có wheel) |
 
 ## 2. WSL2 (nếu chạy trên Windows)
 

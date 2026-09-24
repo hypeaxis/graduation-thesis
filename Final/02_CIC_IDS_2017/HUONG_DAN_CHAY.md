@@ -31,7 +31,7 @@ python src/training/scripts_v7/phase2_train_v7_stage2_ensemble.py     # Stage2 E
 python src/training/scripts_v7/evaluate_cascade_system_v7.py          # đánh giá → Accuracy/Macro F1
 ```
 - Định nghĩa kiến trúc model: `src/models/phase2_ft_transformer_v2.py`. Các bản cũ (v5/v6) trong `src/archive/scripts_v5/`.
-- ⚠️ Các script đọc đường dẫn dữ liệu qua biến môi trường `CIC_RAW_DIR` / `CIC_PROCESSED_DIR` (mặc định `data/raw`, `data/processed`); sửa nếu đặt dữ liệu nơi khác.
+- Lưu ý: Các script đọc đường dẫn dữ liệu qua biến môi trường `CIC_RAW_DIR` / `CIC_PROCESSED_DIR` (mặc định `data/raw`, `data/processed`); sửa nếu đặt dữ liệu nơi khác.
 
 ## 6. Kết quả mong đợi
 Accuracy **99,55%**, Macro F1 **0,9294**. Đóng góp từng cải tiến: Two-Stage (+0,099), HNM (+0,036), Asymmetric Voting (+0,011). Report tham chiếu trong `results/`.

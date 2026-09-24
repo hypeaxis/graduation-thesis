@@ -99,13 +99,13 @@ Khi thấy log:
 
 | Loại | File (`data/`) | Flows | Trạng thái |
 |---|---|---|---|
-| PortScan | `portscan_only.pcap_Flow.csv` | ~131 | 🟡 thấp, nên thu thêm |
-| Brute Force | `bruteforce_only.pcap_Flow.csv` | ~200.000 | ✅ (nên downsample ~30k) |
-| Web Attack | `webattack_only.pcap_Flow.csv` | ~22.270 | ✅ |
-| DoS | `dos_only.pcap_Flow.csv` | ~12.654 | ✅ |
-| Benign | `benign_only.pcap_Flow.csv` | ~29.486 | ✅ |
+| PortScan | `portscan_only.pcap_Flow.csv` | ~131 | Thấp, nên thu thêm |
+| Brute Force | `bruteforce_only.pcap_Flow.csv` | ~200.000 | Đầy đủ (nên downsample ~30k) |
+| Web Attack | `webattack_only.pcap_Flow.csv` | ~22.270 | Đầy đủ |
+| DoS | `dos_only.pcap_Flow.csv` | ~12.654 | Đầy đủ |
+| Benign | `benign_only.pcap_Flow.csv` | ~29.486 | Đầy đủ |
 
-- Nút của loại **thiếu file** sẽ tự **mờ đi** ("⚠ … (chưa thu)") cho tới khi có file trong `data/`.
+- Nút của loại **thiếu file** sẽ tự **mờ đi** ("(chưa thu)") cho tới khi có file trong `data/`.
 - Tất cả file thu với attacker IP `192.168.0.106` → label-by-IP overlay chạy đúng.
 - Thu thêm/thu lại bằng hướng dẫn:
   [HUONG_DAN_THU_DU_LIEU_ISOLATED.md](../Custom_IDS_Testbed/docs/HUONG_DAN_THU_DU_LIEU_ISOLATED.md)
